@@ -19,6 +19,9 @@ export type Database = {
           email: string
           full_name: string | null
           role: Database["public"]["Enums"]["user_role"]
+          department_id: string | null
+          title: string | null
+          avatar_url: string | null
           created_at: string
           updated_at: string
         }
@@ -27,6 +30,9 @@ export type Database = {
           email: string
           full_name?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          department_id?: string | null
+          title?: string | null
+          avatar_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -35,6 +41,9 @@ export type Database = {
           email?: string
           full_name?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          department_id?: string | null
+          title?: string | null
+          avatar_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -167,6 +176,195 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          priority: Database["public"]["Enums"]["task_priority"]
+          assignee_id: string
+          created_by_id: string
+          project_id: string | null
+          department_id: string | null
+          due_date: string | null
+          start_date: string | null
+          completed_at: string | null
+          blocked_reason: string | null
+          visibility: Database["public"]["Enums"]["task_visibility"]
+          tags: string[]
+          monday_item_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          priority?: Database["public"]["Enums"]["task_priority"]
+          assignee_id: string
+          created_by_id: string
+          project_id?: string | null
+          department_id?: string | null
+          due_date?: string | null
+          start_date?: string | null
+          completed_at?: string | null
+          blocked_reason?: string | null
+          visibility?: Database["public"]["Enums"]["task_visibility"]
+          tags?: string[]
+          monday_item_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          priority?: Database["public"]["Enums"]["task_priority"]
+          assignee_id?: string
+          created_by_id?: string
+          project_id?: string | null
+          department_id?: string | null
+          due_date?: string | null
+          start_date?: string | null
+          completed_at?: string | null
+          blocked_reason?: string | null
+          visibility?: Database["public"]["Enums"]["task_visibility"]
+          tags?: string[]
+          monday_item_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_created_by_id_fkey"
+            columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_comments: {
+        Row: {
+          id: string
+          task_id: string
+          user_id: string
+          body: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          task_id: string
+          user_id: string
+          body: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          task_id?: string
+          user_id?: string
+          body?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_activity: {
+        Row: {
+          id: string
+          task_id: string
+          actor_id: string
+          event_type: string
+          old_value: string | null
+          new_value: string | null
+          metadata: Record<string, unknown> | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          task_id: string
+          actor_id: string
+          event_type: string
+          old_value?: string | null
+          new_value?: string | null
+          metadata?: Record<string, unknown> | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          task_id?: string
+          actor_id?: string
+          event_type?: string
+          old_value?: string | null
+          new_value?: string | null
+          metadata?: Record<string, unknown> | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_activity_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_logs: {
         Row: {
           id: string
@@ -251,6 +449,9 @@ export type Database = {
       ready_status: "ready" | "needs_prep" | "not_ready"
       load_status: "empty" | "partially_loaded" | "fully_loaded" | "trash"
       maintenance_interval_type: "time" | "mileage" | "hours"
+      task_status: "inbox" | "in_progress" | "waiting" | "blocked" | "done" | "archived"
+      task_priority: "low" | "normal" | "high" | "urgent"
+      task_visibility: "private" | "team" | "public"
     }
     CompositeTypes: Record<string, never>
   }
@@ -265,6 +466,14 @@ export type MaintenanceLog = Database["public"]["Tables"]["maintenance_logs"]["R
 export type AssetInsert = Database["public"]["Tables"]["assets"]["Insert"]
 export type AssetUpdate = Database["public"]["Tables"]["assets"]["Update"]
 
+// Task types
+export type Task = Database["public"]["Tables"]["tasks"]["Row"]
+export type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"]
+export type TaskUpdate = Database["public"]["Tables"]["tasks"]["Update"]
+export type TaskComment = Database["public"]["Tables"]["task_comments"]["Row"]
+export type TaskActivity = Database["public"]["Tables"]["task_activity"]["Row"]
+export type Department = Database["public"]["Tables"]["departments"]["Row"]
+
 // Enum value types
 export type UserRole = Database["public"]["Enums"]["user_role"]
 export type UnitType = Database["public"]["Enums"]["unit_type"]
@@ -272,3 +481,6 @@ export type AssetStatus = Database["public"]["Enums"]["asset_status"]
 export type ReadyStatus = Database["public"]["Enums"]["ready_status"]
 export type LoadStatus = Database["public"]["Enums"]["load_status"]
 export type MaintenanceIntervalType = Database["public"]["Enums"]["maintenance_interval_type"]
+export type TaskStatus = Database["public"]["Enums"]["task_status"]
+export type TaskPriority = Database["public"]["Enums"]["task_priority"]
+export type TaskVisibility = Database["public"]["Enums"]["task_visibility"]

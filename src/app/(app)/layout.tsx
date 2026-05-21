@@ -25,6 +25,12 @@ export default async function AppLayout({
             </Link>
             <nav className="flex items-center gap-4 text-sm">
               <Link
+                href="/tasks"
+                className="text-zinc-700 transition-colors hover:text-zinc-900"
+              >
+                Tasks
+              </Link>
+              <Link
                 href="/fleet"
                 className="text-zinc-700 transition-colors hover:text-zinc-900"
               >
