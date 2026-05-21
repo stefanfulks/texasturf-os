@@ -40,6 +40,11 @@ export async function createTask(formData: FormData): Promise<CreateTaskResult> 
     return { task: null, error: parsed.error.issues.map((e) => e.message).join(", ") };
   }
 
+  const assigneeIdRaw = formData.get("assignee_id");
+  const projectIdRaw  = formData.get("project_id");
+  const assigneeId = (typeof assigneeIdRaw === "string" && assigneeIdRaw) ? assigneeIdRaw : user.id;
+  const projectId  = (typeof projectIdRaw  === "string" && projectIdRaw)  ? projectIdRaw  : null;
+
   const { data, error } = await supabase
     .from("tasks")
     .insert({
@@ -49,8 +54,9 @@ export async function createTask(formData: FormData): Promise<CreateTaskResult> 
       status: parsed.data.status,
       due_date: parsed.data.due_date || null,
       blocked_reason: parsed.data.blocked_reason || null,
-      assignee_id: user.id,
+      assignee_id: assigneeId,
       created_by_id: user.id,
+      project_id: projectId,
     })
     .select()
     .single();

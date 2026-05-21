@@ -123,6 +123,129 @@ export type Database = {
           },
         ]
       }
+      projects: {
+        Row: {
+          id: string
+          name: string
+          type: Database["public"]["Enums"]["project_type"]
+          status: Database["public"]["Enums"]["project_status"]
+          priority: Database["public"]["Enums"]["task_priority"]
+          owner_id: string
+          department_id: string | null
+          customer_name: string | null
+          address: string | null
+          description: string | null
+          start_date: string | null
+          due_date: string | null
+          target_install_date: string | null
+          jobber_url: string | null
+          monday_item_id: string | null
+          slack_channel_id: string | null
+          archived: boolean
+          created_by_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          type?: Database["public"]["Enums"]["project_type"]
+          status?: Database["public"]["Enums"]["project_status"]
+          priority?: Database["public"]["Enums"]["task_priority"]
+          owner_id: string
+          department_id?: string | null
+          customer_name?: string | null
+          address?: string | null
+          description?: string | null
+          start_date?: string | null
+          due_date?: string | null
+          target_install_date?: string | null
+          jobber_url?: string | null
+          monday_item_id?: string | null
+          slack_channel_id?: string | null
+          archived?: boolean
+          created_by_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          type?: Database["public"]["Enums"]["project_type"]
+          status?: Database["public"]["Enums"]["project_status"]
+          priority?: Database["public"]["Enums"]["task_priority"]
+          owner_id?: string
+          department_id?: string | null
+          customer_name?: string | null
+          address?: string | null
+          description?: string | null
+          start_date?: string | null
+          due_date?: string | null
+          target_install_date?: string | null
+          jobber_url?: string | null
+          monday_item_id?: string | null
+          slack_channel_id?: string | null
+          archived?: boolean
+          created_by_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_created_by_id_fkey"
+            columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_members: {
+        Row: {
+          id: string
+          project_id: string
+          user_id: string
+          role: string
+          added_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          user_id: string
+          role?: string
+          added_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          user_id?: string
+          role?: string
+          added_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_schedules: {
         Row: {
           id: string
@@ -452,6 +575,8 @@ export type Database = {
       task_status: "inbox" | "in_progress" | "waiting" | "blocked" | "done" | "archived"
       task_priority: "low" | "normal" | "high" | "urgent"
       task_visibility: "private" | "team" | "public"
+      project_status: "intake" | "planning" | "waiting_customer" | "waiting_internal" | "scheduled" | "in_progress" | "blocked" | "ready_for_review" | "complete" | "on_hold" | "cancelled"
+      project_type: "customer_install" | "commercial_bid" | "sales_marketing" | "operations" | "warehouse" | "admin" | "strategic" | "warranty" | "technology"
     }
     CompositeTypes: Record<string, never>
   }
@@ -484,3 +609,8 @@ export type MaintenanceIntervalType = Database["public"]["Enums"]["maintenance_i
 export type TaskStatus = Database["public"]["Enums"]["task_status"]
 export type TaskPriority = Database["public"]["Enums"]["task_priority"]
 export type TaskVisibility = Database["public"]["Enums"]["task_visibility"]
+
+export type Project = Database["public"]["Tables"]["projects"]["Row"]
+export type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"]
+export type ProjectStatus = Database["public"]["Enums"]["project_status"]
+export type ProjectType = Database["public"]["Enums"]["project_type"]

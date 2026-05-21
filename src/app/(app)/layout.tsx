@@ -24,18 +24,9 @@ export default async function AppLayout({
               TexasTurf OS
             </Link>
             <nav className="flex items-center gap-4 text-sm">
-              <Link
-                href="/tasks"
-                className="text-zinc-700 transition-colors hover:text-zinc-900"
-              >
-                Tasks
-              </Link>
-              <Link
-                href="/fleet"
-                className="text-zinc-700 transition-colors hover:text-zinc-900"
-              >
-                Fleet
-              </Link>
+              <Link href="/tasks"    className="text-zinc-700 transition-colors hover:text-zinc-900">Tasks</Link>
+              <Link href="/projects" className="text-zinc-700 transition-colors hover:text-zinc-900">Projects</Link>
+              <Link href="/fleet"    className="text-zinc-700 transition-colors hover:text-zinc-900">Fleet</Link>
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">

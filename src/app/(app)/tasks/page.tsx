@@ -7,12 +7,29 @@ export default async function TasksPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: tasks } = await supabase
-    .from("tasks")
-    .select("*")
-    .eq("assignee_id", user.id)
-    .neq("status", "archived")
-    .order("created_at", { ascending: false });
+  const [tasksRes, profilesRes, projectsRes] = await Promise.all([
+    supabase
+      .from("tasks")
+      .select("*")
+      .neq("status", "archived")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .order("full_name", { ascending: true }),
+    supabase
+      .from("projects")
+      .select("id, name, status")
+      .eq("archived", false)
+      .order("name", { ascending: true }),
+  ]);
 
-  return <TaskBoard initialTasks={tasks ?? []} />;
+  return (
+    <TaskBoard
+      initialTasks={tasksRes.data ?? []}
+      currentUserId={user.id}
+      profiles={profilesRes.data ?? []}
+      projects={projectsRes.data ?? []}
+    />
+  );
 }
