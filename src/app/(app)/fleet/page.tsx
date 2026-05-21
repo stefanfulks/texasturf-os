@@ -1,9 +1,32 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 const UNIT_LABELS: Record<string, string> = {
   truck: "Truck",
   trailer: "Trailer",
   heavy_equipment: "Heavy Equipment",
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  available: "bg-green-100 text-green-800",
+  assigned_to_job: "bg-blue-100 text-blue-800",
+  in_use_today: "bg-amber-100 text-amber-800",
+  maintenance_needed: "bg-orange-100 text-orange-800",
+  out_of_service: "bg-red-100 text-red-800",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  available: "Available",
+  assigned_to_job: "Assigned to Job",
+  in_use_today: "In Use Today",
+  maintenance_needed: "Maintenance Needed",
+  out_of_service: "Out of Service",
+};
+
+const READY_COLORS: Record<string, string> = {
+  ready: "bg-green-100 text-green-800",
+  needs_prep: "bg-amber-100 text-amber-800",
+  not_ready: "bg-red-100 text-red-800",
 };
 
 export default async function FleetPage() {
@@ -53,11 +76,25 @@ export default async function FleetPage() {
             </thead>
             <tbody className="divide-y divide-zinc-200">
               {assets.map((a) => (
-                <tr key={a.id} className="hover:bg-zinc-50">
-                  <Td className="font-medium text-zinc-900">{a.name}</Td>
+                <tr key={a.id} className="hover:bg-zinc-50 cursor-pointer">
+                  <Td>
+                    <Link href={`/fleet/${a.id}`} className="font-medium text-zinc-900 hover:underline">
+                      {a.name}
+                    </Link>
+                  </Td>
                   <Td>{UNIT_LABELS[a.unit_type] ?? a.unit_type}</Td>
-                  <Td>{a.status}</Td>
-                  <Td>{a.ready_status ?? "—"}</Td>
+                  <Td>
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[a.status] ?? ""}`}>
+                      {STATUS_LABELS[a.status] ?? a.status}
+                    </span>
+                  </Td>
+                  <Td>
+                    {a.ready_status ? (
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${READY_COLORS[a.ready_status] ?? ""}`}>
+                        {a.ready_status.replace("_", " ")}
+                      </span>
+                    ) : "—"}
+                  </Td>
                 </tr>
               ))}
             </tbody>
