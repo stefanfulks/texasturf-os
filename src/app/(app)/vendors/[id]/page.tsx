@@ -31,7 +31,10 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
 
   const [vendorRes, invoicesRes] = await Promise.all([
     supabase.from("vendors").select("*").eq("id", id).single(),
-    supabase.from("invoices").select("id, title, status, total_amount, submitted_at, service_period_start, service_period_end").eq("vendor_id", id).order("submitted_at", { ascending: false }),
+    supabase.from("invoices")
+      .select("id, title, status, total_amount, submitted_at, approved_at, paid_at, service_period_start, service_period_end")
+      .eq("vendor_id", id)
+      .order("submitted_at", { ascending: false }),
   ]);
 
   if (!vendorRes.data) notFound();
@@ -39,8 +42,49 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
   const vendor   = vendorRes.data as Vendor;
   const invoices = (invoicesRes.data ?? []) as Invoice[];
 
-  const totalPaid     = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + (i.total_amount ?? 0), 0);
-  const totalUnpaid   = invoices.filter((i) => !["paid","archived"].includes(i.status)).reduce((s, i) => s + (i.total_amount ?? 0), 0);
+  // ── Scorecard calculations ───────────────────────────────────
+  const paidInvoices     = invoices.filter((i) => i.status === "paid");
+  const activeInvoices   = invoices.filter((i) => !["archived"].includes(i.status));
+  const totalPaid        = paidInvoices.reduce((s, i) => s + (i.total_amount ?? 0), 0);
+  const totalUnpaid      = invoices.filter((i) => !["paid","archived"].includes(i.status)).reduce((s, i) => s + (i.total_amount ?? 0), 0);
+  const totalAllTime     = activeInvoices.reduce((s, i) => s + (i.total_amount ?? 0), 0);
+  const avgInvoiceAmount = activeInvoices.length > 0 ? totalAllTime / activeInvoices.length : null;
+
+  const withPayment = paidInvoices.filter((i) => i.paid_at && i.submitted_at);
+  const avgDaysToPayment = withPayment.length > 0
+    ? withPayment.reduce((s, i) => s + (new Date(i.paid_at!).getTime() - new Date(i.submitted_at).getTime()) / 86400000, 0) / withPayment.length
+    : null;
+
+  const withApproval = invoices.filter((i) => i.approved_at && i.submitted_at);
+  const avgDaysToApproval = withApproval.length > 0
+    ? withApproval.reduce((s, i) => s + (new Date(i.approved_at!).getTime() - new Date(i.submitted_at).getTime()) / 86400000, 0) / withApproval.length
+    : null;
+
+  const firstInvoiceDate = invoices.length > 0 ? invoices[invoices.length - 1].submitted_at : null;
+
+  // Monthly trend — last 6 months
+  const now = new Date();
+  const months: { label: string; key: string }[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      label: d.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+    });
+  }
+  const monthlyTrend = months.map(({ label, key }) => {
+    const [yr, mo] = key.split("-").map(Number);
+    const monthInvoices = invoices.filter((i) => {
+      const d = new Date(i.submitted_at);
+      return d.getFullYear() === yr && d.getMonth() + 1 === mo;
+    });
+    return {
+      label,
+      count: monthInvoices.length,
+      total: monthInvoices.reduce((s, i) => s + (i.total_amount ?? 0), 0),
+      paid:  monthInvoices.filter((i) => i.status === "paid").reduce((s, i) => s + (i.total_amount ?? 0), 0),
+    };
+  });
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -56,22 +100,75 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
         )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* Scorecard */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400">Total Invoices</p>
-          <p className="text-xl font-semibold">{invoices.length}</p>
+          <p className="text-xs text-zinc-400 mb-1">Total Invoices</p>
+          <p className="text-xl font-semibold">{activeInvoices.length}</p>
+          {firstInvoiceDate && (
+            <p className="text-xs text-zinc-400 mt-1">since {format(parseISO(firstInvoiceDate), "MMM yyyy")}</p>
+          )}
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400">Total Paid</p>
+        <div className="rounded-xl border border-zinc-200 bg-emerald-50 px-4 py-3">
+          <p className="text-xs text-zinc-400 mb-1">Total Paid</p>
           <p className="text-xl font-semibold text-emerald-700">${totalPaid.toLocaleString("en-US", { minimumFractionDigits: 2 })}</p>
+          <p className="text-xs text-zinc-400 mt-1">{paidInvoices.length} invoice{paidInvoices.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400">Open Balance</p>
+          <p className="text-xs text-zinc-400 mb-1">Open Balance</p>
           <p className={`text-xl font-semibold ${totalUnpaid > 0 ? "text-amber-600" : "text-zinc-400"}`}>
             ${totalUnpaid.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </p>
         </div>
+        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
+          <p className="text-xs text-zinc-400 mb-1">Avg Invoice</p>
+          <p className="text-xl font-semibold">
+            {avgInvoiceAmount != null ? `$${avgInvoiceAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "—"}
+          </p>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
+          <p className="text-xs text-zinc-400 mb-1">Avg Days to Approval</p>
+          <p className={`text-xl font-semibold ${avgDaysToApproval != null && avgDaysToApproval > 7 ? "text-amber-600" : "text-zinc-900"}`}>
+            {avgDaysToApproval != null ? `${avgDaysToApproval.toFixed(1)}d` : "—"}
+          </p>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
+          <p className="text-xs text-zinc-400 mb-1">Avg Days to Payment</p>
+          <p className={`text-xl font-semibold ${avgDaysToPayment != null && avgDaysToPayment > 30 ? "text-red-600" : "text-zinc-900"}`}>
+            {avgDaysToPayment != null ? `${avgDaysToPayment.toFixed(1)}d` : "—"}
+          </p>
+        </div>
+      </div>
+
+      {/* Monthly trend */}
+      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-zinc-100">
+          <h2 className="text-sm font-semibold">6-Month Trend</h2>
+        </div>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-zinc-100 bg-zinc-50">
+              <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Month</th>
+              <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Invoices</th>
+              <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Submitted</th>
+              <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Paid</th>
+            </tr>
+          </thead>
+          <tbody>
+            {monthlyTrend.map((row) => (
+              <tr key={row.label} className="border-b border-zinc-50 hover:bg-zinc-50/50">
+                <td className="px-4 py-2.5 text-zinc-700 font-medium">{row.label}</td>
+                <td className="px-4 py-2.5 text-right text-zinc-500">{row.count > 0 ? row.count : <span className="text-zinc-300">—</span>}</td>
+                <td className="px-4 py-2.5 text-right font-medium text-zinc-800">
+                  {row.total > 0 ? `$${row.total.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : <span className="text-zinc-300">—</span>}
+                </td>
+                <td className="px-4 py-2.5 text-right text-emerald-700 font-medium">
+                  {row.paid > 0 ? `$${row.paid.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : <span className="text-zinc-300">—</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Invoice history */}
