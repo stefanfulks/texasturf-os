@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/sign-out-button";
+import { NavLinks } from "@/components/nav-links";
+import { NotificationBell } from "@/components/notification-bell";
 
 export default async function AppLayout({
   children,
@@ -15,6 +17,12 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
+  // Count unread notifications for the bell badge
+  const { count: unreadCount } = await supabase
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("read", false);
+
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-zinc-200 bg-white">
@@ -23,13 +31,10 @@ export default async function AppLayout({
             <Link href="/fleet" className="text-sm font-semibold tracking-tight">
               TexasTurf OS
             </Link>
-            <nav className="flex items-center gap-4 text-sm">
-              <Link href="/tasks"    className="text-zinc-700 transition-colors hover:text-zinc-900">Tasks</Link>
-              <Link href="/projects" className="text-zinc-700 transition-colors hover:text-zinc-900">Projects</Link>
-              <Link href="/fleet"    className="text-zinc-700 transition-colors hover:text-zinc-900">Fleet</Link>
-            </nav>
+            <NavLinks />
           </div>
           <div className="flex items-center gap-3 text-sm">
+            <NotificationBell initialUnread={unreadCount ?? 0} />
             <span className="text-zinc-500">{user.email}</span>
             <SignOutButton />
           </div>

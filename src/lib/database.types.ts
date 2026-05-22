@@ -338,6 +338,7 @@ export type Database = {
           visibility: Database["public"]["Enums"]["task_visibility"]
           tags: string[]
           monday_item_id: string | null
+          recurring_rule_id: string | null
           created_at: string
           updated_at: string
         }
@@ -358,6 +359,7 @@ export type Database = {
           visibility?: Database["public"]["Enums"]["task_visibility"]
           tags?: string[]
           monday_item_id?: string | null
+          recurring_rule_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -378,6 +380,7 @@ export type Database = {
           visibility?: Database["public"]["Enums"]["task_visibility"]
           tags?: string[]
           monday_item_id?: string | null
+          recurring_rule_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -488,6 +491,123 @@ export type Database = {
           },
         ]
       }
+      recurring_rules: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          priority: Database["public"]["Enums"]["task_priority"]
+          assignee_id: string
+          created_by_id: string
+          project_id: string | null
+          department_id: string | null
+          visibility: Database["public"]["Enums"]["task_visibility"]
+          freq: Database["public"]["Enums"]["recurrence_freq"]
+          day_of_week: number | null
+          day_of_month: number | null
+          lead_days: number
+          active: boolean
+          last_generated: string | null
+          next_due: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          assignee_id: string
+          created_by_id: string
+          project_id?: string | null
+          department_id?: string | null
+          visibility?: Database["public"]["Enums"]["task_visibility"]
+          freq?: Database["public"]["Enums"]["recurrence_freq"]
+          day_of_week?: number | null
+          day_of_month?: number | null
+          lead_days?: number
+          active?: boolean
+          last_generated?: string | null
+          next_due?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          assignee_id?: string
+          created_by_id?: string
+          project_id?: string | null
+          department_id?: string | null
+          visibility?: Database["public"]["Enums"]["task_visibility"]
+          freq?: Database["public"]["Enums"]["recurrence_freq"]
+          day_of_week?: number | null
+          day_of_month?: number | null
+          lead_days?: number
+          active?: boolean
+          last_generated?: string | null
+          next_due?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          actor_id: string | null
+          type: string
+          title: string
+          body: string | null
+          resource_type: string | null
+          resource_id: string | null
+          read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          actor_id?: string | null
+          type: string
+          title: string
+          body?: string | null
+          resource_type?: string | null
+          resource_id?: string | null
+          read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          actor_id?: string | null
+          type?: string
+          title?: string
+          body?: string | null
+          resource_type?: string | null
+          resource_id?: string | null
+          read?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_logs: {
         Row: {
           id: string
@@ -577,6 +697,7 @@ export type Database = {
       task_visibility: "private" | "team" | "public"
       project_status: "intake" | "planning" | "waiting_customer" | "waiting_internal" | "scheduled" | "in_progress" | "blocked" | "ready_for_review" | "complete" | "on_hold" | "cancelled"
       project_type: "customer_install" | "commercial_bid" | "sales_marketing" | "operations" | "warehouse" | "admin" | "strategic" | "warranty" | "technology"
+      recurrence_freq: "daily" | "weekly" | "biweekly" | "monthly"
     }
     CompositeTypes: Record<string, never>
   }
@@ -609,6 +730,13 @@ export type MaintenanceIntervalType = Database["public"]["Enums"]["maintenance_i
 export type TaskStatus = Database["public"]["Enums"]["task_status"]
 export type TaskPriority = Database["public"]["Enums"]["task_priority"]
 export type TaskVisibility = Database["public"]["Enums"]["task_visibility"]
+
+export type RecurringRule = Database["public"]["Tables"]["recurring_rules"]["Row"]
+export type RecurringRuleInsert = Database["public"]["Tables"]["recurring_rules"]["Insert"]
+export type RecurrenceFreq = Database["public"]["Enums"]["recurrence_freq"]
+
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"]
+export type NotificationInsert = Database["public"]["Tables"]["notifications"]["Insert"]
 
 export type Project = Database["public"]["Tables"]["projects"]["Row"]
 export type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"]

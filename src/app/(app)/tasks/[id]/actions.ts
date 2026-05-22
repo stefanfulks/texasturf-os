@@ -126,6 +126,31 @@ export async function addComment(
     new_value: parsed.data.body.slice(0, 100),
   });
 
+  // Notify the task's assignee (if different from commenter)
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("assignee_id, title")
+    .eq("id", parsed.data.task_id)
+    .single();
+
+  if (task && task.assignee_id !== user.id) {
+    const { data: actor } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", user.id)
+      .single();
+    const actorName = actor?.full_name ?? actor?.email?.split("@")[0] ?? "Someone";
+    await supabase.from("notifications").insert({
+      user_id: task.assignee_id,
+      actor_id: user.id,
+      type: "task_commented",
+      title: `${actorName} commented on "${task.title}"`,
+      body: parsed.data.body.slice(0, 120),
+      resource_type: "task",
+      resource_id: parsed.data.task_id,
+    });
+  }
+
   revalidatePath(`/tasks/${parsed.data.task_id}`, "page");
   return { error: null, success: true };
 }

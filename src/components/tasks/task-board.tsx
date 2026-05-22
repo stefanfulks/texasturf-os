@@ -102,6 +102,9 @@ export function TaskBoard({
             <button onClick={() => setView("kanban")} className={cn("px-3 py-1.5 font-medium transition-colors", view === "kanban" ? "bg-zinc-900 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50")}>Board</button>
             <button onClick={() => setView("list")}   className={cn("px-3 py-1.5 font-medium border-l border-zinc-200 transition-colors", view === "list"   ? "bg-zinc-900 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50")}>List</button>
           </div>
+          <Link href="/tasks/recurring" className="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 transition-colors">
+            Recurring
+          </Link>
           <button onClick={() => openCreate()} className="flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700">
             <span className="text-base leading-none">+</span> New Task
           </button>

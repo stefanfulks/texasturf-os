@@ -71,6 +71,25 @@ export async function createTask(formData: FormData): Promise<CreateTaskResult> 
     new_value: parsed.data.title,
   });
 
+  // Notify assignee if someone else was assigned
+  if (assigneeId !== user.id) {
+    const { data: actor } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", user.id)
+      .single();
+    const actorName = actor?.full_name ?? actor?.email?.split("@")[0] ?? "Someone";
+    await supabase.from("notifications").insert({
+      user_id: assigneeId,
+      actor_id: user.id,
+      type: "task_assigned",
+      title: `${actorName} assigned you a task`,
+      body: parsed.data.title,
+      resource_type: "task",
+      resource_id: data.id,
+    });
+  }
+
   revalidatePath("/tasks");
   return { task: data, error: null };
 }
