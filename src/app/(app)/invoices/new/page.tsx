@@ -2,17 +2,18 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { InvoiceUploadForm } from "./invoice-upload-form";
-import type { Vendor, Project } from "@/lib/database.types";
+import type { Vendor } from "@/lib/database.types";
 
 export default async function NewInvoicePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [vendorsRes, projectsRes] = await Promise.all([
-    supabase.from("vendors").select("*").eq("active", true).order("name"),
-    supabase.from("projects").select("id, name, status").not("status", "in", '("complete","cancelled","archived")').order("name"),
-  ]);
+  const { data: vendorsData } = await supabase
+    .from("vendors")
+    .select("*")
+    .eq("active", true)
+    .order("name");
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -24,10 +25,7 @@ export default async function NewInvoicePage() {
       </div>
 
       <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <InvoiceUploadForm
-          vendors={(vendorsRes.data ?? []) as Vendor[]}
-          projects={(projectsRes.data ?? []) as Project[]}
-        />
+        <InvoiceUploadForm vendors={(vendorsData ?? []) as Vendor[]} />
       </div>
     </div>
   );

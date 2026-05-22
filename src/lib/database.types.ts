@@ -1026,6 +1026,103 @@ export type Database = {
         }
         Relationships: []
       }
+      budgets: {
+        Row: {
+          id: string
+          period_month: number
+          period_year: number
+          category: string
+          budgeted_amount: number
+          notes: string | null
+          created_by: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          period_month: number
+          period_year: number
+          category: string
+          budgeted_amount?: number
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          period_month?: number
+          period_year?: number
+          category?: string
+          budgeted_amount?: number
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_entries: {
+        Row: {
+          id: string
+          period_month: number
+          period_year: number
+          kpi_key: string
+          kpi_label: string
+          actual_value: number | null
+          target_value: number | null
+          unit: string | null
+          notes: string | null
+          created_by: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          period_month: number
+          period_year: number
+          kpi_key: string
+          kpi_label: string
+          actual_value?: number | null
+          target_value?: number | null
+          unit?: string | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          period_month?: number
+          period_year?: number
+          kpi_key?: string
+          kpi_label?: string
+          actual_value?: number | null
+          target_value?: number | null
+          unit?: string | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ocr_jobs: {
         Row: {
           id: string
@@ -1191,3 +1288,9 @@ export type InvoiceComment = Database["public"]["Tables"]["invoice_comments"]["R
 export type InvoiceVersion = Database["public"]["Tables"]["invoice_versions"]["Row"]
 export type OcrJob = Database["public"]["Tables"]["ocr_jobs"]["Row"]
 export type IntegrationSyncLog = Database["public"]["Tables"]["integration_sync_logs"]["Row"]
+
+// Reports / KPI types
+export type Budget = Database["public"]["Tables"]["budgets"]["Row"]
+export type BudgetInsert = Database["public"]["Tables"]["budgets"]["Insert"]
+export type KpiEntry = Database["public"]["Tables"]["kpi_entries"]["Row"]
+export type KpiEntryInsert = Database["public"]["Tables"]["kpi_entries"]["Insert"]

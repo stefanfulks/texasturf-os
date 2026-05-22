@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { submitInvoice, type SubmitInvoiceState } from "../actions";
-import type { Vendor, Project } from "@/lib/database.types";
+import type { Vendor } from "@/lib/database.types";
 
 const field = "w-full text-sm border border-zinc-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
 const initial: SubmitInvoiceState = { error: null, invoiceId: null };
@@ -16,10 +16,9 @@ const VENDOR_TYPE_LABELS: Record<string, string> = {
 
 type Props = {
   vendors: Vendor[];
-  projects: Project[];
 };
 
-export function InvoiceUploadForm({ vendors, projects }: Props) {
+export function InvoiceUploadForm({ vendors }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -160,10 +159,18 @@ export function InvoiceUploadForm({ vendors, projects }: Props) {
         </select>
       </div>
 
-      {/* Amount + Service period */}
+      {/* Invoice number + Amount */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Invoice Amount</label>
+          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Invoice # <span className="text-zinc-400 font-normal">(optional)</span></label>
+          <input
+            name="invoice_number"
+            placeholder="INV-2024-001"
+            className={field}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Amount</label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">$</span>
             <input
@@ -175,15 +182,6 @@ export function InvoiceUploadForm({ vendors, projects }: Props) {
               className={`${field} pl-7`}
             />
           </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Project (optional)</label>
-          <select name="project_id" defaultValue="" className={field}>
-            <option value="">None</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
         </div>
       </div>
 
@@ -199,16 +197,10 @@ export function InvoiceUploadForm({ vendors, projects }: Props) {
         </div>
       </div>
 
-      {/* Customer / Job name */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Customer Name</label>
-          <input name="customer_name" placeholder="Smith Family" className={field} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Job Name</label>
-          <input name="job_name" placeholder="Smith Residential Install" className={field} />
-        </div>
+      {/* Job #(s) */}
+      <div>
+        <label className="block text-sm font-medium text-zinc-700 mb-1.5">Job #(s) <span className="text-zinc-400 font-normal">(optional)</span></label>
+        <input name="job_name" placeholder="e.g. 4821, 4822" className={field} />
       </div>
 
       {/* Notes */}
