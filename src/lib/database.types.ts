@@ -672,6 +672,435 @@ export type Database = {
           },
         ]
       }
+      vendors: {
+        Row: {
+          id: string
+          name: string
+          type: Database["public"]["Enums"]["vendor_type"]
+          contact_name: string | null
+          email: string | null
+          phone: string | null
+          address: string | null
+          payment_terms: string | null
+          default_rates: Record<string, unknown> | null
+          notes: string | null
+          active: boolean
+          monday_item_id: string | null
+          created_by_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          type?: Database["public"]["Enums"]["vendor_type"]
+          contact_name?: string | null
+          email?: string | null
+          phone?: string | null
+          address?: string | null
+          payment_terms?: string | null
+          default_rates?: Record<string, unknown> | null
+          notes?: string | null
+          active?: boolean
+          monday_item_id?: string | null
+          created_by_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          type?: Database["public"]["Enums"]["vendor_type"]
+          contact_name?: string | null
+          email?: string | null
+          phone?: string | null
+          address?: string | null
+          payment_terms?: string | null
+          default_rates?: Record<string, unknown> | null
+          notes?: string | null
+          active?: boolean
+          monday_item_id?: string | null
+          created_by_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          id: string
+          title: string
+          vendor_id: string | null
+          submitted_by_id: string
+          reviewed_by_id: string | null
+          approved_by_id: string | null
+          paid_by_id: string | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          invoice_number: string | null
+          invoice_date: string | null
+          service_period_start: string | null
+          service_period_end: string | null
+          approval_deadline: string | null
+          subtotal: number | null
+          tax: number | null
+          total_amount: number | null
+          currency: string
+          project_id: string | null
+          job_name: string | null
+          customer_name: string | null
+          jobber_url: string | null
+          original_file_url: string | null
+          original_file_type: string | null
+          original_file_name: string | null
+          ocr_text: string | null
+          ocr_confidence: number | null
+          ocr_reviewed: boolean
+          admin_notes: string | null
+          variance_notes: string | null
+          ownership_notes: string | null
+          payment_notes: string | null
+          change_request_reason: string | null
+          duplicate_warning: boolean
+          archived: boolean
+          monday_item_id: string | null
+          monday_board_id: string | null
+          slack_thread_ts: string | null
+          paid_at: string | null
+          payment_method: string | null
+          payment_reference: string | null
+          submitted_at: string
+          reviewed_at: string | null
+          approved_at: string | null
+          status_changed_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          vendor_id?: string | null
+          submitted_by_id: string
+          reviewed_by_id?: string | null
+          approved_by_id?: string | null
+          paid_by_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          invoice_number?: string | null
+          invoice_date?: string | null
+          service_period_start?: string | null
+          service_period_end?: string | null
+          approval_deadline?: string | null
+          subtotal?: number | null
+          tax?: number | null
+          total_amount?: number | null
+          currency?: string
+          project_id?: string | null
+          job_name?: string | null
+          customer_name?: string | null
+          jobber_url?: string | null
+          original_file_url?: string | null
+          original_file_type?: string | null
+          original_file_name?: string | null
+          ocr_text?: string | null
+          ocr_confidence?: number | null
+          ocr_reviewed?: boolean
+          admin_notes?: string | null
+          variance_notes?: string | null
+          ownership_notes?: string | null
+          payment_notes?: string | null
+          change_request_reason?: string | null
+          duplicate_warning?: boolean
+          archived?: boolean
+          monday_item_id?: string | null
+          monday_board_id?: string | null
+          slack_thread_ts?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          submitted_at?: string
+          reviewed_at?: string | null
+          approved_at?: string | null
+          status_changed_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          vendor_id?: string | null
+          submitted_by_id?: string
+          reviewed_by_id?: string | null
+          approved_by_id?: string | null
+          paid_by_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          invoice_number?: string | null
+          invoice_date?: string | null
+          service_period_start?: string | null
+          service_period_end?: string | null
+          approval_deadline?: string | null
+          subtotal?: number | null
+          tax?: number | null
+          total_amount?: number | null
+          currency?: string
+          project_id?: string | null
+          job_name?: string | null
+          customer_name?: string | null
+          jobber_url?: string | null
+          original_file_url?: string | null
+          original_file_type?: string | null
+          original_file_name?: string | null
+          ocr_text?: string | null
+          ocr_confidence?: number | null
+          ocr_reviewed?: boolean
+          admin_notes?: string | null
+          variance_notes?: string | null
+          ownership_notes?: string | null
+          payment_notes?: string | null
+          change_request_reason?: string | null
+          duplicate_warning?: boolean
+          archived?: boolean
+          monday_item_id?: string | null
+          monday_board_id?: string | null
+          slack_thread_ts?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          submitted_at?: string
+          reviewed_at?: string | null
+          approved_at?: string | null
+          status_changed_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      invoice_line_items: {
+        Row: {
+          id: string
+          invoice_id: string
+          description: string
+          normalized_description: string | null
+          category: string | null
+          quantity: number | null
+          unit: string | null
+          unit_price: number | null
+          line_total: number
+          expected_unit_price: number | null
+          variance_amount: number | null
+          variance_percent: number | null
+          variance_status: string
+          variance_reason: string | null
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          invoice_id: string
+          description: string
+          normalized_description?: string | null
+          category?: string | null
+          quantity?: number | null
+          unit?: string | null
+          unit_price?: number | null
+          line_total?: number
+          expected_unit_price?: number | null
+          variance_amount?: number | null
+          variance_percent?: number | null
+          variance_status?: string
+          variance_reason?: string | null
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          invoice_id?: string
+          description?: string
+          normalized_description?: string | null
+          category?: string | null
+          quantity?: number | null
+          unit?: string | null
+          unit_price?: number | null
+          line_total?: number
+          expected_unit_price?: number | null
+          variance_amount?: number | null
+          variance_percent?: number | null
+          variance_status?: string
+          variance_reason?: string | null
+          sort_order?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      invoice_status_history: {
+        Row: {
+          id: string
+          invoice_id: string
+          previous_status: Database["public"]["Enums"]["invoice_status"] | null
+          new_status: Database["public"]["Enums"]["invoice_status"]
+          changed_by_id: string | null
+          notes: string | null
+          notification_sent: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          invoice_id: string
+          previous_status?: Database["public"]["Enums"]["invoice_status"] | null
+          new_status: Database["public"]["Enums"]["invoice_status"]
+          changed_by_id?: string | null
+          notes?: string | null
+          notification_sent?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          invoice_id?: string
+          previous_status?: Database["public"]["Enums"]["invoice_status"] | null
+          new_status?: Database["public"]["Enums"]["invoice_status"]
+          changed_by_id?: string | null
+          notes?: string | null
+          notification_sent?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      invoice_comments: {
+        Row: {
+          id: string
+          invoice_id: string
+          user_id: string
+          body: string
+          visibility: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          invoice_id: string
+          user_id: string
+          body: string
+          visibility?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          invoice_id?: string
+          user_id?: string
+          body?: string
+          visibility?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      invoice_versions: {
+        Row: {
+          id: string
+          invoice_id: string
+          version_number: number
+          file_url: string
+          file_name: string | null
+          submitted_by_id: string | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          invoice_id: string
+          version_number?: number
+          file_url: string
+          file_name?: string | null
+          submitted_by_id?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          invoice_id?: string
+          version_number?: number
+          file_url?: string
+          file_name?: string | null
+          submitted_by_id?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      ocr_jobs: {
+        Row: {
+          id: string
+          invoice_id: string
+          provider: string
+          status: string
+          raw_response: Record<string, unknown> | null
+          error_message: string | null
+          started_at: string | null
+          completed_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          invoice_id: string
+          provider?: string
+          status?: string
+          raw_response?: Record<string, unknown> | null
+          error_message?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          invoice_id?: string
+          provider?: string
+          status?: string
+          raw_response?: Record<string, unknown> | null
+          error_message?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      integration_sync_logs: {
+        Row: {
+          id: string
+          provider: string
+          local_entity_type: string
+          local_entity_id: string
+          external_entity_id: string | null
+          direction: string
+          status: string
+          message: string | null
+          metadata: Record<string, unknown> | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          provider: string
+          local_entity_type: string
+          local_entity_id: string
+          external_entity_id?: string | null
+          direction?: string
+          status: string
+          message?: string | null
+          metadata?: Record<string, unknown> | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          provider?: string
+          local_entity_type?: string
+          local_entity_id?: string
+          external_entity_id?: string | null
+          direction?: string
+          status?: string
+          message?: string | null
+          metadata?: Record<string, unknown> | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -698,6 +1127,8 @@ export type Database = {
       project_status: "intake" | "planning" | "waiting_customer" | "waiting_internal" | "scheduled" | "in_progress" | "blocked" | "ready_for_review" | "complete" | "on_hold" | "cancelled"
       project_type: "customer_install" | "commercial_bid" | "sales_marketing" | "operations" | "warehouse" | "admin" | "strategic" | "warranty" | "technology"
       recurrence_freq: "daily" | "weekly" | "biweekly" | "monthly"
+      invoice_status: "draft" | "submitted" | "ocr_processing" | "ocr_review_needed" | "awaiting_review" | "awaiting_approval" | "approved" | "request_change" | "rejected" | "on_hold" | "paid" | "archived"
+      vendor_type: "installer" | "contractor_1099" | "subcontractor" | "supplier" | "other"
     }
     CompositeTypes: Record<string, never>
   }
@@ -742,3 +1173,21 @@ export type Project = Database["public"]["Tables"]["projects"]["Row"]
 export type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"]
 export type ProjectStatus = Database["public"]["Enums"]["project_status"]
 export type ProjectType = Database["public"]["Enums"]["project_type"]
+
+// Invoice types
+export type Vendor = Database["public"]["Tables"]["vendors"]["Row"]
+export type VendorInsert = Database["public"]["Tables"]["vendors"]["Insert"]
+export type VendorType = Database["public"]["Enums"]["vendor_type"]
+
+export type Invoice = Database["public"]["Tables"]["invoices"]["Row"]
+export type InvoiceInsert = Database["public"]["Tables"]["invoices"]["Insert"]
+export type InvoiceUpdate = Database["public"]["Tables"]["invoices"]["Update"]
+export type InvoiceStatus = Database["public"]["Enums"]["invoice_status"]
+
+export type InvoiceLineItem = Database["public"]["Tables"]["invoice_line_items"]["Row"]
+export type InvoiceLineItemInsert = Database["public"]["Tables"]["invoice_line_items"]["Insert"]
+export type InvoiceStatusHistory = Database["public"]["Tables"]["invoice_status_history"]["Row"]
+export type InvoiceComment = Database["public"]["Tables"]["invoice_comments"]["Row"]
+export type InvoiceVersion = Database["public"]["Tables"]["invoice_versions"]["Row"]
+export type OcrJob = Database["public"]["Tables"]["ocr_jobs"]["Row"]
+export type IntegrationSyncLog = Database["public"]["Tables"]["integration_sync_logs"]["Row"]
