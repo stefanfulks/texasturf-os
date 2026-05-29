@@ -1,42 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-const APPS = [
+type App = {
+  label: string;
+  href: string;
+  comingSoon: boolean;
+  adminOnly: boolean;
+};
+
+const APPS: readonly App[] = [
   {
     label: "TexasTurf OS",
     href: "/",
-    current: true,
     comingSoon: false,
     adminOnly: false,
   },
   {
     label: "Inventory",
     href: "/inventory",
-    current: false,
-    comingSoon: true,
+    comingSoon: false,
     adminOnly: false,
   },
   {
     label: "Marketing",
     href: "/marketing",
-    current: false,
     comingSoon: true,
     adminOnly: false,
   },
   {
     label: "Financials",
     href: "/financials",
-    current: false,
     comingSoon: true,
     adminOnly: true,
   },
 ] as const;
 
+function isCurrentApp(pathname: string, href: string) {
+  if (href === "/") {
+    // TexasTurf OS is the catch-all — current when not inside any other named app.
+    return !APPS.some(
+      (a) => a.href !== "/" && (pathname === a.href || pathname.startsWith(a.href + "/")),
+    );
+  }
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
 export function AppSwitcher() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  const currentLabel = useMemo(() => {
+    const current = APPS.find((a) => isCurrentApp(pathname, a.href));
+    return current?.label ?? "TexasTurf OS";
+  }, [pathname]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -59,7 +79,7 @@ export function AppSwitcher() {
         onClick={() => setOpen((v) => !v)}
         className="bg-zinc-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-zinc-700 transition-colors"
       >
-        TexasTurf OS
+        {currentLabel}
         <svg
           className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`}
           viewBox="0 0 12 12"
@@ -75,7 +95,9 @@ export function AppSwitcher() {
 
       {open && (
         <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-zinc-200 rounded-xl shadow-lg py-1 z-50">
-          {APPS.map((app) => (
+          {APPS.map((app) => {
+            const current = isCurrentApp(pathname, app.href);
+            return (
             <Link
               key={app.href}
               href={app.href}
@@ -83,13 +105,13 @@ export function AppSwitcher() {
               className="bg-white hover:bg-zinc-50 px-4 py-2.5 text-sm flex items-center justify-between group transition-colors"
             >
               <span className="flex items-center gap-2">
-                {app.current && (
+                {current && (
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 shrink-0" />
                 )}
-                {!app.current && (
+                {!current && (
                   <span className="w-1.5 h-1.5 rounded-full bg-transparent shrink-0" />
                 )}
-                <span className={app.current ? "font-semibold text-zinc-900" : "text-zinc-700"}>
+                <span className={current ? "font-semibold text-zinc-900" : "text-zinc-700"}>
                   {app.label}
                 </span>
               </span>
@@ -106,7 +128,8 @@ export function AppSwitcher() {
                 )}
               </span>
             </Link>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

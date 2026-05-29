@@ -1,183 +1,361 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { formatDistanceToNowStrict } from "date-fns";
+import type {
+  InvRoll,
+  InvJob,
+  InvTransaction,
+  InvItem,
+  RollStatus,
+} from "@/lib/database.types";
 
-// ── Module preview cards ──────────────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
-const MODULES = [
-  {
-    id: "rolls",
-    name: "Rolls",
-    description:
-      "Track every turf roll by SKU tag, dye lot, width, and length. Manage parent/child splits and monitor status through the full lifecycle from available to consumed.",
-    icon: (
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: "jobs",
-    name: "Jobs",
-    description:
-      "Create and manage installation jobs, attach roll allocations, and track job status from Draft through Complete. Links directly to roll dispatch and consumption.",
-    icon: (
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: "locations",
-    name: "Locations",
-    description:
-      "Define warehouse sections, staging areas, and yard locations. Assign rolls to specific locations for quick physical lookup and inventory counts.",
-    icon: (
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: "reports",
-    name: "Reports",
-    description:
-      "View inventory levels by product, dye lot, and location. Track roll utilization, waste, and consumption trends across jobs over time.",
-    icon: (
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
-        />
-      </svg>
-    ),
-  },
-] as const;
+const ACTIVE_ROLL_STATUSES: RollStatus[] = [
+  "available",
+  "planned",
+  "allocated",
+  "staged",
+  "dispatched",
+];
 
-// ── Page ──────────────────────────────────────────────────────
+const IN_STOCK_ROLL_STATUSES: RollStatus[] = ["available", "allocated"];
 
-export default async function InventoryPage() {
+const INACTIVE_JOB_STATUSES = ["completed", "archived"];
+const INACTIVE_ALLOCATION_STATUSES = ["completed", "cancelled"];
+
+const ALL_ROLL_STATUSES: RollStatus[] = [
+  "available",
+  "planned",
+  "allocated",
+  "staged",
+  "dispatched",
+  "consumed",
+  "damaged",
+  "returned",
+];
+
+const STATUS_COLORS: Record<RollStatus, string> = {
+  available:  "bg-green-50 text-green-700 border-green-200",
+  planned:    "bg-purple-50 text-purple-700 border-purple-200",
+  allocated:  "bg-blue-50 text-blue-700 border-blue-200",
+  staged:     "bg-blue-50 text-blue-700 border-blue-200",
+  dispatched: "bg-amber-50 text-amber-800 border-amber-200",
+  consumed:   "bg-zinc-50 text-zinc-600 border-zinc-200",
+  damaged:    "bg-zinc-50 text-zinc-600 border-zinc-200",
+  returned:   "bg-zinc-50 text-zinc-600 border-zinc-200",
+};
+
+const STATUS_LABELS: Record<RollStatus, string> = {
+  available:  "Available",
+  planned:    "Planned",
+  allocated:  "Allocated",
+  staged:     "Staged",
+  dispatched: "Dispatched",
+  consumed:   "Consumed",
+  damaged:    "Damaged",
+  returned:   "Returned",
+};
+
+function fmtInt(n: number) {
+  return n.toLocaleString("en-US");
+}
+
+function fmtFt(n: number) {
+  return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
+
+function relativeTime(iso: string) {
+  try {
+    return formatDistanceToNowStrict(new Date(iso), { addSuffix: true });
+  } catch {
+    return "—";
+  }
+}
+
+// ─── Page ──────────────────────────────────────────────────────────────────────
+
+export default async function InventoryDashboardPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  // Fetch the core datasets in parallel. Auth + role check happens in layout.
+  const [
+    rollsResult,
+    jobsActiveResult,
+    allocationsOpenResult,
+    transactionsResult,
+    itemsResult,
+  ] = await Promise.all([
+    supabase
+      .from("inv_rolls")
+      .select("id, status, current_length_ft, allocated_job_id"),
+    supabase
+      .from("inv_jobs")
+      .select("id", { count: "exact", head: true })
+      .not("status", "in", `(${INACTIVE_JOB_STATUSES.join(",")})`),
+    supabase
+      .from("inv_allocations")
+      .select("id", { count: "exact", head: true })
+      .not("status", "in", `(${INACTIVE_ALLOCATION_STATUSES.join(",")})`),
+    supabase
+      .from("inv_transactions")
+      .select("id, transaction_type, roll_id, job_id, quantity_ft, created_at")
+      .order("created_at", { ascending: false })
+      .limit(10),
+    supabase
+      .from("inv_items")
+      .select("id, name, quantity, unit, min_quantity")
+      .eq("active", true),
+  ]);
 
-  if (!profile || profile.role === "field") {
-    redirect("/");
+  const rolls = (rollsResult.data ?? []) as Pick<
+    InvRoll,
+    "id" | "status" | "current_length_ft" | "allocated_job_id"
+  >[];
+
+  const activeJobsCount = jobsActiveResult.count ?? 0;
+  const openAllocationsCount = allocationsOpenResult.count ?? 0;
+
+  const transactions = (transactionsResult.data ?? []) as Pick<
+    InvTransaction,
+    "id" | "transaction_type" | "roll_id" | "job_id" | "quantity_ft" | "created_at"
+  >[];
+
+  const items = (itemsResult.data ?? []) as Pick<
+    InvItem,
+    "id" | "name" | "quantity" | "unit" | "min_quantity"
+  >[];
+
+  // ── Stat aggregations ──────────────────────────────────────
+  const totalActiveRolls = rolls.filter((r) =>
+    ACTIVE_ROLL_STATUSES.includes(r.status),
+  ).length;
+
+  const totalInStockFt = rolls
+    .filter((r) => IN_STOCK_ROLL_STATUSES.includes(r.status))
+    .reduce((sum, r) => sum + (r.current_length_ft ?? 0), 0);
+
+  const lowStockItems = items.filter((i) => i.quantity <= i.min_quantity);
+
+  const rollsByStatus = ALL_ROLL_STATUSES.reduce<Record<RollStatus, number>>(
+    (acc, status) => {
+      acc[status] = 0;
+      return acc;
+    },
+    {} as Record<RollStatus, number>,
+  );
+  for (const r of rolls) {
+    rollsByStatus[r.status] = (rollsByStatus[r.status] ?? 0) + 1;
   }
 
+  // ── Hydrate transaction display data ───────────────────────
+  const txRollIds = [
+    ...new Set(transactions.map((t) => t.roll_id).filter(Boolean) as string[]),
+  ];
+  const txJobIds = [
+    ...new Set(transactions.map((t) => t.job_id).filter(Boolean) as string[]),
+  ];
+
+  const [rollLookupResult, jobLookupResult] = await Promise.all([
+    txRollIds.length > 0
+      ? supabase
+          .from("inv_rolls")
+          .select("id, tt_sku_tag_number, product_name")
+          .in("id", txRollIds)
+      : Promise.resolve({ data: [] }),
+    txJobIds.length > 0
+      ? supabase
+          .from("inv_jobs")
+          .select("id, job_number, job_name")
+          .in("id", txJobIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const rollLookup = new Map<
+    string,
+    Pick<InvRoll, "id" | "tt_sku_tag_number" | "product_name">
+  >();
+  for (const r of (rollLookupResult.data ?? []) as unknown as Pick<
+    InvRoll,
+    "id" | "tt_sku_tag_number" | "product_name"
+  >[]) {
+    rollLookup.set(r.id, r);
+  }
+
+  const jobLookup = new Map<
+    string,
+    Pick<InvJob, "id" | "job_number" | "job_name">
+  >();
+  for (const j of (jobLookupResult.data ?? []) as unknown as Pick<
+    InvJob,
+    "id" | "job_number" | "job_name"
+  >[]) {
+    jobLookup.set(j.id, j);
+  }
+
+  // ── Render ─────────────────────────────────────────────────
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 space-y-10">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="text-center space-y-3">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-green-100 mb-2">
-          <svg
-            className="w-7 h-7 text-green-700"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
-            />
-          </svg>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900">Inventory Dashboard</h1>
+          <p className="text-sm text-zinc-500 mt-1">
+            Roll inventory, jobs, and stock at a glance.
+          </p>
         </div>
-        <h1 className="text-3xl font-bold text-zinc-900">Inventory Manager</h1>
-        <p className="text-base text-zinc-500 max-w-lg mx-auto">
-          Porting from Roll Inventory Manager &mdash; launching soon
-        </p>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold uppercase tracking-wide">
-          In Progress
-        </span>
       </div>
 
-      {/* Module cards */}
-      <div>
-        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-4 text-center">
-          Modules being built
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {MODULES.map((mod) => (
+      {/* Stat row */}
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+          <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
+            Total Active Rolls
+          </p>
+          <p className="text-2xl font-bold text-zinc-900">
+            {fmtInt(totalActiveRolls)}
+          </p>
+          <p className="text-xs text-zinc-400 mt-1">In active lifecycle</p>
+        </div>
+
+        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+          <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
+            Linear Feet In Stock
+          </p>
+          <p className="text-2xl font-bold text-zinc-900">
+            {fmtFt(totalInStockFt)}
+            <span className="text-sm font-normal text-zinc-400 ml-1">ft</span>
+          </p>
+          <p className="text-xs text-zinc-400 mt-1">Available + allocated</p>
+        </div>
+
+        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+          <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
+            Active Jobs
+          </p>
+          <p className="text-2xl font-bold text-zinc-900">
+            {fmtInt(activeJobsCount)}
+          </p>
+          <p className="text-xs text-zinc-400 mt-1">Not completed or archived</p>
+        </div>
+
+        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+          <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
+            Open Allocations
+          </p>
+          <p className="text-2xl font-bold text-zinc-900">
+            {fmtInt(openAllocationsCount)}
+          </p>
+          <p className="text-xs text-zinc-400 mt-1">Awaiting fulfillment</p>
+        </div>
+      </section>
+
+      {/* Two cards: Recent Activity + Low Stock */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Recent Activity */}
+        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+          <div className="px-5 py-3 border-b border-zinc-100 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-zinc-900">Recent Activity</h2>
+            <span className="text-xs text-zinc-400">Last 10</span>
+          </div>
+          {transactions.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-sm text-zinc-400">No transactions yet.</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-zinc-100">
+              {transactions.map((tx) => {
+                const roll = tx.roll_id ? rollLookup.get(tx.roll_id) : null;
+                const job = tx.job_id ? jobLookup.get(tx.job_id) : null;
+                const rollLabel = roll
+                  ? roll.tt_sku_tag_number ?? roll.product_name ?? `Roll ${roll.id.slice(0, 6)}`
+                  : null;
+                const jobLabel = job ? job.job_name ?? job.job_number ?? null : null;
+
+                return (
+                  <li key={tx.id} className="px-5 py-3 flex items-center gap-3">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 text-xs font-semibold capitalize whitespace-nowrap">
+                      {tx.transaction_type.replace(/_/g, " ")}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-zinc-800 truncate">
+                        {rollLabel ?? <span className="text-zinc-400">No roll</span>}
+                        {jobLabel && (
+                          <>
+                            {" "}
+                            <span className="text-zinc-400">→</span>{" "}
+                            <span className="text-zinc-600">{jobLabel}</span>
+                          </>
+                        )}
+                      </p>
+                      <p className="text-xs text-zinc-400">{relativeTime(tx.created_at)}</p>
+                    </div>
+                    {tx.quantity_ft !== null && tx.quantity_ft !== undefined && (
+                      <span className="text-sm font-medium text-zinc-700 whitespace-nowrap">
+                        {fmtFt(tx.quantity_ft)} ft
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        {/* Low Stock Alert */}
+        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+          <div className="px-5 py-3 border-b border-zinc-100 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-zinc-900">Low Stock Alert</h2>
+            <span className="text-xs text-zinc-400">
+              {lowStockItems.length} item{lowStockItems.length === 1 ? "" : "s"}
+            </span>
+          </div>
+          {lowStockItems.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-sm text-zinc-400">All stock levels are healthy.</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-zinc-100">
+              {lowStockItems.map((item) => (
+                <li key={item.id} className="px-5 py-3 flex items-center gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-zinc-800 truncate">{item.name}</p>
+                    <p className="text-xs text-zinc-400">
+                      Min: {fmtInt(item.min_quantity)} {item.unit}
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-red-50 text-red-700 text-xs font-semibold whitespace-nowrap">
+                    {fmtInt(item.quantity)} {item.unit}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+
+      {/* Rolls by status */}
+      <section className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-zinc-100">
+          <h2 className="text-sm font-semibold text-zinc-900">Rolls by Status</h2>
+        </div>
+        <div className="p-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+          {ALL_ROLL_STATUSES.map((status) => (
             <div
-              key={mod.id}
-              className="rounded-xl border border-zinc-200 bg-white p-6 flex gap-4"
+              key={status}
+              className={
+                "rounded-lg border p-3 text-center " + STATUS_COLORS[status]
+              }
             >
-              <div className="flex-shrink-0 flex items-start justify-center w-10 h-10 rounded-lg bg-zinc-100 text-zinc-600 mt-0.5">
-                {mod.icon}
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-base font-semibold text-zinc-900 mb-1">
-                  {mod.name}
-                </h2>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  {mod.description}
-                </p>
-              </div>
+              <p className="text-[10px] font-semibold uppercase tracking-wide opacity-80">
+                {STATUS_LABELS[status]}
+              </p>
+              <p className="text-xl font-bold mt-1">
+                {fmtInt(rollsByStatus[status] ?? 0)}
+              </p>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Footer note */}
-      <p className="text-center text-xs text-zinc-400">
-        This page will be replaced with the full Inventory Manager once the port is complete.
-      </p>
+      </section>
     </div>
   );
 }
