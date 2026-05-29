@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "import:inventory": "node scripts/import-inventory.mjs",
+    "import:inventory:dry": "node scripts/import-inventory.mjs --dry-run"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.53.1",
