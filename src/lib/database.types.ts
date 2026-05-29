@@ -1716,6 +1716,41 @@ export type Database = {
           },
         ]
       }
+      inv_settings: {
+        Row: {
+          id: string
+          key: string
+          value: unknown | null
+          description: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          key: string
+          value?: unknown | null
+          description?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          key?: string
+          value?: unknown | null
+          description?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inv_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -1835,5 +1870,7 @@ export type InvJob = Database["public"]["Tables"]["inv_jobs"]["Row"]
 export type InvAllocation = Database["public"]["Tables"]["inv_allocations"]["Row"]
 export type InvTransaction = Database["public"]["Tables"]["inv_transactions"]["Row"]
 export type InvItem = Database["public"]["Tables"]["inv_items"]["Row"]
+export type InvSetting = Database["public"]["Tables"]["inv_settings"]["Row"]
+export type InvSettingInsert = Database["public"]["Tables"]["inv_settings"]["Insert"]
 export type RollStatus = Database["public"]["Enums"]["roll_status"]
 export type RollType = Database["public"]["Enums"]["roll_type"]

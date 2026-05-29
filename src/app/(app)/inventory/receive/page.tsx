@@ -2,10 +2,12 @@ import Link from "next/link";
 import { ClipboardList } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ReceiveForm } from "./receive-form";
+import { loadInventorySettings } from "@/lib/inventory/settings";
 import type { Vendor, InvProduct, InvLocation } from "@/lib/database.types";
 
 export default async function InventoryReceivePage() {
   const supabase = await createClient();
+  const settings = await loadInventorySettings();
 
   const [vendorsResult, productsResult, locationsResult, pendingCountResult] = await Promise.all([
     supabase
@@ -37,8 +39,13 @@ export default async function InventoryReceivePage() {
   const locations = (locationsResult.data ?? []) as unknown as Pick<InvLocation, "id" | "name">[];
   const pendingCount = pendingCountResult.count ?? 0;
 
-  // Default location: prefer "Receiving" if it exists
-  const receivingLocation = locations.find((l) => /receiv/i.test(l.name));
+  // Default location: prefer the configured setting; fall back to any
+  // location whose name contains "receiv" (legacy behavior).
+  const configuredLocation = settings.default_receiving_location_id
+    ? locations.find((l) => l.id === settings.default_receiving_location_id)
+    : undefined;
+  const receivingLocation =
+    configuredLocation ?? locations.find((l) => /receiv/i.test(l.name));
 
   return (
     <div className="space-y-6">
