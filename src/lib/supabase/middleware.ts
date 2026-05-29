@@ -25,6 +25,16 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
+  // Webhook routes authenticate themselves (Slack signature, CRON_SECRET).
+  // Skip the session redirect so external callers don't get bounced to /login.
+  const isWebhookRoute =
+    request.nextUrl.pathname.startsWith("/api/slack") ||
+    request.nextUrl.pathname.startsWith("/api/cron");
+
+  if (isWebhookRoute) {
+    return supabaseResponse;
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
