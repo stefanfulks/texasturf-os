@@ -35,20 +35,8 @@ export async function POST(request: Request): Promise<Response> {
   // Read raw body for signature verification
   const rawBody = await request.text();
 
-  const slackSignature   = request.headers.get("x-slack-signature")         ?? "";
-  const slackTimestamp   = request.headers.get("x-slack-request-timestamp") ?? "";
-  const signingSecret    = process.env.SLACK_SIGNING_SECRET ?? "";
-
-  // Verify signature
-  if (
-    !signingSecret ||
-    !verifySlackSignature(signingSecret, rawBody, slackTimestamp, slackSignature)
-  ) {
-    console.error("[slack/events] Invalid signature");
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  // Parse body
+  // Parse body first so we can short-circuit the url_verification handshake
+  // without requiring the signing secret to be configured server-side.
   let body: Record<string, unknown>;
   try {
     body = JSON.parse(rawBody) as Record<string, unknown>;
@@ -56,9 +44,23 @@ export async function POST(request: Request): Promise<Response> {
     return new Response("Bad Request", { status: 400 });
   }
 
-  // URL verification challenge
+  // URL verification challenge — respond before signature check so Slack can
+  // confirm the endpoint during initial setup. Slack only sends this once.
   if (body.type === "url_verification") {
     return Response.json({ challenge: body.challenge });
+  }
+
+  const slackSignature = request.headers.get("x-slack-signature")         ?? "";
+  const slackTimestamp = request.headers.get("x-slack-request-timestamp") ?? "";
+  const signingSecret  = process.env.SLACK_SIGNING_SECRET ?? "";
+
+  // Verify signature on all non-challenge requests
+  if (
+    !signingSecret ||
+    !verifySlackSignature(signingSecret, rawBody, slackTimestamp, slackSignature)
+  ) {
+    console.error("[slack/events] Invalid signature");
+    return new Response("Unauthorized", { status: 401 });
   }
 
   // Only handle message events with files
