@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TexasTurf OS — Project Map</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f1117;
+      color: #e4e4e7;
+      min-height: 100vh;
+      padding: 40px 24px 80px;
+    }
+
+    header { text-align: center; margin-bottom: 40px; }
+    header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
+    header p { margin-top: 6px; font-size: 13px; color: #71717a; }
+
+    .status-banner {
+      max-width: 1200px;
+      margin: 0 auto 32px;
+      background: #052e16;
+      border: 1px solid #22c55e;
+      border-radius: 10px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .status-banner-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .status-banner-body { flex: 1; }
+    .status-banner-body strong { font-size: 13px; color: #86efac; display: block; margin-bottom: 4px; }
+    .status-banner-body ul { padding-left: 16px; font-size: 12px; color: #4ade80; line-height: 1.9; }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #a1a1aa; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dot-done    { background: #22c55e; }
+    .dot-active  { background: #f59e0b; }
+    .dot-next    { background: #3b82f6; }
+    .dot-later   { background: #6b7280; }
+    .dot-new     { background: #d946ef; }
+
+    /* DEPARTMENTS */
+    .dept-row { max-width: 1200px; margin: 0 auto 32px; }
+    .dept-row h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #52525b; margin-bottom: 12px; }
+    .dept-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .dept-pill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; border: 1px solid; }
+    .dept-office    { background: #1e3a5f22; border-color: #3b82f6; color: #93c5fd; }
+    .dept-install   { background: #14532d22; border-color: #22c55e; color: #86efac; }
+    .dept-warehouse { background: #451a0322; border-color: #f59e0b; color: #fcd34d; }
+    .dept-marketing { background: #4a044e22; border-color: #d946ef; color: #f0abfc; }
+    .dept-sales     { background: #1c1917;   border-color: #78716c; color: #d6d3d1; }
+    .dept-pickup    { background: #1c2620;   border-color: #6ee7b7; color: #6ee7b7; }
+    .dept-finance   { background: #1f1a00;   border-color: #eab308; color: #fde68a; }
+
+    /* PROGRESS */
+    .progress-section {
+      max-width: 1200px; margin: 0 auto 24px;
+      background: #18181b; border: 1px solid #27272a;
+      border-radius: 12px; padding: 20px 24px;
+    }
+    .progress-section h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #52525b; margin-bottom: 16px; }
+    .progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .progress-label { font-size: 12px; color: #a1a1aa; width: 200px; flex-shrink: 0; }
+    .progress-bar-track { flex: 1; background: #27272a; border-radius: 99px; height: 6px; overflow: hidden; }
+    .progress-bar-fill  { height: 100%; border-radius: 99px; }
+    .fill-green  { background: #22c55e; }
+    .fill-amber  { background: #f59e0b; }
+    .fill-blue   { background: #3b82f6; }
+    .fill-purple { background: #d946ef; }
+    .fill-yellow { background: #eab308; }
+    .fill-gray   { background: #3f3f46; }
+    .progress-pct { font-size: 11px; color: #52525b; width: 36px; text-align: right; }
+
+    /* SECTION LABELS */
+    .section-label {
+      max-width: 1200px; margin: 32px auto 12px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 1px; color: #52525b; padding-left: 4px;
+    }
+
+    /* PHASE CARDS */
+    .phases {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .phases-3col { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+    .phase-card {
+      background: #18181b; border: 1px solid #27272a;
+      border-radius: 12px; overflow: hidden;
+    }
+    .phase-card.highlight-amber { border-color: #f59e0b; }
+    .phase-card.highlight-blue  { border-color: #3b82f6; }
+    .phase-card.highlight-purple { border-color: #d946ef; }
+    .phase-card.highlight-yellow { border-color: #eab308; }
+
+    .phase-header {
+      padding: 14px 18px; border-bottom: 1px solid #27272a;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .phase-header .phase-icon { font-size: 16px; }
+    .phase-header h2 { font-size: 13px; font-weight: 600; color: #fff; }
+    .phase-header .badge {
+      margin-left: auto; font-size: 10px; font-weight: 600;
+      padding: 2px 8px; border-radius: 99px; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .badge-done    { background: #14532d; color: #86efac; }
+    .badge-active  { background: #451a03; color: #fcd34d; }
+    .badge-next    { background: #1e3a5f; color: #93c5fd; }
+    .badge-later   { background: #27272a; color: #71717a; }
+    .badge-new     { background: #4a044e; color: #f0abfc; }
+    .badge-finance { background: #1f1a00; color: #fde68a; }
+
+    .phase-body { padding: 14px 18px; }
+    .group + .group { margin-top: 16px; }
+    .group-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #52525b; margin-bottom: 6px; }
+
+    .task {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 6px 0; border-bottom: 1px solid #1f1f23;
+      font-size: 12px;
+    }
+    .task:last-child { border-bottom: none; }
+    .task-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .task-text { flex: 1; line-height: 1.4; }
+    .task-text strong { color: #e4e4e7; font-weight: 500; }
+    .task-text span   { color: #71717a; font-size: 11px; }
+    .task-tag {
+      font-size: 10px; padding: 1px 6px; border-radius: 4px;
+      font-weight: 500; flex-shrink: 0; margin-top: 1px;
+    }
+    .tag-auth  { background: #1e1b4b; color: #a5b4fc; }
+    .tag-db    { background: #1c2620; color: #6ee7b7; }
+    .tag-infra { background: #2d1c0d; color: #fdba74; }
+    .tag-ui    { background: #1a1c2c; color: #93c5fd; }
+    .tag-int   { background: #2a1728; color: #f0abfc; }
+    .tag-ai    { background: #1a1a2e; color: #a78bfa; }
+
+    /* NAV MAP */
+    .nav-map {
+      max-width: 1200px; margin: 0 auto 24px;
+      background: #18181b; border: 1px solid #27272a;
+      border-radius: 12px; padding: 18px 22px;
+    }
+    .nav-map h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #52525b; margin-bottom: 14px; }
+    .nav-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .nav-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+      border: 1px solid;
+    }
+    .nav-done    { background: #14532d22; border-color: #22c55e44; color: #86efac; }
+    .nav-active  { background: #451a0322; border-color: #f59e0b66; color: #fcd34d; }
+    .nav-planned { background: #1e3a5f22; border-color: #3b82f644; color: #93c5fd; }
+    .nav-future  { background: #27272a;   border-color: #3f3f46;   color: #71717a; }
+    .nav-pill .nav-status { font-size: 10px; opacity: 0.7; }
+
+    /* STACK */
+    .stack-section {
+      max-width: 1200px; margin: 24px auto 0;
+      background: #18181b; border: 1px solid #27272a;
+      border-radius: 12px; padding: 18px 22px;
+    }
+    .stack-section h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #52525b; margin-bottom: 12px; }
+    .stack-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .stack-pill { background: #27272a; border: 1px solid #3f3f46; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #d4d4d8; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>TexasTurf OS — Project Map</h1>
+    <p>Last updated: May 28, 2026 &nbsp;·&nbsp; os.texasturfusa.com · main branch</p>
+  </header>
+
+  <!-- STATUS BANNER -->
+  <div class="status-banner">
+    <span class="status-banner-icon">🚀</span>
+    <div class="status-banner-body">
+      <strong>Live & shipping fast — os.texasturfusa.com · 8 modules built · Reports/KPI dashboard just deployed</strong>
+      <ul>
+        <li>✅ Infrastructure, Auth, DB schema all live</li>
+        <li>✅ Tasks + Projects + Recurring Tasks + Notifications — complete</li>
+        <li>✅ Invoice submission, review, approval workflow — complete</li>
+        <li>✅ Vendor management + scorecards — complete</li>
+        <li>✅ Fleet module — list + detail + maintenance (rig chain mapping still needed)</li>
+        <li>✅ Reports / KPI Dashboard + Budget vs Actual — just deployed (run migration 20260522000000)</li>
+        <li>🔵 Next: Team Performance Tracking → Attention Board → Marketing Hub → Financial Module</li>
+        <li>⚠️ Pending: Resend DNS (DKIM/SPF for texasturfusa.com), Google SSO, rig chain mapping</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- DEPARTMENTS -->
+  <div class="dept-row">
+    <h2>Departments this app serves</h2>
+    <div class="dept-grid">
+      <div class="dept-pill dept-office">🖥️ Office / Dispatch</div>
+      <div class="dept-pill dept-install">🏗️ Installation Teams</div>
+      <div class="dept-pill dept-warehouse">📦 Warehouse</div>
+      <div class="dept-pill dept-marketing">📣 Marketing</div>
+      <div class="dept-pill dept-sales">💼 Sales</div>
+      <div class="dept-pill dept-pickup">🚐 Pickup</div>
+      <div class="dept-pill dept-finance">💰 Finance / Directors</div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="dot dot-done"></div> Done</div>
+    <div class="legend-item"><div class="dot dot-active"></div> In progress</div>
+    <div class="legend-item"><div class="dot dot-next"></div> Next up</div>
+    <div class="legend-item"><div class="dot dot-new"></div> Planned — new</div>
+    <div class="legend-item"><div class="dot dot-later"></div> Later phases</div>
+  </div>
+
+  <!-- NAV MAP -->
+  <div class="nav-map">
+    <h2>App Navigation — Current &amp; Planned</h2>
+    <div class="nav-grid">
+      <div class="nav-pill nav-done">✅ Tasks <span class="nav-status">live</span></div>
+      <div class="nav-pill nav-done">✅ Projects <span class="nav-status">live</span></div>
+      <div class="nav-pill nav-done">✅ Invoices <span class="nav-status">live</span></div>
+      <div class="nav-pill nav-done">✅ Fleet <span class="nav-status">live</span></div>
+      <div class="nav-pill nav-done">✅ Vendors <span class="nav-status">live</span></div>
+      <div class="nav-pill nav-done">✅ Reports <span class="nav-status">just shipped</span></div>
+      <div class="nav-pill nav-active">🔵 Team Performance <span class="nav-status">next</span></div>
+      <div class="nav-pill nav-active">🔵 Attention Board <span class="nav-status">next</span></div>
+      <div class="nav-pill nav-planned">📣 Marketing <span class="nav-status">planned</span></div>
+      <div class="nav-pill nav-planned">💰 Financials <span class="nav-status">planned · admin only</span></div>
+      <div class="nav-pill nav-future">📦 Warehouse <span class="nav-status">phase 3</span></div>
+      <div class="nav-pill nav-future">🗓️ Scheduling <span class="nav-status">phase 2</span></div>
+      <div class="nav-pill nav-future">💼 Sales / Pricing <span class="nav-status">phase 2</span></div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-section">
+    <h2>Module Progress</h2>
+    <div class="progress-row">
+      <div class="progress-label">Infrastructure &amp; Deploy</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:100%"></div></div>
+      <div class="progress-pct">100%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Auth &amp; Roles</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-amber" style="width:70%"></div></div>
+      <div class="progress-pct">70%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Task Manager</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:90%"></div></div>
+      <div class="progress-pct">90%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Fleet &amp; Equipment</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-amber" style="width:65%"></div></div>
+      <div class="progress-pct">65%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Invoices &amp; Vendors</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:85%"></div></div>
+      <div class="progress-pct">85%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Reports / KPI Dashboard</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-amber" style="width:70%"></div></div>
+      <div class="progress-pct">70%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Team Performance</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-blue" style="width:0%"></div></div>
+      <div class="progress-pct">0%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Marketing Hub</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-purple" style="width:0%"></div></div>
+      <div class="progress-pct">0%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Financial Module</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-yellow" style="width:0%"></div></div>
+      <div class="progress-pct">0%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Warehouse / Inventory</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-gray" style="width:0%"></div></div>
+      <div class="progress-pct">0%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Scheduling / Dispatch</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-gray" style="width:0%"></div></div>
+      <div class="progress-pct">0%</div>
+    </div>
+  </div>
+
+  <!-- ── COMPLETE MODULES ── -->
+  <div class="section-label">✅ Complete modules (shipped)</div>
+  <div class="phases">
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-icon">🏗️</span>
+        <h2>Infrastructure &amp; Auth</h2>
+        <span class="badge badge-done">Done ✓</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Next.js 16 + Supabase + Vercel</strong><br><span>os.texasturfusa.com live · Cloudflare DNS</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Magic link login</strong><br><span>@texasturfusa.com only · OTP confirmed working</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Role system: Admin / Office / Field</strong><br><span>RLS enforced in DB for all tables</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Notifications bell</strong><br><span>Realtime Supabase subscription · mark read</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Active nav highlighting</strong></div></div>
+          <div class="task"><span class="task-icon">⚠️</span><div class="task-text"><strong>Google Workspace SSO</strong><br><span>GCP OAuth unblocked — needs wiring to Supabase</span></div><span class="task-tag tag-auth">Pending</span></div>
+          <div class="task"><span class="task-icon">⚠️</span><div class="task-text"><strong>Resend DKIM/SPF DNS</strong><br><span>texasturfusa.com email auth — DNS records needed</span></div><span class="task-tag tag-int">Pending</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-icon">✅</span>
+        <h2>Task Manager</h2>
+        <span class="badge badge-done">Done ✓</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Tasks + Projects</strong><br><span>Create, assign, status workflow, due dates, priorities</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Department views + role-based visibility</strong></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Task comments &amp; activity log</strong></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Recurring tasks</strong><br><span>Daily / weekly / biweekly / monthly rules · Vercel cron at 6 AM</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>In-app notifications</strong><br><span>Realtime bell · unread badge</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-icon">🚛</span>
+        <h2>Fleet &amp; Equipment</h2>
+        <span class="badge badge-active">65% — needs rig chains</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="group-label">✅ Done</div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>28 assets seeded</strong><br><span>8 trucks · 9 trailers · 11 heavy equipment</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Fleet list page</strong><br><span>Status badges, filter by type/status</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Asset detail page</strong><br><span>Inline edit · maintenance schedules &amp; logs</span></div></div>
+        </div>
+        <div class="group">
+          <div class="group-label">🔵 Still needed</div>
+          <div class="task"><span class="task-icon">🔵</span><div class="task-text"><strong>Rig chain mapping</strong><br><span>attached_to_id null for all 28 — map trailers → trucks</span></div><span class="task-tag tag-db">DB</span></div>
+          <div class="task"><span class="task-icon">🔵</span><div class="task-text"><strong>Daily job assignment</strong><br><span>Assign rigs to jobs each morning</span></div><span class="task-tag tag-ui">UI</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-icon">🧾</span>
+        <h2>Invoices &amp; Vendors</h2>
+        <span class="badge badge-done">85% ✓</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="group-label">✅ Done</div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Invoice submission form</strong><br><span>File upload → Supabase Storage → mock OCR extraction</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Full review + approval workflow</strong><br><span>12 statuses · office review → ownership approval</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Slack notifications</strong><br><span>#installation-invoices on submit / approve / pay</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Monday.com integration</strong><br><span>Auto-creates item on submit · updates status</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Email notifications via Resend</strong><br><span>Submitter notified on approval / rejection / payment</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Vendor management + scorecards</strong><br><span>CRUD · avg invoice · cycle times · 6-month trend</span></div></div>
+        </div>
+        <div class="group">
+          <div class="group-label">🔵 Phase 2</div>
+          <div class="task"><span class="task-icon">🔵</span><div class="task-text"><strong>Real OCR (OpenAI Vision)</strong><br><span>Replace mock with actual extraction</span></div><span class="task-tag tag-ai">AI</span></div>
+          <div class="task"><span class="task-icon">🔵</span><div class="task-text"><strong>Duplicate detection</strong></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">🔵</span><div class="task-text"><strong>Export to CSV / PDF</strong></div><span class="task-tag tag-ui">UI</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-icon">📊</span>
+        <h2>Reports &amp; KPI Dashboard</h2>
+        <span class="badge badge-active">70% — just shipped</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="group-label">✅ Done</div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Monthly financial overview</strong><br><span>Total submitted / approved / paid · avg cycle time</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Budget vs Actual</strong><br><span>6 categories · variance highlighted red/green · edit per month</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Open invoice pipeline</strong><br><span>Status count pills · link to filtered invoice list</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Top vendors this period</strong></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Manual KPI tracking</strong><br><span>Capacity utilization, customer satisfaction, lead time, margins</span></div></div>
+          <div class="task"><span class="task-icon">✅</span><div class="task-text"><strong>Period navigator</strong><br><span>← Prev Month | May 2026 | Next →</span></div></div>
+        </div>
+        <div class="group">
+          <div class="group-label">🔵 Next</div>
+          <div class="task"><span class="task-icon">🔵</span><div class="task-text"><strong>Team Performance Tracking</strong><br><span>Per-person KPI targets + actuals · monthly logs</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">🔵</span><div class="task-text"><strong>Attention Board</strong><br><span>Invoices stuck &gt;7 days · overdue tasks · KPIs off target</span></div><span class="task-tag tag-ui">UI</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── NEXT UP ── -->
+  <div class="section-label">🔵 Next up — building now</div>
+  <div class="phases">
+
+    <div class="phase-card highlight-blue">
+      <div class="phase-header">
+        <span class="phase-icon">👥</span>
+        <h2>Team Performance Tracking</h2>
+        <span class="badge badge-next">Next</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="group-label">Planned features</div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Team members: Maximilian, Nate, Maddie</strong><br><span>Per-person profile with role, KPI set, targets</span></div><span class="task-tag tag-db">DB</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Monthly KPI entry</strong><br><span>Log actual values against targets each month</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Performance history view</strong><br><span>Rolling 6-month trend per person</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Coaching report export</strong><br><span>Generate formatted summary to paste into Cowork</span></div><span class="task-tag tag-ai">AI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Admin only — field users cannot see</strong></div><span class="task-tag tag-auth">Auth</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card highlight-blue">
+      <div class="phase-header">
+        <span class="phase-icon">🚨</span>
+        <h2>Attention Board</h2>
+        <span class="badge badge-next">Next</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="group-label">Planned features</div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Invoices stuck in status &gt;7 days</strong><br><span>Auto-flagged from invoice data</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Overdue tasks</strong><br><span>Any task past due date still open</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>KPIs below target threshold</strong><br><span>Flag when actual &lt; 90% of target</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Vendors with anomalous pricing</strong><br><span>Invoice amount &gt;20% above their own avg</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Single inbox view</strong><br><span>All flags in one place · link to source record</span></div><span class="task-tag tag-ui">UI</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── MARKETING HUB ── -->
+  <div class="section-label">📣 Marketing Hub — planned</div>
+  <div class="phases phases-3col">
+
+    <div class="phase-card highlight-purple">
+      <div class="phase-header">
+        <span class="phase-icon">📅</span>
+        <h2>Content &amp; Campaigns</h2>
+        <span class="badge badge-new">Planned</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Content calendar</strong><br><span>Plan posts across Instagram, Facebook, Google, Email by date</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Campaign tracker</strong><br><span>Name, channel, goal, budget, status, start/end dates</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Campaign ROI</strong><br><span>Spend vs leads vs jobs closed per campaign</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Content asset library</strong><br><span>Photos, copy snippets, templates organized by campaign</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Seasonal campaign planner</strong><br><span>Spring install rush, fall cleanups, promotions</span></div><span class="task-tag tag-ui">UI</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card highlight-purple">
+      <div class="phase-header">
+        <span class="phase-icon">📈</span>
+        <h2>Performance &amp; Analytics</h2>
+        <span class="badge badge-new">Planned</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Google Search Console integration</strong><br><span>Keyword impressions, clicks, avg position</span></div><span class="task-tag tag-int">Int</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>SEO keyword tracker</strong><br><span>Track target keywords + rankings over time</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Google Analytics summary</strong><br><span>Sessions, leads, conversions pulled into dashboard</span></div><span class="task-tag tag-int">Int</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Lead source tracking</strong><br><span>Where are jobs coming from? Google, referral, social, door hangers</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Marketing spend by channel</strong><br><span>Monthly ad spend vs leads per channel</span></div><span class="task-tag tag-ui">UI</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card highlight-purple">
+      <div class="phase-header">
+        <span class="phase-icon">⭐</span>
+        <h2>Reviews &amp; Reputation</h2>
+        <span class="badge badge-new">Planned</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Google Reviews monitor</strong><br><span>New reviews pulled in · avg rating trend</span></div><span class="task-tag tag-int">Int</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Review response tracker</strong><br><span>Flag unanswered reviews · log responses</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Customer satisfaction log</strong><br><span>Manual entry or form-based CSAT scores per job</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Review request automation</strong><br><span>Trigger review ask after job completion</span></div><span class="task-tag tag-int">Int</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FINANCIAL MODULE ── -->
+  <div class="section-label">💰 Financial Module — admin &amp; directors only</div>
+  <div class="phases phases-3col">
+
+    <div class="phase-card highlight-yellow">
+      <div class="phase-header">
+        <span class="phase-icon">📋</span>
+        <h2>P&amp;L &amp; Job Costing</h2>
+        <span class="badge badge-finance">Admin only</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>P&amp;L dashboard</strong><br><span>Revenue vs subcontractor cost vs overhead · gross margin %</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Job costing</strong><br><span>Revenue per job vs cost of labor + materials + subcontractors</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Revenue by service type</strong><br><span>Residential install vs commercial vs maintenance</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>MoM / YoY comparisons</strong><br><span>Revenue, margin, volume vs prior periods</span></div><span class="task-tag tag-ui">UI</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card highlight-yellow">
+      <div class="phase-header">
+        <span class="phase-icon">💵</span>
+        <h2>Cash Flow &amp; AP/AR</h2>
+        <span class="badge badge-finance">Admin only</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Cash flow overview</strong><br><span>Expected inflows vs outflows by week</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>AP aging report</strong><br><span>Outstanding vendor invoices by age bracket (0–30, 31–60, 60+)</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Subcontractor cost analysis</strong><br><span>Vendor pricing trends · anomaly flags · YoY change</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Payment schedule planner</strong><br><span>What's due this week / next week across all vendors</span></div><span class="task-tag tag-ui">UI</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card highlight-yellow">
+      <div class="phase-header">
+        <span class="phase-icon">🎯</span>
+        <h2>Budgets &amp; Reporting</h2>
+        <span class="badge badge-finance">Admin only</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Annual budget planning</strong><br><span>Set full-year budgets by category · monthly breakdown</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Weekly budget vs actual</strong><br><span>Rolling 4-week view of spend vs budget</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Monthly financial report export</strong><br><span>PDF / Excel package for ownership review</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Tax prep summaries</strong><br><span>1099 contractor totals · category spend by quarter</span></div><span class="task-tag tag-ui">UI</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Cowork AI report generation</strong><br><span>One-click export to paste into Cowork for narrative summary</span></div><span class="task-tag tag-ai">AI</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── LATER PHASES ── -->
+  <div class="section-label">🕐 Later phases</div>
+  <div class="phases phases-3col">
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-icon">📦</span>
+        <h2>Warehouse &amp; Inventory</h2>
+        <span class="badge badge-later">Phase 3</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Materials inventory</strong><br><span>Turf rolls, base materials, supplies — stock levels</span></div></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Low stock alerts</strong></div></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Receiving log</strong><br><span>Record incoming shipments with cost</span></div></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Port from Base44</strong></div><span class="task-tag tag-int">Int</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-icon">💼</span>
+        <h2>Sales &amp; Pricing</h2>
+        <span class="badge badge-later">Phase 2</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Quote builder</strong><br><span>Material cost calculator — port from Base44</span></div></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Lead tracking</strong><br><span>New inquiries, follow-up status, close rate</span></div></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Jobber API integration</strong><br><span>Pull job data so office sees one screen</span></div><span class="task-tag tag-int">Int</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-icon">🗓️</span>
+        <h2>Scheduling &amp; Dispatch</h2>
+        <span class="badge badge-later">Phase 2</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Daily crew schedule</strong><br><span>Crew + rig → job assignment each morning</span></div></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Field status updates</strong><br><span>Crew posts job progress from mobile</span></div></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Real-time status board</strong><br><span>Office sees live progress across all crews</span></div></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Pickup crew run list</strong></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-icon">📡</span>
+        <h2>Communication Tracking</h2>
+        <span class="badge badge-later">Phase 3</span>
+      </div>
+      <div class="phase-body">
+        <div class="group">
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Response time standards</strong><br><span>Customer email: 4h · Urgent Slack: 1h · Vendor: 24h</span></div></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Gmail integration</strong><br><span>Measure actual response times vs standards</span></div><span class="task-tag tag-int">Int</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Slack response tracking</strong><br><span>@mention response time monitoring</span></div><span class="task-tag tag-int">Int</span></div>
+          <div class="task"><span class="task-icon">⬜</span><div class="task-text"><strong>Weekly SLA compliance report</strong></div><span class="task-tag tag-ui">UI</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STACK -->
+  <div class="stack-section" style="margin-top:32px">
+    <h2>Tech Stack</h2>
+    <div class="stack-grid">
+      <span class="stack-pill">Next.js 16 (App Router)</span>
+      <span class="stack-pill">TypeScript</span>
+      <span class="stack-pill">Tailwind v4</span>
+      <span class="stack-pill">Supabase Postgres</span>
+      <span class="stack-pill">Supabase Auth</span>
+      <span class="stack-pill">Supabase Storage</span>
+      <span class="stack-pill">Row Level Security</span>
+      <span class="stack-pill">@supabase/ssr</span>
+      <span class="stack-pill">React 19 Server Actions</span>
+      <span class="stack-pill">useActionState</span>
+      <span class="stack-pill">Zod v4</span>
+      <span class="stack-pill">pnpm 11</span>
+      <span class="stack-pill">Vercel (Hobby)</span>
+      <span class="stack-pill">Vercel Cron</span>
+      <span class="stack-pill">Cloudflare DNS</span>
+      <span class="stack-pill">Resend (email)</span>
+      <span class="stack-pill">Slack Block Kit</span>
+      <span class="stack-pill">Monday.com GraphQL API</span>
+      <span class="stack-pill">Sentry</span>
+      <span class="stack-pill">PostHog</span>
+      <span class="stack-pill">date-fns</span>
+    </div>
+  </div>
+
+</body>
+</html>
