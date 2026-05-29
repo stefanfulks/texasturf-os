@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { runOcr } from "@/lib/ocr";
 
 export const dynamic = "force-dynamic";
@@ -175,8 +175,9 @@ async function processSlackFile(
   }
   const fileBuffer = await fileResp.arrayBuffer();
 
-  // 2. Upload to Supabase Storage
-  const supabase = await createClient();
+  // 2. Upload to Supabase Storage (service-role client bypasses RLS —
+  //    Slack webhook has no user session so we use the service key)
+  const supabase = createServiceClient();
   const storagePath = `slack/${Date.now()}-${fileName}`;
 
   const { error: uploadErr } = await supabase.storage
