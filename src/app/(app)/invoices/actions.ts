@@ -125,6 +125,46 @@ export async function submitInvoice(
     vendorName = vendor?.name;
   }
 
+  // ── Duplicate detection ──────────────────────────────────────────────────────
+  let duplicateWarning = false;
+
+  // 1. Amount-based dedup: same vendor + amount within ±1% in the last 30 days
+  if (d.vendor_id && d.total_amount) {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const low  = d.total_amount * 0.99;
+    const high = d.total_amount * 1.01;
+
+    const { data: amountMatches } = await supabase
+      .from("invoices")
+      .select("id")
+      .eq("vendor_id", d.vendor_id)
+      .gte("total_amount", low)
+      .lte("total_amount", high)
+      .gte("submitted_at", thirtyDaysAgo)
+      .limit(1);
+
+    if (amountMatches && amountMatches.length > 0) {
+      duplicateWarning = true;
+    }
+  }
+
+  // 2. Invoice-number dedup: same invoice_number + same vendor
+  if (!duplicateWarning && d.vendor_id) {
+    const invoiceNumber = formData.get("invoice_number") as string | null;
+    if (invoiceNumber && invoiceNumber.trim() !== "") {
+      const { data: numMatches } = await supabase
+        .from("invoices")
+        .select("id")
+        .eq("vendor_id", d.vendor_id)
+        .eq("invoice_number", invoiceNumber.trim())
+        .limit(1);
+
+      if (numMatches && numMatches.length > 0) {
+        duplicateWarning = true;
+      }
+    }
+  }
+
   // Create invoice
   const { data: invoice, error: insertErr } = await supabase
     .from("invoices")
@@ -143,6 +183,7 @@ export async function submitInvoice(
       admin_notes:          d.notes ?? null,
       submitted_by_id:      user.id,
       status:               d.original_file_url ? "ocr_processing" : "awaiting_review",
+      duplicate_warning:    duplicateWarning,
     })
     .select()
     .single();

@@ -1070,6 +1070,142 @@ export type Database = {
           },
         ]
       }
+      team_members: {
+        Row: {
+          id: string
+          full_name: string
+          role_title: string
+          department: string | null
+          profile_id: string | null
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          full_name: string
+          role_title: string
+          department?: string | null
+          profile_id?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string
+          role_title?: string
+          department?: string | null
+          profile_id?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_kpi_definitions: {
+        Row: {
+          id: string
+          team_member_id: string
+          kpi_key: string
+          kpi_label: string
+          target_value: number
+          unit: string | null
+          lower_is_better: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          team_member_id: string
+          kpi_key: string
+          kpi_label: string
+          target_value: number
+          unit?: string | null
+          lower_is_better?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          team_member_id?: string
+          kpi_key?: string
+          kpi_label?: string
+          target_value?: number
+          unit?: string | null
+          lower_is_better?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_kpi_definitions_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_kpi_entries: {
+        Row: {
+          id: string
+          team_member_id: string
+          kpi_key: string
+          period_month: number
+          period_year: number
+          actual_value: number | null
+          notes: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          team_member_id: string
+          kpi_key: string
+          period_month: number
+          period_year: number
+          actual_value?: number | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          team_member_id?: string
+          kpi_key?: string
+          period_month?: number
+          period_year?: number
+          actual_value?: number | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_kpi_entries_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_kpi_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kpi_entries: {
         Row: {
           id: string
@@ -1198,6 +1334,388 @@ export type Database = {
         }
         Relationships: []
       }
+      // ── Inventory Manager tables ──────────────────────────────
+      inv_locations: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      inv_products: {
+        Row: {
+          id: string
+          name: string
+          sku: string | null
+          width_ft: number | null
+          description: string | null
+          active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          sku?: string | null
+          width_ft?: number | null
+          description?: string | null
+          active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          sku?: string | null
+          width_ft?: number | null
+          description?: string | null
+          active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      inv_rolls: {
+        Row: {
+          id: string
+          tt_sku_tag_number: string | null
+          manufacturer_roll_number: string | null
+          vendor_id: string | null
+          product_id: string | null
+          product_name: string | null
+          dye_lot: string | null
+          width_ft: number | null
+          original_length_ft: number | null
+          current_length_ft: number | null
+          status: Database["public"]["Enums"]["roll_status"]
+          roll_type: Database["public"]["Enums"]["roll_type"]
+          parent_roll_id: string | null
+          location_id: string | null
+          allocated_job_id: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          tt_sku_tag_number?: string | null
+          manufacturer_roll_number?: string | null
+          vendor_id?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          dye_lot?: string | null
+          width_ft?: number | null
+          original_length_ft?: number | null
+          current_length_ft?: number | null
+          status?: Database["public"]["Enums"]["roll_status"]
+          roll_type?: Database["public"]["Enums"]["roll_type"]
+          parent_roll_id?: string | null
+          location_id?: string | null
+          allocated_job_id?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          tt_sku_tag_number?: string | null
+          manufacturer_roll_number?: string | null
+          vendor_id?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          dye_lot?: string | null
+          width_ft?: number | null
+          original_length_ft?: number | null
+          current_length_ft?: number | null
+          status?: Database["public"]["Enums"]["roll_status"]
+          roll_type?: Database["public"]["Enums"]["roll_type"]
+          parent_roll_id?: string | null
+          location_id?: string | null
+          allocated_job_id?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inv_rolls_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inv_rolls_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "inv_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inv_rolls_parent_roll_id_fkey"
+            columns: ["parent_roll_id"]
+            isOneToOne: false
+            referencedRelation: "inv_rolls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inv_rolls_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inv_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inv_rolls_job_fkey"
+            columns: ["allocated_job_id"]
+            isOneToOne: false
+            referencedRelation: "inv_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inv_jobs: {
+        Row: {
+          id: string
+          job_number: string | null
+          job_name: string
+          site_address: string | null
+          status: string
+          scheduled_date: string | null
+          completion_date: string | null
+          notes: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          job_number?: string | null
+          job_name: string
+          site_address?: string | null
+          status?: string
+          scheduled_date?: string | null
+          completion_date?: string | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          job_number?: string | null
+          job_name?: string
+          site_address?: string | null
+          status?: string
+          scheduled_date?: string | null
+          completion_date?: string | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inv_jobs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inv_allocations: {
+        Row: {
+          id: string
+          job_id: string
+          roll_id: string | null
+          product_id: string | null
+          product_name: string | null
+          width_ft: number | null
+          dye_lot_preference: string | null
+          requested_length_ft: number | null
+          status: string
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          job_id: string
+          roll_id?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          width_ft?: number | null
+          dye_lot_preference?: string | null
+          requested_length_ft?: number | null
+          status?: string
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          job_id?: string
+          roll_id?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          width_ft?: number | null
+          dye_lot_preference?: string | null
+          requested_length_ft?: number | null
+          status?: string
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inv_allocations_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "inv_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inv_allocations_roll_id_fkey"
+            columns: ["roll_id"]
+            isOneToOne: false
+            referencedRelation: "inv_rolls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inv_allocations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "inv_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inv_transactions: {
+        Row: {
+          id: string
+          transaction_type: string
+          roll_id: string | null
+          job_id: string | null
+          from_status: string | null
+          to_status: string | null
+          quantity_ft: number | null
+          notes: string | null
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          transaction_type: string
+          roll_id?: string | null
+          job_id?: string | null
+          from_status?: string | null
+          to_status?: string | null
+          quantity_ft?: number | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          transaction_type?: string
+          roll_id?: string | null
+          job_id?: string | null
+          from_status?: string | null
+          to_status?: string | null
+          quantity_ft?: number | null
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inv_transactions_roll_id_fkey"
+            columns: ["roll_id"]
+            isOneToOne: false
+            referencedRelation: "inv_rolls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inv_transactions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "inv_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inv_transactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inv_items: {
+        Row: {
+          id: string
+          name: string
+          sku: string | null
+          quantity: number
+          unit: string
+          min_quantity: number
+          location_id: string | null
+          notes: string | null
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          sku?: string | null
+          quantity?: number
+          unit?: string
+          min_quantity?: number
+          location_id?: string | null
+          notes?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          sku?: string | null
+          quantity?: number
+          unit?: string
+          min_quantity?: number
+          location_id?: string | null
+          notes?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inv_items_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inv_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -1226,6 +1744,8 @@ export type Database = {
       recurrence_freq: "daily" | "weekly" | "biweekly" | "monthly"
       invoice_status: "draft" | "submitted" | "ocr_processing" | "ocr_review_needed" | "awaiting_review" | "awaiting_approval" | "approved" | "request_change" | "rejected" | "on_hold" | "paid" | "archived"
       vendor_type: "installer" | "contractor_1099" | "subcontractor" | "supplier" | "other"
+      roll_status: "available" | "planned" | "allocated" | "staged" | "dispatched" | "consumed" | "damaged" | "returned"
+      roll_type: "parent" | "child"
     }
     CompositeTypes: Record<string, never>
   }
@@ -1294,3 +1814,26 @@ export type Budget = Database["public"]["Tables"]["budgets"]["Row"]
 export type BudgetInsert = Database["public"]["Tables"]["budgets"]["Insert"]
 export type KpiEntry = Database["public"]["Tables"]["kpi_entries"]["Row"]
 export type KpiEntryInsert = Database["public"]["Tables"]["kpi_entries"]["Insert"]
+
+// Team Performance types
+export type TeamMember = Database["public"]["Tables"]["team_members"]["Row"]
+export type TeamMemberInsert = Database["public"]["Tables"]["team_members"]["Insert"]
+export type TeamMemberUpdate = Database["public"]["Tables"]["team_members"]["Update"]
+
+export type TeamKpiDefinition = Database["public"]["Tables"]["team_kpi_definitions"]["Row"]
+export type TeamKpiDefinitionInsert = Database["public"]["Tables"]["team_kpi_definitions"]["Insert"]
+
+export type TeamKpiEntry = Database["public"]["Tables"]["team_kpi_entries"]["Row"]
+export type TeamKpiEntryInsert = Database["public"]["Tables"]["team_kpi_entries"]["Insert"]
+export type TeamKpiEntryUpdate = Database["public"]["Tables"]["team_kpi_entries"]["Update"]
+
+// Inventory Manager types
+export type InvLocation = Database["public"]["Tables"]["inv_locations"]["Row"]
+export type InvProduct = Database["public"]["Tables"]["inv_products"]["Row"]
+export type InvRoll = Database["public"]["Tables"]["inv_rolls"]["Row"]
+export type InvJob = Database["public"]["Tables"]["inv_jobs"]["Row"]
+export type InvAllocation = Database["public"]["Tables"]["inv_allocations"]["Row"]
+export type InvTransaction = Database["public"]["Tables"]["inv_transactions"]["Row"]
+export type InvItem = Database["public"]["Tables"]["inv_items"]["Row"]
+export type RollStatus = Database["public"]["Enums"]["roll_status"]
+export type RollType = Database["public"]["Enums"]["roll_type"]

@@ -36,6 +36,10 @@ export default async function InvoicesPage({
 }) {
   const { status, q } = await searchParams;
 
+  const now          = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear  = now.getFullYear();
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -102,12 +106,22 @@ export default async function InvoicesPage({
           <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
           <p className="text-sm text-zinc-500 mt-0.5">{filtered.length} invoice{filtered.length !== 1 ? "s" : ""}</p>
         </div>
-        <Link
-          href="/invoices/new"
-          className="flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
-        >
-          <span className="text-lg leading-none">+</span> Submit Invoice
-        </Link>
+        <div className="flex items-center gap-2">
+          {isOfficeOrAdmin && (
+            <Link
+              href={`/api/invoices/export?month=${currentMonth}&year=${currentYear}`}
+              className="flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 hover:border-zinc-500 hover:text-zinc-900 transition-colors"
+            >
+              Export CSV
+            </Link>
+          )}
+          <Link
+            href="/invoices/new"
+            className="flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
+          >
+            <span className="text-lg leading-none">+</span> Submit Invoice
+          </Link>
+        </div>
       </div>
 
       {/* Stats (admin/office only) */}

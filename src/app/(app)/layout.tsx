@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/sign-out-button";
 import { NavLinks } from "@/components/nav-links";
 import { NotificationBell } from "@/components/notification-bell";
+import { AppSwitcher } from "@/components/app-switcher";
 
 export default async function AppLayout({
   children,
@@ -28,9 +29,7 @@ export default async function AppLayout({
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <Link href="/fleet" className="text-sm font-semibold tracking-tight">
-              TexasTurf OS
-            </Link>
+            <AppSwitcher />
             <NavLinks />
           </div>
           <div className="flex items-center gap-3 text-sm">
