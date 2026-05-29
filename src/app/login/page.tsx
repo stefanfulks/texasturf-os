@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { sendMagicLink, type LoginState } from "./actions";
+import { GoogleSignInButton } from "./google-button";
 
 const initialState: LoginState = { status: "idle" };
 
@@ -28,37 +29,42 @@ export default function LoginPage() {
             Magic link sent to <strong>{state.email}</strong>. Check your inbox.
           </div>
         ) : (
-          <form action={formAction} className="space-y-3">
-            <label className="block text-sm font-medium text-zinc-700">
-              Email
-              <input
-                type="email"
-                name="email"
-                required
-                autoComplete="email"
-                placeholder="you@texasturfusa.com"
-                className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
-              />
-            </label>
+          <div className="space-y-4">
+            <GoogleSignInButton />
 
-            {state.status === "error" && (
-              <p className="text-sm text-red-600">{state.message}</p>
-            )}
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-zinc-200" />
+              <span className="text-xs uppercase tracking-wide text-zinc-400">or</span>
+              <div className="h-px flex-1 bg-zinc-200" />
+            </div>
 
-            <button
-              type="submit"
-              disabled={pending}
-              className="block w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {pending ? "Sending…" : "Send magic link"}
-            </button>
-          </form>
+            <form action={formAction} className="space-y-3">
+              <label className="block text-sm font-medium text-zinc-700">
+                Email
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  autoComplete="email"
+                  placeholder="you@texasturfusa.com"
+                  className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                />
+              </label>
+
+              {state.status === "error" && (
+                <p className="text-sm text-red-600">{state.message}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={pending}
+                className="block w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {pending ? "Sending…" : "Send magic link"}
+              </button>
+            </form>
+          </div>
         )}
-
-        <p className="text-xs text-zinc-500">
-          Google SSO is coming once we finish setting up OAuth. Until then,
-          we&apos;ll email you a one-click sign-in link.
-        </p>
       </div>
     </main>
   );

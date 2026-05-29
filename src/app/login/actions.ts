@@ -44,3 +44,29 @@ export async function sendMagicLink(
 
   return { status: "sent", email };
 }
+
+// ─── Google SSO ───────────────────────────────────────────────────────────────
+
+export async function signInWithGoogle(): Promise<{ url: string } | { error: string }> {
+  const supabase = await createClient();
+  const headerStore = await headers();
+  const origin = headerStore.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL;
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/auth/callback`,
+      scopes:
+        "openid email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events",
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+  });
+
+  if (error || !data?.url) {
+    return { error: error?.message ?? "Could not start Google sign-in." };
+  }
+  return { url: data.url };
+}
