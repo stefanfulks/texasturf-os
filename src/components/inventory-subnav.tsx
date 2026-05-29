@@ -74,7 +74,7 @@ function Pill({
   );
 }
 
-export function InventorySubnav() {
+export function InventorySubnav({ readOnly = false }: { readOnly?: boolean }) {
   const pathname = usePathname();
 
   return (
@@ -103,6 +103,15 @@ export function InventorySubnav() {
           active={isActive(pathname, item.href)}
         />
       ))}
+
+      {readOnly && (
+        <>
+          <span aria-hidden="true" className="mx-2 h-5 w-px bg-zinc-200" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+            View only
+          </span>
+        </>
+      )}
     </nav>
   );
 }

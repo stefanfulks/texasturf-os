@@ -20,13 +20,14 @@ export default async function InventoryLayout({
     .eq("id", user.id)
     .single();
 
-  if (!profile || profile.role === "field") {
-    redirect("/");
-  }
+  if (!profile) redirect("/login");
+
+  // field role gets view-only access — actions are still gated server-side.
+  const readOnly = profile.role === "field";
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-      <InventorySubnav />
+      <InventorySubnav readOnly={readOnly} />
       {children}
     </div>
   );
