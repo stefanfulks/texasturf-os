@@ -29,14 +29,45 @@ function verifySlackSignature(
   }
 }
 
+// ─── Slack reply helper ───────────────────────────────────────────────────────
+
+async function postToSlack(
+  channelId: string,
+  text: string,
+  threadTs?: string,
+): Promise<void> {
+  const botToken = process.env.SLACK_BOT_TOKEN ?? "";
+  if (!botToken || !channelId) {
+    console.error("[slack/events] postToSlack: missing token or channel", {
+      hasToken: !!botToken,
+      channelId,
+    });
+    return;
+  }
+  try {
+    const body: Record<string, unknown> = { channel: channelId, text };
+    if (threadTs) body.thread_ts = threadTs;
+    const resp = await fetch("https://slack.com/api/chat.postMessage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${botToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+    const json = (await resp.json()) as { ok: boolean; error?: string };
+    if (!json.ok) console.error("[slack/events] chat.postMessage error:", json.error);
+  } catch (err) {
+    console.error("[slack/events] postToSlack threw:", err);
+  }
+}
+
 // ─── POST handler ─────────────────────────────────────────────────────────────
 
 export async function POST(request: Request): Promise<Response> {
-  // Read raw body for signature verification
   const rawBody = await request.text();
 
-  // Parse body first so we can short-circuit the url_verification handshake
-  // without requiring the signing secret to be configured server-side.
+  // Parse first so url_verification works before signature check
   let body: Record<string, unknown>;
   try {
     body = JSON.parse(rawBody) as Record<string, unknown>;
@@ -44,17 +75,15 @@ export async function POST(request: Request): Promise<Response> {
     return new Response("Bad Request", { status: 400 });
   }
 
-  // URL verification challenge — respond before signature check so Slack can
-  // confirm the endpoint during initial setup. Slack only sends this once.
   if (body.type === "url_verification") {
     return Response.json({ challenge: body.challenge });
   }
 
+  // Signature check on real events
   const slackSignature = request.headers.get("x-slack-signature")         ?? "";
   const slackTimestamp = request.headers.get("x-slack-request-timestamp") ?? "";
   const signingSecret  = process.env.SLACK_SIGNING_SECRET ?? "";
 
-  // Verify signature on all non-challenge requests
   if (
     !signingSecret ||
     !verifySlackSignature(signingSecret, rawBody, slackTimestamp, slackSignature)
@@ -63,28 +92,47 @@ export async function POST(request: Request): Promise<Response> {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  // Only handle message events with files
   const event = body.event as Record<string, unknown> | undefined;
-  if (!event) {
+  if (!event) return Response.json({ ok: true });
+
+  // Debug log every event we receive (visible in Vercel logs)
+  console.log("[slack/events] event received", {
+    type: event.type,
+    subtype: event.subtype,
+    channel: event.channel,
+    hasFiles: Array.isArray(event.files) && (event.files as unknown[]).length > 0,
+    user: event.user,
+    bot_id: event.bot_id,
+  });
+
+  const isMessage = event.type === "message";
+  const files = event.files as Array<Record<string, unknown>> | undefined;
+  const hasFiles = Array.isArray(files) && files.length > 0;
+  const channelId = process.env.SLACK_INVOICE_CHANNEL_ID;
+  const inChannel = event.channel === channelId;
+  const isBotMessage = !!event.bot_id; // ignore the bot's own replies
+
+  if (isBotMessage || !isMessage || !hasFiles || !inChannel) {
+    if (!isBotMessage && hasFiles && !inChannel) {
+      console.log(
+        `[slack/events] file in wrong channel: got=${event.channel} expected=${channelId}`,
+      );
+    }
     return Response.json({ ok: true });
   }
 
-  const isMessage   = event.type === "message";
-  const files       = event.files as Array<Record<string, unknown>> | undefined;
-  const hasFiles    = Array.isArray(files) && files.length > 0;
-  const channelId   = process.env.SLACK_INVOICE_CHANNEL_ID;
-  const inChannel   = event.channel === channelId;
-
-  if (!isMessage || !hasFiles || !inChannel) {
-    return Response.json({ ok: true });
-  }
-
-  // Process each file (usually just one)
-  for (const file of files) {
+  // Process each file with full error-to-Slack reporting
+  for (const file of files!) {
     try {
       await processSlackFile(file, event);
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
       console.error("[slack/events] Error processing file:", err);
+      await postToSlack(
+        channelId!,
+        `⚠️ I tried to process that file but hit an error: \`${msg}\`. Check Vercel logs.`,
+        event.ts as string | undefined,
+      );
     }
   }
 
@@ -97,24 +145,34 @@ async function processSlackFile(
   file: Record<string, unknown>,
   event: Record<string, unknown>,
 ): Promise<void> {
-  const botToken  = process.env.SLACK_BOT_TOKEN ?? "";
+  const botToken = process.env.SLACK_BOT_TOKEN ?? "";
   const channelId = process.env.SLACK_INVOICE_CHANNEL_ID ?? "";
-  const appUrl    = process.env.NEXT_PUBLIC_APP_URL ?? "https://os.texasturfusa.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://os.texasturfusa.com";
+  const threadTs = event.ts as string | undefined;
 
-  // 1. Download file from Slack
-  const fileUrl  = file.url_private as string;
+  const fileUrl = file.url_private as string;
   const fileName = (file.name as string | undefined) ?? `invoice-${Date.now()}`;
   const mimeType = (file.mimetype as string | undefined) ?? "application/octet-stream";
 
-  const fileResp = await fetch(fileUrl, {
-    headers: { Authorization: `Bearer ${botToken}` },
-  });
+  console.log("[slack/events] processing file", { fileName, mimeType });
 
-  if (!fileResp.ok) {
-    console.error("[slack/events] Failed to download file:", fileResp.status);
+  // Only handle images / PDFs
+  if (!mimeType.startsWith("image/") && mimeType !== "application/pdf") {
+    await postToSlack(
+      channelId,
+      `Skipped \`${fileName}\` — only images and PDFs are processed as invoices.`,
+      threadTs,
+    );
     return;
   }
 
+  // 1. Download from Slack
+  const fileResp = await fetch(fileUrl, {
+    headers: { Authorization: `Bearer ${botToken}` },
+  });
+  if (!fileResp.ok) {
+    throw new Error(`Slack file download failed: HTTP ${fileResp.status}`);
+  }
   const fileBuffer = await fileResp.arrayBuffer();
 
   // 2. Upload to Supabase Storage
@@ -123,33 +181,30 @@ async function processSlackFile(
 
   const { error: uploadErr } = await supabase.storage
     .from("invoices")
-    .upload(storagePath, fileBuffer, {
-      contentType: mimeType,
-      upsert: false,
-    });
+    .upload(storagePath, fileBuffer, { contentType: mimeType, upsert: false });
 
   if (uploadErr) {
-    console.error("[slack/events] Storage upload error:", uploadErr.message);
-    return;
+    throw new Error(`Supabase Storage upload failed: ${uploadErr.message}`);
   }
 
   const { data: signedUrlData, error: signedUrlErr } = await supabase.storage
     .from("invoices")
-    .createSignedUrl(storagePath, 60 * 60 * 24); // 24 hours
+    .createSignedUrl(storagePath, 60 * 60 * 24);
 
   if (signedUrlErr || !signedUrlData?.signedUrl) {
-    console.error("[slack/events] Signed URL error:", signedUrlErr?.message);
-    return;
+    throw new Error(`Signed URL generation failed: ${signedUrlErr?.message ?? "no url"}`);
   }
-
   const signedUrl = signedUrlData.signedUrl;
 
   // 3. Run OCR
+  console.log("[slack/events] running OCR…");
   const ocr = await runOcr(signedUrl, mimeType);
+  console.log("[slack/events] OCR done", { confidence: ocr.confidence, vendor: ocr.vendor_name, amount: ocr.total_amount });
 
-  // 4. Look up Slack user's profile to find TexasTurf user
+  // 4. Resolve submitter — try by Slack email, then fall back to first admin
   const slackUserId = event.user as string | undefined;
   let submittedById: string | null = null;
+  let resolvedNote: string | null = null;
 
   if (slackUserId) {
     try {
@@ -157,8 +212,9 @@ async function processSlackFile(
         `https://slack.com/api/users.info?user=${slackUserId}`,
         { headers: { Authorization: `Bearer ${botToken}` } },
       );
-      const userInfo = await userInfoResp.json() as {
+      const userInfo = (await userInfoResp.json()) as {
         ok: boolean;
+        error?: string;
         user?: { profile?: { email?: string } };
       };
 
@@ -168,24 +224,42 @@ async function processSlackFile(
           .from("profiles")
           .select("id")
           .eq("email", email)
-          .single();
+          .maybeSingle();
         submittedById = profile?.id ?? null;
+        if (!submittedById) {
+          resolvedNote = `Slack email \`${email}\` doesn't match a TexasTurf OS profile — invoice was filed under the default submitter.`;
+        }
+      } else {
+        resolvedNote = `Slack \`users.info\` returned no email (${userInfo.error ?? "ok=false"}). Invoice filed under default submitter.`;
       }
     } catch (err) {
-      console.error("[slack/events] Failed to resolve Slack user:", err);
+      resolvedNote = `Couldn't reach Slack \`users.info\`: ${err instanceof Error ? err.message : String(err)}`;
     }
   }
 
+  // Fallback: use first admin profile so the invoice can still be created
   if (!submittedById) {
-    console.warn("[slack/events] Could not resolve user — skipping invoice creation");
-    return;
+    const { data: adminProfile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("role", "admin")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    submittedById = adminProfile?.id ?? null;
+  }
+
+  if (!submittedById) {
+    throw new Error(
+      "No submitter could be resolved (Slack email didn't match a profile and no admin profile exists)",
+    );
   }
 
   // 5. Create invoice
   const now = new Date();
   const title = `${ocr.vendor_name ?? "Slack Upload"} Invoice ${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
-  const { data: invoice, error: insertErr } = await (supabase
+  const { data: invoice, error: insertErr } = await supabase
     .from("invoices")
     .insert({
       title,
@@ -195,20 +269,19 @@ async function processSlackFile(
       original_file_url:    signedUrl,
       original_file_type:   mimeType,
       original_file_name:   fileName,
-      total_amount:         ocr.total_amount          ?? null,
-      invoice_number:       ocr.invoice_number        ?? null,
-      service_period_start: ocr.service_period_start  ?? null,
-      service_period_end:   ocr.service_period_end    ?? null,
+      total_amount:         ocr.total_amount         ?? null,
+      invoice_number:       ocr.invoice_number       ?? null,
+      service_period_start: ocr.service_period_start ?? null,
+      service_period_end:   ocr.service_period_end   ?? null,
       ocr_confidence:       ocr.confidence,
       submitted_at:         now.toISOString(),
       status_changed_at:    now.toISOString(),
     } as unknown as import("@/lib/database.types").InvoiceInsert)
     .select()
-    .single());
+    .single();
 
   if (insertErr || !invoice) {
-    console.error("[slack/events] Invoice insert error:", insertErr?.message);
-    return;
+    throw new Error(`Invoice insert failed: ${insertErr?.message ?? "no row returned"}`);
   }
 
   // 6. Insert line items
@@ -228,46 +301,17 @@ async function processSlackFile(
     }
   }
 
-  // 7. Post back to Slack
+  // 7. Post success back to Slack
   const amountText = ocr.total_amount != null
     ? `$${ocr.total_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
     : "Amount TBD";
   const vendorText = ocr.vendor_name ?? "Vendor TBD";
 
-  const slackBody = {
-    channel: channelId,
-    blocks: [
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `✅ *Invoice received from Slack!*\n${vendorText} · ${amountText}\n<${appUrl}/invoices/${invoice.id}|Review Invoice →>`,
-        },
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `OCR confidence: ${ocr.confidence}% · Status: Needs Review`,
-        },
-      },
-    ],
-  };
+  const successText =
+    `✅ *Invoice received!*\n${vendorText} · ${amountText}\n` +
+    `<${appUrl}/invoices/${invoice.id}|Review invoice →>\n` +
+    `_OCR confidence: ${ocr.confidence}% · Status: Needs review_` +
+    (resolvedNote ? `\n_${resolvedNote}_` : "");
 
-  try {
-    const postResp = await fetch("https://slack.com/api/chat.postMessage", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${botToken}`,
-      },
-      body: JSON.stringify(slackBody),
-    });
-    const postJson = await postResp.json() as { ok: boolean; error?: string };
-    if (!postJson.ok) {
-      console.error("[slack/events] chat.postMessage error:", postJson.error);
-    }
-  } catch (err) {
-    console.error("[slack/events] Failed to post to Slack:", err);
-  }
+  await postToSlack(channelId, successText, threadTs);
 }
