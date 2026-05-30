@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { InvLocation, InvProduct, RollStatus } from "@/lib/database.types";
 
 const STATUS_OPTIONS: Array<[RollStatus, string]> = [
@@ -38,6 +38,8 @@ export function RollFilterBar({
   const [locationId, setLocationId] = useState(initialLocationId);
   const [productId, setProductId] = useState(initialProductId);
   const [search, setSearch] = useState(initialSearch);
+  const [showSuggest, setShowSuggest] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
 
   function pushFilters(next: {
     status?: string;
@@ -65,27 +67,92 @@ export function RollFilterBar({
     setLocationId("");
     setProductId("");
     setSearch("");
+    setShowSuggest(false);
     router.push("/inventory/rolls");
+  }
+
+  // ── Product autocomplete: surface matches once user has typed 2+ chars ──
+  const suggestions = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (q.length < 2) return [];
+    return products
+      .filter((p) => p.name.toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [search, products]);
+
+  // Close suggest dropdown on outside click
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setShowSuggest(false);
+      }
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  function pickProduct(p: Pick<InvProduct, "id" | "name">) {
+    setProductId(p.id);
+    setSearch("");
+    setShowSuggest(false);
+    pushFilters({ product_id: p.id, search: "" });
   }
 
   const hasFilters = status || locationId || productId || search;
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          pushFilters({ search });
-        }}
-        className="flex-1 min-w-[200px] max-w-sm"
-      >
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search TT SKU, mfg #, product…"
-          className={`${field} w-full`}
-        />
-      </form>
+      <div ref={wrapRef} className="relative flex-1 min-w-[200px] max-w-sm">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setShowSuggest(false);
+            pushFilters({ search });
+          }}
+        >
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setShowSuggest(true);
+            }}
+            onFocus={() => setShowSuggest(true)}
+            placeholder="Search TT SKU, mfg #, product…"
+            aria-autocomplete="list"
+            aria-expanded={showSuggest && suggestions.length > 0}
+            className={`${field} w-full`}
+          />
+        </form>
+
+        {/* Product suggestions — appear after the 2nd character */}
+        {showSuggest && suggestions.length > 0 && (
+          <div
+            role="listbox"
+            className="absolute z-20 mt-1 w-full bg-white border border-zinc-200 rounded-lg shadow-lg overflow-hidden"
+          >
+            <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-50 border-b border-zinc-100">
+              Products
+            </div>
+            {suggestions.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                role="option"
+                onClick={() => pickProduct(p)}
+                className="flex w-full items-center justify-between px-3 py-2 text-sm text-left hover:bg-zinc-100 focus:bg-zinc-100 focus:outline-none"
+              >
+                <span className="text-zinc-900">{highlightMatch(p.name, search)}</span>
+                <span className="text-xs text-zinc-400">filter by product</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {showSuggest && search.trim().length >= 2 && suggestions.length === 0 && (
+          <div className="absolute z-20 mt-1 w-full bg-white border border-zinc-200 rounded-lg shadow-lg px-3 py-2 text-xs text-zinc-500">
+            No products match — press Enter to search rolls by SKU / mfg #.
+          </div>
+        )}
+      </div>
 
       <select
         value={status}
@@ -144,5 +211,23 @@ export function RollFilterBar({
         </button>
       )}
     </div>
+  );
+}
+
+/** Wrap matched substring in <strong> so the user sees what they typed. */
+function highlightMatch(name: string, query: string): React.ReactNode {
+  const q = query.trim();
+  if (q.length < 2) return name;
+  const lower = name.toLowerCase();
+  const idx = lower.indexOf(q.toLowerCase());
+  if (idx < 0) return name;
+  return (
+    <>
+      {name.slice(0, idx)}
+      <strong className="font-semibold text-zinc-900 bg-yellow-100 rounded px-0.5">
+        {name.slice(idx, idx + q.length)}
+      </strong>
+      {name.slice(idx + q.length)}
+    </>
   );
 }

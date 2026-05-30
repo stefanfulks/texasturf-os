@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 
-// The middleware sends unauthenticated users to /login and authenticated users
-// to /fleet, so the root just normalizes whichever case slipped through.
+// Middleware sends unauthenticated users to /login. Any authenticated user who
+// lands at / goes to their personal dashboard. From there they can choose a
+// department (Sales / Warehouse / Office / Financial) or jump straight to a
+// known tool.
 export default function Home() {
-  redirect("/fleet");
+  redirect("/dashboard");
 }
