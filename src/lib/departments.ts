@@ -63,3 +63,22 @@ export function orderForUser(user: Department | null | undefined): Department[] 
   if (!user || !isDepartment(user)) return [...DEPARTMENTS];
   return [user, ...DEPARTMENTS.filter((d) => d !== user)];
 }
+
+/**
+ * Multi-department aware version. The user's own departments come first
+ * (in the order they appear in `userDepts`), then everything else.
+ */
+export function orderForUserMulti(userDepts: Department[] | null | undefined): Department[] {
+  if (!userDepts || userDepts.length === 0) return [...DEPARTMENTS];
+  const ownSet = new Set(userDepts.filter(isDepartment));
+  return [
+    ...userDepts.filter((d): d is Department => ownSet.has(d)),
+    ...DEPARTMENTS.filter((d) => !ownSet.has(d)),
+  ];
+}
+
+/** Parse the departments array from a profiles row, tolerating null / shape variations. */
+export function parseDepartments(value: unknown): Department[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((v): v is Department => typeof v === "string" && isDepartment(v));
+}

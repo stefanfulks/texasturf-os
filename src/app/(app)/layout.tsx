@@ -27,7 +27,7 @@ export default async function AppLayout({
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-zinc-200 bg-white">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 w-full max-w-screen-2xl items-center justify-between px-6">
           <div className="flex items-center gap-6">
             <AppSwitcher />
             <NavLinks />
@@ -39,7 +39,7 @@ export default async function AppLayout({
           </div>
         </div>
       </header>
-      <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <div className="mx-auto w-full max-w-screen-2xl flex-1 px-6 py-8">
         {children}
       </div>
     </div>

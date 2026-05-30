@@ -70,6 +70,7 @@ ALTER TABLE inv_allocations
 -- as `created_by` (no forgery).
 
 DROP POLICY IF EXISTS "inv_transactions: authenticated insert" ON inv_transactions;
+DROP POLICY IF EXISTS "inv_transactions: admin/office insert with own uid" ON inv_transactions;
 
 CREATE POLICY "inv_transactions: admin/office insert with own uid" ON inv_transactions
   FOR INSERT

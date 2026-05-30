@@ -10,7 +10,8 @@ import {
   DEPARTMENT_HREF,
   DEPARTMENT_DESCRIPTION,
   isDepartment,
-  orderForUser,
+  orderForUserMulti,
+  parseDepartments,
   type Department,
 } from "@/lib/departments";
 
@@ -32,7 +33,7 @@ export default async function DashboardPage({
   // types regenerate after the migration applies.
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, email, role, department")
+    .select("full_name, email, role, department, departments")
     .eq("id", user.id)
     .single() as unknown as {
       data: {
@@ -40,14 +41,22 @@ export default async function DashboardPage({
         email: string;
         role: string;
         department: string | null;
+        departments: unknown;
       } | null;
     };
 
   const greetingName =
     profile?.full_name?.split(" ")[0] ?? profile?.email?.split("@")[0] ?? "there";
 
-  const department: Department | null =
-    profile?.department && isDepartment(profile.department) ? profile.department : null;
+  // Multi-department: prefer the new `departments` array, fall back to the
+  // legacy singular `department` if present.
+  const departments: Department[] = (() => {
+    const arr = parseDepartments(profile?.departments);
+    if (arr.length > 0) return arr;
+    if (profile?.department && isDepartment(profile.department)) return [profile.department];
+    return [];
+  })();
+  const primaryDepartment: Department | null = departments[0] ?? null;
 
   // Personal cards data
   const [myTasksRes, todayTasksRes, overdueTasksRes, attentionInvoicesRes] = await Promise.all([
@@ -70,30 +79,53 @@ export default async function DashboardPage({
 
   const tasks = myTasksRes.data ?? [];
 
-  // Department-specific "what's hot" stats. Each block runs only when the user
-  // is in that department to keep dashboard load fast.
-  const deptStats = await loadDepartmentStats(supabase, department);
+  // Department-specific "what's hot" stats — for the primary department.
+  const deptStats = await loadDepartmentStats(supabase, primaryDepartment);
 
-  // Tile ordering — user's department first, the rest in canonical order.
-  const orderedDepartments = orderForUser(department);
+  // Tile ordering — user's departments first (in the order they picked
+  // them), then the rest in canonical order.
+  const orderedDepartments = orderForUserMulti(departments);
+  const ownSet = new Set<Department>(departments);
 
   return (
     <div className="space-y-8">
       {/* Greeting */}
-      <div>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
         <h1 className="text-3xl font-semibold tracking-tight">
           Welcome back, {greetingName}.
         </h1>
         <p className="mt-1 text-sm text-zinc-500">
           {format(new Date(), "EEEE, MMMM d")}
           {profile?.role && ` · ${profile.role}`}
-          {department && ` · ${DEPARTMENT_LABEL[department]} ${DEPARTMENT_EMOJI[department]}`}
+          {departments.length > 0 && (
+            <>
+              {" · "}
+              {departments.map((d, i) => (
+                <span key={d}>
+                  {i > 0 && " · "}
+                  {DEPARTMENT_LABEL[d]} {DEPARTMENT_EMOJI[d]}
+                </span>
+              ))}
+            </>
+          )}
         </p>
+        </div>
+        {profile?.role === "admin" && (
+          <Link
+            href="/admin/users"
+            className="rounded-lg border border-purple-200 bg-white px-3 py-1.5 text-xs font-semibold text-purple-700 hover:border-purple-400 transition-colors"
+          >
+            Manage users →
+          </Link>
+        )}
       </div>
 
-      {/* If department isn't set, or the user clicked "change department",
-          show the picker. */}
-      {(!department || forceChange) && <PickDepartmentPrompt />}
+      {/* If no departments, or the user clicked "change department", show
+          the multi-picker. */}
+      {(departments.length === 0 || forceChange) && (
+        <PickDepartmentPrompt initial={departments} />
+      )}
 
       {/* At-a-glance row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -127,16 +159,16 @@ export default async function DashboardPage({
         />
       </div>
 
-      {/* Department-specific snapshot */}
-      {department && deptStats && (
+      {/* Department-specific snapshot — primary department */}
+      {primaryDepartment && deptStats && (
         <section className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
             <h2 className="text-sm font-semibold">
-              <span className="mr-2">{DEPARTMENT_EMOJI[department]}</span>
-              {DEPARTMENT_LABEL[department]} snapshot
+              <span className="mr-2">{DEPARTMENT_EMOJI[primaryDepartment]}</span>
+              {DEPARTMENT_LABEL[primaryDepartment]} snapshot
             </h2>
-            <Link href={DEPARTMENT_HREF[department]} className="text-xs text-zinc-500 hover:text-zinc-900">
-              Open {DEPARTMENT_LABEL[department]} →
+            <Link href={DEPARTMENT_HREF[primaryDepartment]} className="text-xs text-zinc-500 hover:text-zinc-900">
+              Open {DEPARTMENT_LABEL[primaryDepartment]} →
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-px bg-zinc-100 sm:grid-cols-4">
@@ -201,21 +233,21 @@ export default async function DashboardPage({
           <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
             Jump into a department
           </h2>
-          {department && (
+          {departments.length > 0 && (
             <Link href="/dashboard?change=1" className="text-xs text-zinc-400 hover:text-zinc-700">
-              Change my department
+              Change my departments
             </Link>
           )}
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {orderedDepartments.map((d, i) => (
+          {orderedDepartments.map((d) => (
             <DepartmentTile
               key={d}
               href={DEPARTMENT_HREF[d]}
               label={DEPARTMENT_LABEL[d]}
               emoji={DEPARTMENT_EMOJI[d]}
               description={DEPARTMENT_DESCRIPTION[d]}
-              highlight={i === 0 && d === department}
+              highlight={ownSet.has(d)}
             />
           ))}
         </div>

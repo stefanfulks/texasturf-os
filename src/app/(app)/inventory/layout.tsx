@@ -26,7 +26,7 @@ export default async function InventoryLayout({
   const readOnly = profile.role === "field";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+    <div className="w-full mx-auto py-6 space-y-6">
       <InventorySubnav readOnly={readOnly} />
       {children}
     </div>
