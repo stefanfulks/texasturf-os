@@ -16,6 +16,7 @@ const PERSONAL_TABS: Array<{ href: string; label: string; prefixes?: string[] }>
   { href: "/calendar",  label: "Calendar",  prefixes: ["/calendar"] },
   { href: "/attention", label: "Attention", prefixes: ["/attention"] },
   { href: "/projects",  label: "Projects",  prefixes: ["/projects"] },
+  { href: "/assistant", label: "Assistant", prefixes: ["/assistant"] },
 ];
 
 function isActive(pathname: string, tab: { href: string; prefixes?: string[] }): boolean {
