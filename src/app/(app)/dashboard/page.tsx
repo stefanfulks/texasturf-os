@@ -3,22 +3,51 @@ import { redirect } from "next/navigation";
 import { format, parseISO, isToday, isPast } from "date-fns";
 import { Calendar, ListTodo, AlertTriangle, BarChart3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { PickDepartmentPrompt } from "./pick-department";
+import {
+  DEPARTMENT_LABEL,
+  DEPARTMENT_EMOJI,
+  DEPARTMENT_HREF,
+  DEPARTMENT_DESCRIPTION,
+  isDepartment,
+  orderForUser,
+  type Department,
+} from "@/lib/departments";
 
 export const metadata = { title: "TexasTurf OS" };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ change?: string }>;
+}) {
+  const params = (await searchParams) ?? {};
+  const forceChange = params.change === "1";
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Pull department alongside the rest. Cast through unknown until generated
+  // types regenerate after the migration applies.
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, email, role")
+    .select("full_name, email, role, department")
     .eq("id", user.id)
-    .single();
+    .single() as unknown as {
+      data: {
+        full_name: string | null;
+        email: string;
+        role: string;
+        department: string | null;
+      } | null;
+    };
 
   const greetingName =
     profile?.full_name?.split(" ")[0] ?? profile?.email?.split("@")[0] ?? "there";
+
+  const department: Department | null =
+    profile?.department && isDepartment(profile.department) ? profile.department : null;
 
   // Personal cards data
   const [myTasksRes, todayTasksRes, overdueTasksRes, attentionInvoicesRes] = await Promise.all([
@@ -41,6 +70,13 @@ export default async function DashboardPage() {
 
   const tasks = myTasksRes.data ?? [];
 
+  // Department-specific "what's hot" stats. Each block runs only when the user
+  // is in that department to keep dashboard load fast.
+  const deptStats = await loadDepartmentStats(supabase, department);
+
+  // Tile ordering — user's department first, the rest in canonical order.
+  const orderedDepartments = orderForUser(department);
+
   return (
     <div className="space-y-8">
       {/* Greeting */}
@@ -51,8 +87,13 @@ export default async function DashboardPage() {
         <p className="mt-1 text-sm text-zinc-500">
           {format(new Date(), "EEEE, MMMM d")}
           {profile?.role && ` · ${profile.role}`}
+          {department && ` · ${DEPARTMENT_LABEL[department]} ${DEPARTMENT_EMOJI[department]}`}
         </p>
       </div>
+
+      {/* If department isn't set, or the user clicked "change department",
+          show the picker. */}
+      {(!department || forceChange) && <PickDepartmentPrompt />}
 
       {/* At-a-glance row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -79,12 +120,38 @@ export default async function DashboardPage() {
         />
         <StatTile
           label="Calendar"
-          value={"View"}
+          value="View"
           tone="neutral"
           icon={<Calendar className="h-4 w-4" />}
           href="/calendar"
         />
       </div>
+
+      {/* Department-specific snapshot */}
+      {department && deptStats && (
+        <section className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
+            <h2 className="text-sm font-semibold">
+              <span className="mr-2">{DEPARTMENT_EMOJI[department]}</span>
+              {DEPARTMENT_LABEL[department]} snapshot
+            </h2>
+            <Link href={DEPARTMENT_HREF[department]} className="text-xs text-zinc-500 hover:text-zinc-900">
+              Open {DEPARTMENT_LABEL[department]} →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-zinc-100 sm:grid-cols-4">
+            {deptStats.map((s) => (
+              <div key={s.label} className="bg-white px-4 py-3">
+                <p className="text-xs text-zinc-400 mb-0.5">{s.label}</p>
+                <p className={`text-xl font-semibold tabular-nums ${s.tone === "amber" ? "text-amber-700" : s.tone === "red" ? "text-red-700" : s.tone === "green" ? "text-emerald-700" : "text-zinc-900"}`}>
+                  {s.value}
+                </p>
+                {s.hint && <p className="text-xs text-zinc-400 mt-0.5">{s.hint}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* My tasks */}
       <section className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
@@ -96,7 +163,7 @@ export default async function DashboardPage() {
         </div>
         {tasks.length === 0 ? (
           <div className="px-5 py-10 text-center text-sm text-zinc-400">
-            Inbox zero. Nothing's waiting on you.
+            Inbox zero. Nothing&apos;s waiting on you.
           </div>
         ) : (
           <ul className="divide-y divide-zinc-100">
@@ -128,21 +195,141 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      {/* Quick links to departments */}
+      {/* Departments — user's own first */}
       <section>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
-          Jump into a department
-        </h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <DepartmentTile href="/sales"     label="Sales"     emoji="💼" />
-          <DepartmentTile href="/warehouse" label="Warehouse" emoji="📦" />
-          <DepartmentTile href="/office"    label="Office"    emoji="🏢" />
-          <DepartmentTile href="/financial" label="Financial" emoji="💰" />
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            Jump into a department
+          </h2>
+          {department && (
+            <Link href="/dashboard?change=1" className="text-xs text-zinc-400 hover:text-zinc-700">
+              Change my department
+            </Link>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {orderedDepartments.map((d, i) => (
+            <DepartmentTile
+              key={d}
+              href={DEPARTMENT_HREF[d]}
+              label={DEPARTMENT_LABEL[d]}
+              emoji={DEPARTMENT_EMOJI[d]}
+              description={DEPARTMENT_DESCRIPTION[d]}
+              highlight={i === 0 && d === department}
+            />
+          ))}
         </div>
       </section>
     </div>
   );
 }
+
+// ─── Department-specific stats ────────────────────────────────────────────────
+
+type Tone = "neutral" | "amber" | "red" | "green";
+type StatItem = { label: string; value: string | number; tone: Tone; hint?: string };
+
+async function loadDepartmentStats(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  department: Department | null,
+): Promise<StatItem[] | null> {
+  if (!department) return null;
+
+  switch (department) {
+    case "warehouse": {
+      const [openRolls, lowStock, pendingReceive, activeJobs] = await Promise.all([
+        supabase.from("inv_rolls").select("id", { count: "exact", head: true }).in("status", ["available", "planned"]),
+        supabase.from("inv_items").select("id, quantity, min_quantity").eq("active", true),
+        supabase.from("inv_rolls").select("id", { count: "exact", head: true }).eq("status", "planned"),
+        supabase.from("inv_jobs").select("id", { count: "exact", head: true }).in("status", ["in_progress", "staged"]),
+      ]);
+      const low = (lowStock.data ?? []).filter(
+        (i) => i.min_quantity != null && i.quantity != null && i.quantity <= i.min_quantity,
+      ).length;
+      return [
+        { label: "Open rolls",     value: openRolls.count ?? 0,     tone: "neutral" },
+        { label: "Low-stock items", value: low,                      tone: low > 0 ? "red" : "neutral" },
+        { label: "Pending receive", value: pendingReceive.count ?? 0, tone: (pendingReceive.count ?? 0) > 0 ? "amber" : "neutral" },
+        { label: "Active jobs",    value: activeJobs.count ?? 0,    tone: "neutral" },
+      ];
+    }
+    case "office": {
+      const [needsReview, awaitingApproval, openProjects, vendors] = await Promise.all([
+        supabase.from("invoices").select("id", { count: "exact", head: true }).in("status", ["awaiting_review", "request_change", "ocr_review_needed"]),
+        supabase.from("invoices").select("id", { count: "exact", head: true }).eq("status", "awaiting_approval"),
+        supabase.from("projects").select("id", { count: "exact", head: true })
+          .eq("archived", false).not("status", "in", "(complete,cancelled)"),
+        supabase.from("vendors").select("id", { count: "exact", head: true }).eq("active", true),
+      ]);
+      return [
+        { label: "Needs review",      value: needsReview.count ?? 0,      tone: (needsReview.count ?? 0) > 0 ? "amber" : "neutral" },
+        { label: "Awaiting approval", value: awaitingApproval.count ?? 0, tone: (awaitingApproval.count ?? 0) > 0 ? "amber" : "neutral" },
+        { label: "Open projects",     value: openProjects.count ?? 0,     tone: "neutral" },
+        { label: "Active vendors",    value: vendors.count ?? 0,          tone: "neutral" },
+      ];
+    }
+    case "sales": {
+      const [openProjects, activeVendors] = await Promise.all([
+        supabase.from("projects").select("id", { count: "exact", head: true })
+          .eq("archived", false).not("status", "in", "(complete,cancelled)"),
+        supabase.from("vendors").select("id", { count: "exact", head: true }).eq("active", true).eq("type", "subcontractor"),
+      ]);
+      return [
+        { label: "Quote tool", value: "Open", tone: "green", hint: "Pricing calculator" },
+        { label: "Open projects", value: openProjects.count ?? 0, tone: "neutral" },
+        { label: "Active subs", value: activeVendors.count ?? 0, tone: "neutral" },
+        { label: "Lead pipeline", value: "—", tone: "neutral", hint: "coming soon" },
+      ];
+    }
+    case "financial": {
+      const [paid, approved, unpaid] = await Promise.all([
+        supabase.from("invoices").select("total_amount").eq("status", "paid"),
+        supabase.from("invoices").select("total_amount").eq("status", "approved"),
+        supabase.from("invoices").select("total_amount").in("status", ["awaiting_review", "awaiting_approval", "approved"]),
+      ]);
+      const sum = (rows: { total_amount: number | null }[] | null) =>
+        (rows ?? []).reduce((a, r) => a + (r.total_amount ?? 0), 0);
+      const fmt = (n: number) =>
+        `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+      return [
+        { label: "Paid (all-time)",    value: fmt(sum(paid.data)),     tone: "green" },
+        { label: "Approved unpaid",    value: fmt(sum(approved.data)), tone: (sum(approved.data) > 0 ? "amber" : "neutral") },
+        { label: "All open balance",   value: fmt(sum(unpaid.data)),   tone: "neutral" },
+        { label: "Budget",             value: "View",                  tone: "neutral", hint: "Reports → Budget" },
+      ];
+    }
+    case "field": {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
+      const [todayTasks, overdue] = await Promise.all([
+        userId ? supabase.from("tasks").select("id", { count: "exact", head: true })
+          .eq("assignee_id", userId).not("status", "in", "(done,archived)").eq("due_date", today)
+          : Promise.resolve({ count: 0 }),
+        userId ? supabase.from("tasks").select("id", { count: "exact", head: true })
+          .eq("assignee_id", userId).not("status", "in", "(done,archived)").lt("due_date", today)
+          : Promise.resolve({ count: 0 }),
+      ]);
+      return [
+        { label: "Tasks today",   value: todayTasks.count ?? 0, tone: (todayTasks.count ?? 0) > 0 ? "amber" : "neutral" },
+        { label: "Overdue",       value: overdue.count ?? 0,    tone: (overdue.count ?? 0) > 0 ? "red" : "neutral" },
+        { label: "My schedule",   value: "View",                tone: "neutral", hint: "Calendar" },
+        { label: "Time tracking", value: "—",                   tone: "neutral", hint: "coming soon" },
+      ];
+    }
+    case "marketing": {
+      // No marketing tables yet; placeholders.
+      return [
+        { label: "Content calendar", value: "—", tone: "neutral", hint: "coming soon" },
+        { label: "Active campaigns", value: "—", tone: "neutral", hint: "coming soon" },
+        { label: "Reviews this month", value: "—", tone: "neutral", hint: "coming soon" },
+        { label: "Lead sources",     value: "—", tone: "neutral", hint: "coming soon" },
+      ];
+    }
+  }
+}
+
+// ─── Small presentational components ──────────────────────────────────────────
 
 function StatTile({
   label, value, tone, icon, href,
@@ -173,14 +360,37 @@ function StatTile({
   );
 }
 
-function DepartmentTile({ href, label, emoji }: { href: string; label: string; emoji: string }) {
+function DepartmentTile({
+  href, label, emoji, description, highlight,
+}: {
+  href: string;
+  label: string;
+  emoji: string;
+  description: string;
+  highlight: boolean;
+}) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 hover:border-zinc-400 transition-colors"
+      className={
+        "flex items-start gap-3 rounded-xl border bg-white px-4 py-3 transition-colors " +
+        (highlight
+          ? "border-blue-300 ring-1 ring-blue-200"
+          : "border-zinc-200 hover:border-zinc-400")
+      }
     >
-      <span className="text-xl">{emoji}</span>
-      <span className="text-sm font-medium text-zinc-900">{label}</span>
+      <span className="text-2xl mt-0.5">{emoji}</span>
+      <span className="flex-1 min-w-0">
+        <span className="block text-sm font-semibold text-zinc-900">
+          {label}
+          {highlight && (
+            <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-700">
+              Yours
+            </span>
+          )}
+        </span>
+        <span className="block text-xs text-zinc-500 mt-0.5">{description}</span>
+      </span>
     </Link>
   );
 }

@@ -68,6 +68,24 @@ const DEPARTMENTS: Array<{
       { href: "/reports/team",   label: "Team Performance" },
     ],
   },
+  {
+    href: "/marketing",
+    label: "Marketing",
+    emoji: "📣",
+    children: [
+      { href: "/marketing", label: "Marketing Hub", hint: "Roadmap + shortcuts" },
+    ],
+  },
+  {
+    href: "/field",
+    label: "Field",
+    emoji: "🏗️",
+    children: [
+      { href: "/field",    label: "Field Home" },
+      { href: "/tasks",    label: "My tasks" },
+      { href: "/calendar", label: "My schedule" },
+    ],
+  },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
