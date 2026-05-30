@@ -29,23 +29,43 @@ const READY_COLORS: Record<string, string> = {
   not_ready: "bg-red-100 text-red-800",
 };
 
-export default async function FleetPage() {
+export default async function FleetPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ archived?: string }>;
+}) {
+  const params = (await searchParams) ?? {};
+  const showArchived = params.archived === "1";
   const supabase = await createClient();
-  const { data: assets, error } = await supabase
+  // `archived` column comes from migration 20260530300000. Filter only when
+  // the column actually exists — otherwise let the query fly without it.
+  let query = supabase
     .from("assets")
     .select("id, name, unit_type, status, ready_status, notes")
     .order("unit_type", { ascending: true })
     .order("name", { ascending: true });
+  // Cast through unknown — column not yet in generated types.
+  query = showArchived
+    ? (query.eq("archived" as never, true) as typeof query)
+    : (query.or("archived.is.null,archived.eq.false") as typeof query);
+  const { data: assets, error } = await query;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
+      <div className="flex items-end justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Fleet</h1>
           <p className="text-sm text-zinc-600">
             Trucks, trailers, and heavy equipment.
+            {showArchived && <span className="ml-1 text-zinc-500">Showing archived assets.</span>}
           </p>
         </div>
+        <Link
+          href={showArchived ? "/fleet" : "/fleet?archived=1"}
+          className="text-xs text-zinc-500 hover:text-zinc-900 px-2 py-1 rounded-md border border-zinc-200 bg-white hover:border-zinc-400"
+        >
+          {showArchived ? "← Active fleet" : "Show archived"}
+        </Link>
       </div>
 
       {error ? (

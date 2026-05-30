@@ -47,8 +47,11 @@ export async function updateAsset(
     };
   }
 
-  const { id, ...fields } = parsed.data;
   const supabase = await createClient();
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
+
+  const { id, ...fields } = parsed.data;
 
   const { error } = await supabase
     .from("assets")
@@ -67,4 +70,46 @@ export async function updateAsset(
   revalidatePath(`/fleet/${id}`, "page");
 
   return { error: null, success: true };
+}
+
+// ─── Auth helper ──────────────────────────────────────────────────────────────
+
+async function requireOfficeOrAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { user: null, error: "Not authenticated" as const };
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  if (!profile || !["admin","office"].includes(profile.role)) {
+    return { user, error: "Only admin and office can modify fleet" as const };
+  }
+  return { user, error: null as null | string };
+}
+
+// ─── Archive / Unarchive ──────────────────────────────────────────────────────
+
+export type ArchiveAssetState = { error: string | null; success: boolean };
+
+async function setAssetArchived(assetId: string, archived: boolean): Promise<ArchiveAssetState> {
+  const supabase = await createClient();
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
+  if (!assetId) return { error: "Asset ID required", success: false };
+
+  // The archived column is added by migration 20260530300000_fleet_archive.sql.
+  // Cast through unknown until generated types regenerate.
+  const { error } = await supabase.from("assets")
+    .update({ archived, updated_at: new Date().toISOString() } as never)
+    .eq("id", assetId);
+  if (error) return { error: error.message, success: false };
+
+  revalidatePath("/fleet");
+  revalidatePath(`/fleet/${assetId}`, "page");
+  return { error: null, success: true };
+}
+
+export async function archiveAsset(_prev: ArchiveAssetState, formData: FormData): Promise<ArchiveAssetState> {
+  return setAssetArchived(formData.get("asset_id") as string, true);
+}
+
+export async function unarchiveAsset(_prev: ArchiveAssetState, formData: FormData): Promise<ArchiveAssetState> {
+  return setAssetArchived(formData.get("asset_id") as string, false);
 }

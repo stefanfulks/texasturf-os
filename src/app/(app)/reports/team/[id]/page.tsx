@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { TeamMemberArchiveButton } from "./archive-button";
 import type { TeamMember, TeamKpiDefinition, TeamKpiEntry } from "@/lib/database.types";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -130,6 +131,7 @@ export default async function TeamMemberDetailPage({
   if (!profile || profile.role === "field") {
     redirect("/");
   }
+  const isOfficeOrAdmin = ["admin", "office"].includes(profile.role);
 
   // Fetch member
   const { data: memberData } = await supabase
@@ -213,18 +215,28 @@ export default async function TeamMemberDetailPage({
         </Link>
         <div className="mt-3 flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">{member.full_name}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">{member.full_name}</h1>
             <p className="text-sm text-zinc-500 mt-0.5">{member.role_title}</p>
             {member.department && (
               <p className="text-xs text-zinc-400 mt-0.5">{member.department}</p>
             )}
           </div>
-          <Link
-            href={`/reports/team/${member.id}/entry?month=${month}&year=${year}`}
-            className="bg-zinc-900 text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-zinc-800 transition-colors"
-          >
-            Enter / Edit KPIs &rarr;
-          </Link>
+          <div className="flex items-center gap-3 flex-wrap">
+            {!member.active && (
+              <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-500">
+                Inactive
+              </span>
+            )}
+            <Link
+              href={`/reports/team/${member.id}/entry?month=${month}&year=${year}`}
+              className="bg-zinc-900 text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-zinc-800 transition-colors"
+            >
+              Enter / Edit KPIs →
+            </Link>
+            {isOfficeOrAdmin && (
+              <TeamMemberArchiveButton memberId={member.id} archived={!member.active} />
+            )}
+          </div>
         </div>
       </div>
 

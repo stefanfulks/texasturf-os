@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EditForm } from "./edit-form";
+import { AssetArchiveButton } from "./archive-button";
 import type { Asset } from "@/lib/database.types";
 
 const UNIT_LABELS: Record<Asset["unit_type"], string> = {
@@ -43,6 +44,15 @@ export default async function AssetDetailPage({
 
   if (!asset) notFound();
 
+  // Auth + role for showing the archive button
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+    : { data: null };
+  const isOfficeOrAdmin = ["admin", "office"].includes((profile as { role?: string } | null)?.role ?? "");
+  // `archived` is added by migration 20260530300000 — defaults to false until applied.
+  const archived = (asset as unknown as { archived?: boolean }).archived === true;
+
   // Load children (assets attached to this one, e.g. trailer hooked to this truck)
   const { data: children } = await supabase
     .from("assets")
@@ -65,16 +75,26 @@ export default async function AssetDetailPage({
       </div>
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{asset.name}</h1>
           <p className="mt-1 text-sm text-zinc-500">{UNIT_LABELS[asset.unit_type]}</p>
         </div>
-        <span
-          className={`mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[asset.status]}`}
-        >
-          {STATUS_LABELS[asset.status]}
-        </span>
+        <div className="flex items-center gap-3 flex-wrap mt-1">
+          {archived && (
+            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-500">
+              Archived
+            </span>
+          )}
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[asset.status]}`}
+          >
+            {STATUS_LABELS[asset.status]}
+          </span>
+          {isOfficeOrAdmin && (
+            <AssetArchiveButton assetId={asset.id} archived={archived} />
+          )}
+        </div>
       </div>
 
       {/* Edit form */}
