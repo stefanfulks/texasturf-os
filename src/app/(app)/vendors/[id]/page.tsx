@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { VendorForm } from "../vendor-form";
+import { VendorArchiveButton } from "./archive-button";
 import type { Vendor, Invoice, InvoiceStatus } from "@/lib/database.types";
 
 const STATUS_BADGE: Record<InvoiceStatus, string> = {
@@ -95,9 +96,14 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
           <h1 className="text-2xl font-semibold tracking-tight">{vendor.name}</h1>
           <p className="text-sm text-zinc-500">{vendor.contact_name}{vendor.email ? ` · ${vendor.email}` : ""}{vendor.phone ? ` · ${vendor.phone}` : ""}</p>
         </div>
-        {!vendor.active && (
-          <span className="px-3 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-500">Inactive</span>
-        )}
+        <div className="flex items-center gap-3 flex-wrap">
+          {!vendor.active && (
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-500">Inactive</span>
+          )}
+          {isOfficeOrAdmin && (
+            <VendorArchiveButton vendorId={vendor.id} archived={!vendor.active} />
+          )}
+        </div>
       </div>
 
       {/* Scorecard */}

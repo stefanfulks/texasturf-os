@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { format, parseISO, isPast, isToday } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { TaskEditForm } from "./task-edit-form";
+import { TaskArchiveButton } from "./archive-button";
 import { CommentSection } from "./comment-section";
 import type { Task, TaskPriority, TaskStatus } from "@/lib/database.types";
 
@@ -34,11 +35,13 @@ export default async function TaskDetailPage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [taskRes, commentsRes, activityRes] = await Promise.all([
+  const [taskRes, commentsRes, activityRes, profileRes] = await Promise.all([
     supabase.from("tasks").select("*, assignee:assignee_id(id, full_name, email), created_by:created_by_id(id, full_name, email)").eq("id", id).single(),
     supabase.from("task_comments").select("*, author:user_id(id, full_name, email)").eq("task_id", id).order("created_at", { ascending: true }),
     supabase.from("task_activity").select("*, actor:actor_id(id, full_name, email)").eq("task_id", id).order("created_at", { ascending: false }).limit(20),
+    user ? supabase.from("profiles").select("role").eq("id", user.id).single() : Promise.resolve({ data: null }),
   ]);
+  const isOfficeOrAdmin = ["admin", "office"].includes((profileRes.data as { role?: string } | null)?.role ?? "");
 
   if (!taskRes.data) notFound();
   // The multi-FK join (assignee_id + created_by_id both → profiles) can't be
@@ -58,17 +61,22 @@ export default async function TaskDetailPage({
       </Link>
 
       {/* Header */}
-      <div className="flex items-start gap-3 flex-wrap">
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[task.status]}`}>
-          {STATUS_LABELS[task.status]}
-        </span>
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[task.priority]}`}>
-          {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-        </span>
-        {isOverdue && (
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-red-100 text-red-700">
-            Overdue
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex items-start gap-3 flex-wrap">
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[task.status]}`}>
+            {STATUS_LABELS[task.status]}
           </span>
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[task.priority]}`}>
+            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+          </span>
+          {isOverdue && (
+            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-red-100 text-red-700">
+              Overdue
+            </span>
+          )}
+        </div>
+        {isOfficeOrAdmin && (
+          <TaskArchiveButton taskId={task.id} archived={task.status === "archived"} />
         )}
       </div>
 

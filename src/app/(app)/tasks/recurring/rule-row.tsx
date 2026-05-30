@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { format, parseISO } from "date-fns";
-import { toggleRecurringRule, deleteRecurringRule } from "./actions";
+import { toggleRecurringRule } from "./actions";
 import type { RecurringRule, RecurrenceFreq } from "@/lib/database.types";
 
 const FREQ_LABELS: Record<RecurrenceFreq, string> = {
@@ -55,7 +55,7 @@ export function RuleRow({
         </p>
       </div>
 
-      {/* Active toggle */}
+      {/* Active toggle — doubles as soft-archive (paused = archived) */}
       <button
         onClick={() =>
           startTransition(async () => { await toggleRecurringRule(rule.id, !rule.active); })
@@ -66,24 +66,9 @@ export function RuleRow({
             ? "bg-green-100 text-green-700 hover:bg-green-200"
             : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
         }`}
+        title={rule.active ? "Pause this rule (no new tasks will be generated)" : "Resume this rule"}
       >
         {rule.active ? "Active" : "Paused"}
-      </button>
-
-      {/* Delete */}
-      <button
-        onClick={() => {
-          if (confirm("Delete this recurring rule? Tasks already created are kept.")) {
-            startTransition(async () => { await deleteRecurringRule(rule.id); });
-          }
-        }}
-        disabled={isPending}
-        className="text-zinc-300 hover:text-red-500 transition-colors"
-        title="Delete rule"
-      >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 001-1h4a1 1 0 001 1m-6 0h6" />
-        </svg>
       </button>
     </div>
   );

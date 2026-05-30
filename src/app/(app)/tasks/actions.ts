@@ -143,16 +143,90 @@ export async function completeTask(taskId: string): Promise<UpdateStatusResult> 
   return updateTaskStatus(taskId, "done");
 }
 
-// ─── Delete Task ──────────────────────────────────────────────────────────────
+// ─── Archive / Unarchive Task (soft delete) ───────────────────────────────────
 
-export async function deleteTask(taskId: string): Promise<{ error: string | null }> {
-  const supabase = await createClient();
+async function requireOfficeOrAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
+  if (!user) return { user: null, error: "Not authenticated" as const };
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  if (!profile || !["admin","office"].includes(profile.role)) {
+    return { user, error: "Only admin and office can archive tasks" as const };
+  }
+  return { user, error: null as null | string };
+}
 
-  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
-  if (error) return { error: error.message };
+export type ArchiveTaskState = { error: string | null; success: boolean };
+
+export async function archiveTask(
+  _prev: ArchiveTaskState,
+  formData: FormData,
+): Promise<ArchiveTaskState> {
+  const supabase = await createClient();
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
+
+  const taskId = formData.get("task_id") as string;
+  if (!taskId) return { error: "Task ID required", success: false };
+
+  const { data: existing } = await supabase.from("tasks").select("status").eq("id", taskId).single();
+  if (!existing) return { error: "Task not found", success: false };
+  if (existing.status === "archived") return { error: "Already archived", success: false };
+
+  const { error } = await supabase.from("tasks")
+    .update({ status: "archived" as TaskStatus }).eq("id", taskId);
+  if (error) return { error: error.message, success: false };
+
+  await supabase.from("task_activity").insert({
+    task_id:    taskId,
+    actor_id:   user.id,
+    event_type: "status_changed",
+    old_value:  existing.status,
+    new_value:  "archived",
+  });
 
   revalidatePath("/tasks");
-  return { error: null };
+  revalidatePath(`/tasks/${taskId}`);
+  return { error: null, success: true };
+}
+
+export async function unarchiveTask(
+  _prev: ArchiveTaskState,
+  formData: FormData,
+): Promise<ArchiveTaskState> {
+  const supabase = await createClient();
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
+
+  const taskId = formData.get("task_id") as string;
+  if (!taskId) return { error: "Task ID required", success: false };
+
+  const { data: existing } = await supabase.from("tasks").select("status").eq("id", taskId).single();
+  if (!existing) return { error: "Task not found", success: false };
+  if (existing.status !== "archived") return { error: "Task is not archived", success: false };
+
+  // Restore prior status from activity log if we can find it; otherwise default to inbox.
+  const { data: prior } = await supabase.from("task_activity")
+    .select("old_value, new_value")
+    .eq("task_id", taskId)
+    .eq("event_type", "status_changed")
+    .order("created_at", { ascending: false })
+    .limit(20);
+  const lastArchive = (prior ?? []).find((a) => a.new_value === "archived");
+  const restoreTo = (lastArchive?.old_value as TaskStatus | undefined) ?? "inbox";
+
+  const { error } = await supabase.from("tasks")
+    .update({ status: restoreTo }).eq("id", taskId);
+  if (error) return { error: error.message, success: false };
+
+  await supabase.from("task_activity").insert({
+    task_id:    taskId,
+    actor_id:   user.id,
+    event_type: "status_changed",
+    old_value:  "archived",
+    new_value:  restoreTo,
+  });
+
+  revalidatePath("/tasks");
+  revalidatePath(`/tasks/${taskId}`);
+  return { error: null, success: true };
 }

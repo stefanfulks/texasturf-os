@@ -103,8 +103,50 @@ export async function updateVendor(
   return { error: null, success: true };
 }
 
-export async function toggleVendorActive(id: string, active: boolean) {
+// ─── Archive / Unarchive ──────────────────────────────────────────────────────
+
+async function requireOfficeOrAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { user: null, error: "Not authenticated" as const };
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  if (!profile || !["admin","office"].includes(profile.role)) {
+    return { user, error: "Only admin and office can archive vendors" as const };
+  }
+  return { user, error: null as null | string };
+}
+
+export type ArchiveVendorState = { error: string | null; success: boolean };
+
+async function setVendorActive(
+  invoiceId: string,
+  active: boolean,
+): Promise<ArchiveVendorState> {
   const supabase = await createClient();
-  await supabase.from("vendors").update({ active }).eq("id", id);
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
+
+  if (!invoiceId) return { error: "Vendor ID required", success: false };
+
+  const { error } = await supabase.from("vendors")
+    .update({ active, updated_at: new Date().toISOString() })
+    .eq("id", invoiceId);
+  if (error) return { error: error.message, success: false };
+
   revalidatePath("/vendors");
+  revalidatePath(`/vendors/${invoiceId}`);
+  return { error: null, success: true };
+}
+
+export async function archiveVendor(
+  _prev: ArchiveVendorState,
+  formData: FormData,
+): Promise<ArchiveVendorState> {
+  return setVendorActive(formData.get("vendor_id") as string, false);
+}
+
+export async function unarchiveVendor(
+  _prev: ArchiveVendorState,
+  formData: FormData,
+): Promise<ArchiveVendorState> {
+  return setVendorActive(formData.get("vendor_id") as string, true);
 }

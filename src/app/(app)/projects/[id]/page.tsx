@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { ProjectForm } from "../project-form";
+import { ProjectArchiveButton } from "./archive-button";
 import type { Project, Task, TaskStatus, TaskPriority, ProjectStatus } from "@/lib/database.types";
 
 const STATUS_LABEL: Record<ProjectStatus, string> = {
@@ -37,10 +38,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [projectRes, tasksRes] = await Promise.all([
+  const [projectRes, tasksRes, profileRes] = await Promise.all([
     supabase.from("projects").select("*, owner:owner_id(id, full_name, email), created_by:created_by_id(id, full_name, email)").eq("id", id).single(),
     supabase.from("tasks").select("*, assignee:assignee_id(id, full_name, email)").eq("project_id", id).neq("status", "archived").order("created_at", { ascending: false }),
+    supabase.from("profiles").select("role").eq("id", user.id).single(),
   ]);
+  const isOfficeOrAdmin = ["admin", "office"].includes((profileRes.data as { role?: string } | null)?.role ?? "");
 
   if (!projectRes.data) notFound();
 
@@ -66,9 +69,17 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <h1 className="text-2xl font-semibold tracking-tight">{project.name}</h1>
           {project.customer_name && <p className="text-sm text-zinc-500 mt-0.5">{project.customer_name}</p>}
         </div>
-        <span className={`mt-1 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLOR[project.status]}`}>
-          {STATUS_LABEL[project.status]}
-        </span>
+        <div className="flex items-center gap-3 flex-wrap mt-1">
+          {project.archived && (
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-500">Archived</span>
+          )}
+          <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLOR[project.status]}`}>
+            {STATUS_LABEL[project.status]}
+          </span>
+          {isOfficeOrAdmin && (
+            <ProjectArchiveButton projectId={project.id} archived={project.archived ?? false} />
+          )}
+        </div>
       </div>
 
       {/* Stats row */}

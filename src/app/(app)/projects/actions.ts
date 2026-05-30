@@ -88,3 +88,41 @@ export async function updateProject(_prev: ProjectFormState, formData: FormData)
   revalidatePath(`/projects/${id}`, "page");
   return { error: null, success: true };
 }
+
+// ─── Archive / Unarchive ──────────────────────────────────────────────────────
+
+async function requireOfficeOrAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { user: null, error: "Not authenticated" as const };
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  if (!profile || !["admin","office"].includes(profile.role)) {
+    return { user, error: "Only admin and office can archive projects" as const };
+  }
+  return { user, error: null as null | string };
+}
+
+export type ArchiveProjectState = { error: string | null; success: boolean };
+
+async function setProjectArchived(projectId: string, archived: boolean): Promise<ArchiveProjectState> {
+  const supabase = await createClient();
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
+  if (!projectId) return { error: "Project ID required", success: false };
+
+  const { error } = await supabase.from("projects")
+    .update({ archived, updated_at: new Date().toISOString() })
+    .eq("id", projectId);
+  if (error) return { error: error.message, success: false };
+
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${projectId}`, "page");
+  return { error: null, success: true };
+}
+
+export async function archiveProject(_prev: ArchiveProjectState, formData: FormData): Promise<ArchiveProjectState> {
+  return setProjectArchived(formData.get("project_id") as string, true);
+}
+
+export async function unarchiveProject(_prev: ArchiveProjectState, formData: FormData): Promise<ArchiveProjectState> {
+  return setProjectArchived(formData.get("project_id") as string, false);
+}

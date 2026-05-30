@@ -101,38 +101,32 @@ export async function createRecurringRule(
   return { error: null, success: true };
 }
 
-// ─── Toggle Active ────────────────────────────────────────────────────────────
+// ─── Toggle Active (admin/office only) ────────────────────────────────────────
+// `active = false` is the soft-archive state. Pause/resume is the UX for both
+// "temporarily off" and "permanently retired." Hard delete is intentionally
+// not exposed — per the soft-delete policy.
+
+async function requireOfficeOrAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { user: null, error: "Not authenticated" as const };
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  if (!profile || !["admin","office"].includes(profile.role)) {
+    return { user, error: "Only admin and office can manage recurring rules" as const };
+  }
+  return { user, error: null as null | string };
+}
 
 export async function toggleRecurringRule(
   ruleId: string,
   active: boolean,
 ): Promise<{ error: string | null }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated" };
 
   const { error } = await supabase
     .from("recurring_rules")
     .update({ active })
-    .eq("id", ruleId);
-
-  if (error) return { error: error.message };
-  revalidatePath("/tasks/recurring");
-  return { error: null };
-}
-
-// ─── Delete Rule ──────────────────────────────────────────────────────────────
-
-export async function deleteRecurringRule(
-  ruleId: string,
-): Promise<{ error: string | null }> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
-
-  const { error } = await supabase
-    .from("recurring_rules")
-    .delete()
     .eq("id", ruleId);
 
   if (error) return { error: error.message };
