@@ -4,6 +4,76 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
+// ─── Add Subtask ──────────────────────────────────────────────────────────────
+
+export type AddSubtaskState = { error: string | null; success: boolean };
+
+const subtaskSchema = z.object({
+  parent_id: z.string().uuid(),
+  title:     z.string().min(1, "Title is required"),
+  priority:  z.enum(["low","normal","high","urgent"]).default("normal"),
+  due_date:  z.string().optional(),
+});
+
+export async function addSubtask(
+  _prev: AddSubtaskState,
+  formData: FormData,
+): Promise<AddSubtaskState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated", success: false };
+
+  const parsed = subtaskSchema.safeParse({
+    parent_id: formData.get("parent_id"),
+    title:     formData.get("title"),
+    priority:  formData.get("priority") ?? "normal",
+    due_date:  formData.get("due_date") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
+  }
+
+  // Inherit assignee + project + visibility from the parent task so the
+  // subtask shows up in the same scope by default.
+  const { data: parent } = await supabase
+    .from("tasks")
+    .select("assignee_id, project_id, department_id, visibility")
+    .eq("id", parsed.data.parent_id)
+    .single();
+  if (!parent) return { error: "Parent task not found", success: false };
+
+  const insert: Record<string, unknown> = {
+    title:           parsed.data.title,
+    priority:        parsed.data.priority,
+    status:          "inbox",
+    assignee_id:    (parent as { assignee_id: string }).assignee_id ?? user.id,
+    created_by_id:  user.id,
+    project_id:    (parent as { project_id: string | null }).project_id ?? null,
+    department_id: (parent as { department_id: string | null }).department_id ?? null,
+    visibility:    (parent as { visibility: string }).visibility ?? "team",
+    parent_task_id: parsed.data.parent_id,
+    due_date:       parsed.data.due_date || null,
+  };
+
+  const { error, data: created } = await supabase
+    .from("tasks")
+    .insert(insert as never)
+    .select("id")
+    .single();
+  if (error) return { error: error.message, success: false };
+
+  await supabase.from("task_activity").insert({
+    task_id:    parsed.data.parent_id,
+    actor_id:   user.id,
+    event_type: "subtask_added",
+    new_value:  parsed.data.title.slice(0, 100),
+  });
+
+  revalidatePath(`/tasks/${parsed.data.parent_id}`, "page");
+  revalidatePath(`/tasks/${(created as { id: string }).id}`, "page");
+  return { error: null, success: true };
+}
+
 // ─── Update Task ──────────────────────────────────────────────────────────────
 
 const updateSchema = z.object({
@@ -90,6 +160,7 @@ export async function updateTask(
 const commentSchema = z.object({
   task_id: z.string().uuid(),
   body: z.string().min(1, "Comment cannot be empty"),
+  mentions: z.array(z.string().uuid()).optional(),
 });
 
 export type AddCommentState = { error: string | null; success: boolean };
@@ -102,20 +173,40 @@ export async function addComment(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated", success: false };
 
+  // Mentions come in as a JSON-encoded uuid[] from the client component
+  let mentions: string[] = [];
+  const mentionsRaw = formData.get("mentions");
+  if (typeof mentionsRaw === "string" && mentionsRaw.trim()) {
+    try {
+      const parsed = JSON.parse(mentionsRaw);
+      if (Array.isArray(parsed)) {
+        mentions = parsed.filter((v): v is string => typeof v === "string");
+      }
+    } catch { /* ignore malformed */ }
+  }
+
   const parsed = commentSchema.safeParse({
     task_id: formData.get("task_id"),
     body: formData.get("body"),
+    mentions,
   });
 
   if (!parsed.success) {
     return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
   }
 
-  const { error } = await supabase.from("task_comments").insert({
+  // mentions column is added by migration 20260530200000. Cast through unknown
+  // until generated types regenerate.
+  const insertPayload: Record<string, unknown> = {
     task_id: parsed.data.task_id,
     user_id: user.id,
-    body: parsed.data.body,
-  });
+    body:    parsed.data.body,
+  };
+  if (parsed.data.mentions && parsed.data.mentions.length > 0) {
+    insertPayload.mentions = parsed.data.mentions;
+  }
+
+  const { error } = await supabase.from("task_comments").insert(insertPayload as never);
 
   if (error) return { error: error.message, success: false };
 

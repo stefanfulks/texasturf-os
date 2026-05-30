@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useState, useTransition, useMemo } from "react";
 import { format, isToday, isPast, parseISO } from "date-fns";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { updateTaskStatus, completeTask, createTask } from "@/app/(app)/tasks/actions";
+import { updateTaskStatus, createTask } from "@/app/(app)/tasks/actions";
 import type { Task, TaskStatus, TaskPriority, Profile, Project } from "@/lib/database.types";
 
 // ─── Config ────────────────────────────────────────────────────────────────────
@@ -72,6 +73,17 @@ export function TaskBoard({
   };
 
   const handleComplete = (taskId: string) => handleStatusChange(taskId, "done");
+
+  // Drag-and-drop handler — fires when a card is dropped on a column. If the
+  // column changed, optimistically update local state then persist.
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const taskId = result.draggableId;
+    const newStatus = result.destination.droppableId as TaskStatus;
+    const sourceStatus = result.source.droppableId as TaskStatus;
+    if (sourceStatus === newStatus) return;
+    handleStatusChange(taskId, newStatus);
+  };
 
   const handleTaskCreated = (task: Task) => {
     setTasks((prev) => [task, ...prev]);
@@ -145,7 +157,9 @@ export function TaskBoard({
 
       {/* Board */}
       {view === "kanban" ? (
-        <KanbanView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onAddTask={openCreate} />
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <KanbanView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onAddTask={openCreate} />
+        </DragDropContext>
       ) : (
         <ListView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} />
       )}
@@ -192,15 +206,51 @@ function KanbanView({ tasks, profilesMap, projectsMap, currentUserId, onStatusCh
               </div>
               <button onClick={() => onAddTask(col.status)} className="text-zinc-400 hover:text-zinc-700 text-lg leading-none font-light" title={`Add to ${col.label}`}>+</button>
             </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-2">
-              {colTasks.length === 0 ? (
-                <div className="text-center py-8 text-xs text-zinc-400">{col.status === "done" ? "Completed tasks appear here" : "No tasks"}</div>
-              ) : (
-                colTasks.map((task) => (
-                  <TaskCard key={task.id} task={task} profilesMap={profilesMap} projectsMap={projectsMap} currentUserId={currentUserId} onStatusChange={onStatusChange} onComplete={onComplete} />
-                ))
+            <Droppable droppableId={col.status}>
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={cn(
+                    "flex-1 overflow-y-auto p-2 space-y-2 transition-colors",
+                    snapshot.isDraggingOver ? "bg-blue-50/60" : ""
+                  )}
+                >
+                  {colTasks.length === 0 ? (
+                    <div className="text-center py-8 text-xs text-zinc-400">
+                      {snapshot.isDraggingOver ? "Drop here" : col.status === "done" ? "Completed tasks appear here" : "No tasks"}
+                    </div>
+                  ) : (
+                    colTasks.map((task, index) => (
+                      <Draggable key={task.id} draggableId={task.id} index={index}>
+                        {(dragProvided, dragSnapshot) => (
+                          <div
+                            ref={dragProvided.innerRef}
+                            {...dragProvided.draggableProps}
+                            {...dragProvided.dragHandleProps}
+                            className={cn(
+                              "transition-shadow",
+                              dragSnapshot.isDragging ? "shadow-xl rotate-1" : ""
+                            )}
+                            style={dragProvided.draggableProps.style}
+                          >
+                            <TaskCard
+                              task={task}
+                              profilesMap={profilesMap}
+                              projectsMap={projectsMap}
+                              currentUserId={currentUserId}
+                              onStatusChange={onStatusChange}
+                              onComplete={onComplete}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))
+                  )}
+                  {provided.placeholder}
+                </div>
               )}
-            </div>
+            </Droppable>
           </div>
         );
       })}

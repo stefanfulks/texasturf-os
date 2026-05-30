@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TaskEditForm } from "./task-edit-form";
 import { TaskArchiveButton } from "./archive-button";
 import { CommentSection } from "./comment-section";
+import { SubtasksSection } from "./subtasks-section";
 import type { Task, TaskPriority, TaskStatus } from "@/lib/database.types";
 
 const STATUS_LABELS: Record<TaskStatus, string> = {
@@ -35,13 +36,26 @@ export default async function TaskDetailPage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [taskRes, commentsRes, activityRes, profileRes] = await Promise.all([
+  const [taskRes, commentsRes, activityRes, profileRes, allProfilesRes, subtasksRes] = await Promise.all([
     supabase.from("tasks").select("*, assignee:assignee_id(id, full_name, email), created_by:created_by_id(id, full_name, email)").eq("id", id).single(),
     supabase.from("task_comments").select("*, author:user_id(id, full_name, email)").eq("task_id", id).order("created_at", { ascending: true }),
     supabase.from("task_activity").select("*, actor:actor_id(id, full_name, email)").eq("task_id", id).order("created_at", { ascending: false }).limit(20),
     user ? supabase.from("profiles").select("role").eq("id", user.id).single() : Promise.resolve({ data: null }),
+    supabase.from("profiles").select("id, full_name, email").order("full_name", { ascending: true }),
+    // Subtasks — fetched via the parent_task_id column added in migration 20260530200000.
+    supabase
+      .from("tasks")
+      // Cast through unknown until generated types regenerate after the migration.
+      .select("id, title, status, priority, due_date, assignee_id, parent_task_id" as never)
+      .eq("parent_task_id" as never, id)
+      .neq("status", "archived")
+      .order("created_at", { ascending: true }),
   ]);
   const isOfficeOrAdmin = ["admin", "office"].includes((profileRes.data as { role?: string } | null)?.role ?? "");
+  const allProfiles = (allProfilesRes.data ?? []) as Array<{ id: string; full_name: string | null; email: string }>;
+  const subtasks = (subtasksRes.data ?? []) as unknown as Array<{
+    id: string; title: string; status: TaskStatus; priority: TaskPriority; due_date: string | null; assignee_id: string;
+  }>;
 
   if (!taskRes.data) notFound();
   // The multi-FK join (assignee_id + created_by_id both → profiles) can't be
@@ -112,6 +126,9 @@ export default async function TaskDetailPage({
         )}
       </div>
 
+      {/* Subtasks */}
+      <SubtasksSection parentId={id} subtasks={subtasks} />
+
       {/* Comments */}
       <div className="rounded-xl border border-zinc-200 bg-white">
         <CommentSection
@@ -123,6 +140,7 @@ export default async function TaskDetailPage({
             created_at: string;
             author: { full_name: string | null; email: string } | null;
           }>}
+          profiles={allProfiles}
         />
       </div>
 
