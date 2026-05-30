@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { extractInvoiceData } from "@/lib/ocr";
 import { sendInvoiceNotification } from "@/lib/integrations/slack";
 import { createMondayItem, updateMondayItem } from "@/lib/integrations/monday";
 import { sendInvoiceEmail } from "@/lib/integrations/email";
@@ -182,7 +181,7 @@ export async function submitInvoice(
       original_file_name:   d.original_file_name ?? null,
       admin_notes:          d.notes ?? null,
       submitted_by_id:      user.id,
-      status:               d.original_file_url ? "ocr_processing" : "awaiting_review",
+      status:               "awaiting_review",
       duplicate_warning:    duplicateWarning,
     })
     .select()
@@ -195,66 +194,10 @@ export async function submitInvoice(
   // Status history entry
   await recordStatusChange(supabase, invoice.id, null, invoice.status as InvoiceStatus, user.id, "Invoice submitted");
 
-  // If a file was uploaded, run OCR
-  if (d.original_file_url) {
-    const ocrJob = await supabase
-      .from("ocr_jobs")
-      .insert({ invoice_id: invoice.id, provider: process.env.OCR_PROVIDER ?? "mock", status: "processing", started_at: new Date().toISOString() })
-      .select()
-      .single();
-
-    try {
-      const ocrResult = await extractInvoiceData(d.original_file_url, vendorName, d.total_amount);
-
-      // Update invoice with extracted data
-      await supabase.from("invoices").update({
-        invoice_number:       ocrResult.invoice_number   ?? null,
-        invoice_date:         ocrResult.invoice_date     ?? null,
-        service_period_start: ocrResult.service_period_start ?? d.service_period_start ?? null,
-        service_period_end:   ocrResult.service_period_end   ?? d.service_period_end   ?? null,
-        subtotal:             ocrResult.subtotal       ?? null,
-        tax:                  ocrResult.tax            ?? null,
-        total_amount:         ocrResult.total_amount   ?? d.total_amount ?? null,
-        ocr_text:             ocrResult.raw_text,
-        ocr_confidence:       ocrResult.confidence,
-        status:               "awaiting_review",
-      }).eq("id", invoice.id);
-
-      // Insert line items
-      if (ocrResult.line_items.length > 0) {
-        await supabase.from("invoice_line_items").insert(
-          ocrResult.line_items.map((item, i) => ({
-            invoice_id:   invoice.id,
-            description:  item.description,
-            category:     item.category ?? null,
-            quantity:     item.quantity  ?? null,
-            unit:         item.unit      ?? null,
-            unit_price:   item.unit_price ?? null,
-            line_total:   item.line_total,
-            sort_order:   i,
-          }))
-        );
-      }
-
-      // Update OCR job
-      if (ocrJob.data) {
-        await supabase.from("ocr_jobs").update({
-          status:       "completed",
-          raw_response: ocrResult as unknown as Record<string, unknown>,
-          completed_at: new Date().toISOString(),
-        }).eq("id", ocrJob.data.id);
-      }
-
-      await recordStatusChange(supabase, invoice.id, "ocr_processing", "awaiting_review", user.id, "OCR extraction complete");
-
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (ocrJob.data) {
-        await supabase.from("ocr_jobs").update({ status: "failed", error_message: msg, completed_at: new Date().toISOString() }).eq("id", ocrJob.data.id);
-      }
-      await supabase.from("invoices").update({ status: "ocr_review_needed" }).eq("id", invoice.id);
-    }
-  }
+  // OCR/extraction intentionally disabled — too inaccurate. Office reviews the
+  // attached file and enters fields manually. The `ocr_jobs` table, ocr_text /
+  // ocr_confidence columns, and src/lib/ocr/* are left in place but unused so
+  // this can be re-enabled later if extraction quality improves.
 
   // Fetch final invoice for notifications
   const { data: finalInvoice } = await supabase.from("invoices").select("*").eq("id", invoice.id).single();
@@ -409,6 +352,8 @@ export async function updateInvoiceFields(
   const payload = {
     updated_at:           new Date().toISOString(),
     title:                getStr("title") ?? undefined,
+    vendor_id:            getStr("vendor_id"),
+    project_id:           getStr("project_id"),
     invoice_number:       getStr("invoice_number"),
     invoice_date:         getStr("invoice_date"),
     service_period_start: getStr("service_period_start"),
@@ -427,6 +372,99 @@ export async function updateInvoiceFields(
   if (error) return { error: error.message, success: false };
 
   revalidatePath(`/invoices/${id}`);
+  revalidatePath("/invoices");
+  return { error: null, success: true };
+}
+
+// ─── Archive / Unarchive ──────────────────────────────────────────────────────
+
+async function requireOfficeOrAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { user: null, error: "Not authenticated" as const };
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  if (!profile || !["admin","office"].includes(profile.role)) {
+    return { user, error: "Only admin and office can archive invoices" as const };
+  }
+  return { user, error: null as null | string };
+}
+
+export type ArchiveInvoiceState = { error: string | null; success: boolean };
+
+export async function archiveInvoice(
+  _prev: ArchiveInvoiceState,
+  formData: FormData,
+): Promise<ArchiveInvoiceState> {
+  const supabase = await createClient();
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
+
+  const invoiceId = formData.get("invoice_id") as string;
+  if (!invoiceId) return { error: "Invoice ID required", success: false };
+
+  const { data: current } = await supabase.from("invoices").select("status").eq("id", invoiceId).single();
+  if (!current) return { error: "Invoice not found", success: false };
+  if (current.status === "archived") return { error: "Already archived", success: false };
+
+  const { error } = await supabase
+    .from("invoices")
+    .update({
+      status:            "archived" as InvoiceStatus,
+      status_changed_at: new Date().toISOString(),
+    })
+    .eq("id", invoiceId);
+  if (error) return { error: error.message, success: false };
+
+  await recordStatusChange(supabase, invoiceId, current.status as InvoiceStatus, "archived", user.id, "Invoice archived");
+
+  revalidatePath("/invoices");
+  revalidatePath(`/invoices/${invoiceId}`);
+  return { error: null, success: true };
+}
+
+export async function unarchiveInvoice(
+  _prev: ArchiveInvoiceState,
+  formData: FormData,
+): Promise<ArchiveInvoiceState> {
+  const supabase = await createClient();
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
+
+  const invoiceId = formData.get("invoice_id") as string;
+  if (!invoiceId) return { error: "Invoice ID required", success: false };
+
+  const { data: current } = await supabase.from("invoices").select("status").eq("id", invoiceId).single();
+  if (!current) return { error: "Invoice not found", success: false };
+  if (current.status !== "archived") return { error: "Invoice is not archived", success: false };
+
+  // Look at the most recent non-archive entry in history to restore prior status
+  const { data: priorEntries } = await supabase
+    .from("invoice_status_history")
+    .select("new_status, previous_status")
+    .eq("invoice_id", invoiceId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  let restoreStatus: InvoiceStatus = "awaiting_review";
+  if (priorEntries) {
+    const previousArchiveEntry = priorEntries.find((e) => e.new_status === "archived");
+    if (previousArchiveEntry?.previous_status) {
+      restoreStatus = previousArchiveEntry.previous_status as InvoiceStatus;
+    }
+  }
+
+  const { error } = await supabase
+    .from("invoices")
+    .update({
+      status:            restoreStatus,
+      status_changed_at: new Date().toISOString(),
+    })
+    .eq("id", invoiceId);
+  if (error) return { error: error.message, success: false };
+
+  await recordStatusChange(supabase, invoiceId, "archived", restoreStatus, user.id, "Invoice restored from archive");
+
+  revalidatePath("/invoices");
+  revalidatePath(`/invoices/${invoiceId}`);
   return { error: null, success: true };
 }
 

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { InvoiceCommentSection } from "./comment-section";
+import { ArchiveButton } from "./archive-button";
 import type { Invoice, InvoiceStatus, InvoiceLineItem, InvoiceStatusHistory, InvoiceComment, Vendor, Profile } from "@/lib/database.types";
 
 const STATUS_CONFIG: Record<InvoiceStatus, { label: string; badge: string; dot: string }> = {
@@ -110,8 +111,8 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Action buttons */}
-      {(canReview || canApprove) && (
-        <div className="flex gap-3 flex-wrap">
+      {(canReview || canApprove || isOfficeOrAdmin) && (
+        <div className="flex gap-3 flex-wrap items-center">
           {canReview && (
             <Link href={`/invoices/${id}/review`} className="px-4 py-2 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-700 transition-colors">
               Review Invoice
@@ -121,6 +122,14 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             <Link href={`/invoices/${id}/approval`} className="px-4 py-2 rounded-xl bg-green-700 text-white text-sm font-semibold hover:bg-green-800 transition-colors">
               Approve / Reject
             </Link>
+          )}
+          {isOfficeOrAdmin && (
+            <>
+              <Link href={`/invoices/${id}/edit`} className="px-4 py-2 rounded-xl border border-zinc-300 bg-white text-sm font-semibold text-zinc-700 hover:border-zinc-500 transition-colors">
+                Edit
+              </Link>
+              <ArchiveButton invoiceId={id} archived={invoice.status === "archived"} />
+            </>
           )}
         </div>
       )}

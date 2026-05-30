@@ -1,6 +1,5 @@
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
-import { runOcr } from "@/lib/ocr";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -197,10 +196,8 @@ async function processSlackFile(
   }
   const signedUrl = signedUrlData.signedUrl;
 
-  // 3. Run OCR
-  console.log("[slack/events] running OCR…");
-  const ocr = await runOcr(signedUrl, mimeType);
-  console.log("[slack/events] OCR done", { confidence: ocr.confidence, vendor: ocr.vendor_name, amount: ocr.total_amount });
+  // 3. (OCR/extraction intentionally disabled — too inaccurate. Office reviews
+  //     the attached file and enters vendor/amount/etc. manually in the UI.)
 
   // 4. Resolve submitter — try by Slack email, then fall back to first admin
   const slackUserId = event.user as string | undefined;
@@ -256,9 +253,9 @@ async function processSlackFile(
     );
   }
 
-  // 5. Create invoice
+  // 5. Create invoice — barebones record, all detail fields entered by office in the review UI
   const now = new Date();
-  const title = `${ocr.vendor_name ?? "Slack Upload"} Invoice ${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+  const title = `Slack Upload — ${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
   const { data: invoice, error: insertErr } = await supabase
     .from("invoices")
@@ -266,15 +263,10 @@ async function processSlackFile(
       title,
       vendor_id:            null,
       submitted_by_id:      submittedById,
-      status:               "ocr_review_needed",
+      status:               "awaiting_review",
       original_file_url:    signedUrl,
       original_file_type:   mimeType,
       original_file_name:   fileName,
-      total_amount:         ocr.total_amount         ?? null,
-      invoice_number:       ocr.invoice_number       ?? null,
-      service_period_start: ocr.service_period_start ?? null,
-      service_period_end:   ocr.service_period_end   ?? null,
-      ocr_confidence:       ocr.confidence,
       submitted_at:         now.toISOString(),
       status_changed_at:    now.toISOString(),
     } as unknown as import("@/lib/database.types").InvoiceInsert)
@@ -285,33 +277,11 @@ async function processSlackFile(
     throw new Error(`Invoice insert failed: ${insertErr?.message ?? "no row returned"}`);
   }
 
-  // 6. Insert line items
-  if (ocr.line_items.length > 0) {
-    const { error: lineItemErr } = await supabase.from("invoice_line_items").insert(
-      ocr.line_items.map((item, i) => ({
-        invoice_id:  invoice.id,
-        description: item.description,
-        quantity:    item.quantity   ?? null,
-        unit_price:  item.unit_price ?? null,
-        line_total:  item.line_total,
-        sort_order:  i,
-      })),
-    );
-    if (lineItemErr) {
-      console.error("[slack/events] Line items insert error:", lineItemErr.message);
-    }
-  }
-
-  // 7. Post success back to Slack
-  const amountText = ocr.total_amount != null
-    ? `$${ocr.total_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-    : "Amount TBD";
-  const vendorText = ocr.vendor_name ?? "Vendor TBD";
-
+  // 6. Post success back to Slack
   const successText =
-    `✅ *Invoice received!*\n${vendorText} · ${amountText}\n` +
-    `<${appUrl}/invoices/${invoice.id}|Review invoice →>\n` +
-    `_OCR confidence: ${ocr.confidence}% · Status: Needs review_` +
+    `✅ *Invoice received!*\n` +
+    `<${appUrl}/invoices/${invoice.id}|Open invoice to enter details →>\n` +
+    `_Status: Awaiting review_` +
     (resolvedNote ? `\n_${resolvedNote}_` : "");
 
   await postToSlack(channelId, successText, threadTs);

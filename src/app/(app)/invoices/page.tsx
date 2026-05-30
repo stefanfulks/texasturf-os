@@ -27,6 +27,7 @@ const FILTER_GROUPS = [
   { label: "Approved",        statuses: ["approved"] },
   { label: "Paid",            statuses: ["paid"] },
   { label: "Submitted",       statuses: ["submitted","ocr_processing"] },
+  { label: "Archived",        statuses: ["archived"] },
 ];
 
 export default async function InvoicesPage({
@@ -48,16 +49,23 @@ export default async function InvoicesPage({
   const isOfficeOrAdmin = profile?.role === "admin" || profile?.role === "office";
 
   // Build query — field users only see their own
+  // "Archived" filter explicitly shows archived; every other filter hides them.
+  const isArchivedView = status === "Archived";
   let query = supabase
     .from("invoices")
     .select("*, vendor:vendor_id(id, name)")
-    .neq("status", "archived")
     .order("submitted_at", { ascending: false })
     .limit(100);
 
+  if (isArchivedView) {
+    query = query.eq("status", "archived");
+  } else {
+    query = query.neq("status", "archived");
+  }
+
   if (!isOfficeOrAdmin) query = query.eq("submitted_by_id", user.id);
 
-  if (status && status !== "all") {
+  if (status && status !== "all" && !isArchivedView) {
     const group = FILTER_GROUPS.find((g) => g.label === status);
     if (group?.statuses) {
       query = query.in("status", group.statuses as InvoiceStatus[]);
