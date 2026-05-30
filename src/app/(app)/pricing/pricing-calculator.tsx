@@ -358,9 +358,13 @@ export function PricingCalculator() {
               <button
                 type="button"
                 onClick={() => removeEdging(i)}
-                className="text-xs text-zinc-500 hover:text-red-600 self-end pb-2"
+                aria-label={`Remove edging row ${i + 1}`}
+                title="Remove this edging run"
+                className="self-end h-8 w-8 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:text-red-600 hover:border-red-300 transition-colors flex items-center justify-center"
               >
-                Remove
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           ))}
@@ -484,9 +488,13 @@ export function PricingCalculator() {
               <button
                 type="button"
                 onClick={() => removeExtra(i)}
-                className="text-xs text-zinc-500 hover:text-red-600 self-end pb-2"
+                aria-label={`Remove line item ${i + 1}`}
+                title="Remove this line item"
+                className="self-end h-8 w-8 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:text-red-600 hover:border-red-300 transition-colors flex items-center justify-center"
               >
-                Remove
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           ))}
@@ -509,10 +517,12 @@ export function PricingCalculator() {
               max={C.MARGIN_SLIDER_MAX}
               step={1}
               value={job.targetMargin}
+              aria-label="Target gross margin percentage"
+              aria-valuetext={`${job.targetMargin} percent — ${tierLabel}`}
               onChange={(e) => setField("targetMargin", Number(e.target.value))}
               className="flex-1"
             />
-            <span className="text-2xl font-bold tabular-nums w-14 text-right">{job.targetMargin}%</span>
+            <span className="text-2xl font-bold tabular-nums w-14 text-right" aria-hidden="true">{job.targetMargin}%</span>
             <span className={`px-2 py-1 rounded-md text-xs font-semibold ${tierColor}`}>{tierLabel}</span>
           </div>
           {result.nextTier && (

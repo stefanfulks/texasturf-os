@@ -207,6 +207,10 @@ export function calculateQuote(
   // Review flags
   if (job.access === "difficult") reviewFlags.push(R.DIFFICULT_ACCESS);
   if ((job.targetMargin ?? 0) < C.MIN_MARGIN_FOR_QUOTE) reviewFlags.push(R.LOW_MARGIN);
+  // Guard against 100%+ margin (Price = COGS / (1 - margin) blows up at 1.0).
+  // The slider caps at 70 so this shouldn't fire through the UI, but it
+  // protects against programmatic or pasted inputs.
+  if ((job.targetMargin ?? 0) >= 100) reviewFlags.push("Target margin must be below 100%");
 
   // Final calculations
   const cogs            = lines.reduce((sum, l) => sum + l.cost, 0);
