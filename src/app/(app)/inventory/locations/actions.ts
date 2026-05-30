@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireOfficeOrAdmin } from "../_lib/require-role";
 
 const locationSchema = z.object({
   name:        z.string().min(1, "Name is required"),
@@ -16,8 +17,8 @@ export async function createLocation(
   formData: FormData,
 ): Promise<LocationFormState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
 
   const parsed = locationSchema.safeParse({
     name:        formData.get("name"),
@@ -44,8 +45,8 @@ export async function updateLocation(
   formData: FormData,
 ): Promise<LocationFormState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
 
   const id = formData.get("id") as string;
   if (!id) return { error: "Location ID required", success: false };
@@ -70,8 +71,11 @@ export async function updateLocation(
   return { error: null, success: true };
 }
 
-export async function toggleLocationActive(id: string, active: boolean) {
+export async function toggleLocationActive(id: string, active: boolean): Promise<void> {
   const supabase = await createClient();
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return;
+
   await supabase.from("inv_locations").update({ active }).eq("id", id);
   revalidatePath("/inventory/locations");
 }

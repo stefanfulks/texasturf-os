@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { requireOfficeOrAdmin } from "../_lib/require-role";
 import type { InvRoll, InvProduct } from "@/lib/database.types";
 
 // ─── Process Returns (from job) ───────────────────────────────────────────────
@@ -27,8 +28,9 @@ export type ProcessReturnsState = {
 
 export async function processReturns(formData: FormData): Promise<ProcessReturnsState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", processedCount: 0 };
+  const auth = await requireOfficeOrAdmin(supabase);
+  const user = auth.user;
+  if (!user) return { error: auth.error, processedCount: 0 };
 
   const jobId = formData.get("job_id") as string | null;
   if (!jobId) return { error: "Missing job id", processedCount: 0 };
@@ -155,8 +157,9 @@ export async function processUnmarkedReturn(
   formData: FormData,
 ): Promise<UnmarkedReturnState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", rollId: null, matched: null };
+  const auth = await requireOfficeOrAdmin(supabase);
+  const user = auth.user;
+  if (!user) return { error: auth.error, rollId: null, matched: null };
 
   const parsed = unmarkedReturnSchema.safeParse({
     tt_sku_tag_number: formData.get("tt_sku_tag_number"),
@@ -289,8 +292,9 @@ export async function restockReturnedRoll(
   formData: FormData,
 ): Promise<RestockState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  const user = auth.user;
+  if (!user) return { error: auth.error, success: false };
 
   const rollId = formData.get("roll_id") as string | null;
   if (!rollId) return { error: "Missing roll id", success: false };
@@ -331,8 +335,9 @@ export async function markReturnedDamaged(
   formData: FormData,
 ): Promise<RestockState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  const user = auth.user;
+  if (!user) return { error: auth.error, success: false };
 
   const rollId = formData.get("roll_id") as string | null;
   if (!rollId) return { error: "Missing roll id", success: false };

@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { RollForm } from "./roll-form";
+import { redirectIfNotOfficeOrAdmin } from "../../_lib/require-role";
 import type { InvLocation, InvProduct, Vendor } from "@/lib/database.types";
 
 export default async function NewRollPage() {
+  await redirectIfNotOfficeOrAdmin();
   const supabase = await createClient();
 
   const [locationsRes, productsRes, vendorsRes] = await Promise.all([

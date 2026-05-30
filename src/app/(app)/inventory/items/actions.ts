@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireOfficeOrAdmin } from "../_lib/require-role";
 
 const itemSchema = z.object({
   name:         z.string().min(1, "Name is required"),
@@ -26,8 +27,8 @@ export async function createItem(
   formData: FormData,
 ): Promise<ItemFormState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
 
   const parsed = itemSchema.safeParse({
     name:         formData.get("name"),
@@ -64,8 +65,8 @@ export async function updateItem(
   formData: FormData,
 ): Promise<ItemFormState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
 
   const id = formData.get("id") as string;
   if (!id) return { error: "Item ID required", success: false };
@@ -101,10 +102,14 @@ export async function updateItem(
   return { error: null, success: true };
 }
 
-export async function adjustItemQuantity(id: string, delta: number, reason?: string) {
+export async function adjustItemQuantity(
+  id: string,
+  delta: number,
+  reason?: string,
+): Promise<{ error: string | null }> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated" };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error };
 
   const { data: item, error: fetchErr } = await supabase
     .from("inv_items")
@@ -116,15 +121,18 @@ export async function adjustItemQuantity(id: string, delta: number, reason?: str
 
   const newQty = Math.max(0, (item.quantity ?? 0) + delta);
 
+  // Cap reason at 500 chars to keep notes column from being abused
+  const trimmedReason = reason?.slice(0, 500);
+
   const { error } = await supabase
     .from("inv_items")
     .update({
       quantity:   newQty,
       updated_at: new Date().toISOString(),
-      notes:      reason
+      notes:      trimmedReason
         ? `${item.notes ? item.notes + "\n" : ""}[${new Date().toISOString().slice(0, 10)}] ${
             delta > 0 ? "+" : ""
-          }${delta}: ${reason}`
+          }${delta}: ${trimmedReason}`
         : item.notes,
     })
     .eq("id", id);
@@ -135,8 +143,11 @@ export async function adjustItemQuantity(id: string, delta: number, reason?: str
   return { error: null };
 }
 
-export async function toggleItemActive(id: string, active: boolean) {
+export async function toggleItemActive(id: string, active: boolean): Promise<void> {
   const supabase = await createClient();
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return;
+
   await supabase.from("inv_items").update({ active }).eq("id", id);
   revalidatePath("/inventory/items");
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ClipboardList } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ReturnsClient } from "./returns-client";
+import { redirectIfNotOfficeOrAdmin } from "../_lib/require-role";
 import type { InvJob, InvRoll, InvProduct } from "@/lib/database.types";
 
 const ACTIVE_JOB_STATUSES = ["in_progress", "staged", "completed"];
@@ -11,6 +12,7 @@ export default async function InventoryReturnsPage({
 }: {
   searchParams?: Promise<{ job?: string }>;
 }) {
+  await redirectIfNotOfficeOrAdmin();
   const supabase = await createClient();
   const params = (await searchParams) ?? {};
   const selectedJobId = params.job ?? "";
@@ -72,7 +74,7 @@ export default async function InventoryReturnsPage({
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Process Returns</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Process Returns</h1>
           <p className="text-sm text-zinc-500 mt-1">
             Receive rolls back from a job, or log an unmarked return when the job source is
             unknown.

@@ -4,7 +4,18 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requireOfficeOrAdmin } from "../_lib/require-role";
 import type { Database, RollStatus } from "@/lib/database.types";
+
+/**
+ * Statuses that explicitly forbid further mutation through normal workflow.
+ * These are terminal/post-fulfillment states: any change after dispatch
+ * must go through the returns flow, not direct updates.
+ */
+const TERMINAL_ROLL_STATUSES: RollStatus[] = ["consumed", "dispatched", "damaged", "returned"];
+
+/** Valid statuses a roll can be cut FROM (parent state). */
+const CUTTABLE_PARENT_STATUSES: RollStatus[] = ["available", "planned", "allocated"];
 
 type InvRollInsert = Database["public"]["Tables"]["inv_rolls"]["Insert"];
 type InvRollUpdate = Database["public"]["Tables"]["inv_rolls"]["Update"];
@@ -56,6 +67,8 @@ export async function createRoll(
   formData: FormData,
 ): Promise<RollFormState> {
   const supabase = await createClient();
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -154,10 +167,9 @@ export async function updateRoll(
   formData: FormData,
 ): Promise<RollFormState> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
+  const user = auth.user;
 
   const id = formData.get("id") as string;
   if (!id) return { error: "Roll ID required", success: false };
@@ -192,6 +204,17 @@ export async function updateRoll(
     .single();
 
   if (!existing) return { error: "Roll not found", success: false };
+
+  // State-machine guard: don't allow reverting a roll out of a terminal state
+  // through the edit form. Returns/restock have their own actions.
+  const oldStatus = existing.status as RollStatus;
+  const newStatus = parsed.data.status;
+  if (TERMINAL_ROLL_STATUSES.includes(oldStatus) && oldStatus !== newStatus) {
+    return {
+      error: `Cannot change status from ${oldStatus}. Use the returns or restock flow.`,
+      success: false,
+    };
+  }
 
   // Look up product name to denormalize
   let productName: string | null = null;
@@ -266,10 +289,9 @@ export async function cutRoll(
   formData: FormData,
 ): Promise<CutRollState> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
+  const user = auth.user;
 
   const parsed = cutSchema.safeParse({
     parent_roll_id: formData.get("parent_roll_id"),
@@ -299,6 +321,15 @@ export async function cutRoll(
 
   if (parent.roll_type !== "parent") {
     return { error: "Only parent rolls can be cut", success: false };
+  }
+
+  // State-machine guard: only cut from rolls that are still in pre-dispatch states.
+  // Cutting from a consumed/dispatched/damaged/returned roll would corrupt the audit trail.
+  if (!CUTTABLE_PARENT_STATUSES.includes(parent.status as RollStatus)) {
+    return {
+      error: `Cannot cut a roll in status "${parent.status}". Only available, planned, or allocated parents are cuttable.`,
+      success: false,
+    };
   }
 
   const currentLen = parent.current_length_ft ?? 0;

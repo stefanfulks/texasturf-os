@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { requireOfficeOrAdmin } from "../_lib/require-role";
 import type { InvRoll, InvProduct, InvLocation } from "@/lib/database.types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -63,8 +64,9 @@ export async function receiveRoll(
   formData: FormData,
 ): Promise<ReceiveRollState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", rollId: null, rollTag: null, rollProductName: null };
+  const auth = await requireOfficeOrAdmin(supabase);
+  const user = auth.user;
+  if (!user) return { error: auth.error, rollId: null, rollTag: null, rollProductName: null };
 
   const parsed = quickAddSchema.safeParse({
     vendor_id:                formData.get("vendor_id"),
@@ -326,8 +328,9 @@ export async function submitBulkPaste(
   formData: FormData,
 ): Promise<BulkSubmitState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", createdCount: 0, failedRows: [] };
+  const auth = await requireOfficeOrAdmin(supabase);
+  const user = auth.user;
+  if (!user) return { error: auth.error, createdCount: 0, failedRows: [] };
 
   const csv = (formData.get("csv") as string | null) ?? "";
   const preview = await previewBulkPaste(
@@ -406,8 +409,9 @@ export async function confirmPendingRoll(
   formData: FormData,
 ): Promise<ConfirmPendingState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  const user = auth.user;
+  if (!user) return { error: auth.error, success: false };
 
   const rollId = formData.get("roll_id") as string | null;
   if (!rollId) return { error: "Missing roll id", success: false };
@@ -452,8 +456,9 @@ export async function rejectPendingRoll(
   formData: FormData,
 ): Promise<RejectPendingState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  const user = auth.user;
+  if (!user) return { error: auth.error, success: false };
 
   const rollId = formData.get("roll_id") as string | null;
   const reason = (formData.get("reason") as string | null) || "Rejected on receive";

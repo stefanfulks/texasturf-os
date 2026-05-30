@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { JobForm } from "../job-form";
+import { redirectIfNotOfficeOrAdmin } from "../../_lib/require-role";
 
-export default function NewJobPage() {
+export default async function NewJobPage() {
+  await redirectIfNotOfficeOrAdmin();
   return (
     <div className="max-w-2xl space-y-6">
       <Link

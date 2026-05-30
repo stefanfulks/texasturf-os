@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requireOfficeOrAdmin } from "../_lib/require-role";
 
 // ─── Shared form state ────────────────────────────────────────────────────────
 
@@ -41,8 +42,9 @@ export async function createJob(
   formData: FormData,
 ): Promise<JobFormState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return initialError("Not authenticated");
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return initialError(auth.error);
+  const user = auth.user;
 
   const parsed = jobSchema.safeParse({
     job_number:     formData.get("job_number")     || undefined,
@@ -78,8 +80,8 @@ export async function updateJob(
   formData: FormData,
 ): Promise<JobFormState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return initialError("Not authenticated");
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return initialError(auth.error);
 
   const id = formData.get("id") as string;
   if (!id) return initialError("Job ID required");
@@ -120,10 +122,10 @@ async function setJobStatus(
   jobId: string,
   status: "planning" | "in_progress" | "staged" | "completed" | "archived",
   extra?: { completion_date?: string | null },
-) {
+): Promise<string> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) throw new Error(auth.error);
 
   const { error } = await supabase.from("inv_jobs").update({
     status,
@@ -132,117 +134,121 @@ async function setJobStatus(
   }).eq("id", jobId);
 
   if (error) throw new Error(error.message);
-  return user.id;
+  return auth.user.id;
 }
 
-export async function markJobInProgress(jobId: string) {
-  await setJobStatus(jobId, "in_progress");
+export async function markJobInProgress(jobId: string): Promise<void> {
+  try { await setJobStatus(jobId, "in_progress"); } catch { return; }
   revalidatePath("/inventory/jobs");
   revalidatePath(`/inventory/jobs/${jobId}`);
 }
 
-export async function markJobStaged(jobId: string) {
-  const supabase = await createClient();
-  const userId = await setJobStatus(jobId, "staged");
+export async function markJobStaged(jobId: string): Promise<void> {
+  try {
+    const supabase = await createClient();
+    const userId = await setJobStatus(jobId, "staged");
 
-  // Move all allocations with assigned rolls to 'staged' and their rolls to 'staged'.
-  const { data: allocs } = await supabase
-    .from("inv_allocations")
-    .select("id, roll_id, requested_length_ft")
-    .eq("job_id", jobId)
-    .not("roll_id", "is", null);
+    // Move all allocations with assigned rolls to 'staged' and their rolls to 'staged'.
+    const { data: allocs } = await supabase
+      .from("inv_allocations")
+      .select("id, roll_id, requested_length_ft")
+      .eq("job_id", jobId)
+      .not("roll_id", "is", null);
 
-  for (const alloc of allocs ?? []) {
-    if (!alloc.roll_id) continue;
-    const { data: roll } = await supabase
-      .from("inv_rolls")
-      .select("status")
-      .eq("id", alloc.roll_id)
-      .single();
-    const fromStatus = roll?.status ?? "allocated";
+    for (const alloc of allocs ?? []) {
+      if (!alloc.roll_id) continue;
+      const { data: roll } = await supabase
+        .from("inv_rolls")
+        .select("status")
+        .eq("id", alloc.roll_id)
+        .single();
+      const fromStatus = roll?.status ?? "allocated";
 
-    await supabase.from("inv_allocations").update({
-      status: "staged",
-      updated_at: new Date().toISOString(),
-    }).eq("id", alloc.id);
+      await supabase.from("inv_allocations").update({
+        status: "staged",
+        updated_at: new Date().toISOString(),
+      }).eq("id", alloc.id);
 
-    await supabase.from("inv_rolls").update({
-      status: "staged",
-      updated_at: new Date().toISOString(),
-    }).eq("id", alloc.roll_id);
+      await supabase.from("inv_rolls").update({
+        status: "staged",
+        updated_at: new Date().toISOString(),
+      }).eq("id", alloc.roll_id);
 
-    await supabase.from("inv_transactions").insert({
-      transaction_type: "stage",
-      roll_id:          alloc.roll_id,
-      job_id:           jobId,
-      from_status:      fromStatus,
-      to_status:        "staged",
-      quantity_ft:      alloc.requested_length_ft ?? null,
-      notes:            `Staged for job`,
-      created_by:       userId,
-    });
-  }
+      await supabase.from("inv_transactions").insert({
+        transaction_type: "stage",
+        roll_id:          alloc.roll_id,
+        job_id:           jobId,
+        from_status:      fromStatus,
+        to_status:        "staged",
+        quantity_ft:      alloc.requested_length_ft ?? null,
+        notes:            `Staged for job`,
+        created_by:       userId,
+      });
+    }
 
-  revalidatePath("/inventory/jobs");
-  revalidatePath(`/inventory/jobs/${jobId}`);
+    revalidatePath("/inventory/jobs");
+    revalidatePath(`/inventory/jobs/${jobId}`);
+  } catch { /* silently denied — role gate or DB error */ }
 }
 
-export async function markJobCompleted(jobId: string) {
-  const supabase = await createClient();
-  const now = new Date().toISOString();
-  const userId = await setJobStatus(jobId, "completed", { completion_date: now });
+export async function markJobCompleted(jobId: string): Promise<void> {
+  try {
+    const supabase = await createClient();
+    const now = new Date().toISOString();
+    const userId = await setJobStatus(jobId, "completed", { completion_date: now });
 
-  // Move all allocations with assigned rolls to 'completed' and their rolls to 'dispatched'.
-  const { data: allocs } = await supabase
-    .from("inv_allocations")
-    .select("id, roll_id, requested_length_ft")
-    .eq("job_id", jobId)
-    .not("roll_id", "is", null);
+    // Move all allocations with assigned rolls to 'completed' and their rolls to 'dispatched'.
+    const { data: allocs } = await supabase
+      .from("inv_allocations")
+      .select("id, roll_id, requested_length_ft")
+      .eq("job_id", jobId)
+      .not("roll_id", "is", null);
 
-  for (const alloc of allocs ?? []) {
-    if (!alloc.roll_id) continue;
-    const { data: roll } = await supabase
-      .from("inv_rolls")
-      .select("status")
-      .eq("id", alloc.roll_id)
-      .single();
-    const fromStatus = roll?.status ?? "staged";
+    for (const alloc of allocs ?? []) {
+      if (!alloc.roll_id) continue;
+      const { data: roll } = await supabase
+        .from("inv_rolls")
+        .select("status")
+        .eq("id", alloc.roll_id)
+        .single();
+      const fromStatus = roll?.status ?? "staged";
 
-    await supabase.from("inv_allocations").update({
-      status: "completed",
-      updated_at: now,
-    }).eq("id", alloc.id);
+      await supabase.from("inv_allocations").update({
+        status: "completed",
+        updated_at: now,
+      }).eq("id", alloc.id);
 
-    await supabase.from("inv_rolls").update({
-      status: "dispatched",
-      updated_at: now,
-    }).eq("id", alloc.roll_id);
+      await supabase.from("inv_rolls").update({
+        status: "dispatched",
+        updated_at: now,
+      }).eq("id", alloc.roll_id);
 
-    await supabase.from("inv_transactions").insert({
-      transaction_type: "dispatch",
-      roll_id:          alloc.roll_id,
-      job_id:           jobId,
-      from_status:      fromStatus,
-      to_status:        "dispatched",
-      quantity_ft:      alloc.requested_length_ft ?? null,
-      notes:            `Dispatched on job completion`,
-      created_by:       userId,
-    });
-  }
+      await supabase.from("inv_transactions").insert({
+        transaction_type: "dispatch",
+        roll_id:          alloc.roll_id,
+        job_id:           jobId,
+        from_status:      fromStatus,
+        to_status:        "dispatched",
+        quantity_ft:      alloc.requested_length_ft ?? null,
+        notes:            `Dispatched on job completion`,
+        created_by:       userId,
+      });
+    }
 
-  revalidatePath("/inventory/jobs");
-  revalidatePath(`/inventory/jobs/${jobId}`);
+    revalidatePath("/inventory/jobs");
+    revalidatePath(`/inventory/jobs/${jobId}`);
+  } catch { /* silently denied */ }
 }
 
-export async function archiveJob(jobId: string) {
-  await setJobStatus(jobId, "archived");
+export async function archiveJob(jobId: string): Promise<void> {
+  try { await setJobStatus(jobId, "archived"); } catch { return; }
   revalidatePath("/inventory/jobs");
   revalidatePath("/inventory/jobs/archived");
   revalidatePath(`/inventory/jobs/${jobId}`);
 }
 
-export async function restoreJob(jobId: string) {
-  await setJobStatus(jobId, "planning");
+export async function restoreJob(jobId: string): Promise<void> {
+  try { await setJobStatus(jobId, "planning"); } catch { return; }
   revalidatePath("/inventory/jobs");
   revalidatePath("/inventory/jobs/archived");
   revalidatePath(`/inventory/jobs/${jobId}`);
@@ -255,8 +261,8 @@ export async function createAllocation(
   formData: FormData,
 ): Promise<AllocationFormState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
 
   const jobId = formData.get("job_id") as string;
   if (!jobId) return { error: "Job ID required", success: false };
@@ -305,8 +311,11 @@ export async function createAllocation(
   redirect(`/inventory/jobs/${jobId}`);
 }
 
-export async function deleteAllocation(allocId: string) {
+export async function deleteAllocation(allocId: string): Promise<void> {
   const supabase = await createClient();
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return;
+
   const { data: alloc } = await supabase
     .from("inv_allocations")
     .select("job_id, roll_id, status")
@@ -321,29 +330,31 @@ export async function deleteAllocation(allocId: string) {
   }
 
   await supabase.from("inv_allocations").delete().eq("id", allocId);
+
   revalidatePath(`/inventory/jobs/${alloc.job_id}`);
 }
 
 // ─── Assign / unassign / swap rolls ───────────────────────────────────────────
 
-export async function assignRoll(allocId: string, rollId: string) {
+export async function assignRoll(allocId: string, rollId: string): Promise<void> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return;
+  const user = auth.user;
 
   const { data: alloc } = await supabase
     .from("inv_allocations")
     .select("id, job_id, requested_length_ft")
     .eq("id", allocId)
     .single();
-  if (!alloc) throw new Error("Allocation not found");
+  if (!alloc) return;
 
   const { data: roll } = await supabase
     .from("inv_rolls")
     .select("id, status")
     .eq("id", rollId)
     .single();
-  if (!roll) throw new Error("Roll not found");
+  if (!roll) return;
 
   const now = new Date().toISOString();
 
@@ -374,10 +385,11 @@ export async function assignRoll(allocId: string, rollId: string) {
   redirect(`/inventory/jobs/${alloc.job_id}`);
 }
 
-export async function unassignRoll(allocId: string) {
+export async function unassignRoll(allocId: string): Promise<void> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return;
+  const user = auth.user;
 
   const { data: alloc } = await supabase
     .from("inv_allocations")
@@ -421,17 +433,18 @@ export async function unassignRoll(allocId: string) {
   revalidatePath(`/inventory/jobs/${alloc.job_id}`);
 }
 
-export async function swapRoll(allocId: string, newRollId: string) {
+export async function swapRoll(allocId: string, newRollId: string): Promise<void> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return;
+  const user = auth.user;
 
   const { data: alloc } = await supabase
     .from("inv_allocations")
     .select("id, job_id, roll_id, requested_length_ft")
     .eq("id", allocId)
     .single();
-  if (!alloc) throw new Error("Allocation not found");
+  if (!alloc) return;
 
   const oldRollId = alloc.roll_id;
   const now = new Date().toISOString();
@@ -468,7 +481,7 @@ export async function swapRoll(allocId: string, newRollId: string) {
     .select("status")
     .eq("id", newRollId)
     .single();
-  if (!newRoll) throw new Error("Replacement roll not found");
+  if (!newRoll) return;
 
   await supabase.from("inv_rolls").update({
     status:           "allocated",

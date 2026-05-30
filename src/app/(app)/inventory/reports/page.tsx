@@ -45,6 +45,9 @@ export default async function InventoryReportsPage() {
 
   return (
     <div className="space-y-6">
+      <Link href="/inventory" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">
+        ← Inventory
+      </Link>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Inventory Reports</h1>
         <p className="text-sm text-zinc-500 mt-0.5">

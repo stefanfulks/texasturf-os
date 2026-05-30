@@ -46,28 +46,30 @@ export default async function InventoryProductsPage() {
             No products yet.
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-zinc-100 bg-zinc-50">
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">Name</th>
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">SKU</th>
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">Width</th>
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">Description</th>
-                <th className="text-right px-4 py-3 font-semibold text-zinc-600">Rolls in Stock</th>
-                <th className="text-center px-4 py-3 font-semibold text-zinc-600">Status</th>
-                <th className="text-right px-4 py-3 font-semibold text-zinc-600">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100">
-              {products.map((p) => (
-                <ProductRow
-                  key={p.id}
-                  product={p}
-                  rollsInStock={inStockCounts.get(p.id) ?? 0}
-                />
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-zinc-100 bg-zinc-50">
+                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Name</th>
+                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">SKU</th>
+                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Width</th>
+                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Description</th>
+                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Rolls in Stock</th>
+                  <th className="text-center px-4 py-3 font-semibold text-zinc-600">Status</th>
+                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {products.map((p) => (
+                  <ProductRow
+                    key={p.id}
+                    product={p}
+                    rollsInStock={inStockCounts.get(p.id) ?? 0}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireOfficeOrAdmin } from "../_lib/require-role";
 
 const productSchema = z.object({
   name:        z.string().min(1, "Name is required"),
@@ -18,8 +19,8 @@ export async function createProduct(
   formData: FormData,
 ): Promise<ProductFormState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
 
   const widthRaw = formData.get("width_ft");
 
@@ -52,8 +53,8 @@ export async function updateProduct(
   formData: FormData,
 ): Promise<ProductFormState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
 
   const id = formData.get("id") as string;
   if (!id) return { error: "Product ID required", success: false };
@@ -83,8 +84,11 @@ export async function updateProduct(
   return { error: null, success: true };
 }
 
-export async function toggleProductActive(id: string, active: boolean) {
+export async function toggleProductActive(id: string, active: boolean): Promise<void> {
   const supabase = await createClient();
+  const auth = await requireOfficeOrAdmin(supabase);
+  if (!auth.user) return;
+
   await supabase.from("inv_products").update({ active }).eq("id", id);
   revalidatePath("/inventory/products");
 }

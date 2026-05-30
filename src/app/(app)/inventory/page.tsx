@@ -198,7 +198,7 @@ export default async function InventoryDashboardPage() {
       {/* Header */}
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Inventory Dashboard</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Inventory Dashboard</h1>
           <p className="text-sm text-zinc-500 mt-1">
             Roll inventory, jobs, and stock at a glance.
           </p>
@@ -211,7 +211,7 @@ export default async function InventoryDashboardPage() {
           <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
             Total Active Rolls
           </p>
-          <p className="text-2xl font-bold text-zinc-900">
+          <p className="text-2xl font-semibold tracking-tight">
             {fmtInt(totalActiveRolls)}
           </p>
           <p className="text-xs text-zinc-400 mt-1">In active lifecycle</p>
@@ -221,7 +221,7 @@ export default async function InventoryDashboardPage() {
           <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
             Linear Feet In Stock
           </p>
-          <p className="text-2xl font-bold text-zinc-900">
+          <p className="text-2xl font-semibold tracking-tight">
             {fmtFt(totalInStockFt)}
             <span className="text-sm font-normal text-zinc-400 ml-1">ft</span>
           </p>
@@ -232,7 +232,7 @@ export default async function InventoryDashboardPage() {
           <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
             Active Jobs
           </p>
-          <p className="text-2xl font-bold text-zinc-900">
+          <p className="text-2xl font-semibold tracking-tight">
             {fmtInt(activeJobsCount)}
           </p>
           <p className="text-xs text-zinc-400 mt-1">Not completed or archived</p>
@@ -242,7 +242,7 @@ export default async function InventoryDashboardPage() {
           <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
             Open Allocations
           </p>
-          <p className="text-2xl font-bold text-zinc-900">
+          <p className="text-2xl font-semibold tracking-tight">
             {fmtInt(openAllocationsCount)}
           </p>
           <p className="text-xs text-zinc-400 mt-1">Awaiting fulfillment</p>

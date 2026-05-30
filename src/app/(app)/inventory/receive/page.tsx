@@ -2,10 +2,12 @@ import Link from "next/link";
 import { ClipboardList } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ReceiveForm } from "./receive-form";
+import { redirectIfNotOfficeOrAdmin } from "../_lib/require-role";
 import { loadInventorySettings } from "@/lib/inventory/settings";
 import type { Vendor, InvProduct, InvLocation } from "@/lib/database.types";
 
 export default async function InventoryReceivePage() {
+  await redirectIfNotOfficeOrAdmin();
   const supabase = await createClient();
   const settings = await loadInventorySettings();
 
@@ -51,7 +53,7 @@ export default async function InventoryReceivePage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Receive Inventory</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Receive Inventory</h1>
           <p className="text-sm text-zinc-500 mt-1">
             Add new rolls to TexasTurf warehouse inventory.
           </p>

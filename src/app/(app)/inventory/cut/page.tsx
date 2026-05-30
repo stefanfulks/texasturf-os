@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { CutRollForm } from "./cut-roll-form";
+import { redirectIfNotOfficeOrAdmin } from "../_lib/require-role";
 import type { InvRoll } from "@/lib/database.types";
 
 type ParentRollOption = Pick<
@@ -19,6 +20,7 @@ export default async function InventoryCutPage({
 }: {
   searchParams: Promise<{ roll_id?: string }>;
 }) {
+  await redirectIfNotOfficeOrAdmin();
   const { roll_id } = await searchParams;
   const supabase = await createClient();
 
