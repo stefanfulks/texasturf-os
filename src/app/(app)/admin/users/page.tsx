@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { UserRow } from "./user-row";
+import { InviteUserForm } from "./invite-form";
 import { parseDepartments } from "@/lib/departments";
 
 export const metadata = { title: "User Management · TexasTurf OS" };
@@ -60,6 +61,8 @@ export default async function AdminUsersPage() {
           </span>
         </div>
       </div>
+
+      <InviteUserForm />
 
       <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
         <div className="overflow-x-auto">

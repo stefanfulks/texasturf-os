@@ -4,6 +4,7 @@ import { format, parseISO, isToday, isPast } from "date-fns";
 import { Calendar, ListTodo, AlertTriangle, BarChart3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PickDepartmentPrompt } from "./pick-department";
+import { DashboardQuickSearch } from "./quick-search";
 import {
   DEPARTMENT_LABEL,
   DEPARTMENT_EMOJI,
@@ -126,6 +127,9 @@ export default async function DashboardPage({
       {(departments.length === 0 || forceChange) && (
         <PickDepartmentPrompt initial={departments} />
       )}
+
+      {/* Quick search across inventory */}
+      <DashboardQuickSearch />
 
       {/* At-a-glance row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

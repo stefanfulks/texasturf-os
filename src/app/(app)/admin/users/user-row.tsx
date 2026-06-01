@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { updateUser, type UpdateUserState } from "./actions";
+import { DeleteUserButton } from "./delete-button";
 import {
   DEPARTMENTS,
   DEPARTMENT_LABEL,
@@ -67,13 +68,21 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
           </div>
         </td>
         <td className="px-4 py-3 text-right">
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="px-2.5 py-1 text-xs font-medium border border-zinc-200 rounded-md text-zinc-700 hover:border-zinc-400 transition-colors"
-          >
-            Edit
-          </button>
+          <div className="inline-flex items-center gap-2 justify-end">
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="px-2.5 py-1 text-xs font-medium border border-zinc-200 rounded-md text-zinc-700 hover:border-zinc-400 transition-colors"
+            >
+              Edit
+            </button>
+            {!isSelf && (
+              <DeleteUserButton
+                userId={user.id}
+                userLabel={user.full_name ?? user.email}
+              />
+            )}
+          </div>
         </td>
       </tr>
     );

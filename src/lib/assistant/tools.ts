@@ -76,6 +76,18 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
       "Get warehouse-wide counts: open rolls, active jobs, pending receive, low-stock items.",
     input_schema: { type: "object", properties: {} },
   },
+  {
+    name: "search_notion_sops",
+    description:
+      "Search the TexasTurf Notion workspace for SOPs, procedures, or documents that answer a how-to question. Use this when the user asks about a process, policy, or step-by-step procedure — e.g. 'what's our SOP for receiving rolls?' or 'how do we handle damaged turf?'. Returns up to 5 matching pages with titles, URLs, and excerpts. Only available when NOTION_API_KEY is configured.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Free-text search across page titles + body." },
+      },
+      required: ["query"],
+    },
+  },
 ];
 
 // ─── Tool runners ────────────────────────────────────────────────────────────
@@ -104,6 +116,7 @@ async function dispatch(name: string, input: ToolInput, supabase: Supabase, user
     case "search_vendors":       return searchVendors(input, supabase);
     case "get_dashboard_stats":  return getDashboardStats(supabase, userId);
     case "get_inventory_stats":  return getInventoryStats(supabase);
+    case "search_notion_sops":   return searchNotionSops(input);
     default: throw new Error(`Unknown tool: ${name}`);
   }
 }
@@ -215,6 +228,51 @@ async function getDashboardStats(supabase: Supabase, userId: string) {
     tasks_open_total:   openRes.count    ?? 0,
     invoices_attention: attnRes.count    ?? 0,
   };
+}
+
+async function searchNotionSops(input: ToolInput) {
+  const apiKey = process.env.NOTION_API_KEY;
+  if (!apiKey) {
+    return {
+      error:
+        "Notion SOP search isn't configured. Tell the user to ask the admin to set NOTION_API_KEY in Vercel and share the SOP pages with the integration.",
+    };
+  }
+  const query = typeof input.query === "string" ? input.query.trim() : "";
+  if (!query) return { count: 0, results: [] };
+
+  const resp = await fetch("https://api.notion.com/v1/search", {
+    method: "POST",
+    headers: {
+      "Authorization":     `Bearer ${apiKey}`,
+      "Notion-Version":    "2022-06-28",
+      "Content-Type":      "application/json",
+    },
+    body: JSON.stringify({
+      query,
+      filter: { value: "page", property: "object" },
+      page_size: 5,
+    }),
+  });
+  if (!resp.ok) {
+    const detail = await resp.text().catch(() => "");
+    return { error: `Notion API returned ${resp.status}: ${detail.slice(0, 200)}` };
+  }
+  const data = (await resp.json()) as {
+    results?: Array<{
+      id: string;
+      url: string;
+      properties?: Record<string, { type: string; title?: Array<{ plain_text: string }> }>;
+    }>;
+  };
+
+  const results = (data.results ?? []).map((page) => {
+    const titleProp = Object.values(page.properties ?? {}).find((p) => p.type === "title");
+    const title = titleProp?.title?.map((t) => t.plain_text).join("") ?? "Untitled";
+    return { id: page.id, title, url: page.url };
+  });
+
+  return { count: results.length, results };
 }
 
 async function getInventoryStats(supabase: Supabase) {

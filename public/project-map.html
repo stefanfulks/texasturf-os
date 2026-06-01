@@ -184,23 +184,28 @@
 
   <header>
     <h1>TexasTurf OS — Project Map</h1>
-    <p>Last updated: May 28, 2026 &nbsp;·&nbsp; os.texasturfusa.com · main branch</p>
+    <p>Last updated: June 1, 2026 &nbsp;·&nbsp; os.texasturfusa.com · main branch</p>
   </header>
 
   <!-- STATUS BANNER -->
   <div class="status-banner">
     <span class="status-banner-icon">🚀</span>
     <div class="status-banner-body">
-      <strong>Live & shipping fast — os.texasturfusa.com · 8 modules built · Reports/KPI dashboard just deployed</strong>
+      <strong>Live & shipping fast — os.texasturfusa.com · 15+ modules built · department-aware app with AI assistant</strong>
       <ul>
-        <li>✅ Infrastructure, Auth, DB schema all live</li>
-        <li>✅ Tasks + Projects + Recurring Tasks + Notifications — complete</li>
-        <li>✅ Invoice submission, review, approval workflow — complete</li>
-        <li>✅ Vendor management + scorecards — complete</li>
-        <li>✅ Fleet module — list + detail + maintenance (rig chain mapping still needed)</li>
-        <li>✅ Reports / KPI Dashboard + Budget vs Actual — just deployed (run migration 20260522000000)</li>
-        <li>🔵 Next: Team Performance Tracking → Attention Board → Marketing Hub → Financial Module</li>
-        <li>⚠️ Pending: Resend DNS (DKIM/SPF for texasturfusa.com), Google SSO, rig chain mapping</li>
+        <li>✅ Infrastructure, Auth, DB schema, RLS — live</li>
+        <li>✅ Personal: Tasks (drag-and-drop kanban, subtasks, @mentions), Calendar, Attention, Projects, Recurring Tasks, Notifications</li>
+        <li>✅ Sales: Pricing Calculator (full Base44 port with COGS / margin / commission math)</li>
+        <li>✅ Warehouse: full inventory port from Base44 (232 rolls + 26 allocations + 38 transactions seeded) — rolls, jobs, receive, cuts, returns, items, locations, transactions, reports, settings</li>
+        <li>✅ Office: Invoices (submit/review/approve, edit, archive), Vendors (scorecards), Fleet (assets + maintenance + archive)</li>
+        <li>✅ Financial: Reports, KPI Dashboard, Budget vs Actual, Team Performance</li>
+        <li>✅ AI Assistant: /assistant — read-only tools over live data (tasks, invoices, rolls, vendors, dashboard + inventory stats, optional Notion SOP search)</li>
+        <li>✅ Admin User Management: invite by email, edit role + departments, remove user</li>
+        <li>✅ Multi-department user model: each user belongs to one or more of Sales / Warehouse / Office / Financial / Marketing / Field</li>
+        <li>✅ Department-aware dashboard: personalized snapshot + tile ordering per user's department</li>
+        <li>✅ Full-width responsive layout (desktop) + mobile-collapsible nav</li>
+        <li>🔵 Next: Marketing Hub buildout · Field installer mobile flows · Jobber API integration · AI assistant write tools</li>
+        <li>⚠️ Pending env: ANTHROPIC_API_KEY (Vercel) · NOTION_API_KEY (optional, for SOP search)</li>
       </ul>
     </div>
   </div>
@@ -230,21 +235,23 @@
 
   <!-- NAV MAP -->
   <div class="nav-map">
-    <h2>App Navigation — Current &amp; Planned</h2>
+    <h2>App Navigation — Personal Tabs + Department Workspaces</h2>
     <div class="nav-grid">
-      <div class="nav-pill nav-done">✅ Tasks <span class="nav-status">live</span></div>
-      <div class="nav-pill nav-done">✅ Projects <span class="nav-status">live</span></div>
-      <div class="nav-pill nav-done">✅ Invoices <span class="nav-status">live</span></div>
-      <div class="nav-pill nav-done">✅ Fleet <span class="nav-status">live</span></div>
-      <div class="nav-pill nav-done">✅ Vendors <span class="nav-status">live</span></div>
-      <div class="nav-pill nav-done">✅ Reports <span class="nav-status">just shipped</span></div>
-      <div class="nav-pill nav-active">🔵 Team Performance <span class="nav-status">next</span></div>
-      <div class="nav-pill nav-active">🔵 Attention Board <span class="nav-status">next</span></div>
-      <div class="nav-pill nav-planned">📣 Marketing <span class="nav-status">planned</span></div>
-      <div class="nav-pill nav-planned">💰 Financials <span class="nav-status">planned · admin only</span></div>
-      <div class="nav-pill nav-future">📦 Warehouse <span class="nav-status">phase 3</span></div>
-      <div class="nav-pill nav-future">🗓️ Scheduling <span class="nav-status">phase 2</span></div>
-      <div class="nav-pill nav-future">💼 Sales / Pricing <span class="nav-status">phase 2</span></div>
+      <!-- Personal -->
+      <div class="nav-pill nav-done">🏠 Home <span class="nav-status">live</span></div>
+      <div class="nav-pill nav-done">✅ Tasks <span class="nav-status">drag-and-drop + subtasks + @mentions</span></div>
+      <div class="nav-pill nav-done">📅 Calendar <span class="nav-status">live</span></div>
+      <div class="nav-pill nav-done">🚨 Attention <span class="nav-status">live</span></div>
+      <div class="nav-pill nav-done">📁 Projects <span class="nav-status">live</span></div>
+      <div class="nav-pill nav-done">🤖 Assistant <span class="nav-status">read-only AI w/ live tools</span></div>
+      <!-- Workspaces -->
+      <div class="nav-pill nav-done">💼 Sales <span class="nav-status">Pricing Calculator</span></div>
+      <div class="nav-pill nav-done">📦 Warehouse <span class="nav-status">full inventory port</span></div>
+      <div class="nav-pill nav-done">🏢 Office <span class="nav-status">invoices · vendors · fleet</span></div>
+      <div class="nav-pill nav-done">💰 Financial <span class="nav-status">reports · budget · team</span></div>
+      <div class="nav-pill nav-planned">📣 Marketing <span class="nav-status">placeholder · planned</span></div>
+      <div class="nav-pill nav-active">🏗️ Field <span class="nav-status">basic installer landing</span></div>
+      <div class="nav-pill nav-active">👤 Admin · Users <span class="nav-status">invite + edit + remove</span></div>
     </div>
   </div>
 
@@ -257,52 +264,62 @@
       <div class="progress-pct">100%</div>
     </div>
     <div class="progress-row">
-      <div class="progress-label">Auth &amp; Roles</div>
-      <div class="progress-bar-track"><div class="progress-bar-fill fill-amber" style="width:70%"></div></div>
-      <div class="progress-pct">70%</div>
+      <div class="progress-label">Auth, Roles &amp; Departments</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:95%"></div></div>
+      <div class="progress-pct">95%</div>
     </div>
     <div class="progress-row">
-      <div class="progress-label">Task Manager</div>
+      <div class="progress-label">Task Manager (DnD, subtasks, mentions)</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:95%"></div></div>
+      <div class="progress-pct">95%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Warehouse / Inventory (Base44 port)</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:92%"></div></div>
+      <div class="progress-pct">92%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Sales / Pricing Calculator</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:90%"></div></div>
+      <div class="progress-pct">90%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Invoices &amp; Vendors</div>
       <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:90%"></div></div>
       <div class="progress-pct">90%</div>
     </div>
     <div class="progress-row">
       <div class="progress-label">Fleet &amp; Equipment</div>
-      <div class="progress-bar-track"><div class="progress-bar-fill fill-amber" style="width:65%"></div></div>
-      <div class="progress-pct">65%</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-amber" style="width:80%"></div></div>
+      <div class="progress-pct">80%</div>
     </div>
     <div class="progress-row">
-      <div class="progress-label">Invoices &amp; Vendors</div>
-      <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:85%"></div></div>
-      <div class="progress-pct">85%</div>
+      <div class="progress-label">Reports / KPI / Team Performance</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-amber" style="width:80%"></div></div>
+      <div class="progress-pct">80%</div>
     </div>
     <div class="progress-row">
-      <div class="progress-label">Reports / KPI Dashboard</div>
+      <div class="progress-label">AI Assistant (read-only)</div>
       <div class="progress-bar-track"><div class="progress-bar-fill fill-amber" style="width:70%"></div></div>
       <div class="progress-pct">70%</div>
     </div>
     <div class="progress-row">
-      <div class="progress-label">Team Performance</div>
-      <div class="progress-bar-track"><div class="progress-bar-fill fill-blue" style="width:0%"></div></div>
-      <div class="progress-pct">0%</div>
+      <div class="progress-label">Admin · User Management</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-green" style="width:90%"></div></div>
+      <div class="progress-pct">90%</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-label">Field Installer Workspace</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-blue" style="width:25%"></div></div>
+      <div class="progress-pct">25%</div>
     </div>
     <div class="progress-row">
       <div class="progress-label">Marketing Hub</div>
-      <div class="progress-bar-track"><div class="progress-bar-fill fill-purple" style="width:0%"></div></div>
-      <div class="progress-pct">0%</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill fill-purple" style="width:5%"></div></div>
+      <div class="progress-pct">5%</div>
     </div>
     <div class="progress-row">
-      <div class="progress-label">Financial Module</div>
-      <div class="progress-bar-track"><div class="progress-bar-fill fill-yellow" style="width:0%"></div></div>
-      <div class="progress-pct">0%</div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-label">Warehouse / Inventory</div>
-      <div class="progress-bar-track"><div class="progress-bar-fill fill-gray" style="width:0%"></div></div>
-      <div class="progress-pct">0%</div>
-    </div>
-    <div class="progress-row">
-      <div class="progress-label">Scheduling / Dispatch</div>
+      <div class="progress-label">Scheduling / Dispatch (Jobber)</div>
       <div class="progress-bar-track"><div class="progress-bar-fill fill-gray" style="width:0%"></div></div>
       <div class="progress-pct">0%</div>
     </div>

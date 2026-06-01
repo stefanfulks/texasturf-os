@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { DEPARTMENTS } from "@/lib/departments";
 
 async function requireAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
@@ -56,6 +57,112 @@ export async function updateUser(
     departments: parsed.data.departments,
     updated_at:  new Date().toISOString(),
   } as never).eq("id", parsed.data.user_id);
+  if (error) return { error: error.message, success: false };
+
+  revalidatePath("/admin/users");
+  return { error: null, success: true };
+}
+
+// ─── Invite a new user ────────────────────────────────────────────────────────
+
+export type InviteUserState = { error: string | null; success: boolean; sentTo: string | null };
+
+const inviteSchema = z.object({
+  email:       z.string().email("Valid email required"),
+  full_name:   z.string().optional(),
+  role:        z.enum(["admin", "office", "field"]).default("field"),
+  departments: z.array(z.enum(DEPARTMENTS)).default([]),
+});
+
+export async function inviteUser(
+  _prev: InviteUserState,
+  formData: FormData,
+): Promise<InviteUserState> {
+  const supabase = await createClient();
+  const auth = await requireAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false, sentTo: null };
+
+  const deptStr = (formData.get("departments") as string | null) ?? "";
+  const departments = deptStr.split(",").map((s) => s.trim()).filter(Boolean);
+
+  const parsed = inviteSchema.safeParse({
+    email:       (formData.get("email") as string | null)?.trim().toLowerCase(),
+    full_name:   (formData.get("full_name") as string | null) || undefined,
+    role:        formData.get("role") || "field",
+    departments,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false, sentTo: null };
+  }
+  if (!parsed.data.email.endsWith("@texasturfusa.com")) {
+    return { error: "Email must be @texasturfusa.com", success: false, sentTo: null };
+  }
+
+  // Use the service-role admin API to invite. This creates the auth.users row
+  // and sends a magic-link invite email via Supabase Auth.
+  const service = createServiceClient();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://os.texasturfusa.com";
+  const { data: invited, error: inviteErr } = await service.auth.admin.inviteUserByEmail(
+    parsed.data.email,
+    {
+      data: {
+        full_name: parsed.data.full_name ?? null,
+        invited_by: auth.user.id,
+      },
+      redirectTo: `${appUrl}/onboarding/department`,
+    },
+  );
+  if (inviteErr || !invited?.user) {
+    return {
+      error: inviteErr?.message ?? "Failed to send invite",
+      success: false,
+      sentTo: null,
+    };
+  }
+
+  // Upsert the profile row with the desired role + departments. The signup
+  // trigger may have created an empty profile already; this fills it in.
+  const { error: profileErr } = await service.from("profiles").upsert({
+    id:          invited.user.id,
+    email:       parsed.data.email,
+    full_name:   parsed.data.full_name ?? null,
+    role:        parsed.data.role,
+    department:  parsed.data.departments[0] ?? null,
+    departments: parsed.data.departments,
+  } as never, { onConflict: "id" });
+
+  if (profileErr) {
+    return {
+      error: `Invite sent but failed to set role/departments: ${profileErr.message}. Edit the row manually.`,
+      success: false,
+      sentTo: parsed.data.email,
+    };
+  }
+
+  revalidatePath("/admin/users");
+  return { error: null, success: true, sentTo: parsed.data.email };
+}
+
+// ─── Remove a user ────────────────────────────────────────────────────────────
+
+export type RemoveUserState = { error: string | null; success: boolean };
+
+export async function removeUser(
+  _prev: RemoveUserState,
+  formData: FormData,
+): Promise<RemoveUserState> {
+  const supabase = await createClient();
+  const auth = await requireAdmin(supabase);
+  if (!auth.user) return { error: auth.error, success: false };
+
+  const userId = formData.get("user_id") as string | null;
+  if (!userId) return { error: "user_id required", success: false };
+  if (userId === auth.user.id) return { error: "You can't delete yourself.", success: false };
+
+  // Service-role admin deletion — cascades the auth.users row + ON DELETE
+  // CASCADE on profiles wipes the profile too.
+  const service = createServiceClient();
+  const { error } = await service.auth.admin.deleteUser(userId);
   if (error) return { error: error.message, success: false };
 
   revalidatePath("/admin/users");

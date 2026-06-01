@@ -100,11 +100,35 @@ export default async function InventoryRollsPage({
   }
   if (search && search.trim()) {
     const q = search.trim();
-    // Use ilike across three columns via or()
     const escaped = q.replace(/[,()]/g, "");
-    query = query.or(
-      `tt_sku_tag_number.ilike.%${escaped}%,manufacturer_roll_number.ilike.%${escaped}%,product_name.ilike.%${escaped}%`,
-    );
+
+    // Broaden the search: also match by product SKU and location name.
+    // SKU lives on inv_products, location name on inv_locations — pre-resolve
+    // matching ids so we can include them in a single OR clause on rolls.
+    const [productMatch, locationMatch] = await Promise.all([
+      supabase
+        .from("inv_products")
+        .select("id")
+        .or(`name.ilike.%${escaped}%,sku.ilike.%${escaped}%`),
+      supabase
+        .from("inv_locations")
+        .select("id")
+        .ilike("name", `%${escaped}%`),
+    ]);
+    const productIds  = (productMatch.data  ?? []).map((p) => p.id);
+    const locationIds = (locationMatch.data ?? []).map((l) => l.id);
+
+    const orClauses = [
+      `tt_sku_tag_number.ilike.%${escaped}%`,
+      `manufacturer_roll_number.ilike.%${escaped}%`,
+      `product_name.ilike.%${escaped}%`,
+      `dye_lot.ilike.%${escaped}%`,
+      `notes.ilike.%${escaped}%`,
+    ];
+    if (productIds.length > 0)  orClauses.push(`product_id.in.(${productIds.join(",")})`);
+    if (locationIds.length > 0) orClauses.push(`location_id.in.(${locationIds.join(",")})`);
+
+    query = query.or(orClauses.join(","));
   }
 
   const { data: rollsRaw } = await query;
