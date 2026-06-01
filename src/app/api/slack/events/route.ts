@@ -63,8 +63,44 @@ async function postToSlack(
 
 // ─── POST handler ─────────────────────────────────────────────────────────────
 
+// In-memory dedup of recently-seen Slack event_ids. Lives as long as the
+// Vercel function container is warm — across cold starts it gets rebuilt,
+// but combined with the retry-header bail-out that's enough to stop the
+// duplicate-invoice bug. For belt-and-suspenders durability across
+// containers, swap this for a Supabase row.
+const SEEN_EVENT_IDS = new Map<string, number>();
+const SEEN_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+function rememberEvent(eventId: string): boolean {
+  // Garbage-collect expired entries opportunistically
+  const now = Date.now();
+  if (SEEN_EVENT_IDS.size > 1000) {
+    for (const [k, ts] of SEEN_EVENT_IDS) {
+      if (now - ts > SEEN_TTL_MS) SEEN_EVENT_IDS.delete(k);
+    }
+  }
+  if (SEEN_EVENT_IDS.has(eventId)) {
+    const ts = SEEN_EVENT_IDS.get(eventId)!;
+    if (now - ts < SEEN_TTL_MS) return false; // already seen
+  }
+  SEEN_EVENT_IDS.set(eventId, now);
+  return true;
+}
+
 export async function POST(request: Request): Promise<Response> {
   const rawBody = await request.text();
+
+  // ── Bail fast on Slack retries ────────────────────────────────────────────
+  // Slack expects a 200 back within 3s. Our handler does file download +
+  // Storage upload + invoice insert + reply post, which can blow past that
+  // window. When Slack retries, X-Slack-Retry-Num is set. The original
+  // delivery is still in-flight — drop this one with a 200 so Slack stops
+  // retrying.
+  const retryNum = request.headers.get("x-slack-retry-num");
+  if (retryNum) {
+    console.log(`[slack/events] Slack retry ${retryNum} (${request.headers.get("x-slack-retry-reason")}) — ignoring, original delivery is processing`);
+    return Response.json({ ok: true, ignored: "retry" });
+  }
 
   // Parse first so url_verification works before signature check
   let body: Record<string, unknown>;
@@ -89,6 +125,16 @@ export async function POST(request: Request): Promise<Response> {
   ) {
     console.error("[slack/events] Invalid signature");
     return new Response("Unauthorized", { status: 401 });
+  }
+
+  // ── Idempotency by event_id ───────────────────────────────────────────────
+  // Belt-and-suspenders alongside the retry-header bail above. Even if Slack
+  // somehow delivers the same event_id twice (different containers, header
+  // missing, etc.), we drop the duplicate here.
+  const eventId = typeof body.event_id === "string" ? body.event_id : null;
+  if (eventId && !rememberEvent(eventId)) {
+    console.log(`[slack/events] event_id ${eventId} already processed — skipping`);
+    return Response.json({ ok: true, ignored: "duplicate event_id" });
   }
 
   const event = body.event as Record<string, unknown> | undefined;
