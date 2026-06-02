@@ -120,6 +120,14 @@ export async function inviteUser(
     };
   }
 
+  // If a profile row with this email exists but a different id (orphaned from a
+  // previously deleted auth user), remove it so the upsert below doesn't hit a
+  // unique-email conflict.
+  await service.from("profiles")
+    .delete()
+    .eq("email", parsed.data.email)
+    .neq("id", invited.user.id);
+
   // Upsert the profile row with the desired role + departments. The signup
   // trigger may have created an empty profile already; this fills it in.
   const { error: profileErr } = await service.from("profiles").upsert({
