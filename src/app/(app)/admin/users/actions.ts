@@ -98,10 +98,37 @@ export async function inviteUser(
     return { error: "Email must be @texasturfusa.com", success: false, sentTo: null };
   }
 
-  // Use the service-role admin API to invite. This creates the auth.users row
-  // and sends a magic-link invite email via Supabase Auth.
-  const service = createServiceClient();
+  // Use the service-role admin API to invite. This creates the auth.users
+  // row (if it doesn't already exist) and sends a magic-link invite email.
+  let service;
+  try {
+    service = createServiceClient();
+  } catch (err) {
+    return {
+      error: `Service-role client unavailable. Set SUPABASE_SERVICE_ROLE_KEY in Vercel env. Detail: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+      success: false,
+      sentTo: null,
+    };
+  }
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://os.texasturfusa.com";
+
+  // Detect "already exists" up front so we return a clear message instead
+  // of letting the invite API surface a generic 500.
+  const { data: existing } = await service.from("profiles")
+    .select("id, email, role")
+    .eq("email", parsed.data.email)
+    .maybeSingle();
+  if (existing) {
+    return {
+      error: `${parsed.data.email} is already in the system as ${(existing as { role?: string }).role ?? "a user"}. Edit them directly from the table below instead of re-inviting.`,
+      success: false,
+      sentTo: null,
+    };
+  }
+
   const { data: invited, error: inviteErr } = await service.auth.admin.inviteUserByEmail(
     parsed.data.email,
     {
@@ -113,11 +140,17 @@ export async function inviteUser(
     },
   );
   if (inviteErr || !invited?.user) {
-    return {
-      error: inviteErr?.message ?? "Failed to send invite",
-      success: false,
-      sentTo: null,
-    };
+    const raw = inviteErr?.message ?? "Failed to send invite";
+    // Make common Supabase errors actionable
+    let friendly = raw;
+    if (/already (registered|been )?(invited|exists)/i.test(raw)) {
+      friendly = `${parsed.data.email} already has an account. Edit them in the table below.`;
+    } else if (/SMTP/i.test(raw) || /email|smtp/i.test(raw)) {
+      friendly = `Supabase couldn't send the invite email — check Project Settings → Auth → SMTP. Original: ${raw}`;
+    } else if (/redirect/i.test(raw)) {
+      friendly = `Redirect URL not allowed. Add ${appUrl}/onboarding/department under Supabase → Auth → URL Configuration → Redirect URLs. Original: ${raw}`;
+    }
+    return { error: friendly, success: false, sentTo: null };
   }
 
   // Upsert the profile row with the desired role + departments. The signup
@@ -133,7 +166,7 @@ export async function inviteUser(
 
   if (profileErr) {
     return {
-      error: `Invite sent but failed to set role/departments: ${profileErr.message}. Edit the row manually.`,
+      error: `Invite sent to ${parsed.data.email} but failed to set role/departments: ${profileErr.message}. Edit the row in the table once they've signed in.`,
       success: false,
       sentTo: parsed.data.email,
     };
