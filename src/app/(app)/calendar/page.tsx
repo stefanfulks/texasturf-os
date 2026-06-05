@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { listUpcomingEvents, type GoogleCalendarEvent } from "@/lib/google/calendar";
+import { getValidGoogleAccessToken } from "@/lib/google/tokens";
 
 export const dynamic = "force-dynamic";
 
@@ -46,23 +47,27 @@ export default async function CalendarPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const providerToken = session?.provider_token;
-  const isGoogleUser = session?.user?.app_metadata?.provider === "google";
+  // Supabase only returns provider_token at the OAuth code-exchange moment,
+  // never on later getSession() calls. We persist tokens to profiles in
+  // /auth/callback and read them here via the helper, refreshing through
+  // Google's token endpoint when expired.
+  const tokenStatus = await getValidGoogleAccessToken(user.id);
+  const isGoogleUser = tokenStatus.ok || tokenStatus.reason !== "no_tokens";
 
   const embedSrc = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_EMBED_SRC;
 
-  // Try to fetch the user's events if they signed in with Google
   let events: GoogleCalendarEvent[] = [];
   let fetchError: string | null = null;
-  if (isGoogleUser && providerToken) {
+  if (tokenStatus.ok) {
     try {
       const sevenDaysOut = new Date();
       sevenDaysOut.setDate(sevenDaysOut.getDate() + 14);
-      events = await listUpcomingEvents(providerToken, { maxResults: 50, timeMax: sevenDaysOut });
+      events = await listUpcomingEvents(tokenStatus.accessToken, { maxResults: 50, timeMax: sevenDaysOut });
     } catch (err) {
       fetchError = err instanceof Error ? err.message : String(err);
     }
+  } else if (tokenStatus.reason === "config_missing" || tokenStatus.reason === "refresh_failed") {
+    fetchError = tokenStatus.detail ?? `Google token problem: ${tokenStatus.reason}`;
   }
 
   const groupedEvents = groupEventsByDay(events);
