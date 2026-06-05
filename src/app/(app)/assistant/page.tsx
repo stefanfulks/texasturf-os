@@ -26,7 +26,7 @@ export default async function AssistantPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Assistant</h1>
         <p className="mt-0.5 text-sm text-zinc-500">
           Ask anything about your tasks, invoices, inventory, vendors. I look
-          things up in your live data — I don't make up answers.
+          things up in your live data — I don&apos;t make up answers.
         </p>
       </div>
       <AssistantChat greetingName={greetingName} />

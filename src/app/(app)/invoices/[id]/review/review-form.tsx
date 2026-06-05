@@ -191,7 +191,7 @@ export function ReviewForm({
 
         <div className="p-4 space-y-3">
           {lineItems.length === 0 && (
-            <p className="text-sm text-zinc-400 text-center py-4">No line items. Click "+ Add line" to start.</p>
+            <p className="text-sm text-zinc-400 text-center py-4">No line items. Click &quot;+ Add line&quot; to start.</p>
           )}
           {lineItems.map((item, idx) => (
             <div key={item.id} className="border border-zinc-200 rounded-lg p-3 space-y-2">

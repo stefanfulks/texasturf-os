@@ -144,7 +144,7 @@ export default async function ReportsPage({
 
   // Fetch vendors for period invoices
   const vendorIds = [...new Set(periodInvoices.map((i) => i.vendor_id).filter(Boolean))] as string[];
-  let vendorMap = new Map<string, Vendor>();
+  const vendorMap = new Map<string, Vendor>();
   if (vendorIds.length > 0) {
     const { data: vendorsData } = await supabase.from("vendors").select("id, name, type").in("id", vendorIds);
     if (vendorsData) {

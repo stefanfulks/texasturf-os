@@ -54,7 +54,7 @@ export function PickDepartmentPrompt({
             What departments are you in?
           </h2>
           <p className={variant === "page" ? "mt-1 text-sm text-zinc-600" : "mt-0.5 text-xs text-blue-800/80"}>
-            Pick one or more. We'll tailor the dashboard and surface the
+            Pick one or more. We&apos;ll tailor the dashboard and surface the
             tools your team uses most. You can change this any time.
           </p>
         </div>

@@ -114,7 +114,7 @@ export function InviteUserForm() {
         )}
         {state.success && state.sentTo && (
           <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-            ✓ Invite sent to <strong>{state.sentTo}</strong>. They'll get a magic-link email.
+            ✓ Invite sent to <strong>{state.sentTo}</strong>. They&apos;ll get a magic-link email.
           </p>
         )}
 

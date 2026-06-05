@@ -63,6 +63,7 @@ export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setOpen(false); }, [pathname]);
 
   const activeTab = tabs.find((t) => isActive(pathname, t));

@@ -116,7 +116,9 @@ function ReturnFromJob({
 
   // Reset roll form state when the underlying job's roll set changes.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRollState({});
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSubmitState(null);
   }, [selectedJob?.id]);
 

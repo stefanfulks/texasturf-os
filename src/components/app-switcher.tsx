@@ -102,6 +102,7 @@ export function AppSwitcher() {
   }, [open]);
 
   // Close on navigation
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setOpen(false); }, [pathname]);
 
   return (

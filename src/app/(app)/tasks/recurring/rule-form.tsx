@@ -29,6 +29,7 @@ export function RecurringRuleForm({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (state.success) setOpen(false);
   }, [state.success]);
 
