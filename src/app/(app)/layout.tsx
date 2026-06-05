@@ -18,6 +18,14 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
+  // Role check for admin-only nav surfaces (Team tab)
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  const isAdmin = profile?.role === "admin";
+
   // Count unread notifications for the bell badge
   const { count: unreadCount } = await supabase
     .from("notifications")
@@ -30,7 +38,7 @@ export default async function AppLayout({
         <div className="flex h-14 w-full items-center justify-between gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-3 sm:gap-6 min-w-0">
             <AppSwitcher />
-            <NavLinks />
+            <NavLinks isAdmin={isAdmin} />
           </div>
           <div className="flex items-center gap-2 sm:gap-3 text-sm flex-shrink-0">
             <NotificationBell initialUnread={unreadCount ?? 0} />

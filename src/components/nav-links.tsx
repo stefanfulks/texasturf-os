@@ -10,26 +10,36 @@ import { Menu, X } from "lucide-react";
  * workspaces (Sales / Warehouse / Office / Financial / Marketing / Field)
  * are reached via the AppSwitcher chip to the left of these tabs.
  *
- * On mobile the row collapses to a hamburger that opens a dropdown.
+ * The Team tab is admin-only and gets appended by the (app) layout, which
+ * fetches the user's role server-side and passes `isAdmin` here.
  */
-const PERSONAL_TABS: Array<{ href: string; label: string; prefixes?: string[] }> = [
+type NavTab = { href: string; label: string; prefixes?: string[] };
+
+const PERSONAL_TABS: NavTab[] = [
   { href: "/dashboard", label: "Home",      prefixes: ["/dashboard", "/"] },
   { href: "/tasks",     label: "Tasks",     prefixes: ["/tasks"] },
   { href: "/calendar",  label: "Calendar",  prefixes: ["/calendar"] },
   { href: "/attention", label: "Attention", prefixes: ["/attention"] },
   { href: "/projects",  label: "Projects",  prefixes: ["/projects"] },
+  { href: "/feedback",  label: "Feedback",  prefixes: ["/feedback"] },
   { href: "/assistant", label: "Assistant", prefixes: ["/assistant"] },
 ];
 
-function isActive(pathname: string, tab: { href: string; prefixes?: string[] }): boolean {
+const ADMIN_TABS: NavTab[] = [
+  { href: "/team", label: "Team", prefixes: ["/team", "/admin/users"] },
+];
+
+function isActive(pathname: string, tab: NavTab): boolean {
   const prefixes = tab.prefixes ?? [tab.href];
   return prefixes.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
-export function NavLinks() {
+export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  const tabs = isAdmin ? [...PERSONAL_TABS, ...ADMIN_TABS] : PERSONAL_TABS;
 
   // Close on outside click + on route change
   useEffect(() => {
@@ -41,13 +51,13 @@ export function NavLinks() {
   }, []);
   useEffect(() => { setOpen(false); }, [pathname]);
 
-  const activeTab = PERSONAL_TABS.find((t) => isActive(pathname, t));
+  const activeTab = tabs.find((t) => isActive(pathname, t));
 
   return (
     <>
       {/* Desktop tabs (md+) */}
       <nav className="hidden md:flex items-center gap-1 text-sm">
-        {PERSONAL_TABS.map((tab) => {
+        {tabs.map((tab) => {
           const active = isActive(pathname, tab);
           return (
             <Link
@@ -80,7 +90,7 @@ export function NavLinks() {
         </button>
         {open && (
           <div className="absolute left-0 top-full z-40 mt-1.5 w-48 rounded-xl border border-zinc-200 bg-white shadow-lg overflow-hidden">
-            {PERSONAL_TABS.map((tab) => {
+            {tabs.map((tab) => {
               const active = isActive(pathname, tab);
               return (
                 <Link

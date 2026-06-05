@@ -114,10 +114,10 @@ export default async function DashboardPage({
         </div>
         {profile?.role === "admin" && (
           <Link
-            href="/admin/users"
+            href="/team"
             className="rounded-lg border border-purple-200 bg-white px-3 py-1.5 text-xs font-semibold text-purple-700 hover:border-purple-400 transition-colors"
           >
-            Manage users →
+            Team →
           </Link>
         )}
       </div>
