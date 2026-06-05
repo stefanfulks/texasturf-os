@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
@@ -93,13 +92,6 @@ export default async function FeedbackPage() {
         </section>
       )}
 
-      <p className="text-xs text-zinc-400">
-        Admin? See all incoming feedback at{" "}
-        <Link href="/admin/feedback" className="underline hover:text-zinc-700">
-          /admin/feedback
-        </Link>
-        .
-      </p>
     </div>
   );
 }

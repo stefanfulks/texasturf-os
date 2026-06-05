@@ -39,19 +39,22 @@ export default async function AdminFeedbackPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/team" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">
-          ← Team
-        </Link>
-        <div className="mt-3 flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Feedback Triage</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Feedback</h1>
             <p className="mt-0.5 text-sm text-zinc-500">
               Bugs, feature requests, and questions from the team. Triage
-              them by setting a status and (optionally) replying with admin
-              notes — submitters see your reply on their /feedback page.
+              by setting a status and (optionally) replying with admin
+              notes — submitters see your reply on their feedback page.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              href="/feedback"
+              className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-zinc-400 transition-colors"
+            >
+              Submit your own →
+            </Link>
             <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
               {open.length} open
             </span>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Calculator, Briefcase, Palette, ExternalLink } from "lucide-react";
+import { Calculator, Briefcase, Palette, ExternalLink, Scale } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SectionCard } from "@/components/section-card";
 
@@ -30,6 +30,13 @@ export default async function SalesPage() {
           description="Quote a job: COGS, margin, commission, company net — instantly."
           icon={<Calculator className="h-5 w-5" />}
           accent="blue"
+        />
+        <SectionCard
+          href="/sales/materials-calculator"
+          title="Materials Calculator"
+          description="River rock, DG, mulch, soil — instant tons & cubic yards."
+          icon={<Scale className="h-5 w-5" />}
+          accent="green"
         />
         <SectionCard
           href="/projects"

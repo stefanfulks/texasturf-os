@@ -60,12 +60,20 @@ export default async function FleetPage({
             {showArchived && <span className="ml-1 text-zinc-500">Showing archived assets.</span>}
           </p>
         </div>
-        <Link
-          href={showArchived ? "/fleet" : "/fleet?archived=1"}
-          className="text-xs text-zinc-500 hover:text-zinc-900 px-2 py-1 rounded-md border border-zinc-200 bg-white hover:border-zinc-400"
-        >
-          {showArchived ? "← Active fleet" : "Show archived"}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/fleet/reservations"
+            className="text-xs font-medium text-zinc-700 hover:text-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 bg-white hover:border-zinc-400"
+          >
+            Reservations →
+          </Link>
+          <Link
+            href={showArchived ? "/fleet" : "/fleet?archived=1"}
+            className="text-xs text-zinc-500 hover:text-zinc-900 px-2 py-1 rounded-md border border-zinc-200 bg-white hover:border-zinc-400"
+          >
+            {showArchived ? "← Active fleet" : "Show archived"}
+          </Link>
+        </div>
       </div>
 
       {error ? (

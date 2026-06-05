@@ -15,15 +15,21 @@ import { Menu, X } from "lucide-react";
  */
 type NavTab = { href: string; label: string; prefixes?: string[] };
 
-const PERSONAL_TABS: NavTab[] = [
+const PERSONAL_TABS_BASE: NavTab[] = [
   { href: "/dashboard", label: "Home",      prefixes: ["/dashboard", "/"] },
   { href: "/tasks",     label: "Tasks",     prefixes: ["/tasks"] },
   { href: "/calendar",  label: "Calendar",  prefixes: ["/calendar"] },
   { href: "/attention", label: "Attention", prefixes: ["/attention"] },
   { href: "/projects",  label: "Projects",  prefixes: ["/projects"] },
-  { href: "/feedback",  label: "Feedback",  prefixes: ["/feedback"] },
   { href: "/assistant", label: "Assistant", prefixes: ["/assistant"] },
 ];
+
+// Feedback tab is per-role:
+//   admin → goes straight to the triage inbox (/admin/feedback)
+//   everyone else → personal feedback page (/feedback)
+// Either way, the tab matches BOTH paths so it stays highlighted no
+// matter which one is currently active.
+const FEEDBACK_PREFIXES = ["/feedback", "/admin/feedback"];
 
 const ADMIN_TABS: NavTab[] = [
   { href: "/team", label: "Team", prefixes: ["/team", "/admin/users"] },
@@ -39,7 +45,15 @@ export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const tabs = isAdmin ? [...PERSONAL_TABS, ...ADMIN_TABS] : PERSONAL_TABS;
+  const feedbackTab: NavTab = {
+    href:     isAdmin ? "/admin/feedback" : "/feedback",
+    label:    "Feedback",
+    prefixes: FEEDBACK_PREFIXES,
+  };
+  // Slot Feedback between Projects and Assistant, then append admin tabs.
+  const tabs: NavTab[] = isAdmin
+    ? [...PERSONAL_TABS_BASE.slice(0, -1), feedbackTab, PERSONAL_TABS_BASE.at(-1)!, ...ADMIN_TABS]
+    : [...PERSONAL_TABS_BASE.slice(0, -1), feedbackTab, PERSONAL_TABS_BASE.at(-1)!];
 
   // Close on outside click + on route change
   useEffect(() => {

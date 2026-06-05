@@ -53,17 +53,9 @@ export default async function AdminUsersPage() {
               they SEE on the dashboard.
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Link
-              href="/admin/feedback"
-              className="rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 hover:border-blue-400 transition-colors"
-            >
-              Feedback inbox →
-            </Link>
-            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-600">
-              {users.length} {users.length === 1 ? "user" : "users"}
-            </span>
-          </div>
+          <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-600">
+            {users.length} {users.length === 1 ? "user" : "users"}
+          </span>
         </div>
       </div>
 
