@@ -37,13 +37,16 @@ export const DEPARTMENT_EMOJI: Record<Department, string> = {
   financial: "💰",
 };
 
+// Hub pages used to be card-grid menus that just funneled to the real tools.
+// They were deleted in the layout-consolidation pass; the AppSwitcher dropdown
+// is now the catalog. Each department links straight into its primary tool.
 export const DEPARTMENT_HREF: Record<Department, string> = {
-  sales:     "/sales",
-  warehouse: "/warehouse",
-  office:    "/office",
-  field:     "/field",
-  marketing: "/marketing",
-  financial: "/financial",
+  sales:     "/pricing",
+  warehouse: "/inventory",
+  office:    "/invoices",
+  field:     "/tasks",
+  marketing: "/dashboard",
+  financial: "/reports",
 };
 
 export const DEPARTMENT_DESCRIPTION: Record<Department, string> = {
