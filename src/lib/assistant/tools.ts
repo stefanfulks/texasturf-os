@@ -10,6 +10,7 @@
 
 import type Anthropic from "@anthropic-ai/sdk";
 import type { createClient } from "@/lib/supabase/server";
+import { getMyTaskIds, NO_TASK_UUID } from "@/lib/tasks/scope";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
@@ -132,7 +133,13 @@ async function searchTasks(input: ToolInput, supabase: Supabase, userId: string)
     .limit(20);
 
   const scope = (input.scope as string) ?? "mine";
-  if (scope === "mine") q = q.eq("assignee_id", userId);
+  if (scope === "mine") {
+    // Multi-assignee: include any task where the user is tagged in
+    // task_assignees, not just the legacy primary (tasks.assignee_id).
+    const myIds = await getMyTaskIds(supabase, userId);
+    if (myIds.length === 0) return { count: 0, tasks: [] };
+    q = q.in("id", myIds);
+  }
 
   if (typeof input.status === "string") q = q.eq("status", input.status as never);
 
@@ -212,13 +219,20 @@ async function searchVendors(input: ToolInput, supabase: Supabase) {
 
 async function getDashboardStats(supabase: Supabase, userId: string) {
   const today = new Date().toISOString().slice(0, 10);
+  // Multi-assignee aware: count any task this user is tagged on, not just
+  // their primary-assigned ones.
+  const myIds = await getMyTaskIds(supabase, userId);
+  const taskBase = (q: ReturnType<Supabase["from"]>) =>
+    myIds.length === 0
+      ? q.eq("id", NO_TASK_UUID) // forced-empty match
+      : q.in("id", myIds);
   const [todayRes, overdueRes, openRes, attnRes] = await Promise.all([
-    supabase.from("tasks").select("id", { count: "exact", head: true })
-      .eq("assignee_id", userId).not("status", "in", "(done,archived)").eq("due_date", today),
-    supabase.from("tasks").select("id", { count: "exact", head: true })
-      .eq("assignee_id", userId).not("status", "in", "(done,archived)").lt("due_date", today),
-    supabase.from("tasks").select("id", { count: "exact", head: true })
-      .eq("assignee_id", userId).not("status", "in", "(done,archived)"),
+    taskBase(supabase.from("tasks").select("id", { count: "exact", head: true }))
+      .not("status", "in", "(done,archived)").eq("due_date", today),
+    taskBase(supabase.from("tasks").select("id", { count: "exact", head: true }))
+      .not("status", "in", "(done,archived)").lt("due_date", today),
+    taskBase(supabase.from("tasks").select("id", { count: "exact", head: true }))
+      .not("status", "in", "(done,archived)"),
     supabase.from("invoices").select("id", { count: "exact", head: true })
       .in("status", ["awaiting_review","awaiting_approval","request_change"]),
   ]);

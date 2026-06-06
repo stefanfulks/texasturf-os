@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { format, parseISO, isToday, isPast } from "date-fns";
 import { Calendar, ListTodo, AlertTriangle, BarChart3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getMyTaskIds, NO_TASK_UUID } from "@/lib/tasks/scope";
 import { PickDepartmentPrompt } from "./pick-department";
 import { DashboardQuickSearch } from "./quick-search";
 import {
@@ -59,21 +60,25 @@ export default async function DashboardPage({
   })();
   const primaryDepartment: Department | null = departments[0] ?? null;
 
-  // Personal cards data
+  // Personal cards data — multi-assignee aware: include tasks where the user
+  // is a co-assignee, not just the legacy primary (tasks.assignee_id).
+  const myIds = await getMyTaskIds(supabase, user.id);
+  const scopeIds = myIds.length === 0 ? [NO_TASK_UUID] : myIds;
+  const today = new Date().toISOString().slice(0, 10);
   const [myTasksRes, todayTasksRes, overdueTasksRes, attentionInvoicesRes] = await Promise.all([
     supabase.from("tasks").select("id, title, status, priority, due_date")
-      .eq("assignee_id", user.id)
+      .in("id", scopeIds)
       .not("status", "in", "(done,archived)")
       .order("due_date", { ascending: true, nullsFirst: false })
       .limit(5),
     supabase.from("tasks").select("id", { count: "exact", head: true })
-      .eq("assignee_id", user.id)
+      .in("id", scopeIds)
       .not("status", "in", "(done,archived)")
-      .eq("due_date", new Date().toISOString().slice(0, 10)),
+      .eq("due_date", today),
     supabase.from("tasks").select("id", { count: "exact", head: true })
-      .eq("assignee_id", user.id)
+      .in("id", scopeIds)
       .not("status", "in", "(done,archived)")
-      .lt("due_date", new Date().toISOString().slice(0, 10)),
+      .lt("due_date", today),
     supabase.from("invoices").select("id", { count: "exact", head: true })
       .in("status", ["awaiting_review", "awaiting_approval", "request_change"]),
   ]);
@@ -338,12 +343,14 @@ async function loadDepartmentStats(
       const today = new Date().toISOString().slice(0, 10);
       const { data: { user } } = await supabase.auth.getUser();
       const userId = user?.id;
+      const myIds = userId ? await getMyTaskIds(supabase, userId) : [];
+      const scopeIds = myIds.length === 0 ? [NO_TASK_UUID] : myIds;
       const [todayTasks, overdue] = await Promise.all([
         userId ? supabase.from("tasks").select("id", { count: "exact", head: true })
-          .eq("assignee_id", userId).not("status", "in", "(done,archived)").eq("due_date", today)
+          .in("id", scopeIds).not("status", "in", "(done,archived)").eq("due_date", today)
           : Promise.resolve({ count: 0 }),
         userId ? supabase.from("tasks").select("id", { count: "exact", head: true })
-          .eq("assignee_id", userId).not("status", "in", "(done,archived)").lt("due_date", today)
+          .in("id", scopeIds).not("status", "in", "(done,archived)").lt("due_date", today)
           : Promise.resolve({ count: 0 }),
       ]);
       return [
