@@ -33,7 +33,8 @@ const PERSONAL_TABS_BASE: NavTab[] = [
 const FEEDBACK_PREFIXES = ["/feedback", "/admin/feedback"];
 
 const ADMIN_TABS: NavTab[] = [
-  { href: "/team", label: "Team", prefixes: ["/team", "/admin/users"] },
+  { href: "/team",            label: "Team",     prefixes: ["/team", "/admin/users"] },
+  { href: "/settings/jobber", label: "Settings", prefixes: ["/settings"] },
 ];
 
 function isActive(pathname: string, tab: NavTab): boolean {
