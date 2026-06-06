@@ -40,10 +40,23 @@ export async function createTask(formData: FormData): Promise<CreateTaskResult> 
     return { task: null, error: parsed.error.issues.map((e) => e.message).join(", ") };
   }
 
-  const assigneeIdRaw = formData.get("assignee_id");
   const projectIdRaw  = formData.get("project_id");
-  const assigneeId = (typeof assigneeIdRaw === "string" && assigneeIdRaw) ? assigneeIdRaw : user.id;
   const projectId  = (typeof projectIdRaw  === "string" && projectIdRaw)  ? projectIdRaw  : null;
+
+  // Multi-assignee — formData.getAll("assignee_ids") returns every tagged
+  // profile. The first one is treated as the primary (the legacy
+  // assignee_id column). Falls back to the legacy single "assignee_id"
+  // field for any callers that haven't moved over yet.
+  const taggedIds = formData
+    .getAll("assignee_ids")
+    .filter((v): v is string => typeof v === "string" && v.length > 0);
+  if (taggedIds.length === 0) {
+    const legacy = formData.get("assignee_id");
+    if (typeof legacy === "string" && legacy) taggedIds.push(legacy);
+  }
+  if (taggedIds.length === 0) taggedIds.push(user.id);
+  const dedupedIds = Array.from(new Set(taggedIds));
+  const primaryAssigneeId = dedupedIds[0];
 
   const { data, error } = await supabase
     .from("tasks")
@@ -54,7 +67,7 @@ export async function createTask(formData: FormData): Promise<CreateTaskResult> 
       status: parsed.data.status,
       due_date: parsed.data.due_date || null,
       blocked_reason: parsed.data.blocked_reason || null,
-      assignee_id: assigneeId,
+      assignee_id: primaryAssigneeId,
       created_by_id: user.id,
       project_id: projectId,
     })
@@ -62,6 +75,26 @@ export async function createTask(formData: FormData): Promise<CreateTaskResult> 
     .single();
 
   if (error) return { task: null, error: error.message };
+
+  // Extra tagged people (non-primary). The DB trigger already inserted the
+  // primary into task_assignees; we add everyone else here.
+  const extras = dedupedIds.filter((id) => id !== primaryAssigneeId);
+  if (extras.length > 0) {
+    // task_assignees isn't in the generated Database types yet; cast through
+    // unknown so this builds before the type regeneration.
+    type AssigneeRow = { task_id: string; profile_id: string; is_primary: boolean; added_by: string };
+    const rows: AssigneeRow[] = extras.map((profileId) => ({
+      task_id: data.id,
+      profile_id: profileId,
+      is_primary: false,
+      added_by: user.id,
+    }));
+    await (
+      supabase.from("task_assignees") as unknown as {
+        insert: (rows: AssigneeRow[]) => Promise<unknown>;
+      }
+    ).insert(rows);
+  }
 
   // Log activity
   await supabase.from("task_activity").insert({
@@ -71,27 +104,127 @@ export async function createTask(formData: FormData): Promise<CreateTaskResult> 
     new_value: parsed.data.title,
   });
 
-  // Notify assignee if someone else was assigned
-  if (assigneeId !== user.id) {
+  // Notify everyone tagged who isn't the actor.
+  const toNotify = dedupedIds.filter((id) => id !== user.id);
+  if (toNotify.length > 0) {
     const { data: actor } = await supabase
       .from("profiles")
       .select("full_name, email")
       .eq("id", user.id)
       .single();
     const actorName = actor?.full_name ?? actor?.email?.split("@")[0] ?? "Someone";
-    await supabase.from("notifications").insert({
-      user_id: assigneeId,
-      actor_id: user.id,
-      type: "task_assigned",
-      title: `${actorName} assigned you a task`,
-      body: parsed.data.title,
-      resource_type: "task",
-      resource_id: data.id,
-    });
+    await supabase.from("notifications").insert(
+      toNotify.map((uid) => ({
+        user_id: uid,
+        actor_id: user.id,
+        type: "task_assigned",
+        title: `${actorName} tagged you on a task`,
+        body: parsed.data.title,
+        resource_type: "task",
+        resource_id: data.id,
+      })),
+    );
   }
 
   revalidatePath("/tasks");
   return { task: data, error: null };
+}
+
+// ─── Update Task Assignees ───────────────────────────────────────────────────
+
+export type UpdateAssigneesResult = { error: string | null; success: boolean };
+
+export async function updateTaskAssignees(
+  taskId: string,
+  assigneeIds: string[],
+): Promise<UpdateAssigneesResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated", success: false };
+  if (!taskId) return { error: "Task id required", success: false };
+
+  const deduped = Array.from(new Set(assigneeIds.filter((id) => typeof id === "string" && id.length > 0)));
+  if (deduped.length === 0) return { error: "At least one assignee is required", success: false };
+  const primary = deduped[0];
+
+  // Find who's already tagged so we can compute the diff for notifications.
+  type AssigneeRow = { profile_id: string };
+  const { data: existing } = await (
+    supabase.from("task_assignees") as unknown as {
+      select: (cols: string) => { eq: (col: string, v: string) => Promise<{ data: AssigneeRow[] | null }> };
+    }
+  ).select("profile_id").eq("task_id", taskId);
+  const existingIds = new Set((existing ?? []).map((r) => r.profile_id));
+  const added = deduped.filter((id) => !existingIds.has(id));
+
+  // Update primary on tasks (the trigger will sync task_assignees for the
+  // primary), then reset the secondary set in one transaction-ish pass.
+  const { error: updErr } = await supabase
+    .from("tasks")
+    .update({ assignee_id: primary })
+    .eq("id", taskId);
+  if (updErr) return { error: updErr.message, success: false };
+
+  // Delete any rows not in the new set.
+  const toDelete = Array.from(existingIds).filter((id) => !deduped.includes(id));
+  if (toDelete.length > 0) {
+    await (
+      supabase.from("task_assignees") as unknown as {
+        delete: () => { eq: (c: string, v: string) => { in: (c: string, v: string[]) => Promise<unknown> } };
+      }
+    )
+      .delete()
+      .eq("task_id", taskId)
+      .in("profile_id", toDelete);
+  }
+
+  // Insert any new (non-primary) rows.
+  const newSecondaries = added.filter((id) => id !== primary);
+  if (newSecondaries.length > 0) {
+    type InsertRow = { task_id: string; profile_id: string; is_primary: boolean; added_by: string };
+    const rows: InsertRow[] = newSecondaries.map((profileId) => ({
+      task_id: taskId,
+      profile_id: profileId,
+      is_primary: false,
+      added_by: user.id,
+    }));
+    await (
+      supabase.from("task_assignees") as unknown as {
+        insert: (rows: InsertRow[]) => Promise<unknown>;
+      }
+    ).insert(rows);
+  }
+
+  // Notify newly-added people (other than the actor).
+  const toNotify = added.filter((id) => id !== user.id);
+  if (toNotify.length > 0) {
+    const { data: actor } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", user.id)
+      .single();
+    const { data: task } = await supabase
+      .from("tasks")
+      .select("title")
+      .eq("id", taskId)
+      .single();
+    const actorName = actor?.full_name ?? actor?.email?.split("@")[0] ?? "Someone";
+    await supabase.from("notifications").insert(
+      toNotify.map((uid) => ({
+        user_id: uid,
+        actor_id: user.id,
+        type: "task_assigned",
+        title: `${actorName} tagged you on a task`,
+        body: task?.title ?? "",
+        resource_type: "task",
+        resource_id: taskId,
+      })),
+    );
+  }
+
+  revalidatePath("/tasks");
+  revalidatePath(`/tasks/${taskId}`, "page");
+  return { error: null, success: true };
 }
 
 // ─── Update Task Status ────────────────────────────────────────────────────────

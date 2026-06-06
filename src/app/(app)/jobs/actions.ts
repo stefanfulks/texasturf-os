@@ -5,7 +5,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-const projectSchema = z.object({
+// "Jobs" are the customer-facing work units (installs, bids, warranties,
+// etc.). They live in the public.projects table for back-compat; the URL
+// and UI label moved from "Projects" → "Jobs" so that the new bigger
+// "Projects" concept (milestones + updates + subtasks) can be built fresh.
+
+const jobSchema = z.object({
   name:                z.string().min(1, "Name is required"),
   type:                z.enum(["customer_install","commercial_bid","sales_marketing","operations","warehouse","admin","strategic","warranty","technology"]),
   status:              z.enum(["intake","planning","waiting_customer","waiting_internal","scheduled","in_progress","blocked","ready_for_review","complete","on_hold","cancelled"]).default("intake"),
@@ -18,19 +23,17 @@ const projectSchema = z.object({
   jobber_url:          z.string().optional(),
 });
 
-export type ProjectFormState = { error: string | null; success: boolean };
+export type JobFormState = { error: string | null; success: boolean };
 
-export async function createProject(_prev: ProjectFormState, formData: FormData): Promise<ProjectFormState> {
+const FIELDS = ["name","type","status","priority","customer_name","address","description","due_date","target_install_date","jobber_url"] as const;
+
+export async function createJob(_prev: JobFormState, formData: FormData): Promise<JobFormState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated", success: false };
 
-  const raw = Object.fromEntries(
-    ["name","type","status","priority","customer_name","address","description","due_date","target_install_date","jobber_url"]
-      .map((k) => [k, formData.get(k) ?? undefined])
-  );
-
-  const parsed = projectSchema.safeParse(raw);
+  const raw = Object.fromEntries(FIELDS.map((k) => [k, formData.get(k) ?? undefined]));
+  const parsed = jobSchema.safeParse(raw);
   if (!parsed.success) return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
 
   const { data, error } = await supabase
@@ -51,22 +54,18 @@ export async function createProject(_prev: ProjectFormState, formData: FormData)
 
   if (error) return { error: error.message, success: false };
 
-  revalidatePath("/projects");
-  redirect(`/projects/${data.id}`);
+  revalidatePath("/jobs");
+  redirect(`/jobs/${data.id}`);
 }
 
-export async function updateProject(_prev: ProjectFormState, formData: FormData): Promise<ProjectFormState> {
+export async function updateJob(_prev: JobFormState, formData: FormData): Promise<JobFormState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated", success: false };
 
   const id = formData.get("id") as string;
-  const raw = Object.fromEntries(
-    ["name","type","status","priority","customer_name","address","description","due_date","target_install_date","jobber_url"]
-      .map((k) => [k, formData.get(k) ?? undefined])
-  );
-
-  const parsed = projectSchema.safeParse(raw);
+  const raw = Object.fromEntries(FIELDS.map((k) => [k, formData.get(k) ?? undefined]));
+  const parsed = jobSchema.safeParse(raw);
   if (!parsed.success) return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
 
   const { error } = await supabase
@@ -84,8 +83,8 @@ export async function updateProject(_prev: ProjectFormState, formData: FormData)
 
   if (error) return { error: error.message, success: false };
 
-  revalidatePath("/projects");
-  revalidatePath(`/projects/${id}`, "page");
+  revalidatePath("/jobs");
+  revalidatePath(`/jobs/${id}`, "page");
   return { error: null, success: true };
 }
 
@@ -96,33 +95,33 @@ async function requireOfficeOrAdmin(supabase: Awaited<ReturnType<typeof createCl
   if (!user) return { user: null, error: "Not authenticated" as const };
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
   if (!profile || !["admin","office"].includes(profile.role)) {
-    return { user, error: "Only admin and office can archive projects" as const };
+    return { user, error: "Only admin and office can archive jobs" as const };
   }
   return { user, error: null as null | string };
 }
 
-export type ArchiveProjectState = { error: string | null; success: boolean };
+export type ArchiveJobState = { error: string | null; success: boolean };
 
-async function setProjectArchived(projectId: string, archived: boolean): Promise<ArchiveProjectState> {
+async function setJobArchived(jobId: string, archived: boolean): Promise<ArchiveJobState> {
   const supabase = await createClient();
   const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
   if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
-  if (!projectId) return { error: "Project ID required", success: false };
+  if (!jobId) return { error: "Job ID required", success: false };
 
   const { error } = await supabase.from("projects")
     .update({ archived, updated_at: new Date().toISOString() })
-    .eq("id", projectId);
+    .eq("id", jobId);
   if (error) return { error: error.message, success: false };
 
-  revalidatePath("/projects");
-  revalidatePath(`/projects/${projectId}`, "page");
+  revalidatePath("/jobs");
+  revalidatePath(`/jobs/${jobId}`, "page");
   return { error: null, success: true };
 }
 
-export async function archiveProject(_prev: ArchiveProjectState, formData: FormData): Promise<ArchiveProjectState> {
-  return setProjectArchived(formData.get("project_id") as string, true);
+export async function archiveJob(_prev: ArchiveJobState, formData: FormData): Promise<ArchiveJobState> {
+  return setJobArchived(formData.get("job_id") as string, true);
 }
 
-export async function unarchiveProject(_prev: ArchiveProjectState, formData: FormData): Promise<ArchiveProjectState> {
-  return setProjectArchived(formData.get("project_id") as string, false);
+export async function unarchiveJob(_prev: ArchiveJobState, formData: FormData): Promise<ArchiveJobState> {
+  return setJobArchived(formData.get("job_id") as string, false);
 }

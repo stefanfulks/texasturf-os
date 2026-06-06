@@ -39,9 +39,9 @@ export default async function SalesPage() {
           accent="green"
         />
         <SectionCard
-          href="/projects"
-          title="Projects"
-          description="Active customer projects and bids."
+          href="/jobs"
+          title="Jobs"
+          description="Customer installs, bids & Jobber work orders."
           icon={<Briefcase className="h-5 w-5" />}
           accent="purple"
         />
@@ -75,7 +75,7 @@ export default async function SalesPage() {
 
       <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-5 text-sm text-zinc-500">
         <p className="font-medium text-zinc-700">Coming soon</p>
-        <p className="mt-1">Lead tracker · quote history · commission ledger · Jobber integration.</p>
+        <p className="mt-1">Lead tracker · quote history · commission ledger · deeper Jobber sync.</p>
       </div>
     </div>
   );

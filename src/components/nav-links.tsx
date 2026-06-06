@@ -19,8 +19,9 @@ const PERSONAL_TABS_BASE: NavTab[] = [
   { href: "/dashboard", label: "Home",      prefixes: ["/dashboard", "/"] },
   { href: "/tasks",     label: "Tasks",     prefixes: ["/tasks"] },
   { href: "/calendar",  label: "Calendar",  prefixes: ["/calendar"] },
+  { href: "/meetings",  label: "Meetings",  prefixes: ["/meetings"] },
   { href: "/attention", label: "Attention", prefixes: ["/attention"] },
-  { href: "/projects",  label: "Projects",  prefixes: ["/projects"] },
+  { href: "/jobs",      label: "Jobs",      prefixes: ["/jobs"] },
   { href: "/assistant", label: "Assistant", prefixes: ["/assistant"] },
 ];
 

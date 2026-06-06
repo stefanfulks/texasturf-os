@@ -300,7 +300,7 @@ async function loadDepartmentStats(
       return [
         { label: "Needs review",      value: needsReview.count ?? 0,      tone: (needsReview.count ?? 0) > 0 ? "amber" : "neutral" },
         { label: "Awaiting approval", value: awaitingApproval.count ?? 0, tone: (awaitingApproval.count ?? 0) > 0 ? "amber" : "neutral" },
-        { label: "Open projects",     value: openProjects.count ?? 0,     tone: "neutral" },
+        { label: "Open jobs",         value: openProjects.count ?? 0,     tone: "neutral" },
         { label: "Active vendors",    value: vendors.count ?? 0,          tone: "neutral" },
       ];
     }
@@ -312,7 +312,7 @@ async function loadDepartmentStats(
       ]);
       return [
         { label: "Quote tool", value: "Open", tone: "green", hint: "Pricing calculator" },
-        { label: "Open projects", value: openProjects.count ?? 0, tone: "neutral" },
+        { label: "Open jobs", value: openProjects.count ?? 0, tone: "neutral" },
         { label: "Active subs", value: activeVendors.count ?? 0, tone: "neutral" },
         { label: "Lead pipeline", value: "—", tone: "neutral", hint: "coming soon" },
       ];

@@ -36,7 +36,7 @@ export default async function TaskDetailPage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [taskRes, commentsRes, activityRes, profileRes, allProfilesRes, subtasksRes] = await Promise.all([
+  const [taskRes, commentsRes, activityRes, profileRes, allProfilesRes, subtasksRes, assigneesRes] = await Promise.all([
     supabase.from("tasks").select("*, assignee:assignee_id(id, full_name, email), created_by:created_by_id(id, full_name, email)").eq("id", id).single(),
     supabase.from("task_comments").select("*, author:user_id(id, full_name, email)").eq("task_id", id).order("created_at", { ascending: true }),
     supabase.from("task_activity").select("*, actor:actor_id(id, full_name, email)").eq("task_id", id).order("created_at", { ascending: false }).limit(20),
@@ -50,12 +50,23 @@ export default async function TaskDetailPage({
       .eq("parent_task_id" as never, id)
       .neq("status", "archived")
       .order("created_at", { ascending: true }),
+    // Multi-assignee tags. Cast through unknown until generated types regenerate.
+    (supabase.from("task_assignees") as unknown as {
+      select: (cols: string) => { eq: (c: string, v: string) => Promise<{ data: Array<{ profile_id: string; is_primary: boolean }> | null }> };
+    }).select("profile_id, is_primary").eq("task_id", id),
   ]);
   const isOfficeOrAdmin = ["admin", "office"].includes((profileRes.data as { role?: string } | null)?.role ?? "");
   const allProfiles = (allProfilesRes.data ?? []) as Array<{ id: string; full_name: string | null; email: string }>;
   const subtasks = (subtasksRes.data ?? []) as unknown as Array<{
     id: string; title: string; status: TaskStatus; priority: TaskPriority; due_date: string | null; assignee_id: string;
   }>;
+  // Assignee list — primary first, then everyone else.
+  const taggedRows = (assigneesRes.data ?? []);
+  const assigneeIds: string[] = [];
+  for (const r of taggedRows) if (r.is_primary) assigneeIds.push(r.profile_id);
+  for (const r of taggedRows) if (!r.is_primary) assigneeIds.push(r.profile_id);
+  const profileById = new Map(allProfiles.map((p) => [p.id, p]));
+  const taggedAssignees = assigneeIds.map((id) => profileById.get(id)).filter(Boolean) as Array<{ id: string; full_name: string | null; email: string }>;
 
   if (!taskRes.data) notFound();
   // The multi-FK join (assignee_id + created_by_id both → profiles) can't be
@@ -96,16 +107,27 @@ export default async function TaskDetailPage({
 
       {/* Edit form */}
       <div className="rounded-xl border border-zinc-200 bg-white p-6">
-        <TaskEditForm task={task} />
+        <TaskEditForm
+          task={task}
+          allProfiles={allProfiles}
+          initialAssigneeIds={assigneeIds.length > 0 ? assigneeIds : [task.assignee_id]}
+        />
       </div>
 
       {/* Meta */}
       <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-2 text-sm text-zinc-600">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">Details</h3>
-        {task.assignee && (
+        {taggedAssignees.length > 0 && (
           <div className="flex gap-2">
-            <span className="text-zinc-400 w-24 flex-shrink-0">Assignee</span>
-            <span>{task.assignee.full_name ?? task.assignee.email}</span>
+            <span className="text-zinc-400 w-24 flex-shrink-0 pt-0.5">Tagged</span>
+            <span className="flex flex-wrap gap-1">
+              {taggedAssignees.map((p, i) => (
+                <span key={p.id} className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700">
+                  {p.full_name ?? p.email.split("@")[0]}
+                  {i === 0 && <span className="text-[9px] uppercase tracking-wider text-zinc-400">primary</span>}
+                </span>
+              ))}
+            </span>
           </div>
         )}
         {task.created_by && (

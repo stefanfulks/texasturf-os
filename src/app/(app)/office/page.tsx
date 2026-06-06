@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { FileText, Users, Truck, Briefcase } from "lucide-react";
+import { FileText, Users, Truck, Briefcase, Users2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SectionCard } from "@/components/section-card";
 
@@ -10,14 +10,24 @@ export default async function OfficePage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [needsActionRes, vendorsRes, activeProjectsRes, fleetRes] = await Promise.all([
+  const [needsActionRes, vendorsRes, activeJobsRes, fleetRes, openMeetingItemsRes] = await Promise.all([
     supabase.from("invoices").select("id", { count: "exact", head: true })
       .in("status", ["awaiting_review","awaiting_approval","ocr_review_needed","request_change"]),
     supabase.from("vendors").select("id", { count: "exact", head: true }).eq("active", true),
+    // "projects" table now surfaces as Jobs in the UI.
     supabase.from("projects").select("id", { count: "exact", head: true })
       .eq("archived", false)
       .not("status", "in", "(complete,cancelled)"),
     supabase.from("fleet_assets").select("id", { count: "exact", head: true }),
+    // meeting_items not in generated DB types yet — cast through unknown.
+    // We just count open items across visible meetings (RLS handles access).
+    (supabase.from("meeting_items") as unknown as {
+      select: (cols: string, opts: { count: "exact"; head: true }) => {
+        in: (c: string, v: string[]) => Promise<{ count: number | null }>;
+      };
+    })
+      .select("id", { count: "exact", head: true })
+      .in("status", ["pending", "carried_over"]),
   ]);
 
   return (
@@ -25,7 +35,7 @@ export default async function OfficePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Office</h1>
         <p className="mt-0.5 text-sm text-zinc-500">
-          Invoices, vendors, projects, fleet — the back-office workhorse views.
+          Invoices, vendors, jobs, fleet — the back-office workhorse views.
         </p>
       </div>
 
@@ -47,11 +57,11 @@ export default async function OfficePage() {
           accent="blue"
         />
         <SectionCard
-          href="/projects"
-          title="Projects"
-          description="Customer projects, internal initiatives, and SEO work."
+          href="/jobs"
+          title="Jobs"
+          description="Customer installs, bids, and internal initiatives."
           icon={<Briefcase className="h-5 w-5" />}
-          badge={activeProjectsRes.count ?? null}
+          badge={activeJobsRes.count ?? null}
           accent="purple"
         />
         <SectionCard
@@ -61,6 +71,14 @@ export default async function OfficePage() {
           icon={<Truck className="h-5 w-5" />}
           badge={fleetRes.count ?? null}
           accent="green"
+        />
+        <SectionCard
+          href="/meetings"
+          title="Meetings"
+          description="File wins, blockers, action items into your team's meetings."
+          icon={<Users2 className="h-5 w-5" />}
+          badge={openMeetingItemsRes.count ?? null}
+          accent={openMeetingItemsRes.count && openMeetingItemsRes.count > 0 ? "amber" : "neutral"}
         />
       </div>
     </div>

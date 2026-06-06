@@ -23,13 +23,13 @@ const APPS: readonly App[] = [
     href: "/dashboard",
     emoji: "🏠",
     description: "Personal — tasks, calendar, attention",
-    prefixes: ["/dashboard", "/tasks", "/calendar", "/attention", "/projects"],
+    prefixes: ["/dashboard", "/tasks", "/calendar", "/meetings", "/attention", "/jobs"],
   },
   {
     label: "Sales",
     href: "/sales",
     emoji: "💼",
-    description: "Quoting, leads, customer projects",
+    description: "Quoting, leads, customer jobs",
     prefixes: ["/sales", "/pricing"],
   },
   {

@@ -34,11 +34,14 @@ export function TaskBoard({
   currentUserId,
   profiles,
   projects,
+  assigneeMap,
 }: {
   initialTasks: Task[];
   currentUserId: string;
   profiles: Pick<Profile, "id" | "full_name" | "email">[];
   projects: Pick<Project, "id" | "name" | "status">[];
+  /** task.id → profile ids tagged on it. Primary first. */
+  assigneeMap: Record<string, string[]>;
 }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [view, setView] = useState<"kanban" | "list">("kanban");
@@ -47,24 +50,30 @@ export function TaskBoard({
   const [showCreate, setShowCreate] = useState(false);
   const [createStatus, setCreateStatus] = useState<TaskStatus>("inbox");
 
+  const isTaggedOnMe = (t: Task) =>
+    t.assignee_id === currentUserId || (assigneeMap[t.id] ?? []).includes(currentUserId);
+
   // Scope filtering
   const scopedTasks = useMemo(() => {
     let filtered = tasks.filter((t) => t.status !== "archived");
-    if (scope === "mine")   filtered = filtered.filter((t) => t.assignee_id === currentUserId);
-    if (scope === "team")   filtered = filtered.filter((t) => t.assignee_id !== currentUserId);
-    if (scope === "by_me")  filtered = filtered.filter((t) => t.created_by_id === currentUserId && t.assignee_id !== currentUserId);
+    if (scope === "mine")   filtered = filtered.filter(isTaggedOnMe);
+    if (scope === "team")   filtered = filtered.filter((t) => !isTaggedOnMe(t));
+    if (scope === "by_me")  filtered = filtered.filter((t) => t.created_by_id === currentUserId && !isTaggedOnMe(t));
     if (priorityFilter !== "all") filtered = filtered.filter((t) => t.priority === priorityFilter);
     return filtered;
-  }, [tasks, scope, priorityFilter, currentUserId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tasks, scope, priorityFilter, currentUserId, assigneeMap]);
 
   const overdueCount = useMemo(() =>
-    tasks.filter((t) => t.status !== "done" && t.status !== "archived" && t.assignee_id === currentUserId && t.due_date && isPast(parseISO(t.due_date)) && !isToday(parseISO(t.due_date))).length,
-    [tasks, currentUserId]
+    tasks.filter((t) => t.status !== "done" && t.status !== "archived" && isTaggedOnMe(t) && t.due_date && isPast(parseISO(t.due_date)) && !isToday(parseISO(t.due_date))).length,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tasks, currentUserId, assigneeMap]
   );
 
   const openCount = useMemo(() =>
-    tasks.filter((t) => t.status !== "done" && t.status !== "archived" && t.assignee_id === currentUserId).length,
-    [tasks, currentUserId]
+    tasks.filter((t) => t.status !== "done" && t.status !== "archived" && isTaggedOnMe(t)).length,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tasks, currentUserId, assigneeMap]
   );
 
   const handleStatusChange = (taskId: string, newStatus: TaskStatus) => {
@@ -158,10 +167,10 @@ export function TaskBoard({
       {/* Board */}
       {view === "kanban" ? (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <KanbanView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onAddTask={openCreate} />
+          <KanbanView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onAddTask={openCreate} />
         </DragDropContext>
       ) : (
-        <ListView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} />
+        <ListView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} />
       )}
 
       {showCreate && (
@@ -183,6 +192,7 @@ export function TaskBoard({
 type SharedProps = {
   profilesMap: Record<string, Pick<Profile, "id" | "full_name" | "email">>;
   projectsMap: Record<string, Pick<Project, "id" | "name" | "status">>;
+  assigneeMap: Record<string, string[]>;
   currentUserId: string;
   onStatusChange: (id: string, status: TaskStatus) => void;
   onComplete: (id: string) => void;
@@ -192,7 +202,7 @@ type BoardProps = SharedProps & { tasks: Task[] };
 
 // ─── Kanban View ───────────────────────────────────────────────────────────────
 
-function KanbanView({ tasks, profilesMap, projectsMap, currentUserId, onStatusChange, onComplete, onAddTask }: BoardProps & { onAddTask: (s: TaskStatus) => void; }) {
+function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onAddTask }: BoardProps & { onAddTask: (s: TaskStatus) => void; }) {
   return (
     <div className="flex gap-4 overflow-x-auto pb-4 flex-1" style={{ minHeight: 0 }}>
       {COLUMNS.map((col) => {
@@ -238,6 +248,7 @@ function KanbanView({ tasks, profilesMap, projectsMap, currentUserId, onStatusCh
                               task={task}
                               profilesMap={profilesMap}
                               projectsMap={projectsMap}
+                              assigneeMap={assigneeMap}
                               currentUserId={currentUserId}
                               onStatusChange={onStatusChange}
                               onComplete={onComplete}
@@ -260,16 +271,19 @@ function KanbanView({ tasks, profilesMap, projectsMap, currentUserId, onStatusCh
 
 // ─── Task Card ─────────────────────────────────────────────────────────────────
 
-function TaskCard({ task, profilesMap, projectsMap, currentUserId, onStatusChange, onComplete }: SharedProps & { task: Task }) {
+function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete }: SharedProps & { task: Task }) {
   const [statusOpen, setStatusOpen] = useState(false);
   const [, startTransition] = useTransition();
   const isDone = task.status === "done";
   const isOverdue  = task.due_date && !isDone && isPast(parseISO(task.due_date)) && !isToday(parseISO(task.due_date));
   const isDueToday = task.due_date && !isDone && isToday(parseISO(task.due_date));
   const priority = PRIORITY_CONFIG[task.priority];
-  const assignee = profilesMap[task.assignee_id];
+  // Multi-assignee: prefer the full set from the join table; fall back to
+  // the legacy single assignee_id if for some reason the task isn't in the map.
+  const assigneeIds = assigneeMap[task.id] ?? (task.assignee_id ? [task.assignee_id] : []);
+  const assignees = assigneeIds.map((id) => profilesMap[id]).filter(Boolean);
   const project = task.project_id ? projectsMap[task.project_id] : null;
-  const isOwnTask = task.assignee_id === currentUserId;
+  const isTaggedOnMe = assigneeIds.includes(currentUserId);
 
   return (
     <div className={cn("bg-white rounded-lg border p-3 group hover:shadow-sm transition-shadow", isDone ? "border-zinc-100 opacity-60" : "border-zinc-200", task.status === "blocked" ? "border-red-200 bg-red-50/30" : "")}>
@@ -288,8 +302,8 @@ function TaskCard({ task, profilesMap, projectsMap, currentUserId, onStatusChang
           </Link>
 
           {project && (
-            <Link href={`/projects/${project.id}`} className="text-xs text-zinc-400 hover:text-zinc-600 block mt-0.5 truncate">
-              📁 {project.name}
+            <Link href={`/jobs/${project.id}`} className="text-xs text-zinc-400 hover:text-zinc-600 block mt-0.5 truncate">
+              💼 {project.name}
             </Link>
           )}
 
@@ -300,10 +314,11 @@ function TaskCard({ task, profilesMap, projectsMap, currentUserId, onStatusChang
                 {isOverdue ? "Overdue" : isDueToday ? "Today" : format(parseISO(task.due_date), "MMM d")}
               </span>
             )}
-            {!isOwnTask && assignee && (
-              <span className="text-xs bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded font-medium">
-                {assignee.full_name ?? assignee.email.split("@")[0]}
-              </span>
+            {assignees.length > 0 && !(isTaggedOnMe && assignees.length === 1) && (
+              <AvatarStack
+                assignees={assignees}
+                currentUserId={currentUserId}
+              />
             )}
             {task.status === "blocked" && task.blocked_reason && (
               <span className="text-xs text-red-500 truncate max-w-[120px]" title={task.blocked_reason}>🚫 {task.blocked_reason}</span>
@@ -343,19 +358,96 @@ function StatusDropdown({ current, onSelect, onClose }: { current: TaskStatus; o
   );
 }
 
-// ─── Assignee Avatar ──────────────────────────────────────────────────────────
+// ─── Assignee Avatars ────────────────────────────────────────────────────────
 
-function Avatar({ name }: { name: string }) {
+const AVATAR_COLORS = [
+  "bg-blue-100 text-blue-700",
+  "bg-purple-100 text-purple-700",
+  "bg-amber-100 text-amber-800",
+  "bg-emerald-100 text-emerald-700",
+  "bg-pink-100 text-pink-700",
+  "bg-indigo-100 text-indigo-700",
+  "bg-teal-100 text-teal-700",
+  "bg-rose-100 text-rose-700",
+];
+
+function colorFor(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+
+function initialOf(p: { full_name: string | null; email: string }): string {
+  const n = (p.full_name ?? p.email).trim();
+  return n[0]?.toUpperCase() ?? "?";
+}
+
+function nameOf(p: { full_name: string | null; email: string }): string {
+  return p.full_name ?? p.email.split("@")[0];
+}
+
+function Avatar({
+  profile,
+  size = "sm",
+  ring = false,
+}: {
+  profile: Pick<Profile, "id" | "full_name" | "email">;
+  size?: "xs" | "sm" | "md";
+  ring?: boolean;
+}) {
+  const dims = size === "xs" ? "w-4 h-4 text-[9px]" : size === "md" ? "w-7 h-7 text-xs" : "w-5 h-5 text-[10px]";
   return (
-    <span className="inline-flex w-5 h-5 rounded-full bg-zinc-200 items-center justify-center text-[10px] font-semibold text-zinc-600 flex-shrink-0">
-      {name[0].toUpperCase()}
+    <span
+      title={nameOf(profile)}
+      className={cn(
+        "inline-flex items-center justify-center rounded-full font-semibold flex-shrink-0",
+        dims,
+        colorFor(profile.id),
+        ring && "ring-2 ring-white",
+      )}
+    >
+      {initialOf(profile)}
+    </span>
+  );
+}
+
+function AvatarStack({
+  assignees,
+  currentUserId,
+  max = 3,
+}: {
+  assignees: Pick<Profile, "id" | "full_name" | "email">[];
+  currentUserId: string;
+  max?: number;
+}) {
+  // Put the current user last so the visible labels favor showing teammates.
+  const sorted = [...assignees].sort((a, b) => {
+    if (a.id === currentUserId) return 1;
+    if (b.id === currentUserId) return -1;
+    return 0;
+  });
+  const shown = sorted.slice(0, max);
+  const overflow = sorted.length - shown.length;
+  return (
+    <span className="inline-flex items-center -space-x-1.5">
+      {shown.map((p) => (
+        <Avatar key={p.id} profile={p} ring />
+      ))}
+      {overflow > 0 && (
+        <span
+          title={sorted.slice(max).map(nameOf).join(", ")}
+          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-zinc-200 text-[10px] font-semibold text-zinc-700 ring-2 ring-white"
+        >
+          +{overflow}
+        </span>
+      )}
     </span>
   );
 }
 
 // ─── List View ─────────────────────────────────────────────────────────────────
 
-function ListView({ tasks, profilesMap, projectsMap, currentUserId, onStatusChange, onComplete }: BoardProps) {
+function ListView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete }: BoardProps) {
   const sorted = [...tasks].sort((a, b) => {
     const pw = { urgent: 0, high: 1, normal: 2, low: 3 };
     if (a.status === "done" && b.status !== "done") return 1;
@@ -372,21 +464,22 @@ function ListView({ tasks, profilesMap, projectsMap, currentUserId, onStatusChan
 
   return (
     <div className="space-y-1">
-      {sorted.map((task) => <ListRow key={task.id} task={task} profilesMap={profilesMap} projectsMap={projectsMap} currentUserId={currentUserId} onStatusChange={onStatusChange} onComplete={onComplete} />)}
+      {sorted.map((task) => <ListRow key={task.id} task={task} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={onStatusChange} onComplete={onComplete} />)}
     </div>
   );
 }
 
-function ListRow({ task, profilesMap, projectsMap, currentUserId, onStatusChange, onComplete }: SharedProps & { task: Task }) {
+function ListRow({ task, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete }: SharedProps & { task: Task }) {
   const [statusOpen, setStatusOpen] = useState(false);
   const [, startTransition] = useTransition();
   const isDone = task.status === "done";
   const isOverdue  = task.due_date && !isDone && isPast(parseISO(task.due_date)) && !isToday(parseISO(task.due_date));
   const isDueToday = task.due_date && !isDone && isToday(parseISO(task.due_date));
   const col = COLUMNS.find((c) => c.status === task.status)!;
-  const assignee = profilesMap[task.assignee_id];
+  const assigneeIds = assigneeMap[task.id] ?? (task.assignee_id ? [task.assignee_id] : []);
+  const assignees = assigneeIds.map((id) => profilesMap[id]).filter(Boolean);
   const project = task.project_id ? projectsMap[task.project_id] : null;
-  const isOwnTask = task.assignee_id === currentUserId;
+  const isTaggedOnMe = assigneeIds.includes(currentUserId);
 
   return (
     <div className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg border bg-white hover:shadow-sm transition-shadow group", isDone ? "border-zinc-100 opacity-60" : "border-zinc-200")}>
@@ -400,7 +493,9 @@ function ListRow({ task, profilesMap, projectsMap, currentUserId, onStatusChange
       </div>
 
       <div className="flex items-center gap-2 flex-shrink-0 text-xs">
-        {!isOwnTask && assignee && <Avatar name={assignee.full_name ?? assignee.email} />}
+        {assignees.length > 0 && !(isTaggedOnMe && assignees.length === 1) && (
+          <AvatarStack assignees={assignees} currentUserId={currentUserId} />
+        )}
         {task.priority !== "normal" && <span className={cn("px-1.5 py-0.5 rounded font-medium", PRIORITY_CONFIG[task.priority].badge)}>{PRIORITY_CONFIG[task.priority].label}</span>}
         {task.due_date && (
           <span className={cn("px-1.5 py-0.5 rounded font-medium", isOverdue ? "bg-red-50 text-red-600" : isDueToday ? "bg-amber-50 text-amber-700" : "bg-zinc-50 text-zinc-500")}>
@@ -432,10 +527,19 @@ function CreateTaskDialog({
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [assigneeIds, setAssigneeIds] = useState<string[]>([currentUserId]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    // formData already includes all assignee_ids from the checkboxes, but
+    // browsers don't submit unchecked items — we double-check we have at
+    // least one tag before sending.
+    const tags = formData.getAll("assignee_ids");
+    if (tags.length === 0) {
+      setError("Tag at least one person.");
+      return;
+    }
     setError(null);
     startTransition(async () => {
       const result = await createTask(formData);
@@ -444,69 +548,177 @@ function CreateTaskDialog({
     });
   };
 
+  // 16px-rem font on inputs keeps iOS Safari from auto-zooming on focus.
+  const fieldCls = "w-full text-base border border-zinc-300 rounded-xl h-12 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 bg-white";
+
   return (
     <>
       <div className="fixed inset-0 bg-black/40 z-30" onClick={onClose} />
-      <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200">
-            <h2 className="text-sm font-semibold">New Task</h2>
-            <button onClick={onClose} className="text-zinc-400 hover:text-zinc-700 text-xl leading-none">×</button>
+      <div className="fixed inset-0 z-40 flex items-center justify-center sm:p-4">
+        <div className="bg-white sm:rounded-2xl shadow-xl w-full sm:max-w-lg max-h-[100dvh] sm:max-h-[90vh] flex flex-col">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200 shrink-0">
+            <h2 className="text-base font-semibold">New Task</h2>
+            <button onClick={onClose} aria-label="Close" className="text-zinc-400 hover:text-zinc-700 h-9 w-9 flex items-center justify-center rounded-lg hover:bg-zinc-100">
+              <span className="text-xl leading-none">×</span>
+            </button>
           </div>
-          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="p-5 space-y-4 overflow-y-auto flex-1">
             <input type="hidden" name="status" value={defaultStatus} />
 
-            <input name="title" placeholder="Task title…" required autoFocus className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-zinc-400 placeholder:text-zinc-400" />
+            <input name="title" placeholder="Task title…" required autoFocus className={fieldCls} />
 
-            <textarea name="description" placeholder="Description (optional)…" rows={2} className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 placeholder:text-zinc-400 resize-none" />
+            <textarea name="description" placeholder="Description (optional)…" rows={2} className="w-full text-base border border-zinc-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 placeholder:text-zinc-400 resize-none" />
+
+            {/* Tag people — multi-select */}
+            <div>
+              <label className="flex items-baseline justify-between text-xs font-semibold text-zinc-700 mb-1.5">
+                <span>Tag people *</span>
+                <span className="text-[10px] font-normal text-zinc-400">{assigneeIds.length} tagged</span>
+              </label>
+              <AssigneePicker
+                profiles={profiles}
+                selected={assigneeIds}
+                onChange={setAssigneeIds}
+                currentUserId={currentUserId}
+              />
+              {/* Hidden inputs so formData.getAll("assignee_ids") works. */}
+              {assigneeIds.map((id) => (
+                <input key={id} type="hidden" name="assignee_ids" value={id} />
+              ))}
+            </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Assign to</label>
-                <select name="assignee_id" defaultValue={currentUserId} className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white">
-                  {profiles.map((p) => (
-                    <option key={p.id} value={p.id}>{p.full_name ?? p.email.split("@")[0]}{p.id === currentUserId ? " (me)" : ""}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Priority</label>
-                <select name="priority" defaultValue="normal" className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white">
+                <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Priority</label>
+                <select name="priority" defaultValue="normal" className={fieldCls}>
                   <option value="low">Low</option>
                   <option value="normal">Normal</option>
                   <option value="high">High</option>
                   <option value="urgent">Urgent</option>
                 </select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Project (optional)</label>
-                <select name="project_id" className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white">
-                  <option value="">No project</option>
-                  {projects.filter((p) => p.status !== "complete" && p.status !== "cancelled").map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Due date</label>
-                <input type="date" name="due_date" className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+                <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Due date</label>
+                <input type="date" name="due_date" className={fieldCls} />
               </div>
             </div>
 
-            {error && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">{error}</p>}
-
-            <div className="flex justify-end gap-2 pt-1">
-              <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">Cancel</button>
-              <button type="submit" disabled={isPending} className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50">
-                {isPending ? "Creating…" : "Create Task"}
-              </button>
+            <div>
+              <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Job <span className="font-normal text-zinc-400">(optional)</span></label>
+              <select name="project_id" defaultValue="" className={fieldCls}>
+                <option value="">No job</option>
+                {projects.filter((p) => p.status !== "complete" && p.status !== "cancelled").map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
             </div>
+
+            {error && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
+          </div>
+          <div className="flex justify-end gap-2 px-5 py-4 border-t border-zinc-100 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <button type="button" onClick={onClose} className="h-11 px-4 text-sm font-medium text-zinc-600 hover:text-zinc-900 rounded-lg">Cancel</button>
+            <button type="submit" disabled={isPending} className="h-11 px-5 text-sm font-semibold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 active:bg-zinc-700 disabled:opacity-50">
+              {isPending ? "Creating…" : "Create Task"}
+            </button>
+          </div>
           </form>
         </div>
       </div>
     </>
+  );
+}
+
+// ─── Assignee Multi-Picker ────────────────────────────────────────────────────
+
+function AssigneePicker({
+  profiles,
+  selected,
+  onChange,
+  currentUserId,
+}: {
+  profiles: Pick<Profile, "id" | "full_name" | "email">[];
+  selected: string[];
+  onChange: (ids: string[]) => void;
+  currentUserId: string;
+}) {
+  const [q, setQ] = useState("");
+  const selectedSet = new Set(selected);
+
+  const toggle = (id: string) => {
+    if (selectedSet.has(id)) onChange(selected.filter((x) => x !== id));
+    else onChange([...selected, id]);
+  };
+
+  const filtered = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (!term) return profiles;
+    return profiles.filter((p) =>
+      (p.full_name ?? "").toLowerCase().includes(term) ||
+      p.email.toLowerCase().includes(term),
+    );
+  }, [profiles, q]);
+
+  return (
+    <div className="rounded-xl border border-zinc-300 bg-white">
+      {/* Selected chips */}
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 px-2.5 pt-2.5 pb-1.5">
+          {selected.map((id) => {
+            const p = profiles.find((x) => x.id === id);
+            if (!p) return null;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => toggle(id)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200 pl-1 pr-2 h-7 text-xs font-medium text-zinc-800"
+              >
+                <Avatar profile={p} size="xs" />
+                <span>{nameOf(p)}{p.id === currentUserId ? " (me)" : ""}</span>
+                <span className="text-zinc-400">×</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <input
+        type="search"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder="Search teammates…"
+        className="w-full text-base px-3 h-11 border-y border-zinc-100 focus:outline-none focus:border-zinc-300"
+      />
+      <ul className="max-h-44 overflow-y-auto py-1">
+        {filtered.length === 0 && (
+          <li className="px-3 py-2 text-xs text-zinc-400">No matches</li>
+        )}
+        {filtered.map((p) => {
+          const isOn = selectedSet.has(p.id);
+          return (
+            <li key={p.id}>
+              <button
+                type="button"
+                onClick={() => toggle(p.id)}
+                className={cn(
+                  "w-full flex items-center gap-2.5 h-11 px-3 text-left transition-colors",
+                  isOn ? "bg-zinc-50 text-zinc-900" : "text-zinc-700 hover:bg-zinc-50",
+                )}
+              >
+                <Avatar profile={p} />
+                <span className="flex-1 text-sm truncate">{nameOf(p)}{p.id === currentUserId ? " (me)" : ""}</span>
+                <span className={cn("w-5 h-5 rounded border flex items-center justify-center", isOn ? "bg-zinc-900 border-zinc-900 text-white" : "border-zinc-300")}>
+                  {isOn && (
+                    <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
