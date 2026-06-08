@@ -11,17 +11,23 @@ import { gql } from "graphql-request";
 import { jobberClient } from "@/lib/jobber/graphql";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
+// Jobber's Visit schema (verified via introspection of VisitFilterAttributes
+// and confirmed by multiple integrations): id, title, startAt, endAt,
+// isComplete, completedAt, allDay, client { id }, job { id },
+// assignedUsers { nodes { id } }. Property is NOT a direct field on Visit —
+// it hangs off Job, so reach it via job { property { id } } when needed.
 const VISIT_FIELDS = gql`
   fragment VisitFields on Visit {
     id
     title
     startAt
     endAt
+    allDay
     isComplete
+    completedAt
     client { id }
-    property { id }
     job { id }
-    assignedUsers(first: 20) { nodes { id } }
+    assignedUsers { nodes { id } }
   }
 `;
 
@@ -51,9 +57,10 @@ type GqlVisit = {
   title: string | null;
   startAt: string | null;
   endAt: string | null;
+  allDay: boolean;
   isComplete: boolean;
+  completedAt: string | null;
   client: { id: string } | null;
-  property: { id: string } | null;
   job: { id: string } | null;
   assignedUsers: { nodes: { id: string }[] };
 };
@@ -64,7 +71,9 @@ function toRow(accountId: string, v: GqlVisit) {
     jobber_account_id: accountId,
     job_id:            v.job?.id ?? null,
     client_id:         v.client?.id ?? null,
-    property_id:       v.property?.id ?? null,
+    // property_id derived later via job -> property; keep column for the mirror
+    // schema but always null at sync time for now.
+    property_id:       null,
     title:             v.title,
     starts_at:         v.startAt,
     ends_at:           v.endAt,
