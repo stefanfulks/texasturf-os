@@ -13,7 +13,11 @@ export const JOBBER = {
   authorizeUrl: "https://api.getjobber.com/api/oauth/authorize",
   tokenUrl:     "https://api.getjobber.com/api/oauth/token",
   graphqlUrl:   "https://api.getjobber.com/api/graphql",
-  apiVersion:   "2024-04-01",
+  // Jobber API versions are YYYY-MM-DD dates, published when breaking changes
+  // ship. Each is supported for 12–18 months. Bump this when picking up new
+  // schema features; check the changelog before changing.
+  // https://developer.getjobber.com/docs/changelog/
+  apiVersion:   "2026-04-22",
 } as const;
 
 export function jobberEnv() {
