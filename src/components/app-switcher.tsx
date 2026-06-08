@@ -221,6 +221,18 @@ export function AppSwitcher() {
                     <div className="pl-12 pr-3 pb-1.5 flex flex-wrap gap-1">
                       {ws.tools.map((tool) => {
                         const active = isActive(pathname, tool.href);
+                        if (tool.comingSoon) {
+                          return (
+                            <span
+                              key={tool.href}
+                              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-400 bg-zinc-50 cursor-default select-none"
+                              title="Coming soon"
+                            >
+                              {tool.label}
+                              <span className="text-[9px] uppercase tracking-wide text-zinc-400">soon</span>
+                            </span>
+                          );
+                        }
                         return (
                           <Link
                             key={tool.href}
