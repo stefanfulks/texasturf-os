@@ -1,0 +1,201 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { ChevronLeft, Plus, Calendar as CalendarIcon, Archive, ArchiveRestore } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { formatCadence } from "@/lib/meetings/cadence";
+import type { Meeting } from "@/lib/meetings/types";
+import { archiveMeeting, unarchiveMeeting } from "./actions";
+
+export const dynamic = "force-dynamic";
+export const metadata = { title: "Meetings · Settings · TexasTurf OS" };
+
+export default async function MeetingsSettingsPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  const isAdmin = profile?.role === "admin";
+
+  // RLS keeps non-admins to meetings they can see; admins see everything.
+  const meetingsRes = await (
+    supabase.from("meetings") as unknown as {
+      select: (cols: string) => {
+        order: (c: string, opts: { ascending: boolean }) => Promise<{ data: Meeting[] | null; error: { message: string } | null }>;
+      };
+    }
+  )
+    .select("id, slug, name, description, cadence, day_of_week, day_of_month, start_time, duration_min, allowed_roles, allowed_departments, sections, archived")
+    .order("archived", { ascending: true });
+
+  const meetings = meetingsRes.data ?? [];
+  const active = meetings.filter((m) => !m.archived);
+  const archived = meetings.filter((m) => m.archived);
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-5">
+      <Link
+        href="/settings"
+        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-zinc-500 hover:text-zinc-900"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Settings
+      </Link>
+      <div className="flex items-end justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">Meetings</h1>
+          <p className="text-sm sm:text-base text-zinc-600 mt-1">
+            {isAdmin
+              ? "Create, edit, archive meeting templates. Sections drive what people can file under each one."
+              : "Browse what meeting templates exist. Admins can edit them."}
+          </p>
+        </div>
+        {isAdmin && (
+          <Link
+            href="/meetings/new"
+            className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-800 active:bg-zinc-700"
+          >
+            <Plus className="h-4 w-4" />
+            New meeting
+          </Link>
+        )}
+      </div>
+
+      {meetingsRes.error && (
+        <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <p className="font-semibold">Couldn&apos;t load meetings.</p>
+          <p className="mt-1 text-xs">{meetingsRes.error.message}</p>
+        </div>
+      )}
+
+      {active.length > 0 && (
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">Active</h2>
+          <ul className="space-y-2">
+            {active.map((m) => (
+              <MeetingRow key={m.id} meeting={m} isAdmin={isAdmin} archived={false} />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {archived.length > 0 && (
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">Archived</h2>
+          <ul className="space-y-2">
+            {archived.map((m) => (
+              <MeetingRow key={m.id} meeting={m} isAdmin={isAdmin} archived={true} />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {meetings.length === 0 && !meetingsRes.error && (
+        <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center">
+          <div className="text-4xl mb-3">📋</div>
+          <p className="text-base font-semibold text-zinc-900">No meeting templates yet</p>
+          <p className="text-sm text-zinc-500 mt-1">
+            {isAdmin ? "Create one to start." : "Ask an admin to set one up for your team."}
+          </p>
+          {isAdmin && (
+            <Link
+              href="/meetings/new"
+              className="inline-flex items-center gap-1.5 mt-4 h-11 px-5 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-800 active:bg-zinc-700"
+            >
+              <Plus className="h-4 w-4" />
+              New meeting
+            </Link>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MeetingRow({
+  meeting,
+  isAdmin,
+  archived,
+}: {
+  meeting: Meeting;
+  isAdmin: boolean;
+  archived: boolean;
+}) {
+  return (
+    <li className={"rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 " + (archived ? "opacity-60" : "")}>
+      <div className="flex items-start gap-3">
+        <div className="h-10 w-10 shrink-0 rounded-xl bg-zinc-100 text-zinc-700 flex items-center justify-center">
+          <CalendarIcon className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              href={`/meetings/${meeting.slug}`}
+              className="text-sm sm:text-base font-semibold text-zinc-900 hover:underline"
+            >
+              {meeting.name}
+            </Link>
+            <span className="text-xs text-zinc-500">/{meeting.slug}</span>
+            {archived && (
+              <span className="rounded-full bg-zinc-100 text-zinc-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                Archived
+              </span>
+            )}
+          </div>
+          {meeting.description && (
+            <p className="text-xs text-zinc-600 mt-0.5">{meeting.description}</p>
+          )}
+          <div className="flex items-center gap-2 mt-2 flex-wrap text-[11px]">
+            <span className="text-zinc-500">{formatCadence(meeting)}</span>
+            <span className="text-zinc-300">·</span>
+            <span className="text-zinc-500">{meeting.sections.length} section{meeting.sections.length === 1 ? "" : "s"}</span>
+            {meeting.allowed_roles.length > 0 && (
+              <>
+                <span className="text-zinc-300">·</span>
+                <span className="rounded-full bg-zinc-100 text-zinc-700 px-2 py-0.5 font-medium capitalize">
+                  {meeting.allowed_roles.join(", ")}
+                </span>
+              </>
+            )}
+            {meeting.allowed_departments.length > 0 && (
+              <>
+                <span className="text-zinc-300">·</span>
+                <span className="rounded-full bg-blue-50 text-blue-700 px-2 py-0.5 font-medium capitalize">
+                  {meeting.allowed_departments.join(", ")}
+                </span>
+              </>
+            )}
+            {meeting.allowed_roles.length === 0 && meeting.allowed_departments.length === 0 && (
+              <>
+                <span className="text-zinc-300">·</span>
+                <span className="rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5 font-medium">
+                  Everyone
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+        {isAdmin && (
+          <form
+            action={archived ? unarchiveMeeting : archiveMeeting}
+            className="flex-shrink-0"
+          >
+            <input type="hidden" name="id" value={meeting.id} />
+            <button
+              type="submit"
+              title={archived ? "Restore" : "Archive"}
+              aria-label={archived ? "Restore meeting" : "Archive meeting"}
+              className="h-9 w-9 inline-flex items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
+            >
+              {archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+            </button>
+          </form>
+        )}
+      </div>
+    </li>
+  );
+}
