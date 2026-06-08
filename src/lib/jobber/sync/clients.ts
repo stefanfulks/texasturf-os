@@ -11,6 +11,10 @@ import { gql } from "graphql-request";
 import { jobberClient } from "@/lib/jobber/graphql";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
+// Jobber's Client schema:
+//   emails: { address, primary, description }
+//   phones: { number, primary, description, smsAllowed }   (NOT "phoneNumbers")
+//   balance: stored on the account, not selected here per query-cost discipline.
 const CLIENT_FIELDS = gql`
   fragment ClientFields on Client {
     id
@@ -20,9 +24,8 @@ const CLIENT_FIELDS = gql`
     isArchived
     createdAt
     updatedAt
-    emails { description address }
-    phoneNumbers { description number }
-    balance
+    emails { address description primary }
+    phones { number description primary }
   }
 `;
 
@@ -51,9 +54,8 @@ type GqlClient = {
   isArchived: boolean;
   createdAt: string;
   updatedAt: string;
-  emails: { description: string | null; address: string }[];
-  phoneNumbers: { description: string | null; number: string }[];
-  balance: number | null;
+  emails: { address: string; description: string | null; primary: boolean }[];
+  phones: { number: string; description: string | null; primary: boolean }[];
 };
 
 function toRow(accountId: string, c: GqlClient) {
@@ -64,8 +66,9 @@ function toRow(accountId: string, c: GqlClient) {
     last_name:          c.lastName,
     company_name:       c.companyName,
     emails:             c.emails,
-    phones:             c.phoneNumbers,
-    balance_cents:      c.balance == null ? null : Math.round(c.balance * 100),
+    phones:             c.phones,
+    // balance not selected from Jobber for now — re-add when needed.
+    balance_cents:      null,
     is_archived:        c.isArchived,
     jobber_created_at:  c.createdAt,
     jobber_updated_at:  c.updatedAt,
