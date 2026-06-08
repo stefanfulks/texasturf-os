@@ -258,6 +258,52 @@ export async function listDeliveries(opts: { limit?: number } = {}) {
   return (data ?? []) as Delivery[];
 }
 
+/**
+ * List view: deliveries + linked pull list job number and date.
+ * Used by /operations/deliveries.
+ */
+export type DeliveryRow = Delivery & {
+  pull_list: { job_number: string | null; job_date: string } | null;
+};
+
+export async function listDeliveriesForListPage(opts: { limit?: number } = {}) {
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("warehouse_deliveries")
+    .select("*, pull_list:pull_list_id(job_number, job_date)")
+    .order("delivered_at", { ascending: false })
+    .limit(opts.limit ?? 100);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as DeliveryRow[];
+}
+
+/**
+ * Pull-list picker for the new-delivery form. Defaults to dispatched +
+ * delivered states (the ones a confirmation is most likely to follow).
+ */
+export type PullListPickerOption = {
+  id: string;
+  job_date: string;
+  client_name: string | null;
+  job_number: string | null;
+  status: string;
+};
+
+export async function listPullListsForPicker(opts: { days?: number; limit?: number } = {}) {
+  const sb = supabaseAdmin();
+  const days = opts.days ?? 14;
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  const { data, error } = await sb
+    .from("warehouse_pull_lists")
+    .select("id, job_date, client_name, job_number, status")
+    .gte("job_date", since.toISOString().slice(0, 10))
+    .order("job_date", { ascending: false })
+    .limit(opts.limit ?? 200);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as PullListPickerOption[];
+}
+
 export async function getDelivery(id: string) {
   const sb = supabaseAdmin();
   const { data, error } = await sb

@@ -40,7 +40,7 @@ export default async function PullListDetailPage({ params }: { params: Params })
           <p className="mt-0.5 text-sm text-zinc-500 tabular-nums">{pl.job_date}</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className={"inline-block rounded-full px-2.5 py-1 text-xs font-medium capitalize " + (STATUS_TONE[pl.status] ?? "bg-zinc-100 text-zinc-700")}>
             {pl.status}
           </span>
@@ -61,6 +61,14 @@ export default async function PullListDetailPage({ params }: { params: Params })
                 Mark {cap(next)} →
               </button>
             </form>
+          )}
+          {(pl.status === "dispatched" || pl.status === "delivered") && (
+            <Link
+              href={`/operations/deliveries/new?pull_list_id=${pl.id}`}
+              className="rounded-lg border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50"
+            >
+              + Log delivery
+            </Link>
           )}
         </div>
       </div>

@@ -331,6 +331,199 @@ export async function signOffPullList(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
+// createDelivery — log a delivery confirmation + post to Slack.
+//
+// Optionally derives client/address/pull_list linkage from the picked pull
+// list. The Slack post failure does NOT block the DB insert; we just record
+// the failure on the row so the UI shows a "Repost" button.
+// ---------------------------------------------------------------------------
+
+export async function createDelivery(formData: FormData) {
+  const pullListId      = nullableString(formData.get("pull_list_id"));
+  const jobberVisitId   = nullableString(formData.get("jobber_visit_id"));
+  let   clientId        = nullableString(formData.get("client_id"));
+  let   clientName      = nullableString(formData.get("client_name"));
+  let   address         = nullableString(formData.get("address"));
+  const deliveredAtForm = nullableString(formData.get("delivered_at"));
+
+  const receivedByEmployeeId = nullableString(formData.get("received_by_employee_id"));
+  const receivedBy           = nullableString(formData.get("received_by"));
+  const stagingLocation      = nullableString(formData.get("staging_location"));
+  const notes                = nullableString(formData.get("notes"));
+  const photoUrl             = nullableString(formData.get("photo_url"));
+
+  // Materials JSON — only include sub-objects that have any data.
+  const turfProduct = nullableString(formData.get("mat_turf_product"));
+  const turfSqft    = nullableNumber(formData.get("mat_turf_sqft"));
+  const turfBatch   = nullableString(formData.get("mat_turf_batch"));
+  const dgCubicYards = nullableNumber(formData.get("mat_dg_cubic_yards"));
+  const infillType   = nullableString(formData.get("mat_infill_type"));
+  const infillBags   = nullableNumber(formData.get("mat_infill_bags"));
+  const nailsBoxesM  = nullableNumber(formData.get("mat_nails_boxes"));
+  const staplesBoxesM = nullableNumber(formData.get("mat_staples_boxes"));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const materials: Record<string, any> = {};
+  if (turfProduct || turfSqft != null || turfBatch) {
+    materials.turf = {
+      ...(turfProduct ? { product: turfProduct } : {}),
+      ...(turfSqft   != null ? { sqft: turfSqft } : {}),
+      ...(turfBatch  ? { batch:  turfBatch } : {}),
+    };
+  }
+  if (dgCubicYards != null) materials.dg = { cubic_yards: dgCubicYards };
+  if (infillType || infillBags != null) {
+    materials.infill = {
+      ...(infillType ? { type: infillType } : {}),
+      ...(infillBags != null ? { bags: infillBags } : {}),
+    };
+  }
+  if (nailsBoxesM != null || staplesBoxesM != null) {
+    materials.fasteners = {
+      ...(nailsBoxesM   != null ? { nails_boxes:   nailsBoxesM   } : {}),
+      ...(staplesBoxesM != null ? { staples_boxes: staplesBoxesM } : {}),
+    };
+  }
+
+  const sb = supabaseAdmin();
+
+  // If a pull list is picked, inherit client + address fields when the
+  // form's own fields are empty.
+  if (pullListId) {
+    const { data: pl } = await sb
+      .from("warehouse_pull_lists")
+      .select("client_id, client_name, address, jobber_visit_id")
+      .eq("id", pullListId)
+      .maybeSingle();
+    const plRow = pl as unknown as {
+      client_id:       string | null;
+      client_name:     string | null;
+      address:         string | null;
+      jobber_visit_id: string | null;
+    } | null;
+    if (plRow) {
+      if (!clientId)   clientId   = plRow.client_id;
+      if (!clientName) clientName = plRow.client_name;
+      if (!address)    address    = plRow.address;
+    }
+  }
+
+  const deliveredAtIso = (() => {
+    if (!deliveredAtForm) return new Date().toISOString();
+    // The datetime-local input gives "YYYY-MM-DDTHH:mm" w/o tz.
+    const d = new Date(deliveredAtForm);
+    return Number.isFinite(d.getTime()) ? d.toISOString() : new Date().toISOString();
+  })();
+
+  const { data: inserted, error: insErr } = await sb
+    .from("warehouse_deliveries")
+    .insert({
+      pull_list_id:    pullListId,
+      jobber_visit_id: jobberVisitId,
+      client_id:       clientId,
+      client_name:     clientName,
+      address,
+      delivered_at:    deliveredAtIso,
+      materials,
+      received_by_employee_id: receivedByEmployeeId,
+      received_by:             receivedBy,
+      staging_location:        stagingLocation,
+      notes,
+      photo_url:               photoUrl,
+    })
+    .select("id")
+    .single();
+  if (insErr) throw new Error(insErr.message);
+  const deliveryId = (inserted as unknown as { id: string }).id;
+
+  // Best-effort Slack post — failure is recorded but doesn't break the flow.
+  const { sendDeliveryNotification } = await import("@/lib/integrations/slack-delivery");
+  const slackRes = await sendDeliveryNotification({
+    id:               deliveryId,
+    client_name:      clientName,
+    address,
+    delivered_at:     deliveredAtIso,
+    received_by:      receivedBy,
+    staging_location: stagingLocation,
+    notes,
+    photo_url:        photoUrl,
+    materials,
+  });
+  if (slackRes.success && slackRes.externalId) {
+    await sb
+      .from("warehouse_deliveries")
+      .update({
+        slack_message_ts: slackRes.externalId,
+        slack_posted_at:  new Date().toISOString(),
+      })
+      .eq("id", deliveryId);
+  }
+
+  revalidatePath("/operations/deliveries");
+  revalidatePath("/operations");
+  if (pullListId) revalidatePath(`/operations/pull-lists/${pullListId}`);
+  redirect(`/operations/deliveries/${deliveryId}`);
+}
+
+// ---------------------------------------------------------------------------
+// repostDeliveryToSlack — used by the detail page's "Repost to Slack" button.
+// ---------------------------------------------------------------------------
+
+export async function repostDeliveryToSlack(formData: FormData) {
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) throw new Error("Delivery id is required");
+
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("warehouse_deliveries")
+    .select("id, client_name, address, delivered_at, received_by, staging_location, notes, photo_url, materials")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Delivery not found");
+
+  const row = data as unknown as {
+    id: string;
+    client_name: string | null;
+    address: string | null;
+    delivered_at: string;
+    received_by: string | null;
+    staging_location: string | null;
+    notes: string | null;
+    photo_url: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    materials: any;
+  };
+
+  const { sendDeliveryNotification } = await import("@/lib/integrations/slack-delivery");
+  const slackRes = await sendDeliveryNotification({
+    id:               row.id,
+    client_name:      row.client_name,
+    address:          row.address,
+    delivered_at:     row.delivered_at,
+    received_by:      row.received_by,
+    staging_location: row.staging_location,
+    notes:            row.notes,
+    photo_url:        row.photo_url,
+    materials:        row.materials ?? {},
+  });
+  if (!slackRes.success) {
+    throw new Error(slackRes.error ?? "Slack post failed");
+  }
+  if (slackRes.externalId) {
+    await sb
+      .from("warehouse_deliveries")
+      .update({
+        slack_message_ts: slackRes.externalId,
+        slack_posted_at:  new Date().toISOString(),
+      })
+      .eq("id", id);
+  }
+
+  revalidatePath(`/operations/deliveries/${id}`);
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
