@@ -13,9 +13,31 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 type TokenResponse = {
   access_token: string;
   refresh_token: string;
-  expires_in: number;
+  // Jobber does NOT return expires_in. The expiration is encoded in the JWT
+  // access token's `exp` claim. Kept here as optional so we can also handle
+  // future API revisions that might add it.
+  expires_in?: number;
   scope?: string;
 };
+
+/**
+ * Read the `exp` claim from a JWT access token without verifying the
+ * signature (we don't have Jobber's public key and don't need to — we got
+ * this token from Jobber directly over TLS).
+ * Returns null if the token isn't a parseable JWT.
+ */
+function jwtExpiryDate(accessToken: string): Date | null {
+  try {
+    const parts = accessToken.split(".");
+    if (parts.length !== 3) return null;
+    const payloadJson = Buffer.from(parts[1], "base64url").toString("utf8");
+    const claims = JSON.parse(payloadJson) as { exp?: number };
+    if (typeof claims.exp !== "number") return null;
+    return new Date(claims.exp * 1000);
+  } catch {
+    return null;
+  }
+}
 
 export type StoredTokens = {
   jobber_account_id: string;
@@ -68,7 +90,15 @@ export async function saveTokens(
   accountId: string,
   tokens: TokenResponse,
 ): Promise<StoredTokens> {
-  const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
+  // Prefer the JWT `exp` claim (Jobber's documented behavior). Fall back to
+  // expires_in if present, then to a 1-hour default — Jobber tokens live
+  // ~60 min and the refresh loop will recover if we're slightly off.
+  const expiresAt = (
+    jwtExpiryDate(tokens.access_token) ??
+    (typeof tokens.expires_in === "number"
+      ? new Date(Date.now() + tokens.expires_in * 1000)
+      : new Date(Date.now() + 3600 * 1000))
+  ).toISOString();
   const scopes = tokens.scope ? tokens.scope.split(/\s+/).filter(Boolean) : [];
   const row = {
     jobber_account_id: accountId,

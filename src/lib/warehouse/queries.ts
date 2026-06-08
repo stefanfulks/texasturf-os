@@ -1,6 +1,14 @@
-// Server-side read helpers for the warehouse module.
+// Server-side read helpers for the warehouse / operations module.
+//
+// Reconciled with the existing OS schema:
+//   - Asset rows come from public.assets (extended in B1 with make/model/year);
+//     unit_type is the kind selector (truck/trailer/heavy_equipment/tool).
+//   - Maintenance rows come from public.maintenance_logs (not from a
+//     warehouse-specific table).
+//
 // All queries run with the service-role admin client; pages are server
-// components so this is safe. Switch to RLS-aware client when Auth lands.
+// components so this is safe. Switch to RLS-aware client when these reads
+// move to a route handler.
 
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type {
@@ -10,10 +18,10 @@ import type {
   Delivery,
   Employee,
   Inspection,
+  MaintenanceLog,
   PullList,
   PullListRoll,
   ToolPurchase,
-  VehicleMaintenance,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -35,9 +43,13 @@ export async function listEmployees(opts: { activeOnly?: boolean } = {}) {
 
 export async function listAssets(opts: { kind?: AssetKind; activeOnly?: boolean } = {}) {
   const sb = supabaseAdmin();
-  let q = sb.from("warehouse_assets").select("*").order("name");
-  if (opts.kind) q = q.eq("kind", opts.kind);
-  if (opts.activeOnly) q = q.eq("is_active", true);
+  let q = sb
+    .from("assets")
+    .select("id, name, unit_type, identifier, make, model, year, notes, status, created_at, updated_at")
+    .order("name");
+  if (opts.kind) q = q.eq("unit_type", opts.kind);
+  // OS assets has no is_active flag — "out_of_service" is the dead state.
+  if (opts.activeOnly) q = q.neq("status", "out_of_service");
   const { data, error } = await q;
   if (error) throw new Error(error.message);
   return (data ?? []) as Asset[];
@@ -45,7 +57,11 @@ export async function listAssets(opts: { kind?: AssetKind; activeOnly?: boolean 
 
 export async function getAsset(id: string) {
   const sb = supabaseAdmin();
-  const { data, error } = await sb.from("warehouse_assets").select("*").eq("id", id).maybeSingle();
+  const { data, error } = await sb
+    .from("assets")
+    .select("id, name, unit_type, identifier, make, model, year, notes, status, created_at, updated_at")
+    .eq("id", id)
+    .maybeSingle();
   if (error) throw new Error(error.message);
   return (data ?? null) as Asset | null;
 }
@@ -143,17 +159,26 @@ export async function getDelivery(id: string) {
 // Vehicle maintenance + budgets
 // ---------------------------------------------------------------------------
 
-export async function listVehicleMaintenance(opts: { assetId?: string; limit?: number } = {}) {
+/**
+ * Vehicle maintenance log entries (powered by the existing maintenance_logs
+ * table — has schedule FK and meter tracking that the variant didn't).
+ */
+export async function listMaintenanceLogs(opts: { assetId?: string; limit?: number } = {}) {
   const sb = supabaseAdmin();
   let q = sb
-    .from("warehouse_vehicle_maintenance")
-    .select("*")
-    .order("service_date", { ascending: false })
+    .from("maintenance_logs")
+    .select(
+      "id, asset_id, schedule_id, performed_at, description, cost_cents, meter_value, " +
+      "performed_by_profile, performed_by_vendor, vendor, invoice_url, notes, created_at",
+    )
+    .order("performed_at", { ascending: false })
     .limit(opts.limit ?? 100);
   if (opts.assetId) q = q.eq("asset_id", opts.assetId);
   const { data, error } = await q;
   if (error) throw new Error(error.message);
-  return (data ?? []) as VehicleMaintenance[];
+  // database.types.ts doesn't yet reflect the vendor / invoice_url columns
+  // added in B1; cast through unknown until types are regenerated.
+  return (data ?? []) as unknown as MaintenanceLog[];
 }
 
 export async function listToolPurchases(opts: { limit?: number } = {}) {

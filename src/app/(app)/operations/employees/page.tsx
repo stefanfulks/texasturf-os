@@ -82,7 +82,7 @@ export default async function EmployeesPage() {
                 <tr key={e.id} className="border-t border-zinc-200 dark:border-zinc-800">
                   <td className="px-3 py-2 font-medium">{e.display_name}</td>
                   <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">
-                    {e.role ? ROLE_LABELS[e.role] : "—"}
+                    {e.job_role ? ROLE_LABELS[e.job_role] : "—"}
                   </td>
                   <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">{e.email ?? "—"}</td>
                   <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">{e.phone ?? "—"}</td>

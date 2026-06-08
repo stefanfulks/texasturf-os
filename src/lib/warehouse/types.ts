@@ -1,6 +1,11 @@
-// Hand-rolled types matching supabase/migrations/0002_warehouse_core.sql.
-// Replace with `supabase gen types typescript` output once the project is linked.
+// Hand-rolled types matching the warehouse_* tables created by
+// supabase/migrations/20260606100000_warehouse_core.sql.
+//
+// Replace with `supabase gen types typescript` output once the project is linked
+// and the new tables are reflected in src/lib/database.types.ts.
 
+// EmployeeRole is the JOB role on the crew (driver, stager, etc.), distinct
+// from the APP permission role on profiles (admin/office/field).
 export type EmployeeRole =
   | "warehouse"
   | "driver"
@@ -12,6 +17,7 @@ export type EmployeeRole =
   | "contractor"
   | "other";
 
+// Mirrors the public.unit_type enum (extended in B1 to include 'tool').
 export type AssetKind = "truck" | "trailer" | "heavy_equipment" | "tool";
 
 export type PullListStatus =
@@ -33,10 +39,13 @@ export type BudgetKind = "vehicle_maintenance" | "tool_purchases";
 
 export interface Employee {
   id: string;
+  /** Optional link to the OS user (profiles.id) if this person has a login. */
+  profile_id: string | null;
   first_name: string;
   last_name: string | null;
   display_name: string; // generated column
-  role: EmployeeRole | null;
+  /** Job role (driver / stager / etc.) — NOT the app permission role. */
+  job_role: EmployeeRole | null;
   email: string | null;
   phone: string | null;
   is_active: boolean;
@@ -45,15 +54,30 @@ export interface Employee {
   updated_at: string;
 }
 
+/**
+ * Asset shape for the warehouse module.
+ *
+ * Maps to the *existing* `public.assets` table (extended in B1 with
+ * identifier/make/model/year). Trucks, trailers, heavy equipment, AND now
+ * tools all live in one table — `unit_type` is the kind selector.
+ */
+export type AssetStatus =
+  | "available"
+  | "assigned_to_job"
+  | "in_use_today"
+  | "maintenance_needed"
+  | "out_of_service";
+
 export interface Asset {
   id: string;
-  kind: AssetKind;
   name: string;
+  unit_type: AssetKind;
+  /** Active life-cycle status. "out_of_service" is the dead/retired state. */
+  status: AssetStatus;
   identifier: string | null;
   make: string | null;
   model: string | null;
   year: number | null;
-  is_active: boolean;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -64,6 +88,8 @@ export interface PullList {
   job_date: string; // date
   jobber_visit_id: string | null;
   client_id: string | null;
+  /** Optional FK to the inv_allocations ledger row that backs this pull list. */
+  inv_allocation_id: string | null;
   client_name: string | null;
   address: string | null;
   job_number: string | null;
@@ -98,7 +124,8 @@ export interface PullList {
   lead_signed_at: string | null;
   status: PullListStatus;
   notes: string | null;
-  created_by: string | null;
+  /** UUID FK to profiles.id (the OS user who drafted the pull list). */
+  created_by_profile: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -106,6 +133,8 @@ export interface PullList {
 export interface PullListRoll {
   id: string;
   pull_list_id: string;
+  /** Optional FK to inv_rolls.id — populated when the row is tied to a tracked roll. */
+  inv_roll_id: string | null;
   position: number;
   roll_number: string;
   lengths_needed: string | null;
@@ -188,25 +217,35 @@ export interface Delivery {
   slack_channel: string | null;
   slack_message_ts: string | null;
   slack_posted_at: string | null;
-  created_by: string | null;
+  /** UUID FK to profiles.id (the OS user who logged the delivery). */
+  created_by_profile: string | null;
   created_at: string;
   updated_at: string;
 }
 
-export interface VehicleMaintenance {
+/**
+ * Vehicle maintenance now lives in the existing `maintenance_logs` table
+ * (richer — has schedule FK + meter_value + role-gated RLS). This type
+ * mirrors the columns the warehouse UI cares about; full type lives in
+ * src/lib/database.types.ts once regenerated.
+ */
+export interface MaintenanceLog {
   id: string;
   asset_id: string;
-  service_date: string;
-  service_type: string;
-  vendor: string | null;
-  description: string | null;
+  schedule_id: string | null;
+  performed_at: string;
+  description: string;
   cost_cents: number;
-  odometer: number | null;
+  /** mileage or hours at service (covers what variant called `odometer`) */
+  meter_value: number | null;
+  performed_by_profile: string | null;
+  performed_by_vendor: string | null;
+  /** vendor name — added in B1 if not already present */
+  vendor: string | null;
+  /** signed URL or storage path under `warehouse/maintenance/{id}/...` */
   invoice_url: string | null;
-  submitted_by_employee_id: string | null;
-  submitted_by: string | null;
+  notes: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 export interface ToolPurchase {
@@ -221,7 +260,8 @@ export interface ToolPurchase {
   crew: string | null;
   receipt_url: string | null;
   submitted_by_employee_id: string | null;
-  submitted_by: string | null;
+  /** OS user who logged it (optional — submission may come from a non-user). */
+  submitted_by_profile: string | null;
   created_at: string;
   updated_at: string;
 }

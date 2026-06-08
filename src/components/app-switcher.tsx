@@ -57,12 +57,18 @@ const WORKSPACES: readonly Workspace[] = [
   {
     label: "Warehouse",
     emoji: "📦",
-    description: "Rolls, jobs, receiving, cuts",
+    description: "Rolls, jobs, receiving, cuts, daily ops",
     primaryHref: "/inventory",
     tools: [
-      { label: "Inventory", href: "/inventory" },
+      { label: "Inventory",             href: "/inventory" },
+      { label: "Pull Lists",            href: "/operations/pull-lists", comingSoon: true },
+      { label: "Inspections",           href: "/operations/inspections" },
+      { label: "Deliveries",            href: "/operations/deliveries", comingSoon: true },
+      { label: "Vehicle Maintenance",   href: "/operations/vehicles", comingSoon: true },
+      { label: "Tool Spend",            href: "/operations/tools", comingSoon: true },
+      { label: "Employees",             href: "/operations/employees" },
     ],
-    prefixes: ["/warehouse", "/inventory"],
+    prefixes: ["/warehouse", "/inventory", "/operations"],
   },
   {
     label: "Office",

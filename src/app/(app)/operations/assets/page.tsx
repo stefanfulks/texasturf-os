@@ -70,19 +70,19 @@ export default async function AssetsPage() {
                 <th className="px-3 py-2 font-medium">Name</th>
                 <th className="px-3 py-2 font-medium">Identifier</th>
                 <th className="px-3 py-2 font-medium">Make / Model / Year</th>
-                <th className="px-3 py-2 font-medium">Active</th>
+                <th className="px-3 py-2 font-medium">Status</th>
               </tr>
             </thead>
             <tbody>
               {assets.map((a) => (
                 <tr key={a.id} className="border-t border-zinc-200 dark:border-zinc-800">
-                  <td className="px-3 py-2">{KIND_LABELS[a.kind]}</td>
+                  <td className="px-3 py-2">{KIND_LABELS[a.unit_type]}</td>
                   <td className="px-3 py-2 font-medium">{a.name}</td>
                   <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">{a.identifier ?? "—"}</td>
                   <td className="px-3 py-2 text-zinc-600 dark:text-zinc-400">
                     {[a.make, a.model, a.year].filter(Boolean).join(" / ") || "—"}
                   </td>
-                  <td className="px-3 py-2">{a.is_active ? "Yes" : "No"}</td>
+                  <td className="px-3 py-2 capitalize">{a.status.replace(/_/g, " ")}</td>
                 </tr>
               ))}
               {assets.length === 0 && (

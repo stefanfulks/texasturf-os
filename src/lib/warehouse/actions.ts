@@ -1,7 +1,14 @@
 "use server";
 
-// Server actions for warehouse mutations.
-// No auth gate yet — flagged in the migration; add when Google SSO lands.
+/**
+ * Server actions for warehouse / operations mutations.
+ *
+ * Auth note: RLS on warehouse_* tables already restricts writes to
+ * admin + office via current_role() (set in 20260606100000_warehouse_core.sql),
+ * so a non-admin/office user calling these actions hits RLS. Belt-and-
+ * suspenders auth-gating in the actions themselves is a TODO once we
+ * wire role-aware UI affordances.
+ */
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -64,9 +71,9 @@ export async function createInspection(formData: FormData) {
     .single();
   if (error) throw new Error(error.message);
 
-  revalidatePath("/warehouse/inspections");
-  revalidatePath("/warehouse");
-  redirect(`/warehouse/inspections/${data.id}`);
+  revalidatePath("/operations/inspections");
+  revalidatePath("/operations");
+  redirect(`/operations/inspections/${data.id}`);
 }
 
 function computeResult(items: InspectionItems): InspectionResult {
@@ -86,17 +93,19 @@ export async function createEmployee(formData: FormData) {
   const firstName = String(formData.get("first_name") ?? "").trim();
   if (!firstName) throw new Error("First name is required");
   const lastName = nullableString(formData.get("last_name"));
-  const role = nullableString(formData.get("role"));
+  // Form field is still "role" for UI continuity; column is job_role to keep
+  // it distinct from profiles.role (the app permission role).
+  const jobRole = nullableString(formData.get("role"));
   const email = nullableString(formData.get("email"));
   const phone = nullableString(formData.get("phone"));
 
   const sb = supabaseAdmin();
   const { error } = await sb
     .from("warehouse_employees")
-    .insert({ first_name: firstName, last_name: lastName, role, email, phone });
+    .insert({ first_name: firstName, last_name: lastName, job_role: jobRole, email, phone });
   if (error) throw new Error(error.message);
 
-  revalidatePath("/warehouse/employees");
+  revalidatePath("/operations/employees");
 }
 
 // ---------------------------------------------------------------------------
@@ -111,9 +120,11 @@ export async function createAsset(formData: FormData) {
     throw new Error("Invalid kind");
   }
 
+  // Targets the existing public.assets table (not warehouse_assets — that
+  // table doesn't exist in OS). unit_type is the kind selector.
   const sb = supabaseAdmin();
-  const { error } = await sb.from("warehouse_assets").insert({
-    kind,
+  const { error } = await sb.from("assets").insert({
+    unit_type: kind,
     name,
     identifier: nullableString(formData.get("identifier")),
     make: nullableString(formData.get("make")),
@@ -122,7 +133,9 @@ export async function createAsset(formData: FormData) {
   });
   if (error) throw new Error(error.message);
 
-  revalidatePath("/warehouse/assets");
+  revalidatePath("/operations/assets");
+  // Fleet page also reads from assets — keep it fresh.
+  revalidatePath("/fleet");
 }
 
 // ---------------------------------------------------------------------------
