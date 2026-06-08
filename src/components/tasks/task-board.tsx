@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition, useMemo } from "react";
+import { useState, useTransition, useMemo, useCallback } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { format, isToday, isPast, parseISO } from "date-fns";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
 import { updateTaskStatus, createTask } from "@/app/(app)/tasks/actions";
+import { TaskSlideOver } from "@/components/tasks/task-slide-over";
 import type { Task, TaskStatus, TaskPriority, Profile, Project } from "@/lib/database.types";
 
 // ─── Config ────────────────────────────────────────────────────────────────────
@@ -107,6 +109,24 @@ export function TaskBoard({
   const profilesMap = useMemo(() => Object.fromEntries(profiles.map((p) => [p.id, p])), [profiles]);
   const projectsMap = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p])), [projects]);
 
+  // ── Slide-over panel: opens when ?taskId=... is in the URL. Clicking a
+  //    card sets it; closing or routing away clears it. Permalink-friendly
+  //    so deep-links from Slack / notifications still work.
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const selectedTaskId = searchParams.get("taskId");
+  const selectedTask = useMemo(
+    () => tasks.find((t) => t.id === selectedTaskId) ?? null,
+    [tasks, selectedTaskId],
+  );
+
+  const handleSelectTask = useCallback((taskId: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("taskId", taskId);
+    router.push(`${pathname}?${next.toString()}`, { scroll: false });
+  }, [pathname, router, searchParams]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -167,10 +187,10 @@ export function TaskBoard({
       {/* Board */}
       {view === "kanban" ? (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <KanbanView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onAddTask={openCreate} />
+          <KanbanView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onAddTask={openCreate} onSelectTask={handleSelectTask} />
         </DragDropContext>
       ) : (
-        <ListView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} />
+        <ListView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onSelectTask={handleSelectTask} />
       )}
 
       {showCreate && (
@@ -181,6 +201,14 @@ export function TaskBoard({
           projects={projects}
           onCreated={handleTaskCreated}
           onClose={() => setShowCreate(false)}
+        />
+      )}
+
+      {selectedTask && (
+        <TaskSlideOver
+          task={selectedTask}
+          allProfiles={profiles}
+          initialAssigneeIds={assigneeMap[selectedTask.id] ?? (selectedTask.assignee_id ? [selectedTask.assignee_id] : [])}
         />
       )}
     </div>
@@ -196,13 +224,14 @@ type SharedProps = {
   currentUserId: string;
   onStatusChange: (id: string, status: TaskStatus) => void;
   onComplete: (id: string) => void;
+  onSelectTask: (id: string) => void;
 };
 
 type BoardProps = SharedProps & { tasks: Task[] };
 
 // ─── Kanban View ───────────────────────────────────────────────────────────────
 
-function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onAddTask }: BoardProps & { onAddTask: (s: TaskStatus) => void; }) {
+function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onAddTask, onSelectTask }: BoardProps & { onAddTask: (s: TaskStatus) => void; }) {
   return (
     <div className="flex gap-4 overflow-x-auto pb-4 flex-1" style={{ minHeight: 0 }}>
       {COLUMNS.map((col) => {
@@ -252,6 +281,7 @@ function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserI
                               currentUserId={currentUserId}
                               onStatusChange={onStatusChange}
                               onComplete={onComplete}
+                              onSelectTask={onSelectTask}
                             />
                           </div>
                         )}
@@ -271,7 +301,7 @@ function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserI
 
 // ─── Task Card ─────────────────────────────────────────────────────────────────
 
-function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete }: SharedProps & { task: Task }) {
+function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onSelectTask }: SharedProps & { task: Task }) {
   const [statusOpen, setStatusOpen] = useState(false);
   const [, startTransition] = useTransition();
   const isDone = task.status === "done";
@@ -297,9 +327,18 @@ function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, 
         </button>
 
         <div className="flex-1 min-w-0">
-          <Link href={`/tasks/${task.id}`} className={cn("text-sm font-medium leading-snug block hover:underline", isDone ? "line-through text-zinc-400" : "text-zinc-900")}>
+          {/* Title opens the slide-over via search param; cmd-click (or
+              middle-click) on the wrapper link still opens the full page. */}
+          <button
+            type="button"
+            onClick={() => onSelectTask(task.id)}
+            className={cn(
+              "text-left text-sm font-medium leading-snug block hover:underline cursor-pointer w-full",
+              isDone ? "line-through text-zinc-400" : "text-zinc-900",
+            )}
+          >
             {task.title}
-          </Link>
+          </button>
 
           {project && (
             <Link href={`/jobs/${project.id}`} className="text-xs text-zinc-400 hover:text-zinc-600 block mt-0.5 truncate">
@@ -447,7 +486,7 @@ function AvatarStack({
 
 // ─── List View ─────────────────────────────────────────────────────────────────
 
-function ListView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete }: BoardProps) {
+function ListView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onSelectTask }: BoardProps) {
   const sorted = [...tasks].sort((a, b) => {
     const pw = { urgent: 0, high: 1, normal: 2, low: 3 };
     if (a.status === "done" && b.status !== "done") return 1;
@@ -464,12 +503,12 @@ function ListView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId,
 
   return (
     <div className="space-y-1">
-      {sorted.map((task) => <ListRow key={task.id} task={task} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={onStatusChange} onComplete={onComplete} />)}
+      {sorted.map((task) => <ListRow key={task.id} task={task} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={onStatusChange} onComplete={onComplete} onSelectTask={onSelectTask} />)}
     </div>
   );
 }
 
-function ListRow({ task, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete }: SharedProps & { task: Task }) {
+function ListRow({ task, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onSelectTask }: SharedProps & { task: Task }) {
   const [statusOpen, setStatusOpen] = useState(false);
   const [, startTransition] = useTransition();
   const isDone = task.status === "done";
@@ -488,7 +527,16 @@ function ListRow({ task, profilesMap, projectsMap, assigneeMap, currentUserId, o
       </button>
 
       <div className="flex-1 min-w-0">
-        <Link href={`/tasks/${task.id}`} className={cn("text-sm font-medium hover:underline truncate block", isDone ? "line-through text-zinc-400" : "text-zinc-900")}>{task.title}</Link>
+        <button
+          type="button"
+          onClick={() => onSelectTask(task.id)}
+          className={cn(
+            "text-left text-sm font-medium hover:underline truncate block w-full",
+            isDone ? "line-through text-zinc-400" : "text-zinc-900",
+          )}
+        >
+          {task.title}
+        </button>
         {project && <span className="text-xs text-zinc-400 truncate">{project.name}</span>}
       </div>
 

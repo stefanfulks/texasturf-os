@@ -16,11 +16,11 @@ export default async function MaterialsCalculatorPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-4 sm:py-6 space-y-4">
       <Link
-        href="/sales"
+        href="/dashboard"
         className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-zinc-500 hover:text-zinc-900 active:text-zinc-700"
       >
         <ChevronLeft className="h-4 w-4" />
-        Sales
+        Home
       </Link>
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
