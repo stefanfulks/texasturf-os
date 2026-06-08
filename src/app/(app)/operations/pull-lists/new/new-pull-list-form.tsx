@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { createPullList } from "@/lib/warehouse/actions";
 
 type EmployeeOpt = { id: string; display_name: string };
@@ -264,12 +265,12 @@ export function NewPullListForm({
       )}
 
       <div className="flex justify-end gap-2">
-        <a
+        <Link
           href="/operations/pull-lists"
           className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900"
         >
           Cancel
-        </a>
+        </Link>
         <button
           type="submit"
           disabled={isPending}

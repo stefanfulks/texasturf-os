@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { createBrowserClient } from "@supabase/ssr";
 import { createDelivery } from "@/lib/warehouse/actions";
 
@@ -292,12 +293,12 @@ export function NewDeliveryForm({
       )}
 
       <div className="flex justify-end gap-2">
-        <a
+        <Link
           href="/operations/deliveries"
           className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900"
         >
           Cancel
-        </a>
+        </Link>
         <button
           type="submit"
           disabled={isPending || photoUploading}
