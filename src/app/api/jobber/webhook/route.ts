@@ -19,6 +19,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { syncClient } from "@/lib/jobber/sync/clients";
 import { syncVisit }  from "@/lib/jobber/sync/visits";
+import { syncJob }    from "@/lib/jobber/sync/jobs";
 
 export async function POST(req: NextRequest) {
   const raw       = await req.text();
@@ -93,6 +94,12 @@ async function dispatch(topic: string, accountId: string, itemId: string) {
         await supa.from("jobber_visits").delete().eq("id", itemId);
       } else {
         await syncVisit(accountId, itemId);
+      }
+    } else if (topic.startsWith("JOB_")) {
+      if (topic === "JOB_DESTROY") {
+        await supa.from("jobber_jobs").delete().eq("id", itemId);
+      } else {
+        await syncJob(accountId, itemId);
       }
     }
     await supa

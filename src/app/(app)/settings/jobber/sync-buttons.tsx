@@ -10,15 +10,17 @@ import { useRouter } from "next/navigation";
 export function SyncButtons({ accountId }: { accountId: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [busy, setBusy] = useState<"clients" | "visits" | null>(null);
+  const [busy, setBusy] = useState<"clients" | "visits" | "jobs" | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  async function sync(kind: "clients" | "visits") {
+  async function sync(kind: "clients" | "visits" | "jobs") {
     setBusy(kind); setMsg(null); setErr(null);
     try {
       const url = kind === "visits"
         ? `/api/jobber/sync/visits?account=${encodeURIComponent(accountId)}&days=14`
+        : kind === "jobs"
+        ? `/api/jobber/sync/jobs?account=${encodeURIComponent(accountId)}`
         : `/api/jobber/sync/clients?account=${encodeURIComponent(accountId)}`;
       const res = await fetch(url, { method: "POST" });
       const data = await res.json();
@@ -56,6 +58,14 @@ export function SyncButtons({ accountId }: { accountId: string }) {
           className={baseBtn}
         >
           {busy === "visits" ? "Syncing visits…" : "Sync visits (±7 days)"}
+        </button>
+        <button
+          type="button"
+          onClick={() => sync("jobs")}
+          disabled={busy !== null || isPending}
+          className={baseBtn}
+        >
+          {busy === "jobs" ? "Syncing jobs…" : "Sync all jobs"}
         </button>
       </div>
       {msg && <p className="text-xs text-green-700">{msg}</p>}

@@ -36,7 +36,7 @@ export default async function JobberSettingsPage({
   const { connected } = await searchParams;
   const supa = supabaseAdmin();
 
-  const [accountsRes, eventsRes, clientCountRes, visitCountRes] = await Promise.all([
+  const [accountsRes, eventsRes, clientCountRes, visitCountRes, jobCountRes] = await Promise.all([
     supa.from("jobber_oauth_tokens")
       .select("jobber_account_id, installed_at, updated_at, scopes, expires_at"),
     supa.from("jobber_webhook_events")
@@ -44,11 +44,13 @@ export default async function JobberSettingsPage({
       .order("received_at", { ascending: false }).limit(10),
     supa.from("jobber_clients").select("id", { count: "exact", head: true }),
     supa.from("jobber_visits").select("id", { count: "exact", head: true }),
+    supa.from("jobber_jobs").select("id", { count: "exact", head: true }),
   ]);
   const accounts = (accountsRes.data ?? []) as unknown as Account[];
   const lastEvents = (eventsRes.data ?? []) as unknown as WebhookEvent[];
   const clientCount = clientCountRes.count ?? 0;
   const visitCount  = visitCountRes.count  ?? 0;
+  const jobCount    = jobCountRes.count    ?? 0;
 
   const primaryAccountId = accounts[0]?.jobber_account_id ?? null;
 
@@ -103,7 +105,7 @@ export default async function JobberSettingsPage({
       {primaryAccountId && (
         <section className="rounded-xl border border-zinc-200 bg-white p-5">
           <h2 className="text-sm font-semibold">Local mirror</h2>
-          <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+          <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
             <div className="rounded-lg border border-zinc-100 p-3">
               <div className="text-xs text-zinc-500">Clients synced</div>
               <div className="text-xl font-semibold tabular-nums">{clientCount}</div>
@@ -111,6 +113,10 @@ export default async function JobberSettingsPage({
             <div className="rounded-lg border border-zinc-100 p-3">
               <div className="text-xs text-zinc-500">Visits synced</div>
               <div className="text-xl font-semibold tabular-nums">{visitCount}</div>
+            </div>
+            <div className="rounded-lg border border-zinc-100 p-3">
+              <div className="text-xs text-zinc-500">Jobs synced</div>
+              <div className="text-xl font-semibold tabular-nums">{jobCount}</div>
             </div>
           </div>
           <SyncButtons accountId={primaryAccountId} />
