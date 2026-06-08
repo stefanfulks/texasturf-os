@@ -24,7 +24,7 @@ const PERSONAL_TABS_BASE: NavTab[] = [
   { href: "/fleet/reservations", label: "Vehicles",  prefixes: ["/fleet/reservations"] },
   { href: "/jobs",               label: "Jobs",      prefixes: ["/jobs"] },
   { href: "/attention",          label: "Attention", prefixes: ["/attention"] },
-  { href: "/assistant",          label: "Assistant", prefixes: ["/assistant"] },
+  { href: "/assistant",          label: "Turfy",     prefixes: ["/assistant"] },
 ];
 
 // Feedback tab is per-role:
@@ -53,7 +53,7 @@ export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
     label:    "Feedback",
     prefixes: FEEDBACK_PREFIXES,
   };
-  // Slot Feedback between Projects and Assistant, then append admin tabs.
+  // Slot Feedback just before Turfy (the last personal tab), then append admin tabs.
   const tabs: NavTab[] = isAdmin
     ? [...PERSONAL_TABS_BASE.slice(0, -1), feedbackTab, PERSONAL_TABS_BASE.at(-1)!, ...ADMIN_TABS]
     : [...PERSONAL_TABS_BASE.slice(0, -1), feedbackTab, PERSONAL_TABS_BASE.at(-1)!];
