@@ -8,7 +8,7 @@
  */
 
 import { gql } from "graphql-request";
-import { jobberClient } from "@/lib/jobber/graphql";
+import { jobberClient, jobberQuery } from "@/lib/jobber/graphql";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 // Jobber's Visit schema (verified via introspection of VisitFilterAttributes
@@ -91,15 +91,16 @@ export async function syncVisitsInRange(
 ) {
   const client = await jobberClient(accountId);
   const supa = supabaseAdmin();
+  type Resp = {
+    visits: {
+      pageInfo: { hasNextPage: boolean; endCursor: string | null };
+      nodes: GqlVisit[];
+    };
+  };
   let cursor: string | null = null;
   let total = 0;
   do {
-    const resp: {
-      visits: {
-        pageInfo: { hasNextPage: boolean; endCursor: string | null };
-        nodes: GqlVisit[];
-      };
-    } = await client.request(VISITS_IN_RANGE, {
+    const resp: Resp = await jobberQuery<Resp>(client, VISITS_IN_RANGE, {
       cursor,
       startMin: startMin.toISOString(),
       startMax: startMax.toISOString(),
@@ -119,7 +120,8 @@ export async function syncVisitsInRange(
 
 export async function syncVisit(accountId: string, visitId: string) {
   const client = await jobberClient(accountId);
-  const resp = await client.request<{ visit: GqlVisit | null }>(
+  const resp = await jobberQuery<{ visit: GqlVisit | null }>(
+    client,
     ONE_VISIT,
     { id: visitId },
   );

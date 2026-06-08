@@ -8,7 +8,7 @@
  */
 
 import { gql } from "graphql-request";
-import { jobberClient } from "@/lib/jobber/graphql";
+import { jobberClient, jobberQuery } from "@/lib/jobber/graphql";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 // Jobber's Client schema:
@@ -80,15 +80,16 @@ function toRow(accountId: string, c: GqlClient) {
 export async function syncAllClients(accountId: string) {
   const client = await jobberClient(accountId);
   const supa = supabaseAdmin();
+  type Resp = {
+    clients: {
+      pageInfo: { hasNextPage: boolean; endCursor: string | null };
+      nodes: GqlClient[];
+    };
+  };
   let cursor: string | null = null;
   let total = 0;
   do {
-    const resp: {
-      clients: {
-        pageInfo: { hasNextPage: boolean; endCursor: string | null };
-        nodes: GqlClient[];
-      };
-    } = await client.request(ALL_CLIENTS, { cursor });
+    const resp: Resp = await jobberQuery<Resp>(client, ALL_CLIENTS, { cursor });
     const rows = resp.clients.nodes.map((n) => toRow(accountId, n));
     if (rows.length > 0) {
       const { error } = await supa
@@ -104,7 +105,8 @@ export async function syncAllClients(accountId: string) {
 
 export async function syncClient(accountId: string, clientId: string) {
   const client = await jobberClient(accountId);
-  const resp = await client.request<{ client: GqlClient | null }>(
+  const resp = await jobberQuery<{ client: GqlClient | null }>(
+    client,
     ONE_CLIENT,
     { id: clientId },
   );
