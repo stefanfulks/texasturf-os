@@ -6,9 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 /**
- * Top-level tabs for TexasTurf OS (the personal workspace). Department
- * workspaces (Sales / Warehouse / Office / Financial / Marketing / Field)
- * are reached via the AppSwitcher chip to the left of these tabs.
+ * Top-level navigation tabs. The UserMenu (left of these tabs) holds the
+ * full workspace catalog and identity affordances; the gear icon (right of
+ * notifications) opens /settings. These tabs are the high-frequency
+ * destinations everyone needs one click away.
  *
  * The Team tab is admin-only and gets appended by the (app) layout, which
  * fetches the user's role server-side and passes `isAdmin` here.
@@ -16,13 +17,14 @@ import { Menu, X } from "lucide-react";
 type NavTab = { href: string; label: string; prefixes?: string[] };
 
 const PERSONAL_TABS_BASE: NavTab[] = [
-  { href: "/dashboard", label: "Home",      prefixes: ["/dashboard", "/"] },
-  { href: "/tasks",     label: "Tasks",     prefixes: ["/tasks"] },
-  { href: "/calendar",  label: "Calendar",  prefixes: ["/calendar"] },
-  { href: "/meetings",  label: "Meetings",  prefixes: ["/meetings"] },
-  { href: "/attention", label: "Attention", prefixes: ["/attention"] },
-  { href: "/jobs",      label: "Jobs",      prefixes: ["/jobs"] },
-  { href: "/assistant", label: "Assistant", prefixes: ["/assistant"] },
+  { href: "/dashboard",          label: "Home",      prefixes: ["/dashboard", "/"] },
+  { href: "/tasks",              label: "Tasks",     prefixes: ["/tasks"] },
+  { href: "/calendar",           label: "Calendar",  prefixes: ["/calendar"] },
+  { href: "/meetings",           label: "Meetings",  prefixes: ["/meetings"] },
+  { href: "/fleet/reservations", label: "Vehicles",  prefixes: ["/fleet/reservations"] },
+  { href: "/jobs",               label: "Jobs",      prefixes: ["/jobs"] },
+  { href: "/attention",          label: "Attention", prefixes: ["/attention"] },
+  { href: "/assistant",          label: "Assistant", prefixes: ["/assistant"] },
 ];
 
 // Feedback tab is per-role:

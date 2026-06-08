@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { SignOutButton } from "@/components/sign-out-button";
+import { UserMenu } from "@/components/user-menu";
 import { NavLinks } from "@/components/nav-links";
 import { NotificationBell } from "@/components/notification-bell";
-import { AppSwitcher } from "@/components/app-switcher";
 
 export default async function AppLayout({
   children,
@@ -18,15 +18,15 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
-  // Role check for admin-only nav surfaces (Team tab)
+  // Profile drives the UserMenu (name + role) AND the admin-only nav surfaces.
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("full_name, email, role")
     .eq("id", user.id)
     .single();
   const isAdmin = profile?.role === "admin";
 
-  // Count unread notifications for the bell badge
+  // Count unread notifications for the bell badge.
   const { count: unreadCount } = await supabase
     .from("notifications")
     .select("id", { count: "exact", head: true })
@@ -36,14 +36,28 @@ export default async function AppLayout({
     <div className="flex flex-1 flex-col">
       <header className="border-b border-zinc-200 bg-white">
         <div className="flex h-14 w-full items-center justify-between gap-4 px-4 sm:px-6">
-          <div className="flex items-center gap-3 sm:gap-6 min-w-0">
-            <AppSwitcher />
+          {/* LEFT — identity + nav */}
+          <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+            <UserMenu
+              fullName={profile?.full_name ?? null}
+              email={profile?.email ?? user.email ?? ""}
+              role={profile?.role ?? null}
+              isAdmin={isAdmin}
+            />
             <NavLinks isAdmin={isAdmin} />
           </div>
-          <div className="flex items-center gap-2 sm:gap-3 text-sm flex-shrink-0">
+
+          {/* RIGHT — notifications + settings gear */}
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <NotificationBell initialUnread={unreadCount ?? 0} />
-            <span className="hidden md:inline text-zinc-500 truncate max-w-[180px]">{user.email}</span>
-            <SignOutButton />
+            <Link
+              href="/settings"
+              aria-label="Settings"
+              title="Settings"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 active:bg-zinc-200 transition-colors"
+            >
+              <Settings className="h-[18px] w-[18px]" />
+            </Link>
           </div>
         </div>
       </header>
