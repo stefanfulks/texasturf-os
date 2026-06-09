@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
@@ -154,7 +155,17 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               </div>
               <div className="p-4">
                 {invoice.original_file_type?.startsWith("image/") ? (
-                  <img src={signedUrl} alt="Invoice" className="max-w-full rounded-lg" />
+                  // signedUrl is a time-limited Supabase Storage URL; unoptimized
+                  // avoids the need to whitelist the dynamic host in
+                  // next.config.ts (signed URLs rotate per request).
+                  <Image
+                    src={signedUrl}
+                    alt="Invoice"
+                    width={1200}
+                    height={1600}
+                    unoptimized
+                    className="h-auto max-w-full rounded-lg"
+                  />
                 ) : invoice.original_file_type === "application/pdf" ? (
                   <div className="flex flex-col items-center gap-3 py-6">
                     <svg className="w-10 h-10 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>

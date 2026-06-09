@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useActionState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { submitInvoice, type SubmitInvoiceState } from "../actions";
@@ -99,7 +100,15 @@ export function InvoiceUploadForm({ vendors }: Props) {
           }`}
         >
           {preview ? (
-            <img src={preview} alt="Preview" className="max-h-48 rounded-lg object-contain" />
+            // preview is a data: URL — unoptimized is required for next/image
+            <Image
+              src={preview}
+              alt="Preview"
+              width={800}
+              height={600}
+              unoptimized
+              className="max-h-48 w-auto rounded-lg object-contain"
+            />
           ) : uploadedUrl && !preview ? (
             <div className="flex flex-col items-center gap-2 text-green-700">
               <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>

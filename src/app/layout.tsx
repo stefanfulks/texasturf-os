@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Suspense } from "react";
-import { PostHogProvider } from "@/components/posthog-provider";
 import "./globals.css";
+
+// PostHogProvider is now mounted inside (app)/layout.tsx so unauth'd
+// routes (/login, /global-error, /auth/*) don't pay the JS cost or
+// initialize analytics before there's a user to identify.
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +32,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900">
-        <Suspense>
-          <PostHogProvider>{children}</PostHogProvider>
-        </Suspense>
+        {children}
       </body>
     </html>
   );

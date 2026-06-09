@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -7,6 +8,7 @@ import { NavLinks } from "@/components/nav-links";
 import { NotificationBell } from "@/components/notification-bell";
 import { TurfyLauncher } from "@/components/turfy-launcher";
 import { AnalyticsIdentify } from "@/components/analytics-identify";
+import { PostHogProvider } from "@/components/posthog-provider";
 
 export default async function AppLayout({
   children,
@@ -43,6 +45,8 @@ export default async function AppLayout({
     "there";
 
   return (
+    <Suspense>
+    <PostHogProvider>
     <div className="flex flex-1 flex-col">
       <AnalyticsIdentify
         userId={user.id}
@@ -81,5 +85,7 @@ export default async function AppLayout({
       </div>
       <TurfyLauncher greetingName={greetingName} />
     </div>
+    </PostHogProvider>
+    </Suspense>
   );
 }

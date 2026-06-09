@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createBrowserClient } from "@supabase/ssr";
 import { createDelivery } from "@/lib/warehouse/actions";
 
@@ -252,7 +253,14 @@ export function NewDeliveryForm({
         {photoUrl ? (
           <div className="space-y-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photoUrl} alt="Delivery preview" className="max-h-64 rounded-lg border border-zinc-200" />
+            <Image
+              src={photoUrl}
+              alt="Delivery preview"
+              width={1200}
+              height={1600}
+              unoptimized
+              className="max-h-64 w-auto rounded-lg border border-zinc-200"
+            />
             <button
               type="button"
               onClick={clearPhoto}
