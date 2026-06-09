@@ -482,6 +482,72 @@ export async function listToolPurchases(opts: { limit?: number } = {}) {
   return (data ?? []) as ToolPurchase[];
 }
 
+/**
+ * List view: tool purchases + their optional asset name. Used by
+ * /operations/tools.
+ */
+export type ToolPurchaseRow = ToolPurchase & {
+  asset:    { name: string } | null;
+  submitter: { display_name: string } | null;
+};
+
+export async function listToolPurchasesForListPage(opts: {
+  category?: string;
+  limit?: number;
+} = {}) {
+  const sb = supabaseAdmin();
+  let q = sb
+    .from("warehouse_tool_purchases")
+    .select(
+      "*, asset:asset_id(name), " +
+      "submitter:submitted_by_employee_id(display_name)",
+    )
+    .order("purchase_date", { ascending: false })
+    .limit(opts.limit ?? 100);
+  if (opts.category) q = q.eq("category", opts.category);
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as ToolPurchaseRow[];
+}
+
+/**
+ * Sum of tool purchase cost in a date range. Drives the spend-vs-budget
+ * card on /operations/tools.
+ */
+export async function sumToolPurchasesInRange(opts: {
+  fromIso: string; // YYYY-MM-DD
+  toIso:   string;
+}): Promise<number> {
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("warehouse_tool_purchases")
+    .select("cost_cents, quantity")
+    .gte("purchase_date", opts.fromIso)
+    .lte("purchase_date", opts.toIso);
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as { cost_cents: number; quantity: number }[]).reduce(
+    (acc, r) => acc + (Number(r.cost_cents) || 0) * (Number(r.quantity) || 1),
+    0,
+  );
+}
+
+/**
+ * Asset picker for the tool-purchase form. Includes ALL active assets
+ * (trucks/trailers/heavy_equipment + tools) — sometimes a "tool purchase"
+ * is the acquisition cost of a vehicle's accessory.
+ */
+export async function listAssetsForToolPurchase() {
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("assets")
+    .select("id, name, unit_type")
+    .neq("status", "out_of_service")
+    .order("unit_type", { ascending: true })
+    .order("name", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as Array<{ id: string; name: string; unit_type: string }>;
+}
+
 export async function listBudgets(opts: { kind?: "vehicle_maintenance" | "tool_purchases" } = {}) {
   const sb = supabaseAdmin();
   let q = sb.from("warehouse_budgets").select("*").order("period_start", { ascending: false });

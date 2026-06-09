@@ -604,6 +604,72 @@ export async function createMaintenanceLog(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
+// createToolPurchase — quick field log of a tool / small-equipment / supply
+// purchase. Sits alongside `invoices` (which is the heavier OCR + approval
+// flow for monthly bills) — this is "I bought a drill at Home Depot, here's
+// the receipt."
+// ---------------------------------------------------------------------------
+
+export async function createToolPurchase(formData: FormData) {
+  const itemName = String(formData.get("item_name") ?? "").trim();
+  if (!itemName) throw new Error("Item name is required");
+
+  const purchaseDate = String(formData.get("purchase_date") ?? "").trim();
+  if (!purchaseDate) throw new Error("Purchase date is required");
+
+  const category = String(formData.get("category") ?? "tool").trim();
+  if (!["tool", "small_equipment", "supply"].includes(category)) {
+    throw new Error(`Unknown category: ${category}`);
+  }
+
+  const assetId    = nullableString(formData.get("asset_id"));
+  const vendor     = nullableString(formData.get("vendor"));
+  const quantity   = nullableNumber(formData.get("quantity")) ?? 1;
+  const costDollars = nullableNumber(formData.get("cost"));
+  const costCents  = costDollars == null ? 0 : Math.round(costDollars * 100);
+  const crew       = nullableString(formData.get("crew"));
+  const receiptUrl = nullableString(formData.get("receipt_url"));
+
+  const submittedByEmployeeId = nullableString(formData.get("submitted_by_employee_id"));
+
+  // Best-effort attribution to the signed-in OS user.
+  let submittedByProfile: string | null = null;
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    submittedByProfile = user?.id ?? null;
+  } catch {
+    // best-effort
+  }
+
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("warehouse_tool_purchases")
+    .insert({
+      asset_id:      assetId,
+      purchase_date: purchaseDate,
+      item_name:     itemName,
+      vendor,
+      quantity,
+      cost_cents:    costCents,
+      category,
+      crew,
+      receipt_url:   receiptUrl,
+      submitted_by_employee_id: submittedByEmployeeId,
+      submitted_by_profile:     submittedByProfile,
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  const purchaseId = (data as unknown as { id: string }).id;
+
+  revalidatePath("/operations/tools");
+  revalidatePath("/operations");
+  redirect(`/operations/tools/${purchaseId}`);
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
