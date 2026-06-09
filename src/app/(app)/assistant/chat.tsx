@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Send, Sparkles, Search, Loader2, Check, X, ListPlus, CalendarPlus } from "lucide-react";
+import { Send, Sparkles, Search, Loader2, Check, X, ListPlus, CalendarPlus, MessageSquarePlus } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -414,7 +414,10 @@ function DraftCardView({
 
   // Pending or committing → render the full proposal card.
   const isCommitting = status === "committing";
-  const Icon = card.draft.kind === "calendar_event" ? CalendarPlus : ListPlus;
+  const Icon =
+    card.draft.kind === "calendar_event" ? CalendarPlus :
+    card.draft.kind === "slack_message"  ? MessageSquarePlus :
+    ListPlus;
   return (
     <div className="rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-xs space-y-2.5">
       <div className="flex items-start gap-2">
@@ -485,6 +488,22 @@ function DraftDetails({ card }: { card: DraftCard }) {
           </>
         )}
         {description && (<><dt className="font-medium text-zinc-500">Notes</dt><dd className="whitespace-pre-wrap">{description}</dd></>)}
+      </dl>
+    );
+  }
+  if (d.kind === "slack_message") {
+    const recipient = typeof d.recipient_display === "string" ? d.recipient_display : null;
+    const recKind   = d.recipient_kind === "dm" ? "DM" : "Channel";
+    const text      = typeof d.text === "string" ? d.text : null;
+    return (
+      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-zinc-600">
+        {recipient && (<><dt className="font-medium text-zinc-500">{recKind}</dt><dd>{recipient}</dd></>)}
+        {text && (
+          <>
+            <dt className="font-medium text-zinc-500">Message</dt>
+            <dd className="whitespace-pre-wrap rounded-md bg-zinc-50 px-2 py-1.5 text-zinc-800 border border-zinc-100">{text}</dd>
+          </>
+        )}
       </dl>
     );
   }

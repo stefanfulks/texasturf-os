@@ -16,6 +16,7 @@ import { DraftSchema, type Draft } from "@/lib/assistant/drafts";
 import { createTask } from "@/app/(app)/tasks/actions";
 import { getValidGoogleAccessToken } from "@/lib/google/tokens";
 import { createEvent } from "@/lib/google/calendar";
+import { postMessage as slackPostMessage } from "@/lib/integrations/slack";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -145,6 +146,33 @@ export async function POST(request: Request): Promise<Response> {
           { status: 500 },
         );
       }
+    }
+
+    case "slack_message": {
+      // The propose step already resolved the recipient (channel name, ID,
+      // or DM channel) and the bot token comes from process.env. So commit
+      // is a single chat.postMessage call.
+      const result = await slackPostMessage(draft.channel, draft.text);
+      if (!result.ok) {
+        const helpful: Record<typeof result.code, string> = {
+          not_configured: "Slack isn't configured (SLACK_BOT_TOKEN missing in Vercel).",
+          missing_scope:  `Slack bot lacks a required scope${result.detail ? ` (${result.detail})` : ""}. Ask the admin to add it and reinstall the app.`,
+          not_found:      "Slack rejected the destination — the channel or DM no longer exists.",
+          api_error:      `Slack API error: ${result.detail ?? "unknown"}`,
+          fetch_failed:   `Couldn't reach Slack: ${result.detail ?? "network error"}`,
+        };
+        return Response.json(
+          { ok: false, error: helpful[result.code] } satisfies ErrorBody,
+          { status: 500 },
+        );
+      }
+      const verb = draft.recipient_kind === "dm" ? "DM'd" : "Posted to";
+      return Response.json({
+        ok:         true,
+        summary:    `${verb} ${draft.recipient_display}.`,
+        view_url:   null,
+        created_id: result.ts,
+      } satisfies SuccessBody);
     }
 
     default: {

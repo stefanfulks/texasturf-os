@@ -78,13 +78,31 @@ export const DraftCalendarEventSchema = z.object({
 
 export type DraftCalendarEvent = z.infer<typeof DraftCalendarEventSchema>;
 
+// ─── DraftSlackMessage ──────────────────────────────────────────────────────
+
+export const DraftSlackMessageSchema = z.object({
+  kind: z.literal("slack_message"),
+  // Whatever Slack accepts: "#general", "C0123ABC", or a resolved DM channel
+  // ID like "D0123ABC". The runner resolved it from a name query at propose
+  // time so commit can just postMessage(channel, text) directly.
+  channel: z.string().min(1, "Channel is required"),
+  // Human label for the confirm card ("#general", "Mike Smith"). Display-only.
+  recipient_display: z.string().min(1),
+  // "channel" (broadcast) vs "dm" (direct message to a person). Drives the
+  // confirm-card copy so users know they're about to DM someone vs post
+  // publicly.
+  recipient_kind: z.enum(["channel", "dm"]),
+  text: z.string().min(1, "Message text is required").max(4000),
+});
+
+export type DraftSlackMessage = z.infer<typeof DraftSlackMessageSchema>;
+
 // ─── Draft union ────────────────────────────────────────────────────────────
 
 export const DraftSchema = z.discriminatedUnion("kind", [
   DraftTaskSchema,
   DraftCalendarEventSchema,
-  // Future:
-  //   DraftSlackMessageSchema,
+  DraftSlackMessageSchema,
 ]);
 
 export type Draft = z.infer<typeof DraftSchema>;
@@ -118,6 +136,14 @@ export function summarizeDraft(draft: Draft): string {
         parts.push(`with ${names}${more}`);
       }
       return parts.join(" · ");
+    }
+    case "slack_message": {
+      const verb = draft.recipient_kind === "dm" ? "DM" : "Post to";
+      // Single-line preview of the message — first 60 chars.
+      const preview = draft.text.length > 60
+        ? draft.text.slice(0, 57) + "…"
+        : draft.text;
+      return `${verb} ${draft.recipient_display}: "${preview}"`;
     }
   }
 }

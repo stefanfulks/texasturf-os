@@ -14,11 +14,13 @@ import { getMyTaskIds, NO_TASK_UUID } from "@/lib/tasks/scope";
 import {
   DraftTaskSchema,
   DraftCalendarEventSchema,
+  DraftSlackMessageSchema,
   summarizeDraft,
   type DraftTask,
   type DraftAttendee,
   type ProposeResult,
 } from "@/lib/assistant/drafts";
+import { lookupUserByEmail, openDM } from "@/lib/integrations/slack";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
@@ -144,6 +146,29 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
       required: ["summary", "start_iso", "end_iso"],
     },
   },
+  {
+    // Write tool — sends a Slack message. Same draft → confirm card →
+    // commit pattern. Recipient can be a channel (#general, channel ID) or
+    // a person (name fragment or email; resolved to a Slack user via
+    // users.lookupByEmail, then to a DM channel via conversations.open).
+    name: "propose_send_slack_message",
+    description:
+      "Propose a Slack message. The user sees a confirm card before it sends — do NOT tell them it was sent until they confirm. Use recipient to specify either a channel ('#general' or a channel ID starting with 'C') or a person (name fragment like 'Mike', or an email). Person lookups go through profiles → Slack lookup-by-email → DM channel; ambiguous name matches return the candidates for you to disambiguate. Keep the text short and direct — no preamble like 'Hi Mike,'.",
+    input_schema: {
+      type: "object",
+      properties: {
+        recipient: {
+          type: "string",
+          description: "A channel ('#general' or 'C012ABC'), a person's name fragment ('Mike'), or an email ('mike@texasturfusa.com').",
+        },
+        text: {
+          type: "string",
+          description: "The message body to send. Plain text; Slack mrkdwn is allowed.",
+        },
+      },
+      required: ["recipient", "text"],
+    },
+  },
 ];
 
 // ─── Tool runners ────────────────────────────────────────────────────────────
@@ -173,8 +198,9 @@ async function dispatch(name: string, input: ToolInput, supabase: Supabase, user
     case "get_dashboard_stats":  return getDashboardStats(supabase, userId);
     case "get_inventory_stats":  return getInventoryStats(supabase);
     case "search_notion_sops":   return searchNotionSops(input);
-    case "propose_create_task":            return proposeCreateTask(input, supabase, userId);
+    case "propose_create_task":             return proposeCreateTask(input, supabase, userId);
     case "propose_schedule_calendar_event": return proposeScheduleCalendarEvent(input, supabase);
+    case "propose_send_slack_message":      return proposeSendSlackMessage(input, supabase);
     default: throw new Error(`Unknown tool: ${name}`);
   }
 }
@@ -532,6 +558,124 @@ async function proposeScheduleCalendarEvent(
     return {
       kind: "error",
       error: "Event end must be after start. Did you mean a later time?",
+    };
+  }
+
+  const draft = parsed.data;
+  return {
+    kind: "draft",
+    draft_id: crypto.randomUUID(),
+    draft,
+    summary: summarizeDraft(draft),
+  };
+}
+
+/**
+ * Propose a Slack message. Resolves the recipient at propose time so the
+ * commit step is a single chat.postMessage call. Channel references go
+ * through as-is; person references go through profiles → email →
+ * Slack.lookupUserByEmail → openDM to get the DM channel ID.
+ *
+ * The resolved channel ID (or channel name) is stored in the draft so the
+ * commit endpoint doesn't have to re-resolve.
+ */
+async function proposeSendSlackMessage(
+  input: ToolInput,
+  supabase: Supabase,
+): Promise<ProposeResult> {
+  const recipientRaw = typeof input.recipient === "string" ? input.recipient.trim() : "";
+  const text         = typeof input.text === "string" ? input.text.trim() : "";
+  if (!recipientRaw) return { kind: "error", error: "Recipient is required." };
+  if (!text)         return { kind: "error", error: "Message text is required." };
+
+  let channel:           string;
+  let recipientDisplay:  string;
+  let recipientKind:     "channel" | "dm";
+
+  // Channel reference? Use as-is.
+  if (recipientRaw.startsWith("#") || /^C[A-Z0-9]{4,}$/i.test(recipientRaw)) {
+    channel          = recipientRaw;
+    recipientDisplay = recipientRaw;
+    recipientKind    = "channel";
+  } else {
+    // Person reference. If email-shaped, look up directly; otherwise resolve
+    // a profile first, then look up its email in Slack.
+    let email: string;
+    let display: string;
+
+    if (recipientRaw.includes("@")) {
+      email   = recipientRaw;
+      display = recipientRaw;
+    } else {
+      const term = recipientRaw.replace(/[%_]/g, "");
+      const { data: matches, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .or(`full_name.ilike.%${term}%,email.ilike.%${term}%`)
+        .limit(5);
+      if (error) return { kind: "error", error: `Couldn't look up "${recipientRaw}": ${error.message}` };
+      const list = matches ?? [];
+      if (list.length === 0) {
+        return {
+          kind: "error",
+          error: `No team member matches "${recipientRaw}". Try a different name, or use #channel for a channel.`,
+        };
+      }
+      if (list.length > 1) {
+        return {
+          kind: "ambiguous",
+          reason: `"${recipientRaw}" matches ${list.length} people. Ask the user which one.`,
+          candidates: list.map((m) => ({
+            id:      m.email,
+            display: `${m.full_name ?? m.email} <${m.email}>`,
+          })),
+        };
+      }
+      email   = list[0].email;
+      display = list[0].full_name ?? list[0].email;
+    }
+
+    // Resolve email → Slack user ID → DM channel ID.
+    const lookup = await lookupUserByEmail(email);
+    if (!lookup.ok) {
+      const helpful: Record<typeof lookup.code, string> = {
+        not_configured: "Slack isn't configured (SLACK_BOT_TOKEN missing).",
+        missing_scope:  `Slack bot lacks the 'users:read.email' scope${lookup.detail ? ` (${lookup.detail})` : ""}. Ask the admin to add it.`,
+        not_found:      `Slack couldn't find a user with the email ${email}. Are they in the workspace?`,
+        api_error:      `Slack lookup failed: ${lookup.detail ?? "unknown"}`,
+        fetch_failed:   `Couldn't reach Slack: ${lookup.detail ?? "network error"}`,
+      };
+      return { kind: "error", error: helpful[lookup.code] };
+    }
+
+    const dm = await openDM(lookup.user.id);
+    if (!dm.ok) {
+      const helpful: Record<typeof dm.code, string> = {
+        not_configured: "Slack isn't configured (SLACK_BOT_TOKEN missing).",
+        missing_scope:  `Slack bot lacks the 'im:write' scope${dm.detail ? ` (${dm.detail})` : ""}. Ask the admin to add it.`,
+        not_found:      `Slack couldn't open a DM channel for that user.`,
+        api_error:      `Slack openDM failed: ${dm.detail ?? "unknown"}`,
+        fetch_failed:   `Couldn't reach Slack: ${dm.detail ?? "network error"}`,
+      };
+      return { kind: "error", error: helpful[dm.code] };
+    }
+
+    channel          = dm.channel.id;
+    recipientDisplay = display;
+    recipientKind    = "dm";
+  }
+
+  const parsed = DraftSlackMessageSchema.safeParse({
+    kind: "slack_message",
+    channel,
+    recipient_display: recipientDisplay,
+    recipient_kind:    recipientKind,
+    text,
+  });
+  if (!parsed.success) {
+    return {
+      kind: "error",
+      error: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
     };
   }
 
