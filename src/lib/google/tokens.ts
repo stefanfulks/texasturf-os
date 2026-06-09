@@ -3,7 +3,8 @@
  *
  * Supabase Auth returns provider_token + provider_refresh_token only at
  * the OAuth code-exchange moment. We capture them in /auth/callback and
- * persist to profiles. From then on:
+ * persist to the dedicated `google_oauth_tokens` table (admin-only via
+ * RLS default-deny + service-role access). From then on:
  *
  *   getValidGoogleAccessToken(userId)
  *     → returns a non-expired access token, refreshing on demand.
@@ -11,14 +12,18 @@
  * Refresh uses Google's token endpoint with the stored refresh_token
  * plus GOOGLE_OAUTH_CLIENT_ID + GOOGLE_OAUTH_CLIENT_SECRET (the same
  * credentials Supabase uses for the OAuth flow).
+ *
+ * History: previously stored on `profiles` columns, which were readable
+ * by any signed-in user via the broad SELECT policy. Moved to a dedicated
+ * table in migration 20260609110000_google_oauth_tokens_table.sql.
  */
 
 import { createServiceClient } from "@/lib/supabase/service";
 
 type StoredGoogleTokens = {
-  google_access_token:    string | null;
-  google_refresh_token:   string | null;
-  google_token_expires_at: string | null;
+  access_token:   string | null;
+  refresh_token:  string | null;
+  expires_at:     string | null;
 };
 
 export type GoogleTokenStatus =
@@ -40,16 +45,20 @@ export async function saveGoogleTokens(
     : null;
 
   const service = createServiceClient();
+  // Only overwrite refresh_token if Google gave us a fresh one. Google omits
+  // refresh_token on subsequent sign-ins unless prompt=consent was passed
+  // (which we do), but be defensive.
   const patch: Record<string, unknown> = {
-    google_access_token:    accessToken,
-    google_token_expires_at: expiresAt,
+    user_id:      userId,
+    access_token: accessToken,
+    expires_at:   expiresAt,
+    updated_at:   new Date().toISOString(),
   };
-  // Only overwrite the refresh_token if Google gave us a fresh one.
-  // Google omits refresh_token on subsequent sign-ins unless prompt=consent
-  // was passed (which we do), but be defensive.
-  if (refreshToken) patch.google_refresh_token = refreshToken;
+  if (refreshToken) patch.refresh_token = refreshToken;
 
-  await service.from("profiles").update(patch as never).eq("id", userId);
+  await service
+    .from("google_oauth_tokens")
+    .upsert(patch as never, { onConflict: "user_id" });
 }
 
 /**
@@ -59,32 +68,33 @@ export async function saveGoogleTokens(
 export async function getValidGoogleAccessToken(userId: string): Promise<GoogleTokenStatus> {
   const service = createServiceClient();
   const { data, error } = await service
-    .from("profiles")
-    .select("google_access_token, google_refresh_token, google_token_expires_at")
-    .eq("id", userId)
-    .single() as unknown as { data: StoredGoogleTokens | null; error: { message: string } | null };
+    .from("google_oauth_tokens")
+    .select("access_token, refresh_token, expires_at")
+    .eq("user_id", userId)
+    .maybeSingle() as unknown as { data: StoredGoogleTokens | null; error: { message: string } | null };
 
-  if (error || !data) return { ok: false, reason: "no_tokens", detail: error?.message };
-  if (!data.google_access_token && !data.google_refresh_token) {
+  if (error) return { ok: false, reason: "no_tokens", detail: error.message };
+  if (!data) return { ok: false, reason: "no_tokens" };
+  if (!data.access_token && !data.refresh_token) {
     return { ok: false, reason: "no_tokens" };
   }
 
   // Still valid?
-  if (data.google_access_token && data.google_token_expires_at) {
-    const exp = new Date(data.google_token_expires_at).getTime();
+  if (data.access_token && data.expires_at) {
+    const exp = new Date(data.expires_at).getTime();
     if (Date.now() < exp) {
-      return { ok: true, accessToken: data.google_access_token };
+      return { ok: true, accessToken: data.access_token };
     }
-  } else if (data.google_access_token && !data.google_token_expires_at) {
+  } else if (data.access_token && !data.expires_at) {
     // We have a token but no expiry — try it first.
-    return { ok: true, accessToken: data.google_access_token };
+    return { ok: true, accessToken: data.access_token };
   }
 
   // Expired or missing → refresh
-  if (!data.google_refresh_token) {
+  if (!data.refresh_token) {
     return { ok: false, reason: "no_refresh_token" };
   }
-  return refreshAccessToken(userId, data.google_refresh_token);
+  return refreshAccessToken(userId, data.refresh_token);
 }
 
 async function refreshAccessToken(
@@ -118,11 +128,10 @@ async function refreshAccessToken(
     // trying — user will need to sign out + back in.
     if (resp.status === 400 || resp.status === 401) {
       const service = createServiceClient();
-      await service.from("profiles").update({
-        google_access_token:    null,
-        google_refresh_token:   null,
-        google_token_expires_at: null,
-      } as never).eq("id", userId);
+      await service
+        .from("google_oauth_tokens")
+        .delete()
+        .eq("user_id", userId);
     }
     return { ok: false, reason: "refresh_failed", detail: `Google returned ${resp.status}: ${detail.slice(0, 200)}` };
   }
