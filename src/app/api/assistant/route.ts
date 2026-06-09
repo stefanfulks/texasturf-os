@@ -17,6 +17,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { TOOL_DEFS, runTool } from "@/lib/assistant/tools";
+import { parsePageContext, enrichPageContext } from "@/lib/assistant/page-context";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -138,6 +139,14 @@ export async function POST(request: Request): Promise<Response> {
 
   const body = (await request.json().catch(() => ({}))) as {
     messages?: Anthropic.MessageParam[];
+    /**
+     * Optional — the pathname of the page the user is currently viewing.
+     * Sent by AssistantChat so the route can build a per-record context
+     * block (parsePageContext + enrichPageContext) and inject it into the
+     * system prompt. Missing / null = no context (fine — Turfy falls back
+     * to general behavior).
+     */
+    pathname?: string | null;
   };
   const messages = body.messages ?? [];
   if (messages.length === 0) {
@@ -166,7 +175,19 @@ export async function POST(request: Request): Promise<Response> {
       };
 
       try {
-        const systemPrompt = buildSystemPrompt(todayInCentralTime());
+        // Per-record page context: parse the pathname the client sent and
+        // try to enrich it with a few fields from the current record. The
+        // enrichment runs under the user's Supabase session, so RLS is the
+        // boundary — if they can't see the record, we just skip injection.
+        let pageContextBlock: string | null = null;
+        if (body.pathname) {
+          const ref = parsePageContext(body.pathname);
+          pageContextBlock = await enrichPageContext(ref, supabase);
+        }
+
+        const systemPrompt = pageContextBlock
+          ? `# Current page context\n${pageContextBlock}\n\n${buildSystemPrompt(todayInCentralTime())}`
+          : buildSystemPrompt(todayInCentralTime());
 
         // Multi-turn loop: model may call tools, we run them, feed results back.
         // Cap at 8 iterations to avoid runaway loops.

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Send, Sparkles, Search, Loader2, Check, X, ListPlus, CalendarPlus, MessageSquarePlus, ArrowRightCircle } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -65,6 +66,13 @@ export function AssistantChat({
   const [error, setError] = useState<string | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
+  // Current pathname is read here so it's correct whether AssistantChat is
+  // mounted on /assistant (returns "/assistant") or inside the
+  // TurfyLauncher popover (returns whatever page is BEHIND the popover —
+  // which is exactly the per-record context the server-side enrichment
+  // wants).
+  const pathname = usePathname();
+
   // Auto-scroll on new content
   useEffect(() => {
     const el = scrollerRef.current;
@@ -95,7 +103,7 @@ export function AssistantChat({
       const resp = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({ messages: apiMessages, pathname }),
       });
       if (!resp.ok || !resp.body) {
         const errText = await resp.text().catch(() => "");
