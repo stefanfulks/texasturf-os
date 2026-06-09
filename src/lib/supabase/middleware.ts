@@ -25,10 +25,12 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Webhook routes authenticate themselves (Slack signature, CRON_SECRET).
-  // Skip the session redirect so external callers don't get bounced to /login.
+  // Webhook routes authenticate themselves (Slack signature, Jobber HMAC,
+  // CRON_SECRET bearer). Skip the session redirect so external callers don't
+  // get bounced to /login before the signature check has a chance to run.
   const isWebhookRoute =
     request.nextUrl.pathname.startsWith("/api/slack") ||
+    request.nextUrl.pathname.startsWith("/api/jobber/webhook") ||
     request.nextUrl.pathname.startsWith("/api/cron");
 
   if (isWebhookRoute) {

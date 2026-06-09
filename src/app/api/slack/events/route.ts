@@ -120,6 +120,14 @@ export async function POST(request: Request): Promise<Response> {
   const slackTimestamp = request.headers.get("x-slack-request-timestamp") ?? "";
   const signingSecret  = process.env.SLACK_SIGNING_SECRET ?? "";
 
+  // Slack's recommended 5-minute replay window. Reject anything older — a
+  // captured signed payload would otherwise be valid forever.
+  const tsNum = Number(slackTimestamp);
+  if (!Number.isFinite(tsNum) || Math.abs(Date.now() / 1000 - tsNum) > 300) {
+    console.error("[slack/events] timestamp outside replay window", { slackTimestamp });
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   if (
     !signingSecret ||
     !verifySlackSignature(signingSecret, rawBody, slackTimestamp, slackSignature)

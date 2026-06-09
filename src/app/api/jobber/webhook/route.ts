@@ -25,8 +25,19 @@ import { syncJob }    from "@/lib/jobber/sync/jobs";
 export async function POST(req: NextRequest) {
   const raw       = await req.text();
   const signature = req.headers.get("x-jobber-hmac-sha256") ?? "";
-  const secret    =
-    process.env.JOBBER_WEBHOOK_SECRET ?? process.env.JOBBER_CLIENT_SECRET ?? "";
+
+  // Require JOBBER_WEBHOOK_SECRET explicitly. The previous fallback to
+  // JOBBER_CLIENT_SECRET kinda-worked (Jobber's webhook secret IS the app
+  // secret in their default setup) but masked misconfigurations — if the
+  // webhook secret was rotated separately, everything silently 401'd.
+  const secret = process.env.JOBBER_WEBHOOK_SECRET ?? "";
+  if (!secret) {
+    Sentry.captureMessage("JOBBER_WEBHOOK_SECRET unset — webhook rejected", {
+      level: "error",
+      tags: { webhook: "jobber" },
+    });
+    return new NextResponse("server misconfigured", { status: 503 });
+  }
 
   const hmacValid = verify(raw, signature, secret);
 

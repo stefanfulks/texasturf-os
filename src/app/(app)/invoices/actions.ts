@@ -358,11 +358,37 @@ export async function updateInvoiceFields(
   formData: FormData,
 ): Promise<UpdateInvoiceFieldsState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
 
   const id = formData.get("invoice_id") as string;
   if (!id) return { error: "Invoice ID required", success: false };
+
+  // Fetch current row so we can (a) gate edits to closed invoices and
+  // (b) compute a money-fields diff for the audit comment.
+  const { data: currentRaw } = await supabase
+    .from("invoices")
+    .select("status, subtotal, tax, total_amount, vendor_id")
+    .eq("id", id)
+    .single();
+  if (!currentRaw) return { error: "Invoice not found", success: false };
+  const current = currentRaw as unknown as {
+    status: string;
+    subtotal: number | null;
+    tax: number | null;
+    total_amount: number | null;
+    vendor_id: string | null;
+  };
+
+  // Once an invoice is approved or paid, only admin can amend it. Otherwise
+  // office could quietly change total_amount on a released invoice.
+  if (["approved", "paid"].includes(current.status)) {
+    const { data: profile } = await supabase
+      .from("profiles").select("role").eq("id", user.id).single();
+    if (profile?.role !== "admin") {
+      return { error: "Only admins can edit approved or paid invoices", success: false };
+    }
+  }
 
   // Build explicit typed payload to satisfy Supabase strict types
   const getStr = (key: string) => { const v = formData.get(key); return v === null ? undefined : (v === "" ? null : String(v)); };
@@ -389,6 +415,22 @@ export async function updateInvoiceFields(
 
   const { error } = await supabase.from("invoices").update(payload).eq("id", id);
   if (error) return { error: error.message, success: false };
+
+  // Audit any money-field change as an internal comment. Skip if nothing
+  // changed (saves UI clutter).
+  const changes: string[] = [];
+  if (payload.subtotal     !== undefined && payload.subtotal     !== current.subtotal)     changes.push(`subtotal: ${current.subtotal ?? "—"} → ${payload.subtotal}`);
+  if (payload.tax          !== undefined && payload.tax          !== current.tax)          changes.push(`tax: ${current.tax ?? "—"} → ${payload.tax}`);
+  if (payload.total_amount !== undefined && payload.total_amount !== current.total_amount) changes.push(`total_amount: ${current.total_amount ?? "—"} → ${payload.total_amount}`);
+  if (payload.vendor_id    !== undefined && payload.vendor_id    !== current.vendor_id)    changes.push(`vendor changed`);
+  if (changes.length > 0) {
+    await supabase.from("invoice_comments").insert({
+      invoice_id: id,
+      user_id:    user.id,
+      body:       `Fields edited: ${changes.join("; ")}`,
+      visibility: "internal",
+    });
+  }
 
   revalidatePath(`/invoices/${id}`);
   revalidatePath("/invoices");
@@ -529,8 +571,33 @@ export async function upsertLineItems(
   }>,
 ): Promise<UpdateLineItemsState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", success: false };
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
+
+  // Block edits to approved/paid invoices except by admin — line_total feeds
+  // variance and approval, so quietly rewriting it post-approval is the
+  // same money-flow risk as updateInvoiceFields.
+  const { data: currentRaw } = await supabase
+    .from("invoices")
+    .select("status")
+    .eq("id", invoiceId)
+    .single();
+  if (!currentRaw) return { error: "Invoice not found", success: false };
+  if (["approved", "paid"].includes((currentRaw as { status: string }).status)) {
+    const { data: profile } = await supabase
+      .from("profiles").select("role").eq("id", user.id).single();
+    if (profile?.role !== "admin") {
+      return { error: "Only admins can edit line items on approved or paid invoices", success: false };
+    }
+  }
+
+  // Audit the wholesale re-write as an internal comment before we delete.
+  await supabase.from("invoice_comments").insert({
+    invoice_id: invoiceId,
+    user_id:    user.id,
+    body:       `Line items rewritten (${lineItems.length} item${lineItems.length === 1 ? "" : "s"})`,
+    visibility: "internal",
+  });
 
   // Delete existing and re-insert
   await supabase.from("invoice_line_items").delete().eq("invoice_id", invoiceId);
