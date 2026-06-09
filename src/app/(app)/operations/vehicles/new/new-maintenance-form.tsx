@@ -33,12 +33,17 @@ export function NewMaintenanceForm({
   })();
 
   // When an asset is picked, fetch its active schedules so the user can
-  // attribute this log to one (advances last_serviced markers).
+  // attribute this log to one (advances last_serviced markers). Clearing
+  // schedules synchronously on empty assetId is intentional — we don't want
+  // a stale list flashing while the user re-picks. Matches the
+  // set-state-in-effect carve-out used elsewhere (see nav-links.tsx).
   useEffect(() => {
     if (!assetId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSchedules([]);
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSchedulesLoading(true);
     fetch(`/api/operations/maintenance-schedules?asset_id=${encodeURIComponent(assetId)}`)
       .then((r) => r.ok ? r.json() : { schedules: [] })
