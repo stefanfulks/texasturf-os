@@ -689,6 +689,9 @@ async function proposeSendSlackMessage(
 }
 
 async function getInventoryStats(supabase: Supabase) {
+  // inv_items low-stock is computed in JS because there is no view yet;
+  // cap at 500 items so a future large catalog doesn't OOM the assistant
+  // route. (Roadmap: turn this into a postgres count.)
   const [openRolls, activeJobs, pendingReceive, lowStock] = await Promise.all([
     supabase.from("inv_rolls").select("id", { count: "exact", head: true })
       .in("status", ["available","planned"]),
@@ -696,7 +699,10 @@ async function getInventoryStats(supabase: Supabase) {
       .in("status", ["in_progress","staged"]),
     supabase.from("inv_rolls").select("id", { count: "exact", head: true })
       .eq("status", "planned"),
-    supabase.from("inv_items").select("id, quantity, min_quantity").eq("active", true),
+    supabase.from("inv_items")
+      .select("id, quantity, min_quantity")
+      .eq("active", true)
+      .limit(500),
   ]);
   const low = (lowStock.data ?? []).filter(
     (i) => i.min_quantity != null && i.quantity != null && i.quantity <= i.min_quantity,
