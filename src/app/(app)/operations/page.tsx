@@ -69,6 +69,13 @@ export default async function WarehousePage() {
           <h2 className="text-sm font-medium text-zinc-500">Setup</h2>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             <Card
+              href="/operations/budgets"
+              title="Spend Budgets"
+              body="Set vehicle-maintenance and tool-purchase spend targets per period."
+              cta="Manage"
+              dim
+            />
+            <Card
               href="/operations/employees"
               title="Employees"
               body="Drivers, stagers, leads, and warehouse staff."
