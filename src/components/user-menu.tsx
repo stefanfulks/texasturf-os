@@ -37,6 +37,7 @@ const WORKSPACES: readonly Workspace[] = [
     tools: [
       { label: "Home",      href: "/dashboard" },
       { label: "Tasks",     href: "/tasks" },
+      { label: "Recurring", href: "/tasks/recurring" },
       { label: "Calendar",  href: "/calendar" },
       { label: "Meetings",  href: "/meetings" },
       { label: "Attention", href: "/attention" },
@@ -51,15 +52,17 @@ const WORKSPACES: readonly Workspace[] = [
     tools: [
       { label: "Pricing Calculator",   href: "/pricing" },
       { label: "Materials Calculator", href: "/sales/materials-calculator" },
+      { label: "Clients",              href: "/clients" },
       { label: "Jobs",                 href: "/jobs" },
     ],
-    prefixes: ["/sales", "/pricing", "/jobs"],
+    prefixes: ["/sales", "/pricing", "/jobs", "/clients"],
   },
   {
     label: "Warehouse",
     emoji: "📦",
     primaryHref: "/operations",
     tools: [
+      { label: "Operations Today",      href: "/operations" },
       { label: "Inventory",             href: "/inventory" },
       { label: "Pull Lists",            href: "/operations/pull-lists" },
       { label: "Inspections",           href: "/operations/inspections" },
@@ -80,10 +83,11 @@ const WORKSPACES: readonly Workspace[] = [
     tools: [
       { label: "Invoices", href: "/invoices" },
       { label: "Vendors",  href: "/vendors" },
+      { label: "Clients",  href: "/clients" },
       { label: "Meetings", href: "/meetings" },
       { label: "Jobs",     href: "/jobs" },
     ],
-    prefixes: ["/office", "/invoices", "/vendors"],
+    prefixes: ["/office", "/invoices", "/vendors", "/clients"],
   },
   {
     label: "Financial",
@@ -99,14 +103,29 @@ const WORKSPACES: readonly Workspace[] = [
   {
     label: "Field",
     emoji: "🏗️",
-    primaryHref: "/tasks",
+    primaryHref: "/today",
     tools: [
-      { label: "My Tasks", href: "/tasks" },
-      { label: "Jobs",     href: "/jobs" },
-      { label: "Calendar", href: "/calendar" },
+      { label: "Today",                href: "/today" },
+      { label: "My Tasks",             href: "/tasks" },
+      { label: "Jobs",                 href: "/jobs" },
+      { label: "Calendar",             href: "/calendar" },
+      { label: "Turfy",                href: "/assistant" },
       { label: "Vehicle Reservations", href: "/fleet/reservations" },
     ],
-    prefixes: ["/field"],
+    prefixes: ["/field", "/today"],
+  },
+  {
+    label: "Admin",
+    emoji: "🛡️",
+    primaryHref: "/admin/users",
+    tools: [
+      { label: "Users",            href: "/admin/users" },
+      { label: "Feedback Triage",  href: "/admin/feedback" },
+      { label: "Team Performance", href: "/team" },
+      { label: "Jobber Settings",  href: "/settings/jobber" },
+    ],
+    prefixes: ["/admin"],
+    adminOnly: true,
   },
 ] as const;
 

@@ -9,9 +9,15 @@ import type { Notification } from "@/lib/database.types";
 // Project notifications render under /jobs/[id] — the OS "projects" table is
 // the same data and there is no /projects route on disk. Audit P0: the
 // previous /projects/${id} href 404'd for every project notification.
+//
+// Feedback notifications send everyone to the personal feedback list
+// (admins can jump to /admin/feedback from their workspace menu). There
+// is no /feedback/[id] detail view yet — roadmap item.
 const RESOURCE_HREFS: Record<string, (id: string) => string> = {
-  task:    (id) => `/tasks/${id}`,
-  project: (id) => `/jobs/${id}`,
+  task:     (id) => `/tasks/${id}`,
+  project:  (id) => `/jobs/${id}`,
+  invoice:  (id) => `/invoices/${id}`,
+  feedback: () => `/feedback`,
 };
 
 export function NotificationBell({ initialUnread }: { initialUnread: number }) {
