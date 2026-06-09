@@ -237,6 +237,11 @@ const statusSchema = z.object({
 
 export type ChangeStatusState = { error: string | null; success: boolean };
 
+// Statuses that release or finalize money — gated to admin only at the
+// server-action layer. RLS enforces the same rule in
+// 20260609100000_invoice_approval_admin_only.sql as defense in depth.
+const ADMIN_ONLY_STATUSES = new Set(["approved", "paid"]);
+
 export async function changeInvoiceStatus(
   _prev: ChangeStatusState,
   formData: FormData,
@@ -263,6 +268,20 @@ export async function changeInvoiceStatus(
   }
 
   const d = parsed.data;
+
+  // Gate the money-releasing transitions to admin only. The approval page in
+  // src/app/(app)/invoices/[id]/approval/page.tsx already checks this at the
+  // UI layer, but that check is bypassable by a direct POST to this action.
+  if (ADMIN_ONLY_STATUSES.has(d.new_status)) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if (profile?.role !== "admin") {
+      return { error: "Only admins can approve or mark invoices paid", success: false };
+    }
+  }
 
   // Fetch current invoice
   const { data: invoiceRaw } = await supabase
