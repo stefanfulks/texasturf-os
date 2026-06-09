@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { generateDueTasks } from "@/app/(app)/tasks/recurring/actions";
 
@@ -6,12 +7,22 @@ import { generateDueTasks } from "@/app/(app)/tasks/recurring/actions";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export async function GET(request: Request) {
-  // Verify the request comes from Vercel Cron or an authorized caller
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
+function constantTimeBearerEqual(authHeader: string | null, secret: string) {
+  if (!authHeader) return false;
+  const expected = `Bearer ${secret}`;
+  const a = Buffer.from(authHeader);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+export async function GET(request: Request) {
+  // Verify the request comes from Vercel Cron or an authorized caller.
+  // Fail closed: if CRON_SECRET is unset or the header doesn't match, return 401.
+  const cronSecret = process.env.CRON_SECRET;
+  const authHeader = request.headers.get("authorization");
+
+  if (!cronSecret || !constantTimeBearerEqual(authHeader, cronSecret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
