@@ -143,49 +143,85 @@ export async function markJobInProgress(jobId: string): Promise<void> {
   revalidatePath(`/inventory/jobs/${jobId}`);
 }
 
+/**
+ * Bulk version of the staged/completed transition: 4 queries total instead
+ * of 4 per allocation. Previous N+1 loop made the warehouse hot path scale
+ * linearly with allocation count (50 allocs → 200 round-trips).
+ */
+async function transitionJobAllocations(
+  jobId: string,
+  userId: string,
+  spec: {
+    allocStatus: string;       // new status for inv_allocations rows
+    rollStatus: string;        // new status for inv_rolls rows
+    transactionType: string;   // inv_transactions.transaction_type
+    fromDefault: string;       // fallback from_status if roll has none
+    notes: string;
+    timestamp: string;
+  },
+): Promise<void> {
+  const supabase = await createClient();
+
+  const { data: allocs } = await supabase
+    .from("inv_allocations")
+    .select("id, roll_id, requested_length_ft")
+    .eq("job_id", jobId)
+    .not("roll_id", "is", null);
+
+  const rows = (allocs ?? []).filter((a): a is typeof a & { roll_id: string } => !!a.roll_id);
+  if (rows.length === 0) return;
+
+  const rollIds = rows.map((r) => r.roll_id);
+  const allocIds = rows.map((r) => r.id);
+
+  // 1 query: bulk fetch prior roll statuses for the audit log.
+  const { data: rolls } = await supabase
+    .from("inv_rolls")
+    .select("id, status")
+    .in("id", rollIds);
+  const fromByRoll = new Map<string, string>();
+  for (const r of rolls ?? []) {
+    if (r.status) fromByRoll.set(r.id, r.status as string);
+  }
+
+  // 2 queries: bulk update allocations + rolls. Status casts mirror the
+  // existing per-row pattern — the spec.allocStatus/rollStatus values are
+  // literal enum members but the helper widens them to string.
+  await supabase
+    .from("inv_allocations")
+    .update({ status: spec.allocStatus as never, updated_at: spec.timestamp })
+    .in("id", allocIds);
+
+  await supabase
+    .from("inv_rolls")
+    .update({ status: spec.rollStatus as never, updated_at: spec.timestamp })
+    .in("id", rollIds);
+
+  // 1 query: bulk insert the transaction audit log.
+  const txRows = rows.map((alloc) => ({
+    transaction_type: spec.transactionType,
+    roll_id:          alloc.roll_id,
+    job_id:           jobId,
+    from_status:      fromByRoll.get(alloc.roll_id) ?? spec.fromDefault,
+    to_status:        spec.rollStatus,
+    quantity_ft:      alloc.requested_length_ft ?? null,
+    notes:            spec.notes,
+    created_by:       userId,
+  }));
+  await supabase.from("inv_transactions").insert(txRows);
+}
+
 export async function markJobStaged(jobId: string): Promise<void> {
   try {
-    const supabase = await createClient();
     const userId = await setJobStatus(jobId, "staged");
-
-    // Move all allocations with assigned rolls to 'staged' and their rolls to 'staged'.
-    const { data: allocs } = await supabase
-      .from("inv_allocations")
-      .select("id, roll_id, requested_length_ft")
-      .eq("job_id", jobId)
-      .not("roll_id", "is", null);
-
-    for (const alloc of allocs ?? []) {
-      if (!alloc.roll_id) continue;
-      const { data: roll } = await supabase
-        .from("inv_rolls")
-        .select("status")
-        .eq("id", alloc.roll_id)
-        .single();
-      const fromStatus = roll?.status ?? "allocated";
-
-      await supabase.from("inv_allocations").update({
-        status: "staged",
-        updated_at: new Date().toISOString(),
-      }).eq("id", alloc.id);
-
-      await supabase.from("inv_rolls").update({
-        status: "staged",
-        updated_at: new Date().toISOString(),
-      }).eq("id", alloc.roll_id);
-
-      await supabase.from("inv_transactions").insert({
-        transaction_type: "stage",
-        roll_id:          alloc.roll_id,
-        job_id:           jobId,
-        from_status:      fromStatus,
-        to_status:        "staged",
-        quantity_ft:      alloc.requested_length_ft ?? null,
-        notes:            `Staged for job`,
-        created_by:       userId,
-      });
-    }
-
+    await transitionJobAllocations(jobId, userId, {
+      allocStatus: "staged",
+      rollStatus: "staged",
+      transactionType: "stage",
+      fromDefault: "allocated",
+      notes: "Staged for job",
+      timestamp: new Date().toISOString(),
+    });
     revalidatePath("/inventory/jobs");
     revalidatePath(`/inventory/jobs/${jobId}`);
   } catch { /* silently denied — role gate or DB error */ }
@@ -193,48 +229,16 @@ export async function markJobStaged(jobId: string): Promise<void> {
 
 export async function markJobCompleted(jobId: string): Promise<void> {
   try {
-    const supabase = await createClient();
     const now = new Date().toISOString();
     const userId = await setJobStatus(jobId, "completed", { completion_date: now });
-
-    // Move all allocations with assigned rolls to 'completed' and their rolls to 'dispatched'.
-    const { data: allocs } = await supabase
-      .from("inv_allocations")
-      .select("id, roll_id, requested_length_ft")
-      .eq("job_id", jobId)
-      .not("roll_id", "is", null);
-
-    for (const alloc of allocs ?? []) {
-      if (!alloc.roll_id) continue;
-      const { data: roll } = await supabase
-        .from("inv_rolls")
-        .select("status")
-        .eq("id", alloc.roll_id)
-        .single();
-      const fromStatus = roll?.status ?? "staged";
-
-      await supabase.from("inv_allocations").update({
-        status: "completed",
-        updated_at: now,
-      }).eq("id", alloc.id);
-
-      await supabase.from("inv_rolls").update({
-        status: "dispatched",
-        updated_at: now,
-      }).eq("id", alloc.roll_id);
-
-      await supabase.from("inv_transactions").insert({
-        transaction_type: "dispatch",
-        roll_id:          alloc.roll_id,
-        job_id:           jobId,
-        from_status:      fromStatus,
-        to_status:        "dispatched",
-        quantity_ft:      alloc.requested_length_ft ?? null,
-        notes:            `Dispatched on job completion`,
-        created_by:       userId,
-      });
-    }
-
+    await transitionJobAllocations(jobId, userId, {
+      allocStatus: "completed",
+      rollStatus: "dispatched",
+      transactionType: "dispatch",
+      fromDefault: "staged",
+      notes: "Dispatched on job completion",
+      timestamp: now,
+    });
     revalidatePath("/inventory/jobs");
     revalidatePath(`/inventory/jobs/${jobId}`);
   } catch { /* silently denied */ }

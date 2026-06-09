@@ -35,11 +35,15 @@ export default async function JobsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Cap at 200 unarchived jobs. As Jobber sync grows this list will only
+  // get longer; pagination is a roadmap item, the limit keeps the page
+  // from blowing up in the interim.
   const { data: jobs } = await supabase
     .from("projects")
     .select("*, owner:owner_id(full_name, email), task_count:tasks(count)")
     .eq("archived", false)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(200);
 
   const active   = (jobs ?? []).filter((p) => !["complete","cancelled","on_hold"].includes(p.status));
   const inactive = (jobs ?? []).filter((p) =>  ["complete","cancelled","on_hold"].includes(p.status));

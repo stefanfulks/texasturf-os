@@ -141,6 +141,7 @@ export async function generateDueTasks(): Promise<{ generated: number; error: st
   const supabase = await createClient();
 
   const today = format(new Date(), "yyyy-MM-dd");
+  const nowIso = new Date().toISOString();
 
   const { data: rules, error: rulesErr } = await supabase
     .from("recurring_rules")
@@ -151,56 +152,102 @@ export async function generateDueTasks(): Promise<{ generated: number; error: st
   if (rulesErr) return { generated: 0, error: rulesErr.message };
   if (!rules || rules.length === 0) return { generated: 0, error: null };
 
-  let generated = 0;
+  // Pre-compute next_due per rule so we can do exactly two writes total
+  // (bulk insert tasks; bulk upsert rule cursors) instead of 2 * N.
+  const taskRows = rules.map((rule) => ({
+    title:             rule.title,
+    description:       rule.description,
+    priority:          rule.priority,
+    status:            "inbox" as const,
+    assignee_id:       rule.assignee_id,
+    created_by_id:     rule.created_by_id,
+    project_id:        rule.project_id,
+    department_id:     rule.department_id,
+    visibility:        rule.visibility,
+    due_date:          rule.next_due!,
+    recurring_rule_id: rule.id,
+  }));
 
-  for (const rule of rules) {
-    // Compute due_date and create task
-    const dueDate = rule.next_due!;
+  const { error: bulkErr } = await supabase.from("tasks").insert(taskRows);
 
-    const { error: taskErr } = await supabase.from("tasks").insert({
-      title:             rule.title,
-      description:       rule.description,
-      priority:          rule.priority,
-      status:            "inbox" as const,
-      assignee_id:       rule.assignee_id,
-      created_by_id:     rule.created_by_id,
-      project_id:        rule.project_id,
-      department_id:     rule.department_id,
-      visibility:        rule.visibility,
-      due_date:          dueDate,
-      recurring_rule_id: rule.id,
+  if (bulkErr) {
+    // Bulk insert is all-or-nothing — one bad row drops the whole batch.
+    // Fall back to per-rule inserts so the rest of the batch still goes
+    // through; Sentry tells us which row(s) were poisonous.
+    Sentry.captureException(new Error(`bulk recurring insert failed: ${bulkErr.message}`), {
+      tags: { cron: "recurring", stage: "bulk_insert" },
+      extra: { rule_count: rules.length },
     });
-
-    if (taskErr) {
-      // Don't break the whole batch — one bad rule shouldn't block the rest.
-      // But do report so the failure isn't invisible until users complain.
-      Sentry.captureException(new Error(`recurring rule failed: ${taskErr.message}`), {
-        tags: { cron: "recurring", stage: "task_insert" },
-        extra: { rule_id: rule.id, rule_title: rule.title },
+    let generated = 0;
+    for (const rule of rules) {
+      const { error: oneErr } = await supabase.from("tasks").insert({
+        title:             rule.title,
+        description:       rule.description,
+        priority:          rule.priority,
+        status:            "inbox" as const,
+        assignee_id:       rule.assignee_id,
+        created_by_id:     rule.created_by_id,
+        project_id:        rule.project_id,
+        department_id:     rule.department_id,
+        visibility:        rule.visibility,
+        due_date:          rule.next_due!,
+        recurring_rule_id: rule.id,
       });
-      continue;
+      if (oneErr) {
+        Sentry.captureException(new Error(`recurring rule failed: ${oneErr.message}`), {
+          tags: { cron: "recurring", stage: "task_insert" },
+          extra: { rule_id: rule.id, rule_title: rule.title },
+        });
+        continue;
+      }
+      await advanceRuleCursor(supabase, rule);
+      generated++;
     }
+    revalidatePath("/tasks");
+    return { generated, error: null };
+  }
 
-    // Advance next_due
+  // Happy path: bulk insert succeeded. Bulk-upsert the rule cursors.
+  const ruleUpdates = rules.map((rule) => {
     const nextDueDate = calcNextDue(
       rule.freq as RecurrenceFreq,
       rule.day_of_week,
       rule.day_of_month,
-      new Date(dueDate),
+      new Date(rule.next_due!),
     );
-
-    await supabase
-      .from("recurring_rules")
-      .update({
-        last_generated: dueDate,
-        next_due:       format(nextDueDate, "yyyy-MM-dd"),
-        updated_at:     new Date().toISOString(),
-      })
-      .eq("id", rule.id);
-
-    generated++;
-  }
+    return {
+      id:             rule.id,
+      last_generated: rule.next_due!,
+      next_due:       format(nextDueDate, "yyyy-MM-dd"),
+      updated_at:     nowIso,
+    };
+  });
+  // upsert() with onConflict=id acts as an update for existing rows. TS
+  // demands the full insert shape regardless; cast to never so the partial
+  // payload is accepted. Each rule already exists (we just selected it).
+  await supabase.from("recurring_rules").upsert(ruleUpdates as never, { onConflict: "id" });
 
   revalidatePath("/tasks");
-  return { generated, error: null };
+  return { generated: rules.length, error: null };
+}
+
+async function advanceRuleCursor(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  rule: { id: string; freq: string; day_of_week: number | null; day_of_month: number | null; next_due: string | null },
+): Promise<void> {
+  const dueDate = rule.next_due!;
+  const nextDueDate = calcNextDue(
+    rule.freq as RecurrenceFreq,
+    rule.day_of_week,
+    rule.day_of_month,
+    new Date(dueDate),
+  );
+  await supabase
+    .from("recurring_rules")
+    .update({
+      last_generated: dueDate,
+      next_due:       format(nextDueDate, "yyyy-MM-dd"),
+      updated_at:     new Date().toISOString(),
+    })
+    .eq("id", rule.id);
 }

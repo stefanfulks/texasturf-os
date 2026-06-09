@@ -8,11 +8,15 @@ export default async function TasksPage() {
   if (!user) redirect("/login");
 
   const [tasksRes, profilesRes, jobsRes, assigneesRes] = await Promise.all([
+    // Cap at 500 active tasks per board load. The kanban only needs the
+    // working set; archived/older work is reached via filters and search.
+    // Without the limit a long-lived workspace will eventually OOM the page.
     supabase
       .from("tasks")
       .select("*")
       .neq("status", "archived")
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .limit(500),
     supabase
       .from("profiles")
       .select("id, full_name, email")
