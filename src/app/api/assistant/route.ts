@@ -65,6 +65,12 @@ Tools:
                                          (#general, C012ABC) or DMs a person
                                          (name fragment or email; runner
                                          resolves to a Slack user → DM)
+    * propose_update_task_status      — moves an existing task to a new
+                                         status (inbox / in_progress /
+                                         waiting / blocked / done). Matches
+                                         the task by title fragment. Does
+                                         NOT archive — tell users to archive
+                                         from the Tasks page.
   These NEVER mutate directly — they propose an action that the user must
   Confirm in the UI before anything actually happens. Rules for write tools:
     * Convert relative dates ('tomorrow', 'next Friday') to YYYY-MM-DD

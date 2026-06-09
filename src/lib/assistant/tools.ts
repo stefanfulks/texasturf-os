@@ -15,6 +15,8 @@ import {
   DraftTaskSchema,
   DraftCalendarEventSchema,
   DraftSlackMessageSchema,
+  DraftUpdateTaskStatusSchema,
+  TASK_STATUS_VALUES,
   summarizeDraft,
   type DraftTask,
   type DraftAttendee,
@@ -169,6 +171,33 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
       required: ["recipient", "text"],
     },
   },
+  {
+    // Write tool — change a task's status. Title-based lookup against tasks
+    // the caller can see (RLS). Same 0/1/ambiguous handling. Doesn't cover
+    // archive — that's a separate page action with a role check.
+    name: "propose_update_task_status",
+    description:
+      "Propose a status change for an existing task. Match the task by a fragment of its title (task_query). The user sees a confirm card showing 'old status → new status' before anything changes — do NOT say it's done until they confirm. If multiple tasks match, the tool returns the candidates and you ask the user which one. Doesn't cover archiving — for that, tell the user to use the task page.",
+    input_schema: {
+      type: "object",
+      properties: {
+        task_query: {
+          type: "string",
+          description: "Fragment of the task title to match (case-insensitive). E.g. 'Sage Creek walk'.",
+        },
+        new_status: {
+          type:  "string",
+          enum:  [...TASK_STATUS_VALUES],
+          description: "Target status: inbox, in_progress, waiting, blocked, or done.",
+        },
+        blocked_reason: {
+          type: "string",
+          description: "Optional. Only used when new_status='blocked' — short reason the task is blocked.",
+        },
+      },
+      required: ["task_query", "new_status"],
+    },
+  },
 ];
 
 // ─── Tool runners ────────────────────────────────────────────────────────────
@@ -201,6 +230,7 @@ async function dispatch(name: string, input: ToolInput, supabase: Supabase, user
     case "propose_create_task":             return proposeCreateTask(input, supabase, userId);
     case "propose_schedule_calendar_event": return proposeScheduleCalendarEvent(input, supabase);
     case "propose_send_slack_message":      return proposeSendSlackMessage(input, supabase);
+    case "propose_update_task_status":      return proposeUpdateTaskStatus(input, supabase);
     default: throw new Error(`Unknown tool: ${name}`);
   }
 }
@@ -671,6 +701,93 @@ async function proposeSendSlackMessage(
     recipient_display: recipientDisplay,
     recipient_kind:    recipientKind,
     text,
+  });
+  if (!parsed.success) {
+    return {
+      kind: "error",
+      error: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+    };
+  }
+
+  const draft = parsed.data;
+  return {
+    kind: "draft",
+    draft_id: crypto.randomUUID(),
+    draft,
+    summary: summarizeDraft(draft),
+  };
+}
+
+/**
+ * Propose a status change for a task identified by a title fragment.
+ * Uses the user-context supabase client so RLS limits the search to tasks
+ * the caller is already allowed to see.
+ */
+async function proposeUpdateTaskStatus(
+  input: ToolInput,
+  supabase: Supabase,
+): Promise<ProposeResult> {
+  const query     = typeof input.task_query === "string" ? input.task_query.trim() : "";
+  const newStatus = typeof input.new_status === "string" ? input.new_status.trim() : "";
+  if (!query)     return { kind: "error", error: "task_query is required." };
+  if (!newStatus) return { kind: "error", error: "new_status is required." };
+  if (!(TASK_STATUS_VALUES as readonly string[]).includes(newStatus)) {
+    return { kind: "error", error: `new_status must be one of: ${TASK_STATUS_VALUES.join(", ")}.` };
+  }
+
+  const blockedReason = typeof input.blocked_reason === "string" && input.blocked_reason.trim()
+    ? input.blocked_reason.trim()
+    : undefined;
+
+  const term = query.replace(/[%_]/g, "");
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("id, title, status")
+    .neq("status", "archived")
+    .ilike("title", `%${term}%`)
+    .order("updated_at", { ascending: false })
+    .limit(6);
+  if (error) {
+    return { kind: "error", error: `Couldn't search tasks: ${error.message}` };
+  }
+
+  const matches = data ?? [];
+  if (matches.length === 0) {
+    return {
+      kind: "error",
+      error: `No task matches "${query}". Try a different fragment of the title.`,
+    };
+  }
+  if (matches.length > 1) {
+    return {
+      kind: "ambiguous",
+      reason: `"${query}" matches ${matches.length} tasks. Ask the user which one.`,
+      candidates: matches.slice(0, 5).map((m) => ({
+        id:      m.id,
+        display: `${m.title} (${m.status})`,
+      })),
+    };
+  }
+
+  const task = matches[0];
+
+  // Guard against no-op proposals — surface as a friendly error so Turfy
+  // tells the user the task is already in that state instead of showing a
+  // confirm card for a non-change.
+  if (task.status === newStatus) {
+    return {
+      kind: "error",
+      error: `"${task.title}" is already ${newStatus}. Nothing to change.`,
+    };
+  }
+
+  const parsed = DraftUpdateTaskStatusSchema.safeParse({
+    kind:           "update_task_status",
+    task_id:        task.id,
+    task_title:     task.title,
+    current_status: task.status,
+    new_status:     newStatus,
+    blocked_reason: blockedReason,
   });
   if (!parsed.success) {
     return {

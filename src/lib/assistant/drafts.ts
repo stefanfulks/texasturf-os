@@ -97,12 +97,42 @@ export const DraftSlackMessageSchema = z.object({
 
 export type DraftSlackMessage = z.infer<typeof DraftSlackMessageSchema>;
 
+// ─── DraftUpdateTaskStatus ──────────────────────────────────────────────────
+
+/**
+ * The 5 active task statuses the existing Tasks UI exposes — matches the
+ * TaskStatus enum in database.types. "archived" is its own action (separate
+ * page button with a role check) so it's intentionally NOT here.
+ */
+export const TASK_STATUS_VALUES = [
+  "inbox",
+  "in_progress",
+  "waiting",
+  "blocked",
+  "done",
+] as const;
+export type TaskStatusValue = (typeof TASK_STATUS_VALUES)[number];
+
+export const DraftUpdateTaskStatusSchema = z.object({
+  kind:           z.literal("update_task_status"),
+  task_id:        z.string().uuid(),
+  // Display-only — re-fetched server-side on commit to confirm the task
+  // still exists and the user can still see it (RLS).
+  task_title:     z.string().min(1),
+  current_status: z.enum(TASK_STATUS_VALUES),
+  new_status:     z.enum(TASK_STATUS_VALUES),
+  blocked_reason: z.string().max(500).optional(),
+});
+
+export type DraftUpdateTaskStatus = z.infer<typeof DraftUpdateTaskStatusSchema>;
+
 // ─── Draft union ────────────────────────────────────────────────────────────
 
 export const DraftSchema = z.discriminatedUnion("kind", [
   DraftTaskSchema,
   DraftCalendarEventSchema,
   DraftSlackMessageSchema,
+  DraftUpdateTaskStatusSchema,
 ]);
 
 export type Draft = z.infer<typeof DraftSchema>;
@@ -144,6 +174,9 @@ export function summarizeDraft(draft: Draft): string {
         ? draft.text.slice(0, 57) + "…"
         : draft.text;
       return `${verb} ${draft.recipient_display}: "${preview}"`;
+    }
+    case "update_task_status": {
+      return `Move "${draft.task_title}" → ${draft.new_status.replace("_", " ")}`;
     }
   }
 }

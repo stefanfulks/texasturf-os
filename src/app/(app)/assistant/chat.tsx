@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Send, Sparkles, Search, Loader2, Check, X, ListPlus, CalendarPlus, MessageSquarePlus } from "lucide-react";
+import { Send, Sparkles, Search, Loader2, Check, X, ListPlus, CalendarPlus, MessageSquarePlus, ArrowRightCircle } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -415,8 +415,9 @@ function DraftCardView({
   // Pending or committing → render the full proposal card.
   const isCommitting = status === "committing";
   const Icon =
-    card.draft.kind === "calendar_event" ? CalendarPlus :
-    card.draft.kind === "slack_message"  ? MessageSquarePlus :
+    card.draft.kind === "calendar_event"     ? CalendarPlus :
+    card.draft.kind === "slack_message"      ? MessageSquarePlus :
+    card.draft.kind === "update_task_status" ? ArrowRightCircle :
     ListPlus;
   return (
     <div className="rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-xs space-y-2.5">
@@ -504,6 +505,28 @@ function DraftDetails({ card }: { card: DraftCard }) {
             <dd className="whitespace-pre-wrap rounded-md bg-zinc-50 px-2 py-1.5 text-zinc-800 border border-zinc-100">{text}</dd>
           </>
         )}
+      </dl>
+    );
+  }
+  if (d.kind === "update_task_status") {
+    const title          = typeof d.task_title     === "string" ? d.task_title     : null;
+    const current        = typeof d.current_status === "string" ? d.current_status : null;
+    const next           = typeof d.new_status     === "string" ? d.new_status     : null;
+    const blockedReason  = typeof d.blocked_reason === "string" ? d.blocked_reason : null;
+    return (
+      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-zinc-600">
+        {title && (<><dt className="font-medium text-zinc-500">Task</dt><dd>{title}</dd></>)}
+        {current && next && (
+          <>
+            <dt className="font-medium text-zinc-500">Status</dt>
+            <dd className="flex items-center gap-1.5">
+              <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 capitalize">{current.replace("_", " ")}</span>
+              <span className="text-zinc-400">→</span>
+              <span className="rounded-md bg-blue-50 px-1.5 py-0.5 capitalize font-medium text-blue-700">{next.replace("_", " ")}</span>
+            </dd>
+          </>
+        )}
+        {blockedReason && (<><dt className="font-medium text-zinc-500">Reason</dt><dd className="whitespace-pre-wrap">{blockedReason}</dd></>)}
       </dl>
     );
   }

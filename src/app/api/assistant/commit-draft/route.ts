@@ -13,10 +13,11 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { DraftSchema, type Draft } from "@/lib/assistant/drafts";
-import { createTask } from "@/app/(app)/tasks/actions";
+import { createTask, updateTaskStatus } from "@/app/(app)/tasks/actions";
 import { getValidGoogleAccessToken } from "@/lib/google/tokens";
 import { createEvent } from "@/lib/google/calendar";
 import { postMessage as slackPostMessage } from "@/lib/integrations/slack";
+import type { TaskStatus } from "@/lib/database.types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -146,6 +147,27 @@ export async function POST(request: Request): Promise<Response> {
           { status: 500 },
         );
       }
+    }
+
+    case "update_task_status": {
+      const result = await updateTaskStatus(
+        draft.task_id,
+        draft.new_status as TaskStatus,
+        draft.blocked_reason,
+      );
+      if (result.error) {
+        return Response.json(
+          { ok: false, error: result.error } satisfies ErrorBody,
+          { status: 500 },
+        );
+      }
+      const pretty = draft.new_status.replace("_", " ");
+      return Response.json({
+        ok:         true,
+        summary:    `Moved "${draft.task_title}" → ${pretty}`,
+        view_url:   `/tasks/${draft.task_id}`,
+        created_id: draft.task_id,
+      } satisfies SuccessBody);
     }
 
     case "slack_message": {
