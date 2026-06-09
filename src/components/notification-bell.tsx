@@ -6,9 +6,12 @@ import { formatDistanceToNow, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/client";
 import type { Notification } from "@/lib/database.types";
 
+// Project notifications render under /jobs/[id] — the OS "projects" table is
+// the same data and there is no /projects route on disk. Audit P0: the
+// previous /projects/${id} href 404'd for every project notification.
 const RESOURCE_HREFS: Record<string, (id: string) => string> = {
   task:    (id) => `/tasks/${id}`,
-  project: (id) => `/projects/${id}`,
+  project: (id) => `/jobs/${id}`,
 };
 
 export function NotificationBell({ initialUnread }: { initialUnread: number }) {
