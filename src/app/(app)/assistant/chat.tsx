@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Send, Sparkles, Search, Loader2, Check, X, ListPlus } from "lucide-react";
+import { Send, Sparkles, Search, Loader2, Check, X, ListPlus, CalendarPlus } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -414,10 +414,11 @@ function DraftCardView({
 
   // Pending or committing → render the full proposal card.
   const isCommitting = status === "committing";
+  const Icon = card.draft.kind === "calendar_event" ? CalendarPlus : ListPlus;
   return (
     <div className="rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-xs space-y-2.5">
       <div className="flex items-start gap-2">
-        <ListPlus className="h-4 w-4 flex-shrink-0 text-blue-600 mt-0.5" />
+        <Icon className="h-4 w-4 flex-shrink-0 text-blue-600 mt-0.5" />
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-zinc-900">{card.summary}</p>
           <DraftDetails card={card} />
@@ -460,6 +461,29 @@ function DraftDetails({ card }: { card: DraftCard }) {
         {due && (<><dt className="font-medium text-zinc-500">Due</dt><dd>{due}</dd></>)}
         {assignee && (<><dt className="font-medium text-zinc-500">Assign</dt><dd>{assignee}</dd></>)}
         {priority !== "normal" && (<><dt className="font-medium text-zinc-500">Priority</dt><dd className="capitalize">{priority}</dd></>)}
+        {description && (<><dt className="font-medium text-zinc-500">Notes</dt><dd className="whitespace-pre-wrap">{description}</dd></>)}
+      </dl>
+    );
+  }
+  if (d.kind === "calendar_event") {
+    const start    = typeof d.start_iso === "string" ? d.start_iso.replace("T", " ") : null;
+    const end      = typeof d.end_iso   === "string" ? d.end_iso.replace("T", " ")   : null;
+    const location = typeof d.location  === "string" ? d.location : null;
+    const description = typeof d.description === "string" ? d.description : null;
+    const attendees = Array.isArray(d.attendees)
+      ? (d.attendees as Array<{ email?: string; display?: string | null }>).filter((a) => typeof a.email === "string")
+      : [];
+    return (
+      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-zinc-600">
+        {start && (<><dt className="font-medium text-zinc-500">Start</dt><dd>{start} CT</dd></>)}
+        {end   && (<><dt className="font-medium text-zinc-500">End</dt><dd>{end} CT</dd></>)}
+        {location && (<><dt className="font-medium text-zinc-500">Where</dt><dd>{location}</dd></>)}
+        {attendees.length > 0 && (
+          <>
+            <dt className="font-medium text-zinc-500">Invite</dt>
+            <dd>{attendees.map((a) => a.display ?? a.email).join(", ")}</dd>
+          </>
+        )}
         {description && (<><dt className="font-medium text-zinc-500">Notes</dt><dd className="whitespace-pre-wrap">{description}</dd></>)}
       </dl>
     );

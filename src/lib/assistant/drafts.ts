@@ -45,12 +45,45 @@ export const DraftTaskSchema = z.object({
 
 export type DraftTask = z.infer<typeof DraftTaskSchema>;
 
+// ─── DraftCalendarEvent ─────────────────────────────────────────────────────
+
+/**
+ * Resolved attendee — email always present (the runner did the name → email
+ * lookup before returning the draft). `display` is for the confirm card only.
+ */
+export const DraftAttendeeSchema = z.object({
+  email:   z.string().email(),
+  display: z.string().nullable().default(null),
+});
+export type DraftAttendee = z.infer<typeof DraftAttendeeSchema>;
+
+export const DraftCalendarEventSchema = z.object({
+  kind:    z.literal("calendar_event"),
+  summary: z.string().min(1, "Event title is required").max(280),
+  // Naive local datetime in Central Time. Server attaches the tz
+  // (America/Chicago) when calling Google Calendar. Format enforced
+  // strictly so the model has to do the natural-language → ISO conversion
+  // itself (today's date is in the system prompt).
+  start_iso: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Start must be YYYY-MM-DDTHH:MM"),
+  end_iso: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "End must be YYYY-MM-DDTHH:MM"),
+  description: z.string().max(2000).optional(),
+  location:    z.string().max(500).optional(),
+  // Empty array means "just me" — no invites.
+  attendees:   z.array(DraftAttendeeSchema).default([]),
+});
+
+export type DraftCalendarEvent = z.infer<typeof DraftCalendarEventSchema>;
+
 // ─── Draft union ────────────────────────────────────────────────────────────
 
 export const DraftSchema = z.discriminatedUnion("kind", [
   DraftTaskSchema,
+  DraftCalendarEventSchema,
   // Future:
-  //   DraftCalendarEventSchema,
   //   DraftSlackMessageSchema,
 ]);
 
@@ -69,6 +102,21 @@ export function summarizeDraft(draft: Draft): string {
       const parts: string[] = [`Create task: "${draft.title}"`];
       if (draft.due_date) parts.push(`due ${draft.due_date}`);
       if (draft.assignee_display) parts.push(`assign ${draft.assignee_display}`);
+      return parts.join(" · ");
+    }
+    case "calendar_event": {
+      const parts: string[] = [`Schedule: "${draft.summary}"`];
+      // Show just the date + start time on the summary; full details on the card.
+      const startTime = draft.start_iso.replace("T", " ");
+      parts.push(startTime);
+      if (draft.attendees.length > 0) {
+        const names = draft.attendees
+          .map((a) => a.display ?? a.email)
+          .slice(0, 3)
+          .join(", ");
+        const more = draft.attendees.length > 3 ? ` +${draft.attendees.length - 3}` : "";
+        parts.push(`with ${names}${more}`);
+      }
       return parts.join(" · ");
     }
   }

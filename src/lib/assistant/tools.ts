@@ -13,8 +13,10 @@ import type { createClient } from "@/lib/supabase/server";
 import { getMyTaskIds, NO_TASK_UUID } from "@/lib/tasks/scope";
 import {
   DraftTaskSchema,
+  DraftCalendarEventSchema,
   summarizeDraft,
   type DraftTask,
+  type DraftAttendee,
   type ProposeResult,
 } from "@/lib/assistant/drafts";
 
@@ -116,6 +118,32 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
       required: ["title"],
     },
   },
+  {
+    // Write tool — schedules an event on the user's primary Google Calendar.
+    // Same draft → confirm card → commit pattern as propose_create_task.
+    // Requires the user to have signed in with Google (provider tokens
+    // captured in /auth/callback). Commit endpoint surfaces a helpful error
+    // if tokens are missing.
+    name: "propose_schedule_calendar_event",
+    description:
+      "Propose a new event on the user's primary Google Calendar. The user will see a confirm card before it's actually created — do NOT say it's scheduled until they confirm. Times are in Central Time (America/Chicago); format start_iso and end_iso as YYYY-MM-DDTHH:MM with NO timezone suffix and NO seconds — the server attaches the timezone. Convert natural-language times yourself ('tomorrow at 2pm', 'Friday morning'). Default duration is 30 minutes if the user didn't say otherwise. Attendee_queries are name fragments (e.g. ['Mike', 'jane@texasturfusa.com']) — the runner resolves them against profiles; if any is ambiguous you'll get the candidates and need to ask the user before re-calling.",
+    input_schema: {
+      type: "object",
+      properties: {
+        summary:           { type: "string", description: "Event title. Required." },
+        start_iso:         { type: "string", description: "YYYY-MM-DDTHH:MM in Central Time, no timezone suffix." },
+        end_iso:           { type: "string", description: "YYYY-MM-DDTHH:MM in Central Time, no timezone suffix." },
+        description:       { type: "string", description: "Optional event body." },
+        location:          { type: "string", description: "Optional location (address, room, link)." },
+        attendee_queries:  {
+          type:  "array",
+          items: { type: "string" },
+          description: "Optional list of names or emails to invite. Each resolves to one team member; ambiguous matches return candidates for you to disambiguate.",
+        },
+      },
+      required: ["summary", "start_iso", "end_iso"],
+    },
+  },
 ];
 
 // ─── Tool runners ────────────────────────────────────────────────────────────
@@ -145,7 +173,8 @@ async function dispatch(name: string, input: ToolInput, supabase: Supabase, user
     case "get_dashboard_stats":  return getDashboardStats(supabase, userId);
     case "get_inventory_stats":  return getInventoryStats(supabase);
     case "search_notion_sops":   return searchNotionSops(input);
-    case "propose_create_task":  return proposeCreateTask(input, supabase, userId);
+    case "propose_create_task":            return proposeCreateTask(input, supabase, userId);
+    case "propose_schedule_calendar_event": return proposeScheduleCalendarEvent(input, supabase);
     default: throw new Error(`Unknown tool: ${name}`);
   }
 }
@@ -402,6 +431,107 @@ async function proposeCreateTask(
     return {
       kind: "error",
       error: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+    };
+  }
+
+  const draft = parsed.data;
+  return {
+    kind: "draft",
+    draft_id: crypto.randomUUID(),
+    draft,
+    summary: summarizeDraft(draft),
+  };
+}
+
+/**
+ * Propose a Google Calendar event. Resolves each attendee_query against
+ * profiles (or accepts an email as-is). Returns ambiguous on multi-match,
+ * error on no-match. Nothing is written here — the user confirms via the
+ * UI, then the commit-draft endpoint calls Google Calendar.
+ */
+async function proposeScheduleCalendarEvent(
+  input: ToolInput,
+  supabase: Supabase,
+): Promise<ProposeResult> {
+  const summary = typeof input.summary === "string" ? input.summary.trim() : "";
+  if (!summary) {
+    return { kind: "error", error: "Event title is required." };
+  }
+
+  // ── Resolve attendees ──
+  const rawQueries = Array.isArray(input.attendee_queries)
+    ? input.attendee_queries.filter((q): q is string => typeof q === "string" && q.trim().length > 0)
+    : [];
+
+  const resolvedAttendees: DraftAttendee[] = [];
+  for (const rawQ of rawQueries) {
+    const q = rawQ.trim();
+    // Email-shaped → trust the model (RLS doesn't apply to Google Calendar
+    // invites, and the user is explicitly choosing to invite this address).
+    if (q.includes("@")) {
+      resolvedAttendees.push({ email: q, display: null });
+      continue;
+    }
+
+    const term = q.replace(/[%_]/g, "");
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .or(`full_name.ilike.%${term}%,email.ilike.%${term}%`)
+      .limit(5);
+    if (error) {
+      return { kind: "error", error: `Couldn't look up attendee "${q}": ${error.message}` };
+    }
+    const matches = data ?? [];
+    if (matches.length === 0) {
+      return {
+        kind: "error",
+        error: `No team member matches "${q}". Try a different name, an email address, or remove that attendee.`,
+      };
+    }
+    if (matches.length > 1) {
+      return {
+        kind: "ambiguous",
+        reason: `"${q}" matches ${matches.length} people. Ask the user which one.`,
+        candidates: matches.map((m) => ({
+          id:      m.email,                  // commit endpoint uses email, not profile id
+          display: `${m.full_name ?? m.email} <${m.email}>`,
+        })),
+      };
+    }
+    resolvedAttendees.push({
+      email:   matches[0].email,
+      display: matches[0].full_name ?? matches[0].email,
+    });
+  }
+
+  // ── Build + validate the draft ──
+  const draftCandidate = {
+    kind:        "calendar_event" as const,
+    summary,
+    start_iso:   typeof input.start_iso === "string" ? input.start_iso.trim() : "",
+    end_iso:     typeof input.end_iso   === "string" ? input.end_iso.trim()   : "",
+    description: typeof input.description === "string" && input.description.trim()
+      ? input.description.trim() : undefined,
+    location:    typeof input.location === "string" && input.location.trim()
+      ? input.location.trim() : undefined,
+    attendees:   resolvedAttendees,
+  };
+
+  const parsed = DraftCalendarEventSchema.safeParse(draftCandidate);
+  if (!parsed.success) {
+    return {
+      kind: "error",
+      error: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+    };
+  }
+
+  // Light sanity check: end must be after start. Zod doesn't model this
+  // cross-field, so do it here.
+  if (parsed.data.end_iso <= parsed.data.start_iso) {
+    return {
+      kind: "error",
+      error: "Event end must be after start. Did you mean a later time?",
     };
   }
 

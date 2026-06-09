@@ -14,6 +14,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { DraftSchema, type Draft } from "@/lib/assistant/drafts";
 import { createTask } from "@/app/(app)/tasks/actions";
+import { getValidGoogleAccessToken } from "@/lib/google/tokens";
+import { createEvent } from "@/lib/google/calendar";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -95,13 +97,69 @@ export async function POST(request: Request): Promise<Response> {
       } satisfies SuccessBody);
     }
 
+    case "calendar_event": {
+      // Need a valid Google access token — user must have signed in via
+      // Google for this to work. If tokens are missing/revoked, surface a
+      // helpful error so Turfy can tell the user to re-sign-in.
+      const tokenStatus = await getValidGoogleAccessToken(user.id);
+      if (!tokenStatus.ok) {
+        const helpful: Record<typeof tokenStatus.reason, string> = {
+          no_tokens:        "No Google credentials on file — sign out and sign back in with Google to grant calendar access.",
+          no_refresh_token: "Google refresh token missing — sign out and sign back in with Google to re-grant calendar access.",
+          refresh_failed:   "Google rejected the refresh — sign out and sign back in with Google to re-authorize.",
+          config_missing:   "Google OAuth credentials aren't configured in Vercel — ask the admin to set GOOGLE_OAUTH_CLIENT_ID + GOOGLE_OAUTH_CLIENT_SECRET.",
+        };
+        return Response.json(
+          {
+            ok:    false,
+            error: helpful[tokenStatus.reason] +
+              (tokenStatus.detail ? ` (${tokenStatus.detail})` : ""),
+          } satisfies ErrorBody,
+          { status: 400 },
+        );
+      }
+
+      try {
+        const event = await createEvent(tokenStatus.accessToken, {
+          summary:     draft.summary,
+          description: draft.description,
+          location:    draft.location,
+          start:       draft.start_iso,                         // naive datetime; createEvent adds the tz
+          end:         draft.end_iso,
+          attendees:   draft.attendees.map((a) => a.email),
+        });
+
+        const displayTime = draft.start_iso.replace("T", " ");
+        return Response.json({
+          ok:         true,
+          summary:    `Scheduled — ${draft.summary} (${displayTime})`,
+          view_url:   event.htmlLink ?? null,
+          created_id: event.id,
+        } satisfies SuccessBody);
+      } catch (err) {
+        return Response.json(
+          {
+            ok:    false,
+            error: err instanceof Error ? err.message : String(err),
+          } satisfies ErrorBody,
+          { status: 500 },
+        );
+      }
+    }
+
     default: {
       // Exhaustiveness check. If a new draft kind is added to DraftSchema
-      // without a case here, TypeScript will flag this assignment.
-      const _exhaustive: never = draft.kind;
+      // without a case here, the assignment below will fail typecheck —
+      // that's the desired behavior: it forces the contributor to add the
+      // case before the build passes.
+      const _exhaustive: never = draft;
       void _exhaustive;
+      // Defense-in-depth at runtime (Zod's discriminatedUnion should have
+      // rejected anything that gets us here). Casting through unknown so
+      // we can read .kind without TS complaining about `never`.
+      const kind = (raw as { kind?: unknown }).kind;
       return Response.json(
-        { ok: false, error: `Unsupported draft kind: ${(draft as Draft).kind}` } satisfies ErrorBody,
+        { ok: false, error: `Unsupported draft kind: ${String(kind)}` } satisfies ErrorBody,
         { status: 400 },
       );
     }
