@@ -11,6 +11,12 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { createClient } from "@/lib/supabase/server";
 import { getMyTaskIds, NO_TASK_UUID } from "@/lib/tasks/scope";
+import {
+  DraftTaskSchema,
+  summarizeDraft,
+  type DraftTask,
+  type ProposeResult,
+} from "@/lib/assistant/drafts";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
@@ -89,6 +95,27 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
       required: ["query"],
     },
   },
+  {
+    // Write tool — name starts with `propose_` so the route layer routes the
+    // result through the confirm-card flow instead of feeding it straight
+    // back to the model as a normal tool_result. Nothing is written to the
+    // database here; the user has to click Confirm in the UI for the
+    // commit-draft endpoint to actually create the task.
+    name: "propose_create_task",
+    description:
+      "Propose a new task. The user will see a confirm card before it's actually created — do NOT tell them it's done until they confirm. Always convert relative dates ('tomorrow', 'next Friday') to YYYY-MM-DD before calling (today's date is in your system prompt). Leave assignee_query blank to default to the current user. If the name matches multiple people, the tool returns the candidates and you ask the user which one — do NOT guess.",
+    input_schema: {
+      type: "object",
+      properties: {
+        title:        { type: "string", description: "Short title for the task. Required." },
+        description:  { type: "string", description: "Optional longer body." },
+        due_date:     { type: "string", description: "Optional ISO date (YYYY-MM-DD). Convert relative phrases yourself before calling." },
+        assignee_query: { type: "string", description: "Optional name/email fragment to assign to (e.g. 'Mike', 'mike@'). Blank = current user." },
+        priority:     { type: "string", enum: ["low","normal","high","urgent"], description: "Defaults to normal." },
+      },
+      required: ["title"],
+    },
+  },
 ];
 
 // ─── Tool runners ────────────────────────────────────────────────────────────
@@ -118,6 +145,7 @@ async function dispatch(name: string, input: ToolInput, supabase: Supabase, user
     case "get_dashboard_stats":  return getDashboardStats(supabase, userId);
     case "get_inventory_stats":  return getInventoryStats(supabase);
     case "search_notion_sops":   return searchNotionSops(input);
+    case "propose_create_task":  return proposeCreateTask(input, supabase, userId);
     default: throw new Error(`Unknown tool: ${name}`);
   }
 }
@@ -287,6 +315,103 @@ async function searchNotionSops(input: ToolInput) {
   });
 
   return { count: results.length, results };
+}
+
+// ─── Write tools (propose_* — return drafts, never mutate) ──────────────────
+
+/**
+ * Propose a new task. Resolves the assignee_query against profiles (ILIKE
+ * full_name + email), builds a DraftTask, returns a ProposeResult envelope.
+ * Nothing is written here — the user confirms via the UI, then the
+ * commit-draft endpoint calls the real createTask server action.
+ */
+async function proposeCreateTask(
+  input: ToolInput,
+  supabase: Supabase,
+  userId: string,
+): Promise<ProposeResult> {
+  const title = typeof input.title === "string" ? input.title.trim() : "";
+  if (!title) {
+    return { kind: "error", error: "Task title is required." };
+  }
+
+  // ── Resolve assignee_query → profile_id ──
+  const rawQuery = typeof input.assignee_query === "string" ? input.assignee_query.trim() : "";
+  let assigneeId: string | null = null;
+  let assigneeDisplay: string | null = null;
+
+  if (rawQuery) {
+    const term = rawQuery.replace(/[%_]/g, "");
+    const { data: candidates, error } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .or(`full_name.ilike.%${term}%,email.ilike.%${term}%`)
+      .limit(5);
+    if (error) {
+      return { kind: "error", error: `Couldn't look up assignee: ${error.message}` };
+    }
+    const matches = candidates ?? [];
+    if (matches.length === 0) {
+      return {
+        kind: "error",
+        error: `No team member matches "${rawQuery}". Try a different name, or omit assignee to assign to the caller.`,
+      };
+    }
+    if (matches.length > 1) {
+      return {
+        kind: "ambiguous",
+        reason: `"${rawQuery}" matches ${matches.length} people. Ask the user which one.`,
+        candidates: matches.map((m) => ({
+          id:      m.id,
+          display: m.full_name ?? m.email,
+        })),
+      };
+    }
+    assigneeId      = matches[0].id;
+    assigneeDisplay = matches[0].full_name ?? matches[0].email;
+  } else {
+    // Default to caller — resolve their display name for the confirm card.
+    const { data: me } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", userId)
+      .single();
+    assigneeId      = userId;
+    assigneeDisplay = me?.full_name ?? me?.email ?? "you";
+  }
+
+  // ── Validate the draft shape ──
+  const draftCandidate = {
+    kind: "task" as const,
+    title,
+    description: typeof input.description === "string" && input.description.trim()
+      ? input.description.trim()
+      : undefined,
+    priority: typeof input.priority === "string"
+      ? (input.priority as DraftTask["priority"])
+      : "normal" as const,
+    due_date: typeof input.due_date === "string" && input.due_date.trim()
+      ? input.due_date.trim()
+      : undefined,
+    assignee_id: assigneeId,
+    assignee_display: assigneeDisplay,
+  };
+
+  const parsed = DraftTaskSchema.safeParse(draftCandidate);
+  if (!parsed.success) {
+    return {
+      kind: "error",
+      error: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; "),
+    };
+  }
+
+  const draft = parsed.data;
+  return {
+    kind: "draft",
+    draft_id: crypto.randomUUID(),
+    draft,
+    summary: summarizeDraft(draft),
+  };
 }
 
 async function getInventoryStats(supabase: Supabase) {

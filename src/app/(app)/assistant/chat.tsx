@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, Sparkles, Search, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Send, Sparkles, Search, Loader2, Check, X, ListPlus } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -10,14 +11,28 @@ type ChatMessage = {
   text: string;
   /** Optional inline log of tool calls the assistant made during this turn. */
   tools?: ToolEvent[];
+  /** Optional inline drafts (write-tool proposals awaiting Confirm/Cancel). */
+  drafts?: DraftCard[];
 };
 
 type ToolEvent = { name: string; input: unknown };
+
+/** A pending or settled draft attached to an assistant turn. */
+type DraftCard = {
+  draft_id: string;
+  /** Untyped here — re-validated server-side on commit against the Zod schema. */
+  draft: { kind: string; [key: string]: unknown };
+  summary: string;
+  status: "pending" | "committing" | "committed" | "cancelled" | "error";
+  result?: { summary: string; view_url: string | null };
+  error?: string;
+};
 
 type StreamEvent =
   | { type: "text";        text: string }
   | { type: "tool";        name: string; input: unknown }
   | { type: "tool_result"; name: string; ok: boolean }
+  | { type: "tool_draft";  draft_id: string; draft: { kind: string; [key: string]: unknown }; summary: string }
   | { type: "done" }
   | { type: "error";       message: string };
 
@@ -27,7 +42,7 @@ const STARTERS = [
   "What tasks am I overdue on?",
   "Show me invoices waiting for approval.",
   "How much Saratoga 40 do we have available?",
-  "What's allocated to job 263?",
+  "Add a task to walk the Sage Creek site tomorrow.",
 ];
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -118,11 +133,79 @@ export function AssistantChat({ greetingName }: { greetingName: string }) {
           ...last,
           tools: [...(last.tools ?? []), { name: evt.name, input: evt.input }],
         };
+      } else if (evt.type === "tool_draft") {
+        copy[copy.length - 1] = {
+          ...last,
+          drafts: [
+            ...(last.drafts ?? []),
+            {
+              draft_id: evt.draft_id,
+              draft:    evt.draft,
+              summary:  evt.summary,
+              status:   "pending",
+            },
+          ],
+        };
       } else if (evt.type === "error") {
         setError(evt.message);
       }
       return copy;
     });
+  }
+
+  // ─── Draft commit / cancel handlers ──────────────────────────────────────
+
+  function updateDraft(draftId: string, patch: Partial<DraftCard>) {
+    setMessages((cur) =>
+      cur.map((m) =>
+        m.drafts?.some((d) => d.draft_id === draftId)
+          ? {
+              ...m,
+              drafts: m.drafts.map((d) =>
+                d.draft_id === draftId ? { ...d, ...patch } : d,
+              ),
+            }
+          : m,
+      ),
+    );
+  }
+
+  async function commitDraft(card: DraftCard) {
+    if (card.status !== "pending") return;
+    updateDraft(card.draft_id, { status: "committing" });
+    try {
+      const resp = await fetch("/api/assistant/commit-draft", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(card.draft),
+      });
+      const json = (await resp.json().catch(() => null)) as
+        | { ok: true;  summary: string; view_url: string | null; created_id: string | null }
+        | { ok: false; error: string }
+        | null;
+      if (!json) {
+        updateDraft(card.draft_id, { status: "error", error: `Server returned ${resp.status}` });
+        return;
+      }
+      if (json.ok) {
+        updateDraft(card.draft_id, {
+          status: "committed",
+          result: { summary: json.summary, view_url: json.view_url },
+        });
+      } else {
+        updateDraft(card.draft_id, { status: "error", error: json.error });
+      }
+    } catch (err) {
+      updateDraft(card.draft_id, {
+        status: "error",
+        error:  err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  function cancelDraft(card: DraftCard) {
+    if (card.status !== "pending") return;
+    updateDraft(card.draft_id, { status: "cancelled" });
   }
 
   return (
@@ -135,7 +218,15 @@ export function AssistantChat({ greetingName }: { greetingName: string }) {
         {messages.length === 0 ? (
           <EmptyState greetingName={greetingName} onPick={send} />
         ) : (
-          messages.map((m, i) => <Bubble key={i} message={m} busy={busy && i === messages.length - 1} />)
+          messages.map((m, i) => (
+            <Bubble
+              key={i}
+              message={m}
+              busy={busy && i === messages.length - 1}
+              onCommitDraft={commitDraft}
+              onCancelDraft={cancelDraft}
+            />
+          ))
         )}
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
@@ -178,7 +269,17 @@ export function AssistantChat({ greetingName }: { greetingName: string }) {
 
 // ─── Bubble ──────────────────────────────────────────────────────────────────
 
-function Bubble({ message, busy }: { message: ChatMessage; busy: boolean }) {
+function Bubble({
+  message,
+  busy,
+  onCommitDraft,
+  onCancelDraft,
+}: {
+  message: ChatMessage;
+  busy: boolean;
+  onCommitDraft: (card: DraftCard) => void;
+  onCancelDraft: (card: DraftCard) => void;
+}) {
   const isUser = message.role === "user";
   return (
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
@@ -213,10 +314,140 @@ function Bubble({ message, busy }: { message: ChatMessage; busy: boolean }) {
         >
           {message.text || (busy ? <ThinkingDots /> : null)}
         </div>
+
+        {/* Draft cards (assistant only) — proposed write actions awaiting Confirm/Cancel */}
+        {!isUser && message.drafts && message.drafts.length > 0 && (
+          <div className="space-y-2">
+            {message.drafts.map((card) => (
+              <DraftCardView
+                key={card.draft_id}
+                card={card}
+                onConfirm={() => onCommitDraft(card)}
+                onCancel={() => onCancelDraft(card)}
+              />
+            ))}
+          </div>
+        )}
       </div>
       {isUser && <div className="flex-shrink-0 h-7 w-7" />}
     </div>
   );
+}
+
+// ─── DraftCardView ──────────────────────────────────────────────────────────
+
+/**
+ * Renders a single proposed write action with Confirm/Cancel controls.
+ * v1 only knows about the "task" kind; future draft kinds plug in here via
+ * the small kind-switch inside renderDetails.
+ */
+function DraftCardView({
+  card,
+  onConfirm,
+  onCancel,
+}: {
+  card: DraftCard;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const { status } = card;
+
+  // Settled states — replace the card with a compact status line.
+  if (status === "committed") {
+    return (
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 flex items-center gap-2">
+        <Check className="h-3.5 w-3.5 flex-shrink-0" />
+        <span className="flex-1 truncate">{card.result?.summary ?? "Done."}</span>
+        {card.result?.view_url && (
+          <Link
+            href={card.result.view_url}
+            className="font-semibold underline decoration-emerald-300 hover:decoration-emerald-500"
+          >
+            View
+          </Link>
+        )}
+      </div>
+    );
+  }
+  if (status === "cancelled") {
+    return (
+      <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-500 flex items-center gap-2">
+        <X className="h-3.5 w-3.5 flex-shrink-0" />
+        <span>Cancelled.</span>
+      </div>
+    );
+  }
+  if (status === "error") {
+    return (
+      <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+        <div className="flex items-center gap-2 mb-1.5">
+          <X className="h-3.5 w-3.5 flex-shrink-0" />
+          <span className="font-semibold">Couldn&apos;t create — {card.error ?? "unknown error"}.</span>
+        </div>
+        <button
+          type="button"
+          onClick={onConfirm}
+          className="text-xs font-semibold underline decoration-red-300 hover:decoration-red-500"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // Pending or committing → render the full proposal card.
+  const isCommitting = status === "committing";
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-xs space-y-2.5">
+      <div className="flex items-start gap-2">
+        <ListPlus className="h-4 w-4 flex-shrink-0 text-blue-600 mt-0.5" />
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-zinc-900">{card.summary}</p>
+          <DraftDetails card={card} />
+        </div>
+      </div>
+      <div className="flex justify-end gap-1.5 pt-1 border-t border-zinc-100">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={isCommitting}
+          className="rounded-md px-2.5 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-50 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={isCommitting}
+          className="inline-flex items-center gap-1 rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-semibold text-white hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+        >
+          {isCommitting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+          {isCommitting ? "Creating" : "Confirm"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DraftDetails({ card }: { card: DraftCard }) {
+  // The Zod schema is the source of truth — the values here are read for
+  // display only and never trusted for committing.
+  const d = card.draft;
+  if (d.kind === "task") {
+    const due       = typeof d.due_date === "string" ? d.due_date : null;
+    const assignee  = typeof d.assignee_display === "string" ? d.assignee_display : null;
+    const priority  = typeof d.priority === "string" ? d.priority : "normal";
+    const description = typeof d.description === "string" ? d.description : null;
+    return (
+      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-zinc-600">
+        {due && (<><dt className="font-medium text-zinc-500">Due</dt><dd>{due}</dd></>)}
+        {assignee && (<><dt className="font-medium text-zinc-500">Assign</dt><dd>{assignee}</dd></>)}
+        {priority !== "normal" && (<><dt className="font-medium text-zinc-500">Priority</dt><dd className="capitalize">{priority}</dd></>)}
+        {description && (<><dt className="font-medium text-zinc-500">Notes</dt><dd className="whitespace-pre-wrap">{description}</dd></>)}
+      </dl>
+    );
+  }
+  return null;
 }
 
 function ThinkingDots() {

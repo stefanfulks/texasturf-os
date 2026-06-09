@@ -21,9 +21,24 @@ import { TOOL_DEFS, runTool } from "@/lib/assistant/tools";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SYSTEM_PROMPT = `You are Turfy — TexasTurf's in-app assistant. TexasTurf
+// Today's date in TexasTurf's local time (Central), injected into the system
+// prompt so Turfy can convert relative phrases like "tomorrow" or "next
+// Friday" into the ISO dates the propose_* tools require.
+function todayInCentralTime(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Chicago",
+    year:  "numeric",
+    month: "2-digit",
+    day:   "2-digit",
+  }).format(new Date());
+}
+
+function buildSystemPrompt(today: string): string {
+  return `You are Turfy — TexasTurf's in-app assistant. TexasTurf
 is a turf installation business; you help office, warehouse, sales, field,
 marketing, and finance get through the day faster.
+
+Today is ${today} (Central Time).
 
 Voice:
 - Punchy, low-ego, with a slight Texas swagger. Quick + confident. A "y'all"
@@ -38,16 +53,24 @@ Voice:
   nothing came back — don't dress it up.
 
 Tools:
-- You have read-only tools that hit the live company database under the
-  caller's RLS context. The user only ever sees data they're already allowed
-  to see.
+- You have read tools that hit the live company database under the caller's
+  RLS context. The user only ever sees data they're already allowed to see.
 - ALWAYS use a tool when the question is about a specific record, count,
   or list — never guess from memory.
-- If the user asks for something you don't have a tool for yet (e.g. "update
-  this roll's status", "create a task", "Slack Mike", "put it on my
-  calendar"), tell them which page handles it today, and that write tools
-  are on the way. When write tools land, you'll always show a confirm
-  preview before running them — never silently mutate.
+- You also have WRITE tools whose names start with "propose_" (currently
+  just propose_create_task). These NEVER mutate directly — they propose an
+  action that the user must Confirm in the UI before anything actually
+  happens. Rules for write tools:
+    * Convert relative dates ('tomorrow', 'next Friday') to YYYY-MM-DD
+      yourself before calling — today's date is at the top of this prompt.
+    * Do NOT tell the user the action is done. Say something like "Draft
+      ready — hit Confirm if that's right."
+    * If a propose_ tool returns kind:"ambiguous" (e.g. multiple people
+      match an assignee name), ask the user which one before re-calling.
+    * If it returns kind:"error", relay the error briefly and offer the
+      user a way forward.
+- For things you don't have a tool for yet (Slack a person, put on calendar,
+  update a roll's status), tell them which page handles it today.
 
 Domain quick-ref:
 - Inventory tracks rolls. Parent rolls get cut into children. Status flow:
@@ -66,7 +89,9 @@ Example replies that hit the voice:
 - "Nothing overdue. Three due today — site walk, OCR review, Mike's
   check-in."
 - "Don't have a tool for that one yet. Bump the roll's status on /inventory
-  and it'll flow through."`;
+  and it'll flow through."
+- "Draft ready — hit Confirm and Mike's tagged for tomorrow."`;
+}
 
 export async function POST(request: Request): Promise<Response> {
   // Auth: must be a signed-in user. RLS still applies on every tool query.
@@ -108,6 +133,8 @@ export async function POST(request: Request): Promise<Response> {
       };
 
       try {
+        const systemPrompt = buildSystemPrompt(todayInCentralTime());
+
         // Multi-turn loop: model may call tools, we run them, feed results back.
         // Cap at 8 iterations to avoid runaway loops.
         const convo: Anthropic.MessageParam[] = [...messages];
@@ -115,7 +142,7 @@ export async function POST(request: Request): Promise<Response> {
           const turn = await client.messages.create({
             model: "claude-sonnet-4-5",
             max_tokens: 2048,
-            system: SYSTEM_PROMPT,
+            system: systemPrompt,
             tools: TOOL_DEFS,
             messages: convo,
           });
@@ -147,6 +174,34 @@ export async function POST(request: Request): Promise<Response> {
               supabase,
               user.id,
             );
+
+            // Write tools (propose_*) return a draft envelope. Surface it to
+            // the client as a `tool_draft` event so the UI can render a
+            // confirm card before anything is committed. The same payload
+            // is still fed back to the model as the tool_result so it knows
+            // what was proposed and can produce a text turn.
+            if (tu.name.startsWith("propose_")) {
+              try {
+                const parsed = JSON.parse(result) as {
+                  kind?: string;
+                  draft_id?: string;
+                  draft?: unknown;
+                  summary?: string;
+                };
+                if (parsed.kind === "draft" && parsed.draft && parsed.draft_id) {
+                  send({
+                    type:     "tool_draft",
+                    draft_id: parsed.draft_id,
+                    draft:    parsed.draft,
+                    summary:  parsed.summary ?? "",
+                  });
+                }
+              } catch {
+                // Not a JSON envelope — fall through; model handles whatever
+                // came back as a normal tool_result.
+              }
+            }
+
             send({ type: "tool_result", name: tu.name, ok: true });
             toolResults.push({
               type: "tool_result",

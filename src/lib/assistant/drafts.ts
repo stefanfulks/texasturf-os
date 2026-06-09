@@ -1,0 +1,121 @@
+/**
+ * Draft action types for Turfy's write tools.
+ *
+ * A "draft" is the proposed-but-not-yet-committed form of an action that
+ * Turfy wants to take. The flow:
+ *
+ *   1. User asks for something ("add a task to walk Sage Creek tomorrow").
+ *   2. Turfy calls a `propose_*` tool → runner resolves names/dates →
+ *      returns a Draft envelope (this file's types).
+ *   3. The assistant route streams a `tool_draft` SSE event carrying the
+ *      draft to the client.
+ *   4. The chat UI renders a confirm card. User clicks Confirm → POST to
+ *      `/api/assistant/commit-draft` → that endpoint re-validates the draft
+ *      against the schemas here and dispatches to the real server action.
+ *
+ * The kind-discriminated union lets us add more action types (calendar
+ * event, Slack message, …) without changing the framework: add a new
+ * `Draft<X>Schema`, add it to `DraftSchema`, extend `summarizeDraft`, and
+ * handle the case in the commit-draft route.
+ */
+
+import { z } from "zod";
+
+// ─── DraftTask ──────────────────────────────────────────────────────────────
+
+export const DraftTaskSchema = z.object({
+  kind: z.literal("task"),
+  title: z.string().min(1, "Title is required").max(280),
+  description: z.string().max(2000).optional(),
+  priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
+  // Strict ISO date (no time-of-day for tasks — that's the calendar tool's job).
+  due_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD")
+    .optional(),
+  // Resolved profile id of the primary assignee. The runner did the name →
+  // id lookup before returning the draft. `null` means "assign to the
+  // caller" (matches the createTask server action's default).
+  assignee_id: z.string().uuid().nullable().default(null),
+  // Display name for the assignee — used only to render the confirm card.
+  // The commit endpoint re-validates from assignee_id, not this string,
+  // so tampering with it has no effect.
+  assignee_display: z.string().nullable().default(null),
+});
+
+export type DraftTask = z.infer<typeof DraftTaskSchema>;
+
+// ─── Draft union ────────────────────────────────────────────────────────────
+
+export const DraftSchema = z.discriminatedUnion("kind", [
+  DraftTaskSchema,
+  // Future:
+  //   DraftCalendarEventSchema,
+  //   DraftSlackMessageSchema,
+]);
+
+export type Draft = z.infer<typeof DraftSchema>;
+export type DraftKind = Draft["kind"];
+
+// ─── One-line summary for the confirm card ──────────────────────────────────
+
+/**
+ * Returns a short human-readable summary of a draft, suitable for the title
+ * of a confirm card. Pure function — no DB calls.
+ */
+export function summarizeDraft(draft: Draft): string {
+  switch (draft.kind) {
+    case "task": {
+      const parts: string[] = [`Create task: "${draft.title}"`];
+      if (draft.due_date) parts.push(`due ${draft.due_date}`);
+      if (draft.assignee_display) parts.push(`assign ${draft.assignee_display}`);
+      return parts.join(" · ");
+    }
+  }
+}
+
+// ─── Tool-runner envelope ───────────────────────────────────────────────────
+
+/**
+ * Shape returned by `propose_*` tool runners (as JSON-stringified value).
+ * The assistant route detects this shape by tool name (`propose_*`) and the
+ * `kind: "draft"` discriminator, then emits a `tool_draft` SSE event so the
+ * client can render a confirm card.
+ *
+ * The `draft` field is also fed back to the model as the tool_result so the
+ * model knows what was proposed and can produce a brief text reply
+ * ("Draft ready — hit Confirm if that's right").
+ */
+export type ProposeToolEnvelope = {
+  kind: "draft";
+  draft_id: string;
+  draft: Draft;
+  summary: string;
+};
+
+/**
+ * Shape returned by a `propose_*` tool runner when name-resolution is
+ * ambiguous. The model is expected to surface the choices to the user as
+ * text and re-call the tool with the user's pick.
+ */
+export type ProposeAmbiguousEnvelope = {
+  kind: "ambiguous";
+  reason: string;
+  candidates: Array<{ id: string; display: string }>;
+};
+
+/**
+ * Shape returned by a `propose_*` tool runner when something went wrong
+ * before a draft could be built (e.g. no profile matched the assignee
+ * query, date couldn't be parsed). The model surfaces this to the user as
+ * text.
+ */
+export type ProposeErrorEnvelope = {
+  kind: "error";
+  error: string;
+};
+
+export type ProposeResult =
+  | ProposeToolEnvelope
+  | ProposeAmbiguousEnvelope
+  | ProposeErrorEnvelope;
