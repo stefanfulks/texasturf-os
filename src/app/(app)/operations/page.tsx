@@ -7,17 +7,16 @@ export default async function WarehousePage() {
   const counts = await warehouseDashboardCounts();
 
   return (
-    <main className="min-h-dvh bg-zinc-50 px-8 py-12 dark:bg-zinc-950">
-      <div className="mx-auto max-w-5xl">
-        <div className="flex items-baseline justify-between">
-          <h1 className="text-2xl font-semibold">Warehouse</h1>
-          <Link href="/" className="text-sm text-zinc-500 hover:underline">
-            ← Home
-          </Link>
-        </div>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Pull lists, inspections, deliveries, vehicles, and tool/equipment spend.
-        </p>
+    <div className="mx-auto max-w-5xl">
+      <div className="flex items-baseline justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-semibold">Warehouse</h1>
+        <Link href="/inventory" className="text-sm text-zinc-500 hover:underline shrink-0">
+          Inventory →
+        </Link>
+      </div>
+      <p className="mt-1 text-sm text-zinc-600">
+        Pull lists, inspections, deliveries, vehicles, and tool/equipment spend.
+      </p>
 
         <section className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat label="Pull lists today" value={counts.pullsToday} />
@@ -83,9 +82,8 @@ export default async function WarehousePage() {
               dim
             />
           </div>
-        </section>
-      </div>
-    </main>
+      </section>
+    </div>
   );
 }
 

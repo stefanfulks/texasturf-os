@@ -53,75 +53,87 @@ export default async function TodayPage() {
     : new Map<string, JobProgressState>();
 
   return (
-    <main className="min-h-dvh bg-zinc-50 px-8 py-12 dark:bg-zinc-950">
-      <div className="mx-auto max-w-4xl">
-        <div className="flex items-baseline justify-between">
-          <h1 className="text-2xl font-semibold">
-            Today —{" "}
-            {start.toLocaleDateString(undefined, {
-              weekday: "long",
-              month: "short",
-              day: "numeric",
-            })}
-          </h1>
-          <Link href="/" className="text-sm text-zinc-500 hover:underline">
-            ← Home
-          </Link>
-        </div>
-
-        {error && (
-          <p className="mt-6 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-            {error.message}
-          </p>
-        )}
-
-        <div className="mt-6 space-y-2">
-          {(visits ?? []).map((v) => {
-            const c = v.client_id ? clientMap.get(v.client_id) : null;
-            const clientName =
-              c?.company_name ??
-              [c?.first_name, c?.last_name].filter(Boolean).join(" ") ??
-              "—";
-            const state = progressMap.get(v.id) ?? "scheduled";
-            return (
-              <Link
-                key={v.id}
-                href={`/install/${v.id}`}
-                className="flex items-center gap-4 rounded-lg border border-zinc-200 bg-white p-4 hover:border-zinc-400 transition-colors dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <div className="w-20 text-sm tabular-nums text-zinc-500">
-                  {v.starts_at
-                    ? new Date(v.starts_at).toLocaleTimeString([], {
-                        hour: "numeric",
-                        minute: "2-digit",
-                      })
-                    : ""}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{v.title || clientName}</div>
-                  <div className="text-sm text-zinc-500 truncate">{clientName}</div>
-                </div>
-                <span className={"shrink-0 rounded-full px-2 py-0.5 text-xs font-medium " + STATE_TONE[state]}>
-                  {JOB_PROGRESS_SHORT[state]}
-                </span>
-                <div className="hidden sm:block text-xs text-zinc-500">
-                  {v.assigned_user_ids?.length ?? 0} assigned
-                </div>
-                {v.is_complete && (
-                  <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800">
-                    jobber ✓
-                  </span>
-                )}
-              </Link>
-            );
+    <div className="mx-auto max-w-4xl">
+      <div className="flex items-baseline justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-semibold">
+          Today —{" "}
+          {start.toLocaleDateString(undefined, {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
           })}
-          {(!visits || visits.length === 0) && !error && (
-            <div className="rounded-lg border border-dashed border-zinc-300 p-10 text-center text-zinc-500 dark:border-zinc-700">
-              No visits synced for today yet.
-            </div>
-          )}
-        </div>
+        </h1>
+        <Link href="/calendar" className="text-sm text-zinc-500 hover:underline shrink-0">
+          Calendar →
+        </Link>
       </div>
-    </main>
+
+      {error && (
+        <p className="mt-6 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          {error.message}
+        </p>
+      )}
+
+      <div className="mt-6 space-y-2">
+        {(visits ?? []).map((v) => {
+          const c = v.client_id ? clientMap.get(v.client_id) : null;
+          const clientName =
+            c?.company_name ??
+            [c?.first_name, c?.last_name].filter(Boolean).join(" ") ??
+            "—";
+          const state = progressMap.get(v.id) ?? "scheduled";
+          return (
+            <Link
+              key={v.id}
+              href={`/install/${v.id}`}
+              className="flex items-center gap-3 sm:gap-4 rounded-lg border border-zinc-200 bg-white p-3 sm:p-4 hover:border-zinc-400 active:bg-zinc-50 transition-colors"
+            >
+              <div className="w-14 sm:w-20 text-xs sm:text-sm tabular-nums text-zinc-500 shrink-0">
+                {v.starts_at
+                  ? new Date(v.starts_at).toLocaleTimeString([], {
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })
+                  : ""}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm sm:text-base font-medium truncate">
+                  {v.title || clientName}
+                </div>
+                <div className="text-xs sm:text-sm text-zinc-500 truncate">{clientName}</div>
+              </div>
+              <span
+                className={
+                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-medium " +
+                  STATE_TONE[state]
+                }
+              >
+                {JOB_PROGRESS_SHORT[state]}
+              </span>
+              <div className="hidden sm:block text-xs text-zinc-500">
+                {v.assigned_user_ids?.length ?? 0} assigned
+              </div>
+              {v.is_complete && (
+                <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] sm:text-xs text-green-800">
+                  jobber ✓
+                </span>
+              )}
+            </Link>
+          );
+        })}
+        {(!visits || visits.length === 0) && !error && (
+          <div className="rounded-lg border border-dashed border-zinc-300 p-10 text-center text-zinc-500">
+            <p className="text-sm">No visits synced for today.</p>
+            <p className="mt-1 text-xs">
+              If you expected something here, sync Jobber from
+              {" "}
+              <Link href="/settings/jobber" className="underline">
+                settings
+              </Link>.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
