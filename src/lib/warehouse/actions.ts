@@ -3,16 +3,22 @@
 /**
  * Server actions for warehouse / operations mutations.
  *
- * Auth note: RLS on warehouse_* tables already restricts writes to
- * admin + office via current_role() (set in 20260606100000_warehouse_core.sql),
- * so a non-admin/office user calling these actions hits RLS. Belt-and-
- * suspenders auth-gating in the actions themselves is a TODO once we
- * wire role-aware UI affordances.
+ * Auth: every mutation calls a `requireOfficeOrAdmin()` (or `requireAdmin()`
+ * for destructive ops like deleteBudget) at the top, which resolves the
+ * signed-in user via the user-context Supabase client and rejects callers
+ * whose profile.role isn't in the allowed set.
+ *
+ * The DB writes still go through `supabaseAdmin()` because the warehouse_*
+ * tables aren't yet in `database.types.ts` (typed user-context writes will
+ * need that regen — see audit roadmap). The role gate above is the actual
+ * security check; the previous "RLS via current_role() will cover it" note
+ * was wrong because service-role bypasses RLS entirely.
  */
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { requireAdmin, requireOfficeOrAdmin } from "@/lib/auth/require-role";
 import {
   emptyInspectionItems,
   INSPECTION_CHECKLIST,
@@ -25,6 +31,8 @@ import {
 // ---------------------------------------------------------------------------
 
 export async function createInspection(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const inspector = String(formData.get("inspector") ?? "").trim();
   if (!inspector) throw new Error("Inspector is required");
 
@@ -90,6 +98,8 @@ function computeResult(items: InspectionItems): InspectionResult {
 // ---------------------------------------------------------------------------
 
 export async function createEmployee(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const firstName = String(formData.get("first_name") ?? "").trim();
   if (!firstName) throw new Error("First name is required");
   const lastName = nullableString(formData.get("last_name"));
@@ -113,6 +123,8 @@ export async function createEmployee(formData: FormData) {
 // ---------------------------------------------------------------------------
 
 export async function createAsset(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const kind = String(formData.get("kind") ?? "");
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Name is required");
@@ -146,6 +158,8 @@ export async function createAsset(formData: FormData) {
 // ---------------------------------------------------------------------------
 
 export async function createPullList(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const jobDate = String(formData.get("job_date") ?? "").trim();
   if (!jobDate) throw new Error("Job date is required");
 
@@ -273,6 +287,8 @@ const PULL_LIST_FLOW = ["draft", "pulled", "staged", "dispatched", "delivered"] 
 type PullListStatusValue = (typeof PULL_LIST_FLOW)[number];
 
 export async function updatePullListStatus(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const id = String(formData.get("id") ?? "").trim();
   const next = String(formData.get("status") ?? "").trim() as PullListStatusValue;
   if (!id) throw new Error("Pull list id is required");
@@ -295,6 +311,11 @@ export async function updatePullListStatus(formData: FormData) {
 // ---------------------------------------------------------------------------
 
 export async function signOffPullList(formData: FormData) {
+  // Office/admin only for now. If field workers (drivers/stagers/leads) need
+  // to sign their own pull-list section, relax to any signed-in user but
+  // verify the signer matches their employee_id.
+  const { userId } = await requireOfficeOrAdmin();
+
   const id   = String(formData.get("id") ?? "").trim();
   const role = String(formData.get("role") ?? "").trim();
   if (!id) throw new Error("Pull list id is required");
@@ -305,10 +326,8 @@ export async function signOffPullList(formData: FormData) {
   // Resolve current user → display name. Falls back to email or "Unknown".
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not signed in");
   const { data: profile } = await supabase
-    .from("profiles").select("full_name, email").eq("id", user.id).single();
+    .from("profiles").select("full_name, email").eq("id", userId).single();
   const signerName =
     profile?.full_name?.trim() ||
     profile?.email?.split("@")[0] ||
@@ -339,6 +358,8 @@ export async function signOffPullList(formData: FormData) {
 // ---------------------------------------------------------------------------
 
 export async function createDelivery(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const pullListId      = nullableString(formData.get("pull_list_id"));
   const jobberVisitId   = nullableString(formData.get("jobber_visit_id"));
   let   clientId        = nullableString(formData.get("client_id"));
@@ -470,6 +491,8 @@ export async function createDelivery(formData: FormData) {
 // ---------------------------------------------------------------------------
 
 export async function repostDeliveryToSlack(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const id = String(formData.get("id") ?? "").trim();
   if (!id) throw new Error("Delivery id is required");
 
@@ -531,6 +554,8 @@ export async function repostDeliveryToSlack(formData: FormData) {
 // ---------------------------------------------------------------------------
 
 export async function createMaintenanceLog(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const assetId        = nullableString(formData.get("asset_id"));
   if (!assetId) throw new Error("Vehicle is required");
   const performedAt    = nullableString(formData.get("performed_at"));
@@ -611,6 +636,8 @@ export async function createMaintenanceLog(formData: FormData) {
 // ---------------------------------------------------------------------------
 
 export async function createToolPurchase(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const itemName = String(formData.get("item_name") ?? "").trim();
   if (!itemName) throw new Error("Item name is required");
 
@@ -677,6 +704,8 @@ export async function createToolPurchase(formData: FormData) {
 const BUDGET_KINDS = ["vehicle_maintenance", "tool_purchases"] as const;
 
 export async function createBudget(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const kind         = String(formData.get("kind") ?? "").trim();
   if (!BUDGET_KINDS.includes(kind as typeof BUDGET_KINDS[number])) {
     throw new Error(`Unknown budget kind: ${kind}`);
@@ -714,6 +743,8 @@ export async function createBudget(formData: FormData) {
 }
 
 export async function updateBudget(formData: FormData) {
+  await requireOfficeOrAdmin();
+
   const id = String(formData.get("id") ?? "").trim();
   if (!id) throw new Error("Budget id is required");
 
@@ -749,6 +780,9 @@ export async function updateBudget(formData: FormData) {
 }
 
 export async function deleteBudget(formData: FormData) {
+  // Destructive — admin only. Audit flagged this as a P0 specifically.
+  await requireAdmin();
+
   const id = String(formData.get("id") ?? "").trim();
   if (!id) throw new Error("Budget id is required");
 
