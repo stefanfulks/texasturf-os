@@ -94,35 +94,31 @@ export default async function DashboardPage({
   const ownSet = new Set<Department>(departments);
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-6xl space-y-7">
       {/* Greeting */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="reveal flex items-end justify-between gap-4 flex-wrap" style={{ animationDelay: "0ms" }}>
         <div>
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Welcome back, {greetingName}.
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          {format(new Date(), "EEEE, MMMM d")}
-          {profile?.role && ` · ${profile.role}`}
+          <p className="eyebrow">
+            {format(new Date(), "EEEE, MMMM d")}
+            {profile?.role && ` · ${profile.role}`}
+          </p>
+          <h1 className="display mt-2 text-[2rem] leading-[1.05] text-ink sm:text-[2.375rem]">
+            Welcome back, {greetingName}.
+          </h1>
           {departments.length > 0 && (
-            <>
-              {" · "}
+            <p className="mt-2 text-sm text-ink-3">
               {departments.map((d, i) => (
                 <span key={d}>
-                  {i > 0 && " · "}
+                  {i > 0 && <span className="text-ink-4"> · </span>}
                   {DEPARTMENT_LABEL[d]} {DEPARTMENT_EMOJI[d]}
                 </span>
               ))}
-            </>
+            </p>
           )}
-        </p>
         </div>
         {profile?.role === "admin" && (
-          <Link
-            href="/team"
-            className="rounded-lg border border-purple-200 bg-white px-3 py-1.5 text-xs font-semibold text-purple-700 hover:border-purple-400 transition-colors"
-          >
-            Team →
+          <Link href="/team" className="btn btn-line btn-sm">
+            Team performance →
           </Link>
         )}
       </div>
@@ -134,10 +130,12 @@ export default async function DashboardPage({
       )}
 
       {/* Quick search across inventory */}
-      <DashboardQuickSearch />
+      <div className="reveal" style={{ animationDelay: "60ms" }}>
+        <DashboardQuickSearch />
+      </div>
 
       {/* At-a-glance row */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="reveal grid grid-cols-2 gap-3 sm:grid-cols-4" style={{ animationDelay: "120ms" }}>
         <StatTile
           label="Tasks today"
           value={todayTasksRes.count ?? 0}
@@ -170,37 +168,41 @@ export default async function DashboardPage({
 
       {/* Department-specific snapshot — primary department */}
       {primaryDepartment && deptStats && (
-        <section className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
-            <h2 className="text-sm font-semibold">
-              <span className="mr-2">{DEPARTMENT_EMOJI[primaryDepartment]}</span>
+        <section className="reveal panel" style={{ animationDelay: "180ms" }}>
+          <div className="panel-head">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-ink">
+              <span>{DEPARTMENT_EMOJI[primaryDepartment]}</span>
               {DEPARTMENT_LABEL[primaryDepartment]} snapshot
             </h2>
-            <Link href={DEPARTMENT_HREF[primaryDepartment]} className="text-xs text-zinc-500 hover:text-zinc-900">
+            <Link href={DEPARTMENT_HREF[primaryDepartment]} className="text-xs font-medium text-ink-3 hover:text-brand transition-colors">
               Open {DEPARTMENT_LABEL[primaryDepartment]} →
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-px bg-zinc-100 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
             {deptStats.map((s) => {
+              const toneClass =
+                s.tone === "amber" ? "text-warn" :
+                s.tone === "red"   ? "text-danger" :
+                s.tone === "green" ? "text-brand" : "text-ink";
               const inner = (
                 <>
-                  <p className="text-xs text-zinc-400 mb-0.5">{s.label}</p>
-                  <p className={`text-xl font-semibold tabular-nums ${s.tone === "amber" ? "text-amber-700" : s.tone === "red" ? "text-red-700" : s.tone === "green" ? "text-emerald-700" : "text-zinc-900"}`}>
+                  <p className="eyebrow">{s.label}</p>
+                  <p className={`mt-1.5 display text-2xl tabular-nums ${toneClass}`}>
                     {s.value}
                   </p>
-                  {s.hint && <p className="text-xs text-zinc-400 mt-0.5">{s.hint}</p>}
+                  {s.hint && <p className="mt-1 text-xs text-ink-4">{s.hint}</p>}
                 </>
               );
               return s.href ? (
                 <Link
                   key={s.label}
                   href={s.href}
-                  className="bg-white px-4 py-3 hover:bg-zinc-50 transition-colors"
+                  className="row-link bg-surface px-4 py-3.5"
                 >
                   {inner}
                 </Link>
               ) : (
-                <div key={s.label} className="bg-white px-4 py-3">
+                <div key={s.label} className="bg-surface px-4 py-3.5">
                   {inner}
                 </div>
               );
@@ -210,35 +212,36 @@ export default async function DashboardPage({
       )}
 
       {/* My tasks */}
-      <section className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
-          <h2 className="text-sm font-semibold">My next tasks</h2>
-          <Link href="/tasks" className="text-xs text-zinc-500 hover:text-zinc-900">
+      <section className="reveal panel" style={{ animationDelay: "240ms" }}>
+        <div className="panel-head">
+          <h2 className="text-sm font-semibold text-ink">My next tasks</h2>
+          <Link href="/tasks" className="text-xs font-medium text-ink-3 hover:text-brand transition-colors">
             All tasks →
           </Link>
         </div>
         {tasks.length === 0 ? (
-          <div className="px-5 py-10 text-center text-sm text-zinc-400">
-            Inbox zero. Nothing&apos;s waiting on you.
+          <div className="px-5 py-12 text-center">
+            <p className="text-sm font-medium text-ink-2">Inbox zero.</p>
+            <p className="mt-1 text-xs text-ink-4">Nothing&apos;s waiting on you.</p>
           </div>
         ) : (
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-line">
             {tasks.map((t) => {
               const overdue = t.due_date && isPast(parseISO(t.due_date)) && !isToday(parseISO(t.due_date));
               return (
                 <li key={t.id}>
                   <Link
                     href={`/tasks/${t.id}`}
-                    className="flex items-center gap-3 px-5 py-3 hover:bg-zinc-50 transition-colors"
+                    className="row-link flex items-center gap-3 px-5 py-3"
                   >
                     <span className={`h-2 w-2 rounded-full flex-shrink-0 ${
-                      t.priority === "urgent" ? "bg-red-500" :
-                      t.priority === "high"   ? "bg-amber-400" :
-                      t.priority === "normal" ? "bg-blue-400" : "bg-zinc-300"
+                      t.priority === "urgent" ? "bg-danger" :
+                      t.priority === "high"   ? "bg-warn" :
+                      t.priority === "normal" ? "bg-info" : "bg-ink-4"
                     }`} />
-                    <span className="flex-1 min-w-0 truncate text-sm text-zinc-900">{t.title}</span>
+                    <span className="flex-1 min-w-0 truncate text-sm text-ink">{t.title}</span>
                     {t.due_date && (
-                      <span className={`text-xs flex-shrink-0 ${overdue ? "text-red-600 font-medium" : "text-zinc-500"}`}>
+                      <span className={`text-xs flex-shrink-0 tabular-nums ${overdue ? "text-danger font-semibold" : "text-ink-3"}`}>
                         {overdue ? "Overdue · " : ""}
                         {format(parseISO(t.due_date), "MMM d")}
                       </span>
@@ -252,13 +255,11 @@ export default async function DashboardPage({
       </section>
 
       {/* Departments — user's own first */}
-      <section>
+      <section className="reveal" style={{ animationDelay: "300ms" }}>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-            Jump into a department
-          </h2>
+          <h2 className="eyebrow">Jump into a department</h2>
           {departments.length > 0 && (
-            <Link href="/dashboard?change=1" className="text-xs text-zinc-400 hover:text-zinc-700">
+            <Link href="/dashboard?change=1" className="text-xs text-ink-4 hover:text-ink-2 transition-colors">
               Change my departments
             </Link>
           )}
@@ -435,22 +436,25 @@ function StatTile({
   icon: React.ReactNode;
   href: string;
 }) {
-  const toneMap = {
-    neutral: "text-zinc-900",
-    amber:   "text-amber-700",
-    red:     "text-red-700",
-    blue:    "text-blue-700",
-  };
+  const num =
+    tone === "amber" ? "text-warn" :
+    tone === "red"   ? "text-danger" :
+    tone === "blue"  ? "text-info" : "text-ink";
+  const chip =
+    tone === "amber" ? "bg-warn-tint text-warn" :
+    tone === "red"   ? "bg-danger-tint text-danger" :
+    tone === "blue"  ? "bg-info-tint text-info" : "bg-sunken text-ink-3";
   return (
-    <Link
-      href={href}
-      className="rounded-xl border border-zinc-200 bg-white p-4 hover:border-zinc-400 transition-colors"
-    >
-      <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-        <span className="text-zinc-400">{icon}</span>
-        {label}
+    <Link href={href} className="card card-hover group p-4">
+      <div className="flex items-center justify-between">
+        <span className="eyebrow">{label}</span>
+        <span className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${chip}`}>
+          {icon}
+        </span>
       </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${toneMap[tone]}`}>{value}</div>
+      <div className={`mt-3 display text-[1.75rem] leading-none tabular-nums ${num}`}>
+        {value}
+      </div>
     </Link>
   );
 }
@@ -468,23 +472,17 @@ function DepartmentTile({
     <Link
       href={href}
       className={
-        "flex items-start gap-3 rounded-xl border bg-white px-4 py-3 transition-colors " +
-        (highlight
-          ? "border-blue-300 ring-1 ring-blue-200"
-          : "border-zinc-200 hover:border-zinc-400")
+        "card card-hover flex items-start gap-3 px-4 py-3.5 " +
+        (highlight ? "ring-1 ring-brand-line" : "")
       }
     >
-      <span className="text-2xl mt-0.5">{emoji}</span>
+      <span className="text-2xl mt-0.5 leading-none">{emoji}</span>
       <span className="flex-1 min-w-0">
-        <span className="block text-sm font-semibold text-zinc-900">
+        <span className="flex items-center gap-2 text-sm font-semibold text-ink">
           {label}
-          {highlight && (
-            <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-700">
-              Yours
-            </span>
-          )}
+          {highlight && <span className="chip chip-brand">Yours</span>}
         </span>
-        <span className="block text-xs text-zinc-500 mt-0.5">{description}</span>
+        <span className="block text-xs text-ink-3 mt-1 leading-snug">{description}</span>
       </span>
     </Link>
   );

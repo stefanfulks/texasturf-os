@@ -102,6 +102,44 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
     },
   },
   {
+    name: "search_assets",
+    description:
+      "Search Fleet — trucks, trailers, equipment. Use when the user asks 'what trucks do we have?', 'is the F-150 ready?', 'what's down for service?', etc. Returns up to 20 results.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query:        { type: "string", description: "Free-text match against asset name." },
+        status:       { type: "string", enum: ["active","retired","sold","stolen","other"], description: "Filter by status (default: active only)." },
+        unit_type:    { type: "string", description: "Filter by unit_type (e.g. 'truck', 'trailer', 'equipment')." },
+        ready_status: { type: "string", description: "Filter by ready_status (e.g. 'ready', 'not_ready', 'in_service')." },
+      },
+    },
+  },
+  {
+    name: "list_upcoming_maintenance",
+    description:
+      "List maintenance schedules coming due or overdue. Use when the user asks 'what's due for service?', 'what maintenance is overdue?', 'what's the F-150's next service?'. Returns active schedules with next_due_at within the given window (default 14 days; pass a larger number for a longer horizon).",
+    input_schema: {
+      type: "object",
+      properties: {
+        days_ahead: { type: "number", description: "Look this many days into the future. Default 14. Pass 0 to show only overdue. Pass 90 for a quarter look-ahead." },
+      },
+    },
+  },
+  {
+    name: "search_projects",
+    description:
+      "Search projects (the UI calls these 'Jobs'). Use when the user asks 'what jobs are in planning?', 'what's scheduled this week?', 'what's the status of the Sage Creek install?'. Returns up to 20 results.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query:    { type: "string", description: "Free-text match against project name, customer_name, or address." },
+        status:   { type: "string", description: "Filter by project status (intake / planning / scheduled / in_progress / blocked / complete / on_hold / cancelled / etc)." },
+        type:     { type: "string", description: "Filter by project type (e.g. 'install', 'service_call')." },
+      },
+    },
+  },
+  {
     // Write tool — name starts with `propose_` so the route layer routes the
     // result through the confirm-card flow instead of feeding it straight
     // back to the model as a normal tool_result. Nothing is written to the
@@ -220,13 +258,16 @@ export async function runTool(
 
 async function dispatch(name: string, input: ToolInput, supabase: Supabase, userId: string) {
   switch (name) {
-    case "search_tasks":         return searchTasks(input, supabase, userId);
-    case "search_invoices":      return searchInvoices(input, supabase);
-    case "search_rolls":         return searchRolls(input, supabase);
-    case "search_vendors":       return searchVendors(input, supabase);
-    case "get_dashboard_stats":  return getDashboardStats(supabase, userId);
-    case "get_inventory_stats":  return getInventoryStats(supabase);
-    case "search_notion_sops":   return searchNotionSops(input);
+    case "search_tasks":               return searchTasks(input, supabase, userId);
+    case "search_invoices":            return searchInvoices(input, supabase);
+    case "search_rolls":               return searchRolls(input, supabase);
+    case "search_vendors":             return searchVendors(input, supabase);
+    case "search_assets":              return searchAssets(input, supabase);
+    case "list_upcoming_maintenance":  return listUpcomingMaintenance(input, supabase);
+    case "search_projects":            return searchProjects(input, supabase);
+    case "get_dashboard_stats":        return getDashboardStats(supabase, userId);
+    case "get_inventory_stats":        return getInventoryStats(supabase);
+    case "search_notion_sops":         return searchNotionSops(input);
     case "propose_create_task":             return proposeCreateTask(input, supabase, userId);
     case "propose_schedule_calendar_event": return proposeScheduleCalendarEvent(input, supabase);
     case "propose_send_slack_message":      return proposeSendSlackMessage(input, supabase);
@@ -400,6 +441,90 @@ async function searchNotionSops(input: ToolInput) {
   });
 
   return { count: results.length, results };
+}
+
+async function searchAssets(input: ToolInput, supabase: Supabase) {
+  let q = supabase
+    .from("assets")
+    .select("id, name, unit_type, status, ready_status, load_status, next_action, notes, attached_to_id")
+    .order("name", { ascending: true })
+    .limit(20);
+
+  // Default to active only — most "what trucks do we have?" questions don't
+  // want retired/sold assets in the response.
+  const status = typeof input.status === "string" ? input.status : "active";
+  q = q.eq("status", status as never);
+
+  if (typeof input.unit_type === "string")    q = q.eq("unit_type", input.unit_type as never);
+  if (typeof input.ready_status === "string") q = q.eq("ready_status", input.ready_status as never);
+
+  if (typeof input.query === "string" && input.query.trim()) {
+    const term = input.query.trim().replace(/[%_]/g, "");
+    q = q.ilike("name", `%${term}%`);
+  }
+
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  return { count: data?.length ?? 0, assets: data ?? [] };
+}
+
+async function listUpcomingMaintenance(input: ToolInput, supabase: Supabase) {
+  // Default 14-day window; 0 means "overdue only".
+  const daysAhead = typeof input.days_ahead === "number" ? input.days_ahead : 14;
+  const now    = new Date();
+  const cutoff = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+  const cutoffIso = cutoff.toISOString().slice(0, 10);
+
+  const { data, error } = await supabase
+    .from("maintenance_schedules")
+    .select("id, name, asset_id, interval_type, interval_value, last_serviced_at, next_due_at")
+    .eq("active", true)
+    .not("next_due_at", "is", null)
+    .lte("next_due_at", cutoffIso)
+    .order("next_due_at", { ascending: true })
+    .limit(40);
+  if (error) throw new Error(error.message);
+
+  // Enrich with the asset name so the model doesn't have to call
+  // search_assets per row.
+  const assetIds = Array.from(new Set((data ?? []).map((r) => r.asset_id)));
+  let nameById = new Map<string, string>();
+  if (assetIds.length > 0) {
+    const { data: names } = await supabase
+      .from("assets")
+      .select("id, name")
+      .in("id", assetIds);
+    nameById = new Map((names ?? []).map((a) => [a.id, a.name]));
+  }
+
+  const today = now.toISOString().slice(0, 10);
+  const enriched = (data ?? []).map((r) => ({
+    ...r,
+    asset_name: nameById.get(r.asset_id) ?? null,
+    overdue:    r.next_due_at != null && r.next_due_at < today,
+  }));
+  return { count: enriched.length, schedules: enriched, window_days: daysAhead };
+}
+
+async function searchProjects(input: ToolInput, supabase: Supabase) {
+  let q = supabase
+    .from("projects")
+    .select("id, name, type, status, priority, customer_name, address, target_install_date, owner_id")
+    .eq("archived", false)
+    .order("updated_at", { ascending: false })
+    .limit(20);
+
+  if (typeof input.status === "string") q = q.eq("status", input.status as never);
+  if (typeof input.type === "string")   q = q.eq("type", input.type as never);
+
+  if (typeof input.query === "string" && input.query.trim()) {
+    const term = input.query.trim().replace(/[%_]/g, "");
+    q = q.or(`name.ilike.%${term}%,customer_name.ilike.%${term}%,address.ilike.%${term}%`);
+  }
+
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  return { count: data?.length ?? 0, projects: data ?? [] };
 }
 
 // ─── Write tools (propose_* — return drafts, never mutate) ──────────────────

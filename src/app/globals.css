@@ -1,26 +1,269 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================================
+   TexasTurf OS — Design System
+   ----------------------------------------------------------------------------
+   "Operational precision." A single, ruthlessly consistent system: warm
+   paper canvas, hairline borders, a deep turf-green brand accent, and tabular
+   numerals everywhere there's money or a measurement. Light-first — dark mode
+   washes out in a truck cab in the Texas sun.
+
+   Tokens here generate Tailwind utilities (bg-canvas, text-ink-2, border-line,
+   shadow-e1, font-display, ease-out). Component primitives below (.card, .btn,
+   .chip, .panel, .stat, .eyebrow) carry the craft so every page inherits it.
+   ========================================================================== */
+
+@theme {
+  /* Warm neutral ramp — paper, not cold zinc */
+  --color-canvas:       #faf9f6;
+  --color-surface:      #ffffff;
+  --color-sunken:       #f3f2ed;
+  --color-hover:        #f6f5f0;
+  --color-line:         #e9e7df;
+  --color-line-strong:  #d9d6cb;
+
+  /* Ink ramp — warm near-black through faint */
+  --color-ink:          #1a1813;
+  --color-ink-2:        #57544b;
+  --color-ink-3:        #8b887d;
+  --color-ink-4:        #b3afa3;
+
+  /* Brand — deep turf green, premium not loud */
+  --color-brand:        #1c6b3c;
+  --color-brand-hi:     #248049;
+  --color-brand-strong: #155730;
+  --color-brand-tint:   #e7f1ea;
+  --color-brand-line:   #c7e0cf;
+  --color-on-brand:     #ffffff;
+
+  /* Data tones — restrained, each with a wash */
+  --color-warn:         #95590f;
+  --color-warn-tint:    #f6ecd9;
+  --color-danger:       #b22019;
+  --color-danger-tint:  #f8e6e3;
+  --color-info:         #1e5aa6;
+  --color-info-tint:    #e6edf7;
+
+  /* Type */
+  --font-display: var(--font-bricolage), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Elevation — layered low-alpha, the refined recipe */
+  --shadow-e1: 0 1px 2px rgba(26, 24, 19, 0.04), 0 1px 3px rgba(26, 24, 19, 0.05);
+  --shadow-e2: 0 2px 4px rgba(26, 24, 19, 0.05), 0 8px 18px -6px rgba(26, 24, 19, 0.10);
+  --shadow-pop: 0 4px 12px -2px rgba(26, 24, 19, 0.10), 0 18px 44px -10px rgba(26, 24, 19, 0.18);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.21, 0.99, 0.45, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    font-feature-settings: "cv11" 1, "ss01" 1; /* Geist refinements */
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Money + measurements: always tabular so columns align */
+  .tabular-nums,
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  ::selection {
+    background: var(--color-brand-tint);
+    color: var(--color-brand-strong);
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-brand) 55%, transparent);
+    outline-offset: 2px;
+  }
+
+  /* Quiet, refined scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border: 3px solid var(--color-canvas);
+    border-radius: 999px;
+  }
+  *::-webkit-scrollbar-thumb:hover { background: var(--color-ink-4); }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ── Component primitives ─────────────────────────────────────────────────── */
+
+@layer components {
+  /* Typographic helpers */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+  .display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* Surfaces */
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    box-shadow: var(--shadow-e1);
+  }
+  .card-hover {
+    transition: border-color 0.15s var(--ease-out),
+      box-shadow 0.18s var(--ease-out),
+      transform 0.18s var(--ease-out);
+  }
+  .card-hover:hover {
+    border-color: var(--color-line-strong);
+    box-shadow: var(--shadow-e2);
+    transform: translateY(-1px);
+  }
+
+  .panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    box-shadow: var(--shadow-e1);
+    overflow: hidden;
+  }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1.125rem;
+    border-bottom: 1px solid var(--color-line);
+    background: linear-gradient(180deg, var(--color-surface), color-mix(in srgb, var(--color-sunken) 45%, var(--color-surface)));
+  }
+
+  /* Rows inside panels */
+  .row-link {
+    transition: background-color 0.12s var(--ease-out);
+  }
+  .row-link:hover { background: var(--color-hover); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    height: 2.25rem;
+    padding: 0 0.875rem;
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background-color 0.14s var(--ease-out),
+      border-color 0.14s var(--ease-out),
+      box-shadow 0.14s var(--ease-out),
+      transform 0.06s var(--ease-out);
+    cursor: pointer;
+  }
+  .btn:active { transform: translateY(0.5px); }
+
+  .btn-primary {
+    color: var(--color-on-brand);
+    background: linear-gradient(180deg, var(--color-brand-hi), var(--color-brand));
+    border: 1px solid var(--color-brand-strong);
+    box-shadow: var(--shadow-e1), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(180deg, var(--color-brand), var(--color-brand-strong));
+  }
+
+  .btn-line {
+    color: var(--color-ink);
+    background: var(--color-surface);
+    border: 1px solid var(--color-line-strong);
+    box-shadow: var(--shadow-e1);
+  }
+  .btn-line:hover { background: var(--color-hover); border-color: var(--color-ink-4); }
+
+  .btn-ghost {
+    color: var(--color-ink-2);
+    background: transparent;
+    border: 1px solid transparent;
+  }
+  .btn-ghost:hover { background: var(--color-hover); color: var(--color-ink); }
+
+  .btn-sm { height: 1.875rem; padding: 0 0.625rem; font-size: 0.75rem; border-radius: 8px; }
+
+  /* Chips / status pills */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    height: 1.375rem;
+    padding: 0 0.5rem;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border: 1px solid transparent;
+  }
+  .chip-neutral { background: var(--color-sunken); color: var(--color-ink-2); border-color: var(--color-line); }
+  .chip-brand   { background: var(--color-brand-tint); color: var(--color-brand-strong); border-color: var(--color-brand-line); }
+  .chip-warn    { background: var(--color-warn-tint); color: var(--color-warn); border-color: color-mix(in srgb, var(--color-warn) 22%, transparent); }
+  .chip-danger  { background: var(--color-danger-tint); color: var(--color-danger); border-color: color-mix(in srgb, var(--color-danger) 22%, transparent); }
+  .chip-info    { background: var(--color-info-tint); color: var(--color-info); border-color: color-mix(in srgb, var(--color-info) 20%, transparent); }
+
+  /* Form fields */
+  .field-input {
+    width: 100%;
+    height: 2.375rem;
+    padding: 0 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--color-line-strong);
+    background: var(--color-surface);
+    font-size: 0.875rem;
+    color: var(--color-ink);
+    box-shadow: var(--shadow-e1);
+    transition: border-color 0.14s var(--ease-out), box-shadow 0.14s var(--ease-out);
+  }
+  .field-input::placeholder { color: var(--color-ink-4); }
+  .field-input:focus {
+    outline: none;
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px var(--color-brand-tint);
+  }
+
+  /* Page-load reveal — one orchestrated entrance, staggered by delay */
+  .reveal {
+    opacity: 0;
+    transform: translateY(6px);
+    animation: reveal 0.5s var(--ease-out) forwards;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes reveal {
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { animation: none; opacity: 1; transform: none; }
+  .card-hover, .btn, .row-link { transition: none; }
 }

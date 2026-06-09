@@ -53,7 +53,7 @@ export default async function AppLayout({
         email={profile?.email ?? user.email ?? ""}
         role={profile?.role ?? null}
       />
-      <header className="border-b border-zinc-200 bg-white">
+      <header className="sticky top-0 z-30 border-b border-line bg-surface/80 backdrop-blur-md supports-[backdrop-filter]:bg-surface/65">
         <div className="flex h-14 w-full items-center justify-between gap-4 px-4 sm:px-6">
           {/* LEFT — identity + nav */}
           <div className="flex items-center gap-3 sm:gap-5 min-w-0">
@@ -63,6 +63,7 @@ export default async function AppLayout({
               role={profile?.role ?? null}
               isAdmin={isAdmin}
             />
+            <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
             <NavLinks isAdmin={isAdmin} />
           </div>
 
@@ -73,14 +74,14 @@ export default async function AppLayout({
               href="/settings"
               aria-label="Settings"
               title="Settings"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 active:bg-zinc-200 transition-colors"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] text-ink-3 hover:text-ink hover:bg-hover active:bg-sunken transition-colors"
             >
               <Settings className="h-[18px] w-[18px]" />
             </Link>
           </div>
         </div>
       </header>
-      <div className="w-full flex-1 px-4 py-6 sm:px-6 sm:py-8">
+      <div className="w-full flex-1 px-4 py-6 sm:px-6 sm:py-9">
         {children}
       </div>
       <TurfyLauncher greetingName={greetingName} />
