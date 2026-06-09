@@ -341,6 +341,136 @@ export async function listMaintenanceLogs(opts: { assetId?: string; limit?: numb
   return (data ?? []) as unknown as MaintenanceLog[];
 }
 
+/**
+ * List view: maintenance log rows + their asset name + unit_type.
+ * Filtered to vehicle-ish assets (truck / trailer / heavy_equipment), NOT
+ * tools — tool work doesn't go in maintenance_logs.
+ */
+export type MaintenanceLogRow = MaintenanceLog & {
+  asset: { name: string; unit_type: string } | null;
+};
+
+export async function listMaintenanceLogsForListPage(opts: { unitType?: string; limit?: number } = {}) {
+  const sb = supabaseAdmin();
+  let q = sb
+    .from("maintenance_logs")
+    .select(
+      "id, asset_id, schedule_id, performed_at, description, cost_cents, meter_value, " +
+      "performed_by_profile, performed_by_vendor, vendor, invoice_url, notes, created_at, " +
+      "asset:asset_id(name, unit_type)",
+    )
+    .order("performed_at", { ascending: false })
+    .limit(opts.limit ?? 100);
+  if (opts.unitType) q = q.eq("asset.unit_type", opts.unitType);
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  // Filter out the rare maint log against a 'tool' asset (we're on the
+  // vehicle page); also drops orphan rows whose asset got hard-deleted.
+  return ((data ?? []) as unknown as MaintenanceLogRow[]).filter(
+    (r) => r.asset && r.asset.unit_type !== "tool",
+  );
+}
+
+/**
+ * Vehicle asset picker for the maintenance form. Excludes 'tool' assets.
+ */
+export type VehicleAssetOption = {
+  id: string;
+  name: string;
+  unit_type: "truck" | "trailer" | "heavy_equipment";
+  identifier: string | null;
+  status: string;
+};
+
+export async function listVehicleAssets() {
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("assets")
+    .select("id, name, unit_type, identifier, status")
+    .in("unit_type", ["truck", "trailer", "heavy_equipment"])
+    .neq("status", "out_of_service")
+    .order("name", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as VehicleAssetOption[];
+}
+
+/**
+ * Maintenance schedules picker — optional link from a log entry back to
+ * the schedule that triggered it.
+ */
+export type MaintenanceScheduleOption = {
+  id: string;
+  asset_id: string;
+  name: string;
+  interval_type: string;
+  next_due_at: string | null;
+  next_due_meter: number | null;
+};
+
+export async function listMaintenanceSchedulesForAsset(assetId: string) {
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("maintenance_schedules")
+    .select("id, asset_id, name, interval_type, next_due_at, next_due_meter")
+    .eq("asset_id", assetId)
+    .eq("active", true)
+    .order("name", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as MaintenanceScheduleOption[];
+}
+
+/**
+ * Sum of maintenance_logs.cost_cents in a date range. Used for the
+ * current-period rollup card on /operations/vehicles.
+ */
+export async function sumMaintenanceCostInRange(opts: {
+  fromIso: string;
+  toIso: string;
+}): Promise<number> {
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("maintenance_logs")
+    .select("cost_cents")
+    .gte("performed_at", opts.fromIso)
+    .lte("performed_at", opts.toIso);
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as { cost_cents: number }[]).reduce(
+    (acc, r) => acc + (Number(r.cost_cents) || 0),
+    0,
+  );
+}
+
+/**
+ * Find the warehouse_budgets row that covers `today` for the given kind.
+ * Returns the most recent matching row if there are several overlapping
+ * (e.g. quarterly + annual — pick the tighter one).
+ */
+export async function findActiveBudget(opts: {
+  kind: "vehicle_maintenance" | "tool_purchases";
+  todayIso: string; // YYYY-MM-DD
+}) {
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("warehouse_budgets")
+    .select("id, kind, asset_id, period_start, period_end, amount_cents, notes")
+    .eq("kind", opts.kind)
+    .lte("period_start", opts.todayIso)
+    .gte("period_end", opts.todayIso)
+    .is("asset_id", null) // overall budget, not per-asset
+    .order("period_start", { ascending: false })
+    .limit(1);
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as Array<{
+    id: string;
+    kind: string;
+    asset_id: string | null;
+    period_start: string;
+    period_end: string;
+    amount_cents: number;
+    notes: string | null;
+  }>)[0] ?? null;
+}
+
 export async function listToolPurchases(opts: { limit?: number } = {}) {
   const sb = supabaseAdmin();
   const { data, error } = await sb

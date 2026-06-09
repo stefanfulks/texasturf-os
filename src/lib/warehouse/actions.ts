@@ -524,6 +524,86 @@ export async function repostDeliveryToSlack(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
+// createMaintenanceLog — records a service event against an asset.
+// Writes to public.maintenance_logs (the existing OS table, extended in B1
+// with vendor + invoice_url). If a schedule is picked, also bumps that
+// schedule's last_serviced fields.
+// ---------------------------------------------------------------------------
+
+export async function createMaintenanceLog(formData: FormData) {
+  const assetId        = nullableString(formData.get("asset_id"));
+  if (!assetId) throw new Error("Vehicle is required");
+  const performedAt    = nullableString(formData.get("performed_at"));
+  if (!performedAt) throw new Error("Service date is required");
+  const description    = String(formData.get("description") ?? "").trim();
+  if (!description) throw new Error("Description is required");
+
+  const scheduleId     = nullableString(formData.get("schedule_id"));
+  const vendor         = nullableString(formData.get("vendor"));
+  const performedByVendor = nullableString(formData.get("performed_by_vendor"));
+  const costDollars    = nullableNumber(formData.get("cost"));
+  const costCents      = costDollars == null ? 0 : Math.round(costDollars * 100);
+  const meterValue     = nullableNumber(formData.get("meter_value"));
+  const invoiceUrl     = nullableString(formData.get("invoice_url"));
+  const notes          = nullableString(formData.get("notes"));
+
+  // Try to attribute to the current user (best effort — RLS allows null).
+  let performedByProfile: string | null = null;
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    performedByProfile = user?.id ?? null;
+  } catch {
+    // best-effort
+  }
+
+  const performedAtIso = (() => {
+    const d = new Date(performedAt);
+    return Number.isFinite(d.getTime()) ? d.toISOString() : new Date().toISOString();
+  })();
+
+  const sb = supabaseAdmin();
+  const { data, error } = await sb
+    .from("maintenance_logs")
+    .insert({
+      asset_id:           assetId,
+      schedule_id:        scheduleId,
+      performed_at:       performedAtIso,
+      description,
+      cost_cents:         costCents,
+      meter_value:        meterValue,
+      performed_by_profile: performedByProfile,
+      performed_by_vendor:  performedByVendor,
+      vendor,
+      invoice_url:        invoiceUrl,
+      notes,
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  const logId = (data as unknown as { id: string }).id;
+
+  // If linked to a schedule, advance its last_serviced markers. Doesn't
+  // recompute next_due_* — let the schedule's own form/cron handle that.
+  if (scheduleId) {
+    await sb
+      .from("maintenance_schedules")
+      .update({
+        last_serviced_at:    performedAtIso,
+        last_serviced_meter: meterValue,
+      })
+      .eq("id", scheduleId);
+  }
+
+  revalidatePath("/operations/vehicles");
+  revalidatePath("/operations");
+  // The fleet maintenance UI reads these too — keep it fresh.
+  revalidatePath("/fleet");
+  redirect(`/operations/vehicles/${logId}`);
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

@@ -64,7 +64,7 @@ const WORKSPACES: readonly Workspace[] = [
       { label: "Pull Lists",            href: "/operations/pull-lists" },
       { label: "Inspections",           href: "/operations/inspections" },
       { label: "Deliveries",            href: "/operations/deliveries" },
-      { label: "Vehicle Maintenance",   href: "/operations/vehicles", comingSoon: true },
+      { label: "Vehicle Maintenance",   href: "/operations/vehicles" },
       { label: "Tool Spend",            href: "/operations/tools", comingSoon: true },
       { label: "Employees",             href: "/operations/employees" },
     ],
