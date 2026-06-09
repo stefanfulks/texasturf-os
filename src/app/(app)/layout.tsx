@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { UserMenu } from "@/components/user-menu";
 import { NavLinks } from "@/components/nav-links";
 import { NotificationBell } from "@/components/notification-bell";
+import { TurfyLauncher } from "@/components/turfy-launcher";
 
 export default async function AppLayout({
   children,
@@ -31,6 +32,14 @@ export default async function AppLayout({
     .from("notifications")
     .select("id", { count: "exact", head: true })
     .eq("read", false);
+
+  // First name (or email handle) for Turfy's empty-state greeting. Matches
+  // the derivation used by /assistant/page.tsx.
+  const greetingName =
+    profile?.full_name?.split(" ")[0] ??
+    profile?.email?.split("@")[0] ??
+    user.email?.split("@")[0] ??
+    "there";
 
   return (
     <div className="flex flex-1 flex-col">
@@ -64,6 +73,7 @@ export default async function AppLayout({
       <div className="w-full flex-1 px-4 py-6 sm:px-6 sm:py-8">
         {children}
       </div>
+      <TurfyLauncher greetingName={greetingName} />
     </div>
   );
 }

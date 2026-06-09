@@ -47,7 +47,18 @@ const STARTERS = [
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function AssistantChat({ greetingName }: { greetingName: string }) {
+export function AssistantChat({
+  greetingName,
+  compact = false,
+}: {
+  greetingName: string;
+  /**
+   * When true, the chat sizes itself to fill its parent (intended for the
+   * floating TurfyLauncher popover). When false (default), it uses the
+   * full-page sizing originally designed for /assistant.
+   */
+  compact?: boolean;
+}) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -209,7 +220,13 @@ export function AssistantChat({ greetingName }: { greetingName: string }) {
   }
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white overflow-hidden flex flex-col h-[calc(100vh-220px)] min-h-[480px]">
+    <div
+      className={
+        compact
+          ? "rounded-2xl border border-zinc-200 bg-white overflow-hidden flex flex-col h-full"
+          : "rounded-2xl border border-zinc-200 bg-white overflow-hidden flex flex-col h-[calc(100vh-220px)] min-h-[480px]"
+      }
+    >
       {/* Scroll area */}
       <div
         ref={scrollerRef}
