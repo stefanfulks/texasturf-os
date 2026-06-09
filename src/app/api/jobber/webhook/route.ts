@@ -48,20 +48,39 @@ export async function POST(req: NextRequest) {
     // Unparseable body — we still log the row for forensics.
   }
 
-  const topic     = parsed?.data?.webHookEvent?.topic     ?? "UNKNOWN";
-  const itemId    = parsed?.data?.webHookEvent?.itemId    ?? null;
-  const accountId = parsed?.data?.webHookEvent?.accountId ?? null;
+  const topic      = parsed?.data?.webHookEvent?.topic     ?? "UNKNOWN";
+  const itemId     = parsed?.data?.webHookEvent?.itemId    ?? null;
+  const accountId  = parsed?.data?.webHookEvent?.accountId ?? null;
+  const occuredAt  = parsed?.data?.webHookEvent?.occuredAt ?? null;
 
   const supa = supabaseAdmin();
-  await supa.from("jobber_webhook_events").insert({
-    jobber_account_id: accountId,
-    topic,
-    item_id:           itemId,
-    hmac_valid:        hmacValid,
-    raw:               parsed ?? { unparsed: raw },
-  });
+
+  // Idempotency: UNIQUE(topic, item_id, occured_at). If Jobber retries the
+  // same event we want to ack 200 but NOT re-run dispatch (re-running
+  // burns Jobber sync cost + duplicate Sentry events).
+  const { data: inserted } = await supa
+    .from("jobber_webhook_events")
+    .upsert(
+      {
+        jobber_account_id: accountId,
+        topic,
+        item_id:           itemId,
+        occured_at:        occuredAt,
+        hmac_valid:        hmacValid,
+        raw:               parsed ?? { unparsed: raw },
+      },
+      { onConflict: "topic,item_id,occured_at", ignoreDuplicates: true },
+    )
+    .select("id");
+
+  const isDuplicate = !inserted || inserted.length === 0;
 
   if (!hmacValid) return new NextResponse("invalid signature", { status: 401 });
+
+  if (isDuplicate) {
+    // Already processed (or in-flight from an earlier delivery); ack only.
+    return new NextResponse("ok", { status: 200 });
+  }
 
   if (accountId && itemId) {
     void dispatch(topic, accountId, itemId).catch((err) => {
