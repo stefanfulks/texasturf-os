@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, addWeeks, addMonths, nextDay, setDate, format } from "date-fns";
 import type { RecurrenceFreq } from "@/lib/database.types";
@@ -170,7 +171,15 @@ export async function generateDueTasks(): Promise<{ generated: number; error: st
       recurring_rule_id: rule.id,
     });
 
-    if (taskErr) continue;
+    if (taskErr) {
+      // Don't break the whole batch — one bad rule shouldn't block the rest.
+      // But do report so the failure isn't invisible until users complain.
+      Sentry.captureException(new Error(`recurring rule failed: ${taskErr.message}`), {
+        tags: { cron: "recurring", stage: "task_insert" },
+        extra: { rule_id: rule.id, rule_title: rule.title },
+      });
+      continue;
+    }
 
     // Advance next_due
     const nextDueDate = calcNextDue(

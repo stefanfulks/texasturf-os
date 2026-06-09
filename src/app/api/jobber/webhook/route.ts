@@ -16,6 +16,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import * as Sentry from "@sentry/nextjs";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { syncClient } from "@/lib/jobber/sync/clients";
 import { syncVisit }  from "@/lib/jobber/sync/visits";
@@ -52,9 +53,13 @@ export async function POST(req: NextRequest) {
   if (!hmacValid) return new NextResponse("invalid signature", { status: 401 });
 
   if (accountId && itemId) {
-    void dispatch(topic, accountId, itemId).catch((err) =>
-      console.error(`webhook handler error (${topic} ${itemId})`, err),
-    );
+    void dispatch(topic, accountId, itemId).catch((err) => {
+      console.error(`webhook handler error (${topic} ${itemId})`, err);
+      Sentry.captureException(err, {
+        tags: { webhook: "jobber", topic },
+        extra: { topic, itemId, accountId },
+      });
+    });
   }
 
   return new NextResponse("ok", { status: 200 });

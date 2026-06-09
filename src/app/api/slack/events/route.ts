@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import * as Sentry from "@sentry/nextjs";
 import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
@@ -173,6 +174,10 @@ export async function POST(request: Request): Promise<Response> {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("[slack/events] Error processing file:", err);
+      Sentry.captureException(err, {
+        tags: { webhook: "slack", stage: "file_processing" },
+        extra: { fileName: (file as Record<string, unknown>).name },
+      });
       await postToSlack(
         channelId!,
         `⚠️ I tried to process that file but hit an error: \`${msg}\`. Check Vercel logs.`,

@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { generateDueTasks } from "@/app/(app)/tasks/recurring/actions";
 
 // Vercel Cron: runs daily at 6 AM UTC
@@ -29,6 +30,11 @@ export async function GET(request: Request) {
   const result = await generateDueTasks();
 
   if (result.error) {
+    Sentry.captureMessage(`recurring cron failed: ${result.error}`, {
+      level: "error",
+      tags: { cron: "recurring" },
+      extra: { generated: result.generated },
+    });
     return NextResponse.json({ error: result.error }, { status: 500 });
   }
 

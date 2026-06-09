@@ -6,6 +6,7 @@ import { UserMenu } from "@/components/user-menu";
 import { NavLinks } from "@/components/nav-links";
 import { NotificationBell } from "@/components/notification-bell";
 import { TurfyLauncher } from "@/components/turfy-launcher";
+import { AnalyticsIdentify } from "@/components/analytics-identify";
 
 export default async function AppLayout({
   children,
@@ -43,6 +44,11 @@ export default async function AppLayout({
 
   return (
     <div className="flex flex-1 flex-col">
+      <AnalyticsIdentify
+        userId={user.id}
+        email={profile?.email ?? user.email ?? ""}
+        role={profile?.role ?? null}
+      />
       <header className="border-b border-zinc-200 bg-white">
         <div className="flex h-14 w-full items-center justify-between gap-4 px-4 sm:px-6">
           {/* LEFT — identity + nav */}
