@@ -181,15 +181,30 @@ export default async function DashboardPage({
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-px bg-zinc-100 sm:grid-cols-4">
-            {deptStats.map((s) => (
-              <div key={s.label} className="bg-white px-4 py-3">
-                <p className="text-xs text-zinc-400 mb-0.5">{s.label}</p>
-                <p className={`text-xl font-semibold tabular-nums ${s.tone === "amber" ? "text-amber-700" : s.tone === "red" ? "text-red-700" : s.tone === "green" ? "text-emerald-700" : "text-zinc-900"}`}>
-                  {s.value}
-                </p>
-                {s.hint && <p className="text-xs text-zinc-400 mt-0.5">{s.hint}</p>}
-              </div>
-            ))}
+            {deptStats.map((s) => {
+              const inner = (
+                <>
+                  <p className="text-xs text-zinc-400 mb-0.5">{s.label}</p>
+                  <p className={`text-xl font-semibold tabular-nums ${s.tone === "amber" ? "text-amber-700" : s.tone === "red" ? "text-red-700" : s.tone === "green" ? "text-emerald-700" : "text-zinc-900"}`}>
+                    {s.value}
+                  </p>
+                  {s.hint && <p className="text-xs text-zinc-400 mt-0.5">{s.hint}</p>}
+                </>
+              );
+              return s.href ? (
+                <Link
+                  key={s.label}
+                  href={s.href}
+                  className="bg-white px-4 py-3 hover:bg-zinc-50 transition-colors"
+                >
+                  {inner}
+                </Link>
+              ) : (
+                <div key={s.label} className="bg-white px-4 py-3">
+                  {inner}
+                </div>
+              );
+            })}
           </div>
         </section>
       )}
@@ -268,7 +283,7 @@ export default async function DashboardPage({
 // ─── Department-specific stats ────────────────────────────────────────────────
 
 type Tone = "neutral" | "amber" | "red" | "green";
-type StatItem = { label: string; value: string | number; tone: Tone; hint?: string };
+type StatItem = { label: string; value: string | number; tone: Tone; hint?: string; href?: string };
 
 async function loadDepartmentStats(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -278,20 +293,35 @@ async function loadDepartmentStats(
 
   switch (department) {
     case "warehouse": {
-      const [openRolls, lowStock, pendingReceive, activeJobs] = await Promise.all([
-        supabase.from("inv_rolls").select("id", { count: "exact", head: true }).in("status", ["available", "planned"]),
+      const today = new Date().toISOString().slice(0, 10);
+      // Pull the operations counts in parallel with the inventory rollups so
+      // the tile grid mixes "what's moving today" with "what's low".
+      const [lowStock, pullsToday, openPulls, deliveriesToday] = await Promise.all([
         supabase.from("inv_items").select("id, quantity, min_quantity").eq("active", true),
-        supabase.from("inv_rolls").select("id", { count: "exact", head: true }).eq("status", "planned"),
-        supabase.from("inv_jobs").select("id", { count: "exact", head: true }).in("status", ["in_progress", "staged"]),
+        supabase.from("warehouse_pull_lists").select("id", { count: "exact", head: true })
+          .eq("job_date", today),
+        supabase.from("warehouse_pull_lists").select("id", { count: "exact", head: true })
+          .in("status", ["draft", "pulled", "staged", "dispatched"]),
+        supabase.from("warehouse_deliveries").select("id", { count: "exact", head: true })
+          .gte("delivered_at", `${today}T00:00:00Z`)
+          .lte("delivered_at", `${today}T23:59:59Z`),
       ]);
       const low = (lowStock.data ?? []).filter(
         (i) => i.min_quantity != null && i.quantity != null && i.quantity <= i.min_quantity,
       ).length;
       return [
-        { label: "Open rolls",     value: openRolls.count ?? 0,     tone: "neutral" },
-        { label: "Low-stock items", value: low,                      tone: low > 0 ? "red" : "neutral" },
-        { label: "Pending receive", value: pendingReceive.count ?? 0, tone: (pendingReceive.count ?? 0) > 0 ? "amber" : "neutral" },
-        { label: "Active jobs",    value: activeJobs.count ?? 0,    tone: "neutral" },
+        { label: "Pull lists today",  value: pullsToday.count ?? 0,
+          tone: (pullsToday.count ?? 0) > 0 ? "amber" : "neutral",
+          href: "/operations/pull-lists" },
+        { label: "Open pull lists",   value: openPulls.count ?? 0,
+          tone: "neutral",
+          href: "/operations/pull-lists" },
+        { label: "Deliveries today",  value: deliveriesToday.count ?? 0,
+          tone: "neutral",
+          href: "/operations/deliveries" },
+        { label: "Low-stock items",   value: low,
+          tone: low > 0 ? "red" : "neutral",
+          href: "/inventory" },
       ];
     }
     case "office": {
@@ -345,19 +375,41 @@ async function loadDepartmentStats(
       const userId = user?.id;
       const myIds = userId ? await getMyTaskIds(supabase, userId) : [];
       const scopeIds = myIds.length === 0 ? [NO_TASK_UUID] : myIds;
-      const [todayTasks, overdue] = await Promise.all([
+
+      // Pull lists for me today: find this OS user's warehouse_employees row,
+      // then count pull_lists with that employee_id on any crew slot for today.
+      const { data: myEmp } = userId
+        ? await supabase.from("warehouse_employees").select("id").eq("profile_id", userId).maybeSingle()
+        : { data: null };
+      const myEmpId = (myEmp as unknown as { id: string } | null)?.id;
+      const myPullsTodayPromise = myEmpId
+        ? supabase.from("warehouse_pull_lists").select("id", { count: "exact", head: true })
+            .eq("job_date", today)
+            .or(`crew_lead_employee_id.eq.${myEmpId},driver_employee_id.eq.${myEmpId},stager_employee_id.eq.${myEmpId}`)
+        : Promise.resolve({ count: 0 });
+
+      const [todayTasks, overdue, myPullsToday] = await Promise.all([
         userId ? supabase.from("tasks").select("id", { count: "exact", head: true })
           .in("id", scopeIds).not("status", "in", "(done,archived)").eq("due_date", today)
           : Promise.resolve({ count: 0 }),
         userId ? supabase.from("tasks").select("id", { count: "exact", head: true })
           .in("id", scopeIds).not("status", "in", "(done,archived)").lt("due_date", today)
           : Promise.resolve({ count: 0 }),
+        myPullsTodayPromise,
       ]);
       return [
-        { label: "Tasks today",   value: todayTasks.count ?? 0, tone: (todayTasks.count ?? 0) > 0 ? "amber" : "neutral" },
-        { label: "Overdue",       value: overdue.count ?? 0,    tone: (overdue.count ?? 0) > 0 ? "red" : "neutral" },
-        { label: "My schedule",   value: "View",                tone: "neutral", hint: "Calendar" },
-        { label: "Time tracking", value: "—",                   tone: "neutral", hint: "coming soon" },
+        { label: "Tasks today",   value: todayTasks.count ?? 0,
+          tone: (todayTasks.count ?? 0) > 0 ? "amber" : "neutral",
+          href: "/tasks" },
+        { label: "Overdue tasks", value: overdue.count ?? 0,
+          tone: (overdue.count ?? 0) > 0 ? "red" : "neutral",
+          href: "/tasks" },
+        { label: "Pull lists today", value: myPullsToday.count ?? 0,
+          tone: (myPullsToday.count ?? 0) > 0 ? "amber" : "neutral",
+          href: "/operations/pull-lists",
+          hint: myEmpId ? undefined : "Link your profile to warehouse_employees" },
+        { label: "My schedule",   value: "View",
+          tone: "neutral", hint: "Calendar", href: "/calendar" },
       ];
     }
     case "marketing": {
