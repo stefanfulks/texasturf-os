@@ -66,6 +66,7 @@ const WORKSPACES: readonly Workspace[] = [
       { label: "Deliveries",            href: "/operations/deliveries" },
       { label: "Vehicle Maintenance",   href: "/operations/vehicles" },
       { label: "Tool Spend",            href: "/operations/tools" },
+      { label: "Spend Budgets",         href: "/operations/budgets" },
       { label: "Employees",             href: "/operations/employees" },
     ],
     prefixes: ["/warehouse", "/inventory", "/operations"],

@@ -98,7 +98,10 @@ export default async function VehiclesPage({
             </>
           ) : (
             <div className="mt-1 text-sm text-zinc-500">
-              No active budget. Add one below.
+              No active budget.{" "}
+              <Link href="/operations/budgets" className="underline text-zinc-700 hover:text-zinc-900">
+                Set one →
+              </Link>
             </div>
           )}
         </div>

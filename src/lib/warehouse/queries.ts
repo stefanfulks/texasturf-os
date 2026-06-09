@@ -557,6 +557,81 @@ export async function listBudgets(opts: { kind?: "vehicle_maintenance" | "tool_p
   return (data ?? []) as Budget[];
 }
 
+/**
+ * Budget rows with the spend-so-far in their period — used by the budgets
+ * management page so each row shows progress without N+1 hits per row.
+ *
+ * Computes spend per budget by reading maintenance_logs / tool_purchases
+ * in the union of all budget periods (one round-trip each), then matching
+ * locally. Fine for the realistic row count (a handful of budgets).
+ */
+export type BudgetWithSpend = Budget & {
+  spent_cents: number;
+  is_active:   boolean;
+};
+
+export async function listBudgetsWithSpend(): Promise<{
+  vehicle_maintenance: BudgetWithSpend[];
+  tool_purchases:      BudgetWithSpend[];
+}> {
+  const sb = supabaseAdmin();
+  const { data: budgetRows, error } = await sb
+    .from("warehouse_budgets")
+    .select("id, kind, asset_id, period_start, period_end, amount_cents, notes, created_at, updated_at")
+    .order("period_start", { ascending: false });
+  if (error) throw new Error(error.message);
+  const budgets = (budgetRows ?? []) as unknown as Budget[];
+
+  if (budgets.length === 0) {
+    return { vehicle_maintenance: [], tool_purchases: [] };
+  }
+
+  // Earliest start + latest end across all budgets — one fetch covers all.
+  const startMin = budgets.reduce((acc, b) => (b.period_start < acc ? b.period_start : acc), budgets[0].period_start);
+  const endMax   = budgets.reduce((acc, b) => (b.period_end   > acc ? b.period_end   : acc), budgets[0].period_end);
+
+  const [maintRes, toolRes] = await Promise.all([
+    sb.from("maintenance_logs")
+      .select("performed_at, cost_cents")
+      .gte("performed_at", `${startMin}T00:00:00Z`)
+      .lte("performed_at", `${endMax}T23:59:59Z`),
+    sb.from("warehouse_tool_purchases")
+      .select("purchase_date, cost_cents, quantity")
+      .gte("purchase_date", startMin)
+      .lte("purchase_date", endMax),
+  ]);
+  if (maintRes.error) throw new Error(maintRes.error.message);
+  if (toolRes.error)  throw new Error(toolRes.error.message);
+
+  const maintRows = (maintRes.data ?? []) as unknown as { performed_at: string; cost_cents: number }[];
+  const toolRows  = (toolRes.data  ?? []) as unknown as { purchase_date: string; cost_cents: number; quantity: number }[];
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  function spendForBudget(b: Budget): number {
+    if (b.kind === "vehicle_maintenance") {
+      return maintRows
+        .filter((r) => r.performed_at.slice(0, 10) >= b.period_start
+                    && r.performed_at.slice(0, 10) <= b.period_end)
+        .reduce((acc, r) => acc + (Number(r.cost_cents) || 0), 0);
+    }
+    return toolRows
+      .filter((r) => r.purchase_date >= b.period_start && r.purchase_date <= b.period_end)
+      .reduce((acc, r) => acc + (Number(r.cost_cents) || 0) * (Number(r.quantity) || 1), 0);
+  }
+
+  const enriched: BudgetWithSpend[] = budgets.map((b) => ({
+    ...b,
+    spent_cents: spendForBudget(b),
+    is_active:   b.period_start <= today && b.period_end >= today,
+  }));
+
+  return {
+    vehicle_maintenance: enriched.filter((b) => b.kind === "vehicle_maintenance"),
+    tool_purchases:      enriched.filter((b) => b.kind === "tool_purchases"),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Dashboard counts for the module landing page
 // ---------------------------------------------------------------------------

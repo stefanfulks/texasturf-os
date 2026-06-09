@@ -670,6 +670,102 @@ export async function createToolPurchase(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
+// Budgets — set period spend targets that drive the spend-vs-budget cards
+// on /operations/vehicles and /operations/tools.
+// ---------------------------------------------------------------------------
+
+const BUDGET_KINDS = ["vehicle_maintenance", "tool_purchases"] as const;
+
+export async function createBudget(formData: FormData) {
+  const kind         = String(formData.get("kind") ?? "").trim();
+  if (!BUDGET_KINDS.includes(kind as typeof BUDGET_KINDS[number])) {
+    throw new Error(`Unknown budget kind: ${kind}`);
+  }
+  const periodStart  = String(formData.get("period_start") ?? "").trim();
+  const periodEnd    = String(formData.get("period_end")   ?? "").trim();
+  if (!periodStart || !periodEnd) throw new Error("Period start + end are required");
+  if (periodEnd < periodStart) throw new Error("Period end must be ≥ period start");
+
+  const amountDollars = nullableNumber(formData.get("amount"));
+  if (amountDollars == null || amountDollars <= 0) {
+    throw new Error("Amount must be greater than zero");
+  }
+  const amountCents = Math.round(amountDollars * 100);
+
+  const notes = nullableString(formData.get("notes"));
+
+  const sb = supabaseAdmin();
+  const { error } = await sb
+    .from("warehouse_budgets")
+    .insert({
+      kind,
+      asset_id:     null, // overall (kept simple — per-asset is a later refinement)
+      period_start: periodStart,
+      period_end:   periodEnd,
+      amount_cents: amountCents,
+      notes,
+    });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/operations/budgets");
+  revalidatePath("/operations/vehicles");
+  revalidatePath("/operations/tools");
+  revalidatePath("/operations");
+}
+
+export async function updateBudget(formData: FormData) {
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) throw new Error("Budget id is required");
+
+  const periodStart  = String(formData.get("period_start") ?? "").trim();
+  const periodEnd    = String(formData.get("period_end")   ?? "").trim();
+  if (!periodStart || !periodEnd) throw new Error("Period start + end are required");
+  if (periodEnd < periodStart) throw new Error("Period end must be ≥ period start");
+
+  const amountDollars = nullableNumber(formData.get("amount"));
+  if (amountDollars == null || amountDollars <= 0) {
+    throw new Error("Amount must be greater than zero");
+  }
+  const amountCents = Math.round(amountDollars * 100);
+
+  const notes = nullableString(formData.get("notes"));
+
+  const sb = supabaseAdmin();
+  const { error } = await sb
+    .from("warehouse_budgets")
+    .update({
+      period_start: periodStart,
+      period_end:   periodEnd,
+      amount_cents: amountCents,
+      notes,
+    })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/operations/budgets");
+  revalidatePath("/operations/vehicles");
+  revalidatePath("/operations/tools");
+  revalidatePath("/operations");
+}
+
+export async function deleteBudget(formData: FormData) {
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) throw new Error("Budget id is required");
+
+  const sb = supabaseAdmin();
+  const { error } = await sb
+    .from("warehouse_budgets")
+    .delete()
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/operations/budgets");
+  revalidatePath("/operations/vehicles");
+  revalidatePath("/operations/tools");
+  revalidatePath("/operations");
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
