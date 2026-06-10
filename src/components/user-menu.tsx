@@ -90,6 +90,19 @@ const WORKSPACES: readonly Workspace[] = [
     prefixes: ["/office", "/invoices", "/vendors", "/clients"],
   },
   {
+    label: "Marketing",
+    emoji: "📣",
+    primaryHref: "/marketing",
+    tools: [
+      { label: "Overview",  href: "/marketing" },
+      { label: "Referrals", href: "/marketing/referrals" },
+      { label: "Content",   href: "/marketing/content" },
+      { label: "Campaigns", href: "/marketing/campaigns" },
+      { label: "Playbook",  href: "/marketing/playbook" },
+    ],
+    prefixes: ["/marketing"],
+  },
+  {
     label: "Financial",
     emoji: "💰",
     primaryHref: "/reports",
