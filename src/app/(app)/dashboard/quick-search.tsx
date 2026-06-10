@@ -24,18 +24,18 @@ export function DashboardQuickSearch() {
 
   return (
     <form onSubmit={submit} className="relative w-full max-w-md">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-4 pointer-events-none" />
       <input
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search inventory — SKU, tag, product, location…"
-        className="w-full pl-9 pr-3 py-2 text-sm border border-zinc-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-zinc-400 placeholder:text-zinc-400"
+        className="field-input pl-9 pr-9"
       />
       <button
         type="submit"
         disabled={!q.trim()}
-        className="absolute right-1.5 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-500 hover:text-zinc-900 disabled:opacity-40 px-2 py-0.5 rounded"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-ink-3 hover:text-brand disabled:opacity-40 px-2 py-0.5 rounded-md transition-colors"
         title="Search (Enter)"
       >
         ↵

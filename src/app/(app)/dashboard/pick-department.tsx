@@ -43,17 +43,17 @@ export function PickDepartmentPrompt({
   const wrapperCls =
     variant === "page"
       ? "max-w-2xl mx-auto"
-      : "rounded-xl border border-blue-200 bg-blue-50 p-5";
+      : "rounded-2xl border border-brand-line bg-brand-tint/40 p-5";
 
   return (
     <section className={wrapperCls}>
       <div className="flex items-start gap-3">
         <span className="text-2xl" aria-hidden>👋</span>
         <div className="flex-1">
-          <h2 className={variant === "page" ? "text-xl font-semibold text-zinc-900" : "text-sm font-semibold text-blue-900"}>
+          <h2 className={variant === "page" ? "display text-xl text-ink" : "text-sm font-semibold text-ink"}>
             What departments are you in?
           </h2>
-          <p className={variant === "page" ? "mt-1 text-sm text-zinc-600" : "mt-0.5 text-xs text-blue-800/80"}>
+          <p className={variant === "page" ? "mt-1 text-sm text-ink-3" : "mt-0.5 text-xs text-ink-2"}>
             Pick one or more. We&apos;ll tailor the dashboard and surface the
             tools your team uses most. You can change this any time.
           </p>
@@ -69,24 +69,24 @@ export function PickDepartmentPrompt({
               onClick={() => toggle(dept)}
               disabled={isPending}
               className={
-                "group flex items-start gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors disabled:opacity-50 " +
+                "group flex items-start gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors disabled:opacity-50 " +
                 (on
-                  ? "border-blue-500 bg-blue-50 ring-1 ring-blue-300"
-                  : "border-blue-200 bg-white hover:border-blue-400")
+                  ? "border-brand bg-brand-tint ring-1 ring-brand-line"
+                  : "border-line bg-surface hover:border-line-strong")
               }
               aria-pressed={on}
             >
               <span className="text-lg leading-none mt-0.5">{DEPARTMENT_EMOJI[dept]}</span>
               <span className="flex-1 min-w-0">
-                <span className="block font-medium text-zinc-900">
+                <span className="block font-medium text-ink">
                   {DEPARTMENT_LABEL[dept]}
                 </span>
-                <span className="block text-xs text-zinc-500">
+                <span className="block text-xs text-ink-3">
                   {DEPARTMENT_DESCRIPTION[dept]}
                 </span>
               </span>
               {on && (
-                <span className="text-blue-500 mt-0.5" aria-hidden>
+                <span className="text-brand mt-0.5" aria-hidden>
                   ✓
                 </span>
               )}
@@ -95,7 +95,7 @@ export function PickDepartmentPrompt({
         })}
       </div>
       <div className="mt-4 flex items-center justify-between gap-3">
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-ink-3">
           {selected.length === 0
             ? "Pick at least one"
             : `${selected.length} selected`}
@@ -104,7 +104,7 @@ export function PickDepartmentPrompt({
           type="button"
           onClick={save}
           disabled={isPending || selected.length === 0}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+          className="btn btn-primary btn-sm disabled:opacity-50"
         >
           {isPending ? "Saving…" : "Save departments"}
         </button>
