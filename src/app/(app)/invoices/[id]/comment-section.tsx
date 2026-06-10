@@ -12,6 +12,7 @@ type CommentWithUser = InvoiceComment & { user: { full_name: string | null; emai
 export function InvoiceCommentSection({
   invoiceId,
   comments,
+  // TODO: allow editing/deleting the viewer's own comments
   currentUserId,
   isOfficeOrAdmin,
 }: {
@@ -36,9 +37,14 @@ export function InvoiceCommentSection({
           {comments.map((c) => (
             <div key={c.id} className="px-5 py-3">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold text-zinc-700">
-                  {c.user.full_name ?? c.user.email.split("@")[0]}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-zinc-700">
+                    {c.user.full_name ?? c.user.email.split("@")[0]}
+                  </span>
+                  {c.user_id === currentUserId && (
+                    <span className="text-xs bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded font-medium">You</span>
+                  )}
+                </div>
                 <div className="flex items-center gap-2">
                   {c.visibility === "internal" && (
                     <span className="text-xs bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded font-medium">Internal</span>
