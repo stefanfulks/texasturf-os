@@ -1,0 +1,146 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export const metadata = { title: "Marketing Playbook · TexasTurf OS" };
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border border-zinc-200 bg-white p-6 space-y-3">
+      <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
+      <div className="text-sm text-zinc-600 space-y-2">{children}</div>
+    </section>
+  );
+}
+
+const TROY_WEEKS = [
+  ["1", "How Much Does Artificial Turf Cost in Texas?", "SEO pillar 1"],
+  ["2", "Best Artificial Turf for Dogs", "SEO pillar 2"],
+  ["3", "Does Turf Melt in Texas Heat? (105°F test)", "SEO pillar 3"],
+  ["4", "Pickleball Court Cost breakdown", "July spotlight"],
+  ["5", "Xeriscape 101 for Central Texas", "Aug spotlight"],
+  ["6", "Pavers vs Stamped Concrete", "Oct spotlight"],
+  ["7", "What Site Prep Actually Means", "Trust builder"],
+  ["8", "Lot Clearing: cost + what to expect", "Service intro"],
+  ["9", "5 Mistakes People Make Buying Turf", "Evergreen"],
+  ["10", "Putting Green Install start to finish", "Service intro"],
+  ["11", "Fence Options: wood vs steel vs welded", "Sep spotlight"],
+  ["12", "Designing a Full Backyard", "Design showcase"],
+];
+
+const SPOTLIGHTS = [
+  ["Jul", "Pickleball & sport courts", "Beat the waitlist for fall leagues"],
+  ["Aug", "Xeriscape", "Water restrictions — your lawn is dying anyway"],
+  ["Sep", "Fencing + custom welding", "Security, gates, steel that lasts"],
+  ["Oct", "Pavers & stone work", "Patio season; holiday-hosting runway"],
+  ["Nov", "Concrete", "Driveways, patios, slabs before year-end"],
+  ["Dec", "Tree removal & lot clearing", "Dormant season = right time"],
+  ["Jan", "Excavation & site prep", "Builders planning spring starts"],
+  ["Feb", "Landscape design", "Design now, build in spring"],
+  ["Mar", "Full-yard transformations", "Design→build showcase stories"],
+  ["Apr", "Putting greens", "Masters season"],
+  ["May", "Turf for dogs", "Highest-converting niche"],
+  ["Jun", "Turf vs Texas heat", "Myth-busting, 105°F tests"],
+];
+
+export default async function PlaybookPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Marketing Playbook</h1>
+        <p className="text-sm text-zinc-500 mt-0.5">
+          The plan everyone follows. Calls run in Reevo, sends go out via Jobber, the record lives here.
+        </p>
+      </div>
+
+      <Section title="The system in one line">
+        <p>
+          We grow through <strong>past clients (referrals)</strong>, <strong>all 13 service lines</strong> (not just turf),
+          and <strong>content</strong> (Troy&rsquo;s videos + field POV). TexasTurf isn&rsquo;t a turf company — it&rsquo;s an
+          outdoor construction company. One crew relationship, thirteen capabilities.
+        </p>
+      </Section>
+
+      <Section title="Referral program — the Thank-You Blitz">
+        <ul className="list-disc pl-5 space-y-1">
+          <li><strong>Reward (referrer&rsquo;s choice):</strong> $250 Visa gift card or 1 year of the TexasTurf Care Plan free.</li>
+          <li><strong>Referred friend:</strong> $100 off their project.</li>
+          <li><strong>Earned when:</strong> the referred job is completed and the final invoice is paid.</li>
+          <li><strong>Uncapped, never expires.</strong> B2B partners (pool builders, designers) get reciprocal terms, not gift cards.</li>
+          <li><strong>Care Plan</strong> = annual deep-clean + groom, seam/edge inspection w/ minor repairs, drainage check, pet-odor treatment, priority scheduling, 10% off other work. Never call it &ldquo;insurance.&rdquo;</li>
+        </ul>
+        <p className="text-xs text-zinc-500">
+          Run it from <Link href="/marketing/referrals" className="underline">Referrals</Link>: Build roster → Export Reevo CSV → dial → log outcomes → track to reward.
+        </p>
+      </Section>
+
+      <Section title="Content cadence — the accountability loop">
+        <p className="font-medium text-zinc-800">Troy — 1 long YouTube video / week (publishes Friday)</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><strong>Mon</strong> — pick topic + outline/script</li>
+          <li><strong>Wed</strong> — film (piggyback on an active job site)</li>
+          <li><strong>Thu</strong> — hand to editor</li>
+          <li><strong>Fri</strong> — publish + log it in <Link href="/marketing/content" className="underline">Content</Link></li>
+        </ul>
+        <p className="font-medium text-zinc-800 mt-2">Max — 2–3 POV clips / week (Meta glasses)</p>
+        <p>Excavator cab, loading trucks, seam work, timelapses. The raw views engine. Drop into the Content library.</p>
+        <p className="font-medium text-zinc-800 mt-2">Every crew — per job</p>
+        <p>1 before walkthrough, 1 process clip, 1 after reveal. Foreman checklist item; lands in the library.</p>
+        <p className="text-xs text-zinc-500">
+          The <Link href="/marketing/content" className="underline">Content scoreboard</Link> tracks published-this-week counts live — that&rsquo;s the accountability number.
+          (When Troy &amp; Max get app logins, these become auto-recurring tasks.)
+        </p>
+      </Section>
+
+      <Section title="Troy — 12-week starter calendar">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead><tr className="text-left text-zinc-400"><th className="py-1 pr-3">Wk</th><th className="py-1 pr-3">Video</th><th className="py-1">Tie-in</th></tr></thead>
+            <tbody>
+              {TROY_WEEKS.map(([wk, title, tie]) => (
+                <tr key={wk} className="border-t border-zinc-100">
+                  <td className="py-1.5 pr-3 text-zinc-400">{wk}</td>
+                  <td className="py-1.5 pr-3 text-zinc-800">{title}</td>
+                  <td className="py-1.5 text-zinc-500">{tie}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-xs text-zinc-500">All 12 are seeded as ideas in the <Link href="/marketing/content" className="underline">Content pipeline</Link>.</p>
+      </Section>
+
+      <Section title="12-month service spotlight calendar">
+        <p>One service line per month. Each ships the same kit: Jobber email + Troy long video + 4–6 shorts + before/after set + SEO post + yard-sign/social CTA swap.</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead><tr className="text-left text-zinc-400"><th className="py-1 pr-3">Month</th><th className="py-1 pr-3">Spotlight</th><th className="py-1">Angle</th></tr></thead>
+            <tbody>
+              {SPOTLIGHTS.map(([m, s, a]) => (
+                <tr key={m} className="border-t border-zinc-100">
+                  <td className="py-1.5 pr-3 text-zinc-400">{m}</td>
+                  <td className="py-1.5 pr-3 text-zinc-800">{s}</td>
+                  <td className="py-1.5 text-zinc-500">{a}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-xs text-zinc-500">Jul–Sep are seeded in <Link href="/marketing/campaigns" className="underline">Campaigns</Link> as drafts.</p>
+      </Section>
+
+      <Section title="Where things live">
+        <ul className="list-disc pl-5 space-y-1">
+          <li><strong>Reevo</strong> — outbound calls + sequences (the referral dialer).</li>
+          <li><strong>Jobber</strong> — client-facing emails + passive referral links.</li>
+          <li><strong>This app</strong> — the record: roster, ledger, campaign briefs/copy, content pipeline + library.</li>
+          <li><strong>Google Drive</strong> — master video/photo files. <strong>YouTube</strong> — publishing. <strong>This app</strong> holds the links + small voice memos.</li>
+        </ul>
+      </Section>
+    </div>
+  );
+}
