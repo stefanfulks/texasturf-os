@@ -13,18 +13,18 @@ import type { Task, TaskStatus, TaskPriority, Profile, Project } from "@/lib/db-
 // ─── Config ────────────────────────────────────────────────────────────────────
 
 const COLUMNS: { status: Exclude<TaskStatus, "archived">; label: string; color: string; dot: string; headerBg: string }[] = [
-  { status: "inbox",       label: "Inbox",       color: "text-zinc-600",   dot: "bg-zinc-400",   headerBg: "bg-zinc-100"   },
-  { status: "in_progress", label: "In Progress", color: "text-blue-700",   dot: "bg-blue-500",   headerBg: "bg-blue-50"    },
-  { status: "waiting",     label: "Waiting",     color: "text-purple-700", dot: "bg-purple-500", headerBg: "bg-purple-50"  },
-  { status: "blocked",     label: "Blocked",     color: "text-red-700",    dot: "bg-red-500",    headerBg: "bg-red-50"     },
-  { status: "done",        label: "Done",        color: "text-green-700",  dot: "bg-green-500",  headerBg: "bg-green-50"   },
+  { status: "inbox",       label: "Inbox",       color: "text-ink-2",   dot: "bg-ink-4",   headerBg: "bg-sunken"   },
+  { status: "in_progress", label: "In Progress", color: "text-info",   dot: "bg-info",   headerBg: "bg-info-tint"    },
+  { status: "waiting",     label: "Waiting",     color: "text-info", dot: "bg-info", headerBg: "bg-info-tint"  },
+  { status: "blocked",     label: "Blocked",     color: "text-danger",    dot: "bg-danger",    headerBg: "bg-danger-tint"     },
+  { status: "done",        label: "Done",        color: "text-brand",  dot: "bg-brand",  headerBg: "bg-brand-tint"   },
 ];
 
 const PRIORITY_CONFIG: Record<TaskPriority, { label: string; badge: string }> = {
-  low:    { label: "Low",    badge: "bg-zinc-100 text-zinc-500"  },
-  normal: { label: "Normal", badge: "bg-blue-50 text-blue-600"   },
-  high:   { label: "High",   badge: "bg-amber-50 text-amber-700" },
-  urgent: { label: "Urgent", badge: "bg-red-50 text-red-700"     },
+  low:    { label: "Low",    badge: "bg-sunken text-ink-3"  },
+  normal: { label: "Normal", badge: "bg-info-tint text-info"   },
+  high:   { label: "High",   badge: "bg-warn-tint text-warn" },
+  urgent: { label: "Urgent", badge: "bg-danger-tint text-danger"     },
 };
 
 type ScopeFilter = "mine" | "team" | "by_me";
@@ -133,20 +133,20 @@ export function TaskBoard({
       <div className="flex items-start justify-between mb-4 flex-shrink-0 gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Tasks</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
-            {openCount} open{overdueCount > 0 && <span className="text-red-600 font-medium"> · {overdueCount} overdue</span>}
+          <p className="text-sm text-ink-3 mt-0.5">
+            {openCount} open{overdueCount > 0 && <span className="text-danger font-medium"> · {overdueCount} overdue</span>}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {/* View toggle */}
-          <div className="flex rounded-md border border-zinc-200 overflow-hidden text-sm">
-            <button onClick={() => setView("kanban")} className={cn("px-3 py-1.5 font-medium transition-colors", view === "kanban" ? "bg-zinc-900 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50")}>Board</button>
-            <button onClick={() => setView("list")}   className={cn("px-3 py-1.5 font-medium border-l border-zinc-200 transition-colors", view === "list"   ? "bg-zinc-900 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50")}>List</button>
+          <div className="flex rounded-md border border-line overflow-hidden text-sm">
+            <button onClick={() => setView("kanban")} className={cn("px-3 py-1.5 font-medium transition-colors", view === "kanban" ? "bg-ink text-white" : "bg-white text-ink-2 hover:bg-hover")}>Board</button>
+            <button onClick={() => setView("list")}   className={cn("px-3 py-1.5 font-medium border-l border-line transition-colors", view === "list"   ? "bg-ink text-white" : "bg-white text-ink-2 hover:bg-hover")}>List</button>
           </div>
-          <Link href="/tasks/recurring" className="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 transition-colors">
+          <Link href="/tasks/recurring" className="rounded-md border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink-2 hover:bg-hover hover:text-ink transition-colors">
             Recurring
           </Link>
-          <button onClick={() => openCreate()} className="flex items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700">
+          <button onClick={() => openCreate()} className="flex items-center gap-1.5 rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-white hover:bg-ink-2">
             <span className="text-base leading-none">+</span> New Task
           </button>
         </div>
@@ -155,9 +155,9 @@ export function TaskBoard({
       {/* Filter bar */}
       <div className="flex items-center gap-3 mb-5 flex-wrap flex-shrink-0">
         {/* Scope */}
-        <div className="flex rounded-md border border-zinc-200 overflow-hidden text-xs font-medium">
+        <div className="flex rounded-md border border-line overflow-hidden text-xs font-medium">
           {([["mine", "My Tasks"], ["team", "Team"], ["by_me", "Assigned by Me"]] as [ScopeFilter, string][]).map(([val, label]) => (
-            <button key={val} onClick={() => setScope(val)} className={cn("px-3 py-1.5 border-r border-zinc-200 last:border-r-0 transition-colors", scope === val ? "bg-zinc-900 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50")}>
+            <button key={val} onClick={() => setScope(val)} className={cn("px-3 py-1.5 border-r border-line last:border-r-0 transition-colors", scope === val ? "bg-ink text-white" : "bg-white text-ink-2 hover:bg-hover")}>
               {label}
             </button>
           ))}
@@ -172,8 +172,8 @@ export function TaskBoard({
               className={cn(
                 "px-2.5 py-1 text-xs rounded-full font-medium border transition-colors",
                 priorityFilter === p
-                  ? "bg-zinc-900 text-white border-zinc-900"
-                  : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400"
+                  ? "bg-ink text-white border-ink"
+                  : "bg-white text-ink-3 border-line hover:border-line-strong"
               )}
             >
               {p === "all" ? "All" : p.charAt(0).toUpperCase() + p.slice(1)}
@@ -181,7 +181,7 @@ export function TaskBoard({
           ))}
         </div>
 
-        <span className="text-xs text-zinc-400">{scopedTasks.length} tasks</span>
+        <span className="text-xs text-ink-4">{scopedTasks.length} tasks</span>
       </div>
 
       {/* Board */}
@@ -237,13 +237,13 @@ function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserI
       {COLUMNS.map((col) => {
         const colTasks = tasks.filter((t) => t.status === col.status);
         return (
-          <div key={col.status} className="flex flex-col w-72 flex-shrink-0 rounded-xl border border-zinc-200 bg-zinc-50 overflow-hidden">
-            <div className={cn("flex items-center justify-between px-3 py-2.5 border-b border-zinc-200", col.headerBg)}>
+          <div key={col.status} className="flex flex-col w-72 flex-shrink-0 rounded-xl border border-line bg-hover overflow-hidden">
+            <div className={cn("flex items-center justify-between px-3 py-2.5 border-b border-line", col.headerBg)}>
               <div className="flex items-center gap-2">
                 <span className={cn("text-sm font-semibold", col.color)}>{col.label}</span>
-                <span className="text-xs text-zinc-400 font-medium bg-white border border-zinc-200 rounded-full px-1.5 py-0.5 leading-none">{colTasks.length}</span>
+                <span className="text-xs text-ink-4 font-medium bg-white border border-line rounded-full px-1.5 py-0.5 leading-none">{colTasks.length}</span>
               </div>
-              <button onClick={() => onAddTask(col.status)} className="text-zinc-400 hover:text-zinc-700 text-lg leading-none font-light" title={`Add to ${col.label}`}>+</button>
+              <button onClick={() => onAddTask(col.status)} className="text-ink-4 hover:text-ink-2 text-lg leading-none font-light" title={`Add to ${col.label}`}>+</button>
             </div>
             <Droppable droppableId={col.status}>
               {(provided, snapshot) => (
@@ -252,11 +252,11 @@ function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserI
                   {...provided.droppableProps}
                   className={cn(
                     "flex-1 overflow-y-auto p-2 space-y-2 transition-colors",
-                    snapshot.isDraggingOver ? "bg-blue-50/60" : ""
+                    snapshot.isDraggingOver ? "bg-info-tint/60" : ""
                   )}
                 >
                   {colTasks.length === 0 ? (
-                    <div className="text-center py-8 text-xs text-zinc-400">
+                    <div className="text-center py-8 text-xs text-ink-4">
                       {snapshot.isDraggingOver ? "Drop here" : col.status === "done" ? "Completed tasks appear here" : "No tasks"}
                     </div>
                   ) : (
@@ -316,11 +316,11 @@ function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, 
   const isTaggedOnMe = assigneeIds.includes(currentUserId);
 
   return (
-    <div className={cn("bg-white rounded-lg border p-3 group hover:shadow-sm transition-shadow", isDone ? "border-zinc-100 opacity-60" : "border-zinc-200", task.status === "blocked" ? "border-red-200 bg-red-50/30" : "")}>
+    <div className={cn("bg-white rounded-lg border p-3 group hover:shadow-sm transition-shadow", isDone ? "border-line opacity-60" : "border-line", task.status === "blocked" ? "border-danger/30 bg-danger-tint/30" : "")}>
       <div className="flex items-start gap-2">
         <button
           onClick={() => !isDone && startTransition(() => onComplete(task.id))}
-          className={cn("mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 transition-colors", isDone ? "border-green-400 bg-green-400" : "border-zinc-300 hover:border-green-400")}
+          className={cn("mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 transition-colors", isDone ? "border-brand bg-brand" : "border-line-strong hover:border-brand")}
           title={isDone ? "Completed" : "Mark done"}
         >
           {isDone && <svg className="w-full h-full text-white p-0.5" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
@@ -334,14 +334,14 @@ function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, 
             onClick={() => onSelectTask(task.id)}
             className={cn(
               "text-left text-sm font-medium leading-snug block hover:underline cursor-pointer w-full",
-              isDone ? "line-through text-zinc-400" : "text-zinc-900",
+              isDone ? "line-through text-ink-4" : "text-ink",
             )}
           >
             {task.title}
           </button>
 
           {project && (
-            <Link href={`/jobs/${project.id}`} className="text-xs text-zinc-400 hover:text-zinc-600 block mt-0.5 truncate">
+            <Link href={`/jobs/${project.id}`} className="text-xs text-ink-4 hover:text-ink-2 block mt-0.5 truncate">
               💼 {project.name}
             </Link>
           )}
@@ -349,7 +349,7 @@ function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, 
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             {task.priority !== "normal" && <span className={cn("text-xs px-1.5 py-0.5 rounded font-medium", priority.badge)}>{priority.label}</span>}
             {task.due_date && (
-              <span className={cn("text-xs px-1.5 py-0.5 rounded font-medium", isOverdue ? "bg-red-50 text-red-600" : isDueToday ? "bg-amber-50 text-amber-700" : "bg-zinc-50 text-zinc-500")}>
+              <span className={cn("text-xs px-1.5 py-0.5 rounded font-medium", isOverdue ? "bg-danger-tint text-danger" : isDueToday ? "bg-warn-tint text-warn" : "bg-hover text-ink-3")}>
                 {isOverdue ? "Overdue" : isDueToday ? "Today" : format(parseISO(task.due_date), "MMM d")}
               </span>
             )}
@@ -360,7 +360,7 @@ function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, 
               />
             )}
             {task.status === "blocked" && task.blocked_reason && (
-              <span className="text-xs text-red-500 truncate max-w-[120px]" title={task.blocked_reason}>🚫 {task.blocked_reason}</span>
+              <span className="text-xs text-danger truncate max-w-[120px]" title={task.blocked_reason}>🚫 {task.blocked_reason}</span>
             )}
           </div>
         </div>
@@ -368,7 +368,7 @@ function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, 
         <div className="relative flex-shrink-0">
           <button
             onClick={() => setStatusOpen(!statusOpen)}
-            className={cn("w-2 h-2 rounded-full mt-1 transition-transform hover:scale-125 cursor-pointer", COLUMNS.find((c) => c.status === task.status)?.dot ?? "bg-zinc-400")}
+            className={cn("w-2 h-2 rounded-full mt-1 transition-transform hover:scale-125 cursor-pointer", COLUMNS.find((c) => c.status === task.status)?.dot ?? "bg-ink-4")}
             title="Change status"
           />
           {statusOpen && <StatusDropdown current={task.status} onSelect={(s) => { setStatusOpen(false); startTransition(() => onStatusChange(task.id, s)); }} onClose={() => setStatusOpen(false)} />}
@@ -384,12 +384,12 @@ function StatusDropdown({ current, onSelect, onClose }: { current: TaskStatus; o
   return (
     <>
       <div className="fixed inset-0 z-10" onClick={onClose} />
-      <div className="absolute right-0 top-4 z-20 bg-white border border-zinc-200 rounded-lg shadow-lg py-1 min-w-[140px]">
+      <div className="absolute right-0 top-4 z-20 bg-white border border-line rounded-lg shadow-lg py-1 min-w-[140px]">
         {COLUMNS.map((col) => (
-          <button key={col.status} onClick={() => onSelect(col.status)} className={cn("w-full text-left px-3 py-1.5 text-xs font-medium flex items-center gap-2 hover:bg-zinc-50 transition-colors", current === col.status ? "text-zinc-900" : "text-zinc-600")}>
+          <button key={col.status} onClick={() => onSelect(col.status)} className={cn("w-full text-left px-3 py-1.5 text-xs font-medium flex items-center gap-2 hover:bg-hover transition-colors", current === col.status ? "text-ink" : "text-ink-2")}>
             <span className={cn("w-2 h-2 rounded-full flex-shrink-0", col.dot)} />
             {col.label}
-            {current === col.status && <span className="ml-auto text-zinc-400">✓</span>}
+            {current === col.status && <span className="ml-auto text-ink-4">✓</span>}
           </button>
         ))}
       </div>
@@ -400,12 +400,12 @@ function StatusDropdown({ current, onSelect, onClose }: { current: TaskStatus; o
 // ─── Assignee Avatars ────────────────────────────────────────────────────────
 
 const AVATAR_COLORS = [
-  "bg-blue-100 text-blue-700",
-  "bg-purple-100 text-purple-700",
-  "bg-amber-100 text-amber-800",
-  "bg-emerald-100 text-emerald-700",
+  "bg-info-tint text-info",
+  "bg-info-tint text-info",
+  "bg-warn-tint text-warn",
+  "bg-brand-tint text-brand",
   "bg-pink-100 text-pink-700",
-  "bg-indigo-100 text-indigo-700",
+  "bg-info-tint text-info",
   "bg-teal-100 text-teal-700",
   "bg-rose-100 text-rose-700",
 ];
@@ -475,7 +475,7 @@ function AvatarStack({
       {overflow > 0 && (
         <span
           title={sorted.slice(max).map(nameOf).join(", ")}
-          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-zinc-200 text-[10px] font-semibold text-zinc-700 ring-2 ring-white"
+          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-line text-[10px] font-semibold text-ink-2 ring-2 ring-white"
         >
           +{overflow}
         </span>
@@ -499,7 +499,7 @@ function ListView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId,
     return 0;
   });
 
-  if (sorted.length === 0) return <div className="text-center py-16 text-sm text-zinc-400">No tasks match your filters</div>;
+  if (sorted.length === 0) return <div className="text-center py-16 text-sm text-ink-4">No tasks match your filters</div>;
 
   return (
     <div className="space-y-1">
@@ -521,8 +521,8 @@ function ListRow({ task, profilesMap, projectsMap, assigneeMap, currentUserId, o
   const isTaggedOnMe = assigneeIds.includes(currentUserId);
 
   return (
-    <div className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg border bg-white hover:shadow-sm transition-shadow group", isDone ? "border-zinc-100 opacity-60" : "border-zinc-200")}>
-      <button onClick={() => !isDone && startTransition(() => onComplete(task.id))} className={cn("w-4 h-4 rounded-full border-2 flex-shrink-0 transition-colors", isDone ? "border-green-400 bg-green-400" : "border-zinc-300 hover:border-green-400")}>
+    <div className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg border bg-white hover:shadow-sm transition-shadow group", isDone ? "border-line opacity-60" : "border-line")}>
+      <button onClick={() => !isDone && startTransition(() => onComplete(task.id))} className={cn("w-4 h-4 rounded-full border-2 flex-shrink-0 transition-colors", isDone ? "border-brand bg-brand" : "border-line-strong hover:border-brand")}>
         {isDone && <svg className="w-full h-full text-white p-0.5" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
       </button>
 
@@ -532,12 +532,12 @@ function ListRow({ task, profilesMap, projectsMap, assigneeMap, currentUserId, o
           onClick={() => onSelectTask(task.id)}
           className={cn(
             "text-left text-sm font-medium hover:underline truncate block w-full",
-            isDone ? "line-through text-zinc-400" : "text-zinc-900",
+            isDone ? "line-through text-ink-4" : "text-ink",
           )}
         >
           {task.title}
         </button>
-        {project && <span className="text-xs text-zinc-400 truncate">{project.name}</span>}
+        {project && <span className="text-xs text-ink-4 truncate">{project.name}</span>}
       </div>
 
       <div className="flex items-center gap-2 flex-shrink-0 text-xs">
@@ -546,12 +546,12 @@ function ListRow({ task, profilesMap, projectsMap, assigneeMap, currentUserId, o
         )}
         {task.priority !== "normal" && <span className={cn("px-1.5 py-0.5 rounded font-medium", PRIORITY_CONFIG[task.priority].badge)}>{PRIORITY_CONFIG[task.priority].label}</span>}
         {task.due_date && (
-          <span className={cn("px-1.5 py-0.5 rounded font-medium", isOverdue ? "bg-red-50 text-red-600" : isDueToday ? "bg-amber-50 text-amber-700" : "bg-zinc-50 text-zinc-500")}>
+          <span className={cn("px-1.5 py-0.5 rounded font-medium", isOverdue ? "bg-danger-tint text-danger" : isDueToday ? "bg-warn-tint text-warn" : "bg-hover text-ink-3")}>
             {isOverdue ? "Overdue" : isDueToday ? "Today" : format(parseISO(task.due_date), "MMM d")}
           </span>
         )}
         <div className="relative">
-          <button onClick={() => setStatusOpen(!statusOpen)} className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded font-medium hover:bg-zinc-100", col.color)}>
+          <button onClick={() => setStatusOpen(!statusOpen)} className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded font-medium hover:bg-sunken", col.color)}>
             <span className={cn("w-1.5 h-1.5 rounded-full", col.dot)} />{col.label}
           </button>
           {statusOpen && <StatusDropdown current={task.status} onSelect={(s) => { setStatusOpen(false); startTransition(() => onStatusChange(task.id, s)); }} onClose={() => setStatusOpen(false)} />}
@@ -597,16 +597,16 @@ function CreateTaskDialog({
   };
 
   // 16px-rem font on inputs keeps iOS Safari from auto-zooming on focus.
-  const fieldCls = "w-full text-base border border-zinc-300 rounded-xl h-12 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 bg-white";
+  const fieldCls = "w-full text-base border border-line-strong rounded-xl h-12 px-3 focus:outline-none focus:ring-2 focus:ring-brand focus:border-ink bg-white";
 
   return (
     <>
       <div className="fixed inset-0 bg-black/40 z-30" onClick={onClose} />
       <div className="fixed inset-0 z-40 flex items-center justify-center sm:p-4">
         <div className="bg-white sm:rounded-2xl shadow-xl w-full sm:max-w-lg max-h-[100dvh] sm:max-h-[90vh] flex flex-col">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200 shrink-0">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-line shrink-0">
             <h2 className="text-base font-semibold">New Task</h2>
-            <button onClick={onClose} aria-label="Close" className="text-zinc-400 hover:text-zinc-700 h-9 w-9 flex items-center justify-center rounded-lg hover:bg-zinc-100">
+            <button onClick={onClose} aria-label="Close" className="text-ink-4 hover:text-ink-2 h-9 w-9 flex items-center justify-center rounded-lg hover:bg-sunken">
               <span className="text-xl leading-none">×</span>
             </button>
           </div>
@@ -616,13 +616,13 @@ function CreateTaskDialog({
 
             <input name="title" placeholder="Task title…" required autoFocus className={fieldCls} />
 
-            <textarea name="description" placeholder="Description (optional)…" rows={2} className="w-full text-base border border-zinc-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 placeholder:text-zinc-400 resize-none" />
+            <textarea name="description" placeholder="Description (optional)…" rows={2} className="w-full text-base border border-line-strong rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand focus:border-ink placeholder:text-ink-4 resize-none" />
 
             {/* Tag people — multi-select */}
             <div>
-              <label className="flex items-baseline justify-between text-xs font-semibold text-zinc-700 mb-1.5">
+              <label className="flex items-baseline justify-between text-xs font-semibold text-ink-2 mb-1.5">
                 <span>Tag people *</span>
-                <span className="text-[10px] font-normal text-zinc-400">{assigneeIds.length} tagged</span>
+                <span className="text-[10px] font-normal text-ink-4">{assigneeIds.length} tagged</span>
               </label>
               <AssigneePicker
                 profiles={profiles}
@@ -638,7 +638,7 @@ function CreateTaskDialog({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Priority</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1.5">Priority</label>
                 <select name="priority" defaultValue="normal" className={fieldCls}>
                   <option value="low">Low</option>
                   <option value="normal">Normal</option>
@@ -647,13 +647,13 @@ function CreateTaskDialog({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Due date</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1.5">Due date</label>
                 <input type="date" name="due_date" className={fieldCls} />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Job <span className="font-normal text-zinc-400">(optional)</span></label>
+              <label className="block text-xs font-semibold text-ink-2 mb-1.5">Job <span className="font-normal text-ink-4">(optional)</span></label>
               <select name="project_id" defaultValue="" className={fieldCls}>
                 <option value="">No job</option>
                 {projects.filter((p) => p.status !== "complete" && p.status !== "cancelled").map((p) => (
@@ -662,11 +662,11 @@ function CreateTaskDialog({
               </select>
             </div>
 
-            {error && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
+            {error && <p className="text-xs text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">{error}</p>}
           </div>
-          <div className="flex justify-end gap-2 px-5 py-4 border-t border-zinc-100 shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <button type="button" onClick={onClose} className="h-11 px-4 text-sm font-medium text-zinc-600 hover:text-zinc-900 rounded-lg">Cancel</button>
-            <button type="submit" disabled={isPending} className="h-11 px-5 text-sm font-semibold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 active:bg-zinc-700 disabled:opacity-50">
+          <div className="flex justify-end gap-2 px-5 py-4 border-t border-line shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <button type="button" onClick={onClose} className="h-11 px-4 text-sm font-medium text-ink-2 hover:text-ink rounded-lg">Cancel</button>
+            <button type="submit" disabled={isPending} className="h-11 px-5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink active:bg-ink-2 disabled:opacity-50">
               {isPending ? "Creating…" : "Create Task"}
             </button>
           </div>
@@ -708,7 +708,7 @@ function AssigneePicker({
   }, [profiles, q]);
 
   return (
-    <div className="rounded-xl border border-zinc-300 bg-white">
+    <div className="rounded-xl border border-line-strong bg-white">
       {/* Selected chips */}
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1.5 px-2.5 pt-2.5 pb-1.5">
@@ -720,11 +720,11 @@ function AssigneePicker({
                 key={id}
                 type="button"
                 onClick={() => toggle(id)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200 pl-1 pr-2 h-7 text-xs font-medium text-zinc-800"
+                className="inline-flex items-center gap-1.5 rounded-full bg-sunken hover:bg-line pl-1 pr-2 h-7 text-xs font-medium text-ink"
               >
                 <Avatar profile={p} size="xs" />
                 <span>{nameOf(p)}{p.id === currentUserId ? " (me)" : ""}</span>
-                <span className="text-zinc-400">×</span>
+                <span className="text-ink-4">×</span>
               </button>
             );
           })}
@@ -735,11 +735,11 @@ function AssigneePicker({
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search teammates…"
-        className="w-full text-base px-3 h-11 border-y border-zinc-100 focus:outline-none focus:border-zinc-300"
+        className="w-full text-base px-3 h-11 border-y border-line focus:outline-none focus:border-line-strong"
       />
       <ul className="max-h-44 overflow-y-auto py-1">
         {filtered.length === 0 && (
-          <li className="px-3 py-2 text-xs text-zinc-400">No matches</li>
+          <li className="px-3 py-2 text-xs text-ink-4">No matches</li>
         )}
         {filtered.map((p) => {
           const isOn = selectedSet.has(p.id);
@@ -750,12 +750,12 @@ function AssigneePicker({
                 onClick={() => toggle(p.id)}
                 className={cn(
                   "w-full flex items-center gap-2.5 h-11 px-3 text-left transition-colors",
-                  isOn ? "bg-zinc-50 text-zinc-900" : "text-zinc-700 hover:bg-zinc-50",
+                  isOn ? "bg-hover text-ink" : "text-ink-2 hover:bg-hover",
                 )}
               >
                 <Avatar profile={p} />
                 <span className="flex-1 text-sm truncate">{nameOf(p)}{p.id === currentUserId ? " (me)" : ""}</span>
-                <span className={cn("w-5 h-5 rounded border flex items-center justify-center", isOn ? "bg-zinc-900 border-zinc-900 text-white" : "border-zinc-300")}>
+                <span className={cn("w-5 h-5 rounded border flex items-center justify-center", isOn ? "bg-ink border-ink text-white" : "border-line-strong")}>
                   {isOn && (
                     <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
                       <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

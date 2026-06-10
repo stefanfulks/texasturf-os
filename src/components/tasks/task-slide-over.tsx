@@ -59,16 +59,16 @@ export function TaskSlideOver({
         aria-label={task.title}
         className="fixed inset-y-0 right-0 z-40 w-full sm:w-[40rem] bg-white shadow-2xl flex flex-col"
       >
-        <header className="sticky top-0 z-10 bg-white border-b border-zinc-100 px-4 sm:px-5 py-3 flex items-center justify-between gap-3">
+        <header className="sticky top-0 z-10 bg-white border-b border-line px-4 sm:px-5 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">Task</p>
-            <p className="text-sm font-semibold text-zinc-900 truncate">{task.title}</p>
+            <p className="text-[10px] uppercase tracking-wider text-ink-3 font-semibold">Task</p>
+            <p className="text-sm font-semibold text-ink truncate">{task.title}</p>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             <Link
               href={`/tasks/${task.id}`}
               title="Open full page (comments, subtasks, activity)"
-              className="h-10 w-10 inline-flex items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 active:bg-zinc-200"
+              className="h-10 w-10 inline-flex items-center justify-center rounded-lg text-ink-3 hover:text-ink hover:bg-sunken active:bg-line"
             >
               <ExternalLink className="h-4 w-4" />
             </Link>
@@ -77,7 +77,7 @@ export function TaskSlideOver({
               onClick={close}
               title="Close (Esc)"
               aria-label="Close"
-              className="h-10 w-10 inline-flex items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 active:bg-zinc-200"
+              className="h-10 w-10 inline-flex items-center justify-center rounded-lg text-ink-3 hover:text-ink hover:bg-sunken active:bg-line"
             >
               <X className="h-4 w-4" />
             </button>
@@ -89,10 +89,10 @@ export function TaskSlideOver({
             allProfiles={allProfiles}
             initialAssigneeIds={initialAssigneeIds}
           />
-          <div className="mt-6 pt-5 border-t border-zinc-100">
+          <div className="mt-6 pt-5 border-t border-line">
             <Link
               href={`/tasks/${task.id}`}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-zinc-900"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-2 hover:text-ink"
             >
               See comments, subtasks &amp; activity
               <ExternalLink className="h-3.5 w-3.5" />
