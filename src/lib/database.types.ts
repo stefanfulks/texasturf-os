@@ -2307,6 +2307,71 @@ export type Database = {
           },
         ]
       }
+      review_outreach: {
+        Row: {
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          completed_on: string | null
+          created_at: string
+          id: string
+          job_title: string | null
+          jobber_client_id: string | null
+          jobber_job_id: string
+          notes: string | null
+          owner_id: string | null
+          platform: Database["public"]["Enums"]["review_platform"] | null
+          received_at: string | null
+          requested_at: string | null
+          status: Database["public"]["Enums"]["review_status"]
+          updated_at: string
+        }
+        Insert: {
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          completed_on?: string | null
+          created_at?: string
+          id?: string
+          job_title?: string | null
+          jobber_client_id?: string | null
+          jobber_job_id: string
+          notes?: string | null
+          owner_id?: string | null
+          platform?: Database["public"]["Enums"]["review_platform"] | null
+          received_at?: string | null
+          requested_at?: string | null
+          status?: Database["public"]["Enums"]["review_status"]
+          updated_at?: string
+        }
+        Update: {
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          completed_on?: string | null
+          created_at?: string
+          id?: string
+          job_title?: string | null
+          jobber_client_id?: string | null
+          jobber_job_id?: string
+          notes?: string | null
+          owner_id?: string | null
+          platform?: Database["public"]["Enums"]["review_platform"] | null
+          received_at?: string | null
+          requested_at?: string | null
+          status?: Database["public"]["Enums"]["review_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_outreach_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_activity: {
         Row: {
           actor_id: string
@@ -3529,6 +3594,8 @@ export type Database = {
         | "completed_paid"
         | "lost"
       reservation_status: "active" | "cancelled" | "completed"
+      review_platform: "google" | "facebook" | "jobber" | "other"
+      review_status: "pending" | "requested" | "received" | "declined"
       roll_status:
         | "available"
         | "planned"
@@ -3810,6 +3877,8 @@ export const Constants = {
         "lost",
       ],
       reservation_status: ["active", "cancelled", "completed"],
+      review_platform: ["google", "facebook", "jobber", "other"],
+      review_status: ["pending", "requested", "received", "declined"],
       roll_status: [
         "available",
         "planned",

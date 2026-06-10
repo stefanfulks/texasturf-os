@@ -98,6 +98,7 @@ const WORKSPACES: readonly Workspace[] = [
       { label: "Referrals", href: "/marketing/referrals" },
       { label: "Content",   href: "/marketing/content" },
       { label: "Campaigns", href: "/marketing/campaigns" },
+      { label: "Reviews",   href: "/marketing/reviews" },
       { label: "Playbook",  href: "/marketing/playbook" },
     ],
     prefixes: ["/marketing"],

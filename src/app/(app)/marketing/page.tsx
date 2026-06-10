@@ -22,7 +22,7 @@ export default async function MarketingPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [campaignsRes, queuedRes, openReferralsRes, rewardsDueRes] = await Promise.all([
+  const [campaignsRes, queuedRes, openReferralsRes, rewardsDueRes, reviewsToAskRes] = await Promise.all([
     supabase
       .from("campaigns")
       .select("id, slug, name, type, status, starts_on, ends_on, service_line")
@@ -39,6 +39,10 @@ export default async function MarketingPage() {
       .from("referrals")
       .select("id", { count: "exact", head: true })
       .eq("reward_status", "due"),
+    supabase
+      .from("review_outreach")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
   ]);
 
   if (campaignsRes.error) {
@@ -61,6 +65,7 @@ export default async function MarketingPage() {
     { label: "Calls remaining", value: queuedRes.count ?? 0, href: "/marketing/referrals", accent: (queuedRes.count ?? 0) > 0 ? "text-amber-600" : "text-zinc-900" },
     { label: "Open referrals", value: openReferralsRes.count ?? 0, href: "/marketing/referrals", accent: "text-zinc-900" },
     { label: "Rewards due", value: rewardsDueRes.count ?? 0, href: "/marketing/referrals", accent: (rewardsDueRes.count ?? 0) > 0 ? "text-red-600" : "text-zinc-900" },
+    { label: "Reviews to ask", value: reviewsToAskRes.count ?? 0, href: "/marketing/reviews", accent: (reviewsToAskRes.count ?? 0) > 0 ? "text-amber-600" : "text-zinc-900" },
   ];
 
   return (
