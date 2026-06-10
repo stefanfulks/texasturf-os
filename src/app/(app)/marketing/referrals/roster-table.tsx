@@ -30,15 +30,21 @@ const STATUS_LABEL: Record<OutreachRow["call_status"], string> = {
 export function BuildRosterButton({ campaignId }: { campaignId: string }) {
   const [state, formAction, isPending] = useActionState(buildRoster, initial);
   return (
-    <form action={formAction} className="flex items-center gap-2">
-      <input type="hidden" name="campaign_id" value={campaignId} />
-      <button
-        type="submit"
-        disabled={isPending}
-        className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
-      >
-        {isPending ? "Building…" : "Build roster from Jobber"}
-      </button>
+    <form action={formAction} className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <input type="hidden" name="campaign_id" value={campaignId} />
+        <button
+          type="submit"
+          disabled={isPending}
+          className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+        >
+          {isPending ? "Building…" : "Build roster from Jobber"}
+        </button>
+        <label className="flex items-center gap-1.5 text-xs text-zinc-500">
+          <input type="checkbox" name="include_all" value="true" className="rounded border-zinc-300" />
+          all active clients (not just completed jobs)
+        </label>
+      </div>
       {state.error && <span className="text-xs text-red-600">{state.error}</span>}
       {state.info && <span className="text-xs text-emerald-700">{state.info}</span>}
     </form>

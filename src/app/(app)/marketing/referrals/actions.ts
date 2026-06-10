@@ -25,8 +25,12 @@ export async function buildRoster(_prev: ActionState, formData: FormData): Promi
 
   const campaignId = String(formData.get("campaign_id") ?? "");
   if (!campaignId) return { error: "Missing campaign", success: false };
+  // include_all=true → every active client with a phone (use when Jobber jobs
+  // aren't synced). Default → only clients with a completed job (the spec's
+  // "past install clients").
+  const includeAll = String(formData.get("include_all") ?? "") === "true";
 
-  // 1. All completed jobs -> last completed job per client.
+  // 1. Build last-completed-job map (for enrichment + the default filter).
   const lastJobByClient = new Map<string, string>();
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase
@@ -48,34 +52,57 @@ export async function buildRoster(_prev: ActionState, formData: FormData): Promi
     }
     if (!data || data.length < PAGE) break;
   }
-  if (lastJobByClient.size === 0) {
-    return { error: null, success: true, info: "No completed Jobber jobs found — roster unchanged." };
-  }
 
-  // 2. Their client records (skip archived / phoneless).
-  const ids = [...lastJobByClient.keys()];
   const rows: OutreachInsert[] = [];
-  for (let i = 0; i < ids.length; i += 200) {
-    const chunk = ids.slice(i, i + 200);
-    const { data, error } = await supabase
-      .from("jobber_clients")
-      .select("id, first_name, last_name, company_name, phones, emails, is_archived")
-      .in("id", chunk);
-    if (error) return { error: `Clients query failed: ${error.message}`, success: false };
-    for (const c of data ?? []) {
-      if (c.is_archived) continue;
-      const phone = primaryPhone(c.phones);
-      if (!phone) continue;
-      rows.push({
-        campaign_id: campaignId,
-        jobber_client_id: c.id,
-        client_name: clientDisplayName(c),
-        client_phone: phone,
-        client_email: primaryEmail(c.emails),
-        last_job_note: lastJobByClient.get(c.id) ?? null,
-        // Company-name-only records are usually B2B; callers can re-segment in UI.
-        segment: !c.first_name && !c.last_name && c.company_name ? "b2b_partner" : "residential",
-      });
+  const toRow = (c: { id: string; first_name: string | null; last_name: string | null; company_name: string | null; phones: unknown; emails: unknown }, phone: string): OutreachInsert => ({
+    campaign_id: campaignId,
+    jobber_client_id: c.id,
+    client_name: clientDisplayName(c),
+    client_phone: phone,
+    client_email: primaryEmail(c.emails),
+    last_job_note: lastJobByClient.get(c.id) ?? null,
+    // Company-name-only records are usually B2B; callers can re-segment in UI.
+    segment: !c.first_name && !c.last_name && c.company_name ? "b2b_partner" : "residential",
+  });
+
+  if (includeAll) {
+    // 2a. Page through every active client; keep those with a phone.
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from("jobber_clients")
+        .select("id, first_name, last_name, company_name, phones, emails, is_archived")
+        .eq("is_archived", false)
+        .order("id", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error) return { error: `Clients query failed: ${error.message}`, success: false };
+      for (const c of data ?? []) {
+        const phone = primaryPhone(c.phones);
+        if (phone) rows.push(toRow(c, phone));
+      }
+      if (!data || data.length < PAGE) break;
+    }
+  } else {
+    // 2b. Default: only clients with a completed job.
+    if (lastJobByClient.size === 0) {
+      return {
+        error: null,
+        success: true,
+        info: "No completed Jobber jobs are synced yet — so there are no 'past install' clients to build from. Run the Jobber jobs sync, or tick 'all active clients' to call your whole client list now.",
+      };
+    }
+    const ids = [...lastJobByClient.keys()];
+    for (let i = 0; i < ids.length; i += 200) {
+      const chunk = ids.slice(i, i + 200);
+      const { data, error } = await supabase
+        .from("jobber_clients")
+        .select("id, first_name, last_name, company_name, phones, emails, is_archived")
+        .in("id", chunk);
+      if (error) return { error: `Clients query failed: ${error.message}`, success: false };
+      for (const c of data ?? []) {
+        if (c.is_archived) continue;
+        const phone = primaryPhone(c.phones);
+        if (phone) rows.push(toRow(c, phone));
+      }
     }
   }
 
