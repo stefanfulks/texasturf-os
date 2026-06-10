@@ -82,10 +82,10 @@ export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
               key={tab.href}
               href={tab.href}
               className={
-                "rounded-md px-2.5 py-1.5 transition-colors " +
+                "rounded-lg px-2.5 py-1.5 transition-colors " +
                 (active
-                  ? "font-semibold text-zinc-900 bg-zinc-100"
-                  : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50")
+                  ? "font-semibold text-ink bg-sunken"
+                  : "text-ink-3 hover:text-ink hover:bg-hover")
               }
             >
               {tab.label}
@@ -101,13 +101,13 @@ export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
           onClick={() => setOpen((v) => !v)}
           aria-label="Open menu"
           aria-expanded={open}
-          className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm font-medium text-zinc-700"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm font-medium text-ink-2 shadow-e1"
         >
           {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           <span>{activeTab?.label ?? "Menu"}</span>
         </button>
         {open && (
-          <div className="absolute left-0 top-full z-40 mt-1.5 w-48 rounded-xl border border-zinc-200 bg-white shadow-lg overflow-hidden">
+          <div className="absolute left-0 top-full z-40 mt-1.5 w-48 rounded-2xl border border-line bg-surface shadow-pop overflow-hidden">
             {tabs.map((tab) => {
               const active = isActive(pathname, tab);
               return (
@@ -117,8 +117,8 @@ export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
                   className={
                     "block px-4 py-2.5 text-sm transition-colors " +
                     (active
-                      ? "font-semibold text-zinc-900 bg-zinc-50"
-                      : "text-zinc-700 hover:bg-zinc-50")
+                      ? "font-semibold text-ink bg-sunken"
+                      : "text-ink-2 hover:bg-hover")
                   }
                 >
                   {tab.label}

@@ -201,53 +201,53 @@ export function UserMenu({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="true"
         aria-expanded={open}
-        className="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-zinc-100 transition-colors"
+        className="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-hover transition-colors"
       >
         <span
           className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${colorFor(email)}`}
         >
           {initial}
         </span>
-        <span className="text-sm font-semibold text-zinc-900 truncate max-w-[140px]">
+        <span className="text-sm font-semibold text-ink truncate max-w-[140px]">
           {name}
         </span>
         <ChevronDown
-          className={`h-3.5 w-3.5 text-zinc-500 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 text-ink-3 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1.5 w-80 rounded-xl border border-zinc-200 bg-white shadow-lg overflow-hidden max-h-[80vh] overflow-y-auto">
+        <div className="absolute left-0 top-full z-50 mt-1.5 w-80 rounded-2xl border border-line bg-surface shadow-pop overflow-hidden max-h-[80vh] overflow-y-auto">
           {/* Profile header */}
-          <div className="px-4 py-3 border-b border-zinc-100 bg-zinc-50/60">
+          <div className="px-4 py-3 border-b border-line bg-sunken/50">
             <div className="flex items-center gap-3">
               <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${colorFor(email)}`}>
                 {initial}
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-zinc-900 truncate">{fullName ?? name}</p>
-                <p className="text-xs text-zinc-500 truncate">{email}</p>
+                <p className="text-sm font-semibold text-ink truncate">{fullName ?? name}</p>
+                <p className="text-xs text-ink-3 truncate">{email}</p>
                 {role && (
-                  <p className="text-[10px] uppercase tracking-wider text-zinc-400 mt-0.5">{role}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-ink-4 mt-0.5">{role}</p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Workspaces + their tools */}
-          <div className="px-2 py-2 border-b border-zinc-100">
-            <p className="px-2 text-[10px] uppercase tracking-wider text-zinc-400 font-semibold mb-1">
+          <div className="px-2 py-2 border-b border-line">
+            <p className="px-2 mb-1 eyebrow">
               Jump to anything
             </p>
-            <ul className="divide-y divide-zinc-100">
+            <ul className="divide-y divide-line">
               {workspaces.map((ws) => (
                 <li key={ws.label} className="py-1.5">
                   <Link
                     href={ws.primaryHref}
-                    className="flex items-center gap-2 px-2 py-1 hover:bg-zinc-50 rounded-md"
+                    className="flex items-center gap-2 px-2 py-1 hover:bg-hover rounded-lg"
                   >
                     <span className="text-base leading-none">{ws.emoji}</span>
-                    <span className="text-xs font-semibold text-zinc-800">{ws.label}</span>
+                    <span className="text-xs font-semibold text-ink">{ws.label}</span>
                   </Link>
                   {ws.tools.length > 0 && (
                     <div className="pl-7 pr-1 mt-1 flex flex-wrap gap-1">
@@ -258,10 +258,10 @@ export function UserMenu({
                             key={tool.href}
                             href={tool.href}
                             className={
-                              "rounded-md px-2 py-1 text-[11px] font-medium transition-colors " +
+                              "rounded-lg px-2 py-1 text-[11px] font-medium transition-colors " +
                               (active
-                                ? "bg-zinc-900 text-white"
-                                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900")
+                                ? "bg-brand text-white"
+                                : "text-ink-2 hover:bg-hover hover:text-ink")
                             }
                           >
                             {tool.label}
@@ -279,25 +279,25 @@ export function UserMenu({
           <div className="py-1.5">
             <Link
               href="/settings/account"
-              className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-ink-2 hover:bg-hover hover:text-ink transition-colors"
             >
-              <UserIcon className="h-4 w-4 text-zinc-500" />
+              <UserIcon className="h-4 w-4 text-ink-3" />
               Account
             </Link>
             <Link
               href="/settings"
-              className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-ink-2 hover:bg-hover hover:text-ink transition-colors"
             >
-              <Settings className="h-4 w-4 text-zinc-500" />
+              <Settings className="h-4 w-4 text-ink-3" />
               Settings
             </Link>
             <button
               type="button"
               onClick={handleSignOut}
               disabled={signOutPending}
-              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-ink-2 hover:bg-hover hover:text-ink transition-colors disabled:opacity-50"
             >
-              <LogOut className="h-4 w-4 text-zinc-500" />
+              <LogOut className="h-4 w-4 text-ink-3" />
               {signOutPending ? "Signing out…" : "Sign out"}
             </button>
           </div>

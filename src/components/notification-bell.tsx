@@ -97,7 +97,7 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
     <div className="relative" ref={panelRef}>
       <button
         onClick={handleOpen}
-        className="relative flex items-center justify-center w-8 h-8 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+        className="relative flex items-center justify-center w-9 h-9 rounded-[10px] text-ink-3 hover:text-ink hover:bg-hover transition-colors"
         aria-label="Notifications"
       >
         {/* Bell icon */}
@@ -105,45 +105,45 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
         {unread > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white leading-none">
+          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-danger text-[10px] font-bold text-white leading-none">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-zinc-200 bg-white shadow-lg z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl border border-line bg-surface shadow-pop z-50 overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100">
-            <span className="text-sm font-semibold">Notifications</span>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-line">
+            <span className="text-sm font-semibold text-ink">Notifications</span>
             {unread > 0 && (
-              <button onClick={markAllRead} className="text-xs text-zinc-500 hover:text-zinc-900">
+              <button onClick={markAllRead} className="text-xs font-medium text-ink-3 hover:text-brand transition-colors">
                 Mark all read
               </button>
             )}
           </div>
 
           {/* List */}
-          <div className="max-h-96 overflow-y-auto divide-y divide-zinc-50">
+          <div className="max-h-96 overflow-y-auto divide-y divide-line">
             {!loaded ? (
-              <div className="py-8 text-center text-sm text-zinc-400">Loading…</div>
+              <div className="py-8 text-center text-sm text-ink-4">Loading…</div>
             ) : notifications.length === 0 ? (
-              <div className="py-8 text-center text-sm text-zinc-400">No notifications yet</div>
+              <div className="py-8 text-center text-sm text-ink-4">No notifications yet</div>
             ) : (
               notifications.map((n) => {
                 const href = n.resource_type && n.resource_id
                   ? RESOURCE_HREFS[n.resource_type]?.(n.resource_id) ?? null
                   : null;
                 const content = (
-                  <div className={`px-4 py-3 ${!n.read ? "bg-blue-50/60" : ""}`}>
+                  <div className={`px-4 py-3 ${!n.read ? "bg-brand-tint/45" : ""}`}>
                     <div className="flex items-start gap-2">
                       {!n.read && (
-                        <span className="mt-1.5 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        <span className="mt-1.5 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-brand" />
                       )}
                       <div className={`flex-1 min-w-0 ${n.read ? "pl-3.5" : ""}`}>
-                        <p className="text-sm font-medium text-zinc-900 leading-snug">{n.title}</p>
-                        {n.body && <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">{n.body}</p>}
-                        <p className="text-xs text-zinc-400 mt-1">
+                        <p className="text-sm font-medium text-ink leading-snug">{n.title}</p>
+                        {n.body && <p className="text-xs text-ink-3 mt-0.5 line-clamp-2">{n.body}</p>}
+                        <p className="text-xs text-ink-4 mt-1">
                           {formatDistanceToNow(parseISO(n.created_at), { addSuffix: true })}
                         </p>
                       </div>
@@ -156,7 +156,7 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
                       key={n.id}
                       href={href}
                       onClick={() => { if (!n.read) markOneRead(n.id); setOpen(false); }}
-                      className="block hover:bg-zinc-50 transition-colors"
+                      className="block row-link"
                     >
                       {content}
                     </Link>
