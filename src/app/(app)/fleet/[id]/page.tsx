@@ -9,6 +9,7 @@ const UNIT_LABELS: Record<Asset["unit_type"], string> = {
   truck: "Truck",
   trailer: "Trailer",
   heavy_equipment: "Heavy Equipment",
+  tool: "Tool",
 };
 
 const STATUS_COLORS: Record<Asset["status"], string> = {
