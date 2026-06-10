@@ -414,12 +414,28 @@ async function loadDepartmentStats(
       ];
     }
     case "marketing": {
-      // No marketing tables yet; placeholders.
+      const [activeCampaigns, queuedCalls, openReferrals, rewardsDue] = await Promise.all([
+        supabase.from("campaigns").select("id", { count: "exact", head: true })
+          .eq("status", "active"),
+        supabase.from("referral_outreach").select("id", { count: "exact", head: true })
+          .eq("call_status", "queued"),
+        supabase.from("referrals").select("id", { count: "exact", head: true })
+          .not("stage", "in", "(completed_paid,lost)"),
+        supabase.from("referrals").select("id", { count: "exact", head: true })
+          .eq("reward_status", "due"),
+      ]);
       return [
-        { label: "Content calendar", value: "—", tone: "neutral", hint: "coming soon" },
-        { label: "Active campaigns", value: "—", tone: "neutral", hint: "coming soon" },
-        { label: "Reviews this month", value: "—", tone: "neutral", hint: "coming soon" },
-        { label: "Lead sources",     value: "—", tone: "neutral", hint: "coming soon" },
+        { label: "Active campaigns", value: activeCampaigns.count ?? 0,
+          tone: "neutral", href: "/marketing" },
+        { label: "Calls remaining", value: queuedCalls.count ?? 0,
+          tone: (queuedCalls.count ?? 0) > 0 ? "amber" : "neutral",
+          href: "/marketing/referrals" },
+        { label: "Open referrals", value: openReferrals.count ?? 0,
+          tone: "neutral",
+          href: "/marketing/referrals" },
+        { label: "Rewards due", value: rewardsDue.count ?? 0,
+          tone: (rewardsDue.count ?? 0) > 0 ? "red" : "neutral",
+          href: "/marketing/referrals" },
       ];
     }
   }

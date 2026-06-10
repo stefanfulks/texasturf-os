@@ -45,7 +45,7 @@ export const DEPARTMENT_HREF: Record<Department, string> = {
   warehouse: "/inventory",
   office:    "/invoices",
   field:     "/tasks",
-  marketing: "/dashboard",
+  marketing: "/marketing",
   financial: "/reports",
 };
 

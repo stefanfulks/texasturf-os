@@ -100,11 +100,16 @@ const WORKSPACES: readonly Workspace[] = [
   {
     label: "Marketing",
     emoji: "📣",
-    description: "Content, SEO, reviews",
-    primaryHref: "/dashboard",
-    tools: [],
+    description: "Campaigns, referrals, content",
+    primaryHref: "/marketing",
+    tools: [
+      { label: "Overview",  href: "/marketing" },
+      { label: "Referrals", href: "/marketing/referrals" },
+      { label: "Campaigns", href: "/marketing/campaigns", comingSoon: true },
+      { label: "Content",   href: "/marketing/content",   comingSoon: true },
+      { label: "Playbook",  href: "/marketing/playbook",  comingSoon: true },
+    ],
     prefixes: ["/marketing"],
-    comingSoon: true,
   },
   {
     label: "Field",
