@@ -25,12 +25,12 @@ export function GoogleSignInButton() {
         type="button"
         onClick={handleClick}
         disabled={pending}
-        className="flex w-full items-center justify-center gap-3 rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
+        className="btn btn-line h-11 w-full disabled:cursor-not-allowed disabled:opacity-60"
       >
         <GoogleLogo />
         {pending ? "Redirecting…" : "Continue with Google"}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
     </div>
   );
 }

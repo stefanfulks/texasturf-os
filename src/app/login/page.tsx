@@ -13,59 +13,107 @@ export default function LoginPage() {
   );
 
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-16">
-      <div className="w-full max-w-sm space-y-6 rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            TexasTurf OS
-          </h1>
-          <p className="text-sm text-zinc-600">
-            Sign in with your @texasturfusa.com email.
-          </p>
+    <main className="relative flex flex-1 items-center justify-center overflow-hidden px-4 py-16">
+      {/* Atmosphere — soft turf glow + faint grid, pure CSS */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute left-1/2 top-[-14%] h-[440px] w-[860px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
+          style={{ background: "radial-gradient(50% 50% at 50% 50%, var(--color-brand-tint), transparent 72%)" }}
+        />
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              "linear-gradient(var(--color-ink) 1px, transparent 1px), linear-gradient(90deg, var(--color-ink) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+            WebkitMaskImage: "radial-gradient(68% 52% at 50% 32%, #000, transparent)",
+            maskImage: "radial-gradient(68% 52% at 50% 32%, #000, transparent)",
+          }}
+        />
+      </div>
+
+      <div className="reveal relative w-full max-w-[400px]">
+        {/* Brand lockup */}
+        <div className="mb-7 flex flex-col items-center text-center">
+          <BrandMark />
+          <h1 className="display mt-4 text-2xl text-ink">TexasTurf OS</h1>
+          <p className="mt-1.5 text-sm text-ink-3">The operations command center.</p>
         </div>
 
-        {state.status === "sent" ? (
-          <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-            Magic link sent to <strong>{state.email}</strong>. Check your inbox.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <GoogleSignInButton />
-
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-zinc-200" />
-              <span className="text-xs uppercase tracking-wide text-zinc-400">or</span>
-              <div className="h-px flex-1 bg-zinc-200" />
+        <div className="card p-6 sm:p-7" style={{ boxShadow: "var(--shadow-pop)" }}>
+          {state.status === "sent" ? (
+            <div className="rounded-xl border border-brand-line bg-brand-tint p-4 text-sm">
+              <p className="font-semibold text-brand-strong">Check your inbox.</p>
+              <p className="mt-1 text-brand">
+                Magic link sent to <strong>{state.email}</strong>.
+              </p>
             </div>
+          ) : (
+            <div className="space-y-4">
+              <GoogleSignInButton />
 
-            <form action={formAction} className="space-y-3">
-              <label className="block text-sm font-medium text-zinc-700">
-                Email
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  autoComplete="email"
-                  placeholder="you@texasturfusa.com"
-                  className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
-                />
-              </label>
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-line" />
+                <span className="eyebrow">or email</span>
+                <div className="h-px flex-1 bg-line" />
+              </div>
 
-              {state.status === "error" && (
-                <p className="text-sm text-red-600">{state.message}</p>
-              )}
+              <form action={formAction} className="space-y-3">
+                <div>
+                  <label htmlFor="email" className="mb-1.5 block text-xs font-semibold text-ink-2">
+                    Work email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    required
+                    autoComplete="email"
+                    placeholder="you@texasturfusa.com"
+                    className="field-input"
+                  />
+                </div>
 
-              <button
-                type="submit"
-                disabled={pending}
-                className="block w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {pending ? "Sending…" : "Send magic link"}
-              </button>
-            </form>
-          </div>
-        )}
+                {state.status === "error" && (
+                  <p className="text-sm text-danger">{state.message}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={pending}
+                  className="btn btn-primary h-11 w-full disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {pending ? "Sending…" : "Send magic link"}
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+
+        <p className="mt-6 text-center text-xs text-ink-4">
+          Restricted to @texasturfusa.com accounts.
+        </p>
       </div>
     </main>
+  );
+}
+
+function BrandMark() {
+  return (
+    <span
+      className="inline-flex h-12 w-12 items-center justify-center rounded-2xl"
+      style={{
+        background: "linear-gradient(180deg, var(--color-brand-hi), var(--color-brand))",
+        boxShadow: "var(--shadow-e2), inset 0 1px 0 rgba(255,255,255,0.18)",
+      }}
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <g stroke="#fff" strokeWidth="2" strokeLinecap="round">
+          <path d="M12 20V8" />
+          <path d="M12 19c0-4 2.6-6.2 5-7.4" />
+          <path d="M12 19c0-4-2.6-6.2-5-7.4" />
+        </g>
+      </svg>
+    </span>
   );
 }
