@@ -212,7 +212,8 @@ YouTube long-form is the hub → editor cuts shorts → YouTube Shorts, Instagra
 
 - **Google Drive = master library.** All raw + final files. Folder convention: `Marketing-Content/YYYY/MM/<job-or-topic>/` with an `_intake/` folder where crews and Max drop unsorted footage. (Lives under the existing `06_Brand_Marketing` Drive area.)
 - **YouTube = distribution, not storage.** Public for educational/POV; unlisted for client-facing or pre-release. Compressed output only — never the archive.
-- **Supabase = metadata only.** `content_items` rows: title, type, status, service line, creator, Drive URL, YouTube URL, channels published, dates. Kilobytes per item; effectively $0. No video bytes in Supabase — file storage egress ($0.09/GB beyond plan) would charge per view for no benefit.
+- **Supabase = metadata only** for video. `content_items` rows: title, type, status, service line, creator, Drive URL, YouTube URL, channels published, dates. Kilobytes per item; effectively $0. No video bytes in Supabase — file storage egress ($0.09/GB beyond plan) would charge per view for no benefit.
+- **Exception — small audio uploads directly in the app (added 2026-06-10):** voice memos for voiceovers, VO takes, and similar small audio (~1–5 MB each) upload straight into a private Supabase Storage bucket `marketing` from the Content page (record on phone → upload → teammate presses play). New `content_items.type = 'voice_memo'` + `asset_path` column (bucket-relative); inline audio player in the library; playback via short-lived signed URLs minted server-side. Whole team can listen (any authenticated user); marketing/admin upload. Hundreds of memos ≈ low GBs — comfortably inside the plan's 100 GB. Video files still never go in Supabase.
 - **App library page** = the searchable index: filter by service line / type / status / creator; share = copy the Drive or YouTube link.
 
 ---
@@ -301,7 +302,7 @@ Constraint: when `referrals.stage = 'completed_paid'` and `reward_status = 'not_
 | Phase | Ships | Definition of done |
 |---|---|---|
 | **1 — Referral hub** | Migration (4 tables) + `/marketing` shell + `/marketing/referrals` (roster build, outcome logging, ledger, reward flips, Reevo CSV) + referral campaign seed | Team can build roster, export to Reevo, log outcomes, track a referral to reward-sent. Typecheck/lint green, deployed |
-| **2 — Content engine** | `/marketing/content` pipeline + library, playbook page, recurring tasks + KPI seeds, idea bank seed | Troy's cycle live with visible scoreboard; library indexes Drive/YouTube links |
+| **2 — Content engine** | `/marketing/content` pipeline + library, playbook page, recurring tasks + KPI seeds, idea bank seed, **voice-memo upload** (`marketing` storage bucket + `asset_path` + `voice_memo` type + inline player) | Troy's cycle live with visible scoreboard; library indexes Drive/YouTube links; a voice memo uploaded on a phone is playable by the whole team |
 | **3 — Campaigns + dashboard** | `/marketing/campaigns` CRUD + copy blocks, dashboard tiles wired (incl. existing "Active campaigns" stat), spotlight seeds | Spotlight kit runnable end-to-end for July |
 
 Each phase: typecheck + lint gates, committed and deployed via the repo's `/ship` flow before the next begins.
