@@ -263,6 +263,7 @@ export type Database = {
       }
       content_items: {
         Row: {
+          asset_path: string | null
           created_at: string
           created_by_id: string | null
           creator_id: string | null
@@ -281,6 +282,7 @@ export type Database = {
           youtube_url: string | null
         }
         Insert: {
+          asset_path?: string | null
           created_at?: string
           created_by_id?: string | null
           creator_id?: string | null
@@ -299,6 +301,7 @@ export type Database = {
           youtube_url?: string | null
         }
         Update: {
+          asset_path?: string | null
           created_at?: string
           created_by_id?: string | null
           creator_id?: string | null
@@ -3447,6 +3450,7 @@ export type Database = {
         | "photo_set"
         | "blog_post"
         | "other"
+        | "voice_memo"
       feedback_category: "bug" | "feature_request" | "question" | "other"
       feedback_status: "new" | "in_progress" | "resolved" | "wont_fix"
       invoice_status:
@@ -3719,6 +3723,7 @@ export const Constants = {
         "photo_set",
         "blog_post",
         "other",
+        "voice_memo",
       ],
       feedback_category: ["bug", "feature_request", "question", "other"],
       feedback_status: ["new", "in_progress", "resolved", "wont_fix"],
