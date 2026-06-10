@@ -224,6 +224,140 @@ export type Database = {
           },
         ]
       }
+      campaigns: {
+        Row: {
+          brief_md: string | null
+          channels: Json
+          created_at: string
+          created_by_id: string | null
+          ends_on: string | null
+          id: string
+          jobber_copy: Json
+          name: string
+          results: Json
+          service_line: string | null
+          slug: string
+          starts_on: string | null
+          status: Database["public"]["Enums"]["campaign_status"]
+          type: Database["public"]["Enums"]["campaign_type"]
+          updated_at: string
+        }
+        Insert: {
+          brief_md?: string | null
+          channels?: Json
+          created_at?: string
+          created_by_id?: string | null
+          ends_on?: string | null
+          id?: string
+          jobber_copy?: Json
+          name: string
+          results?: Json
+          service_line?: string | null
+          slug: string
+          starts_on?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          type?: Database["public"]["Enums"]["campaign_type"]
+          updated_at?: string
+        }
+        Update: {
+          brief_md?: string | null
+          channels?: Json
+          created_at?: string
+          created_by_id?: string | null
+          ends_on?: string | null
+          id?: string
+          jobber_copy?: Json
+          name?: string
+          results?: Json
+          service_line?: string | null
+          slug?: string
+          starts_on?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          type?: Database["public"]["Enums"]["campaign_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_created_by_id_fkey"
+            columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_items: {
+        Row: {
+          created_at: string
+          created_by_id: string | null
+          creator_id: string | null
+          drive_url: string | null
+          hook: string | null
+          id: string
+          job_ref: string | null
+          published_channels: Json
+          published_on: string | null
+          service_line: string | null
+          shot_on: string | null
+          status: Database["public"]["Enums"]["content_item_status"]
+          title: string
+          type: Database["public"]["Enums"]["content_item_type"]
+          updated_at: string
+          youtube_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by_id?: string | null
+          creator_id?: string | null
+          drive_url?: string | null
+          hook?: string | null
+          id?: string
+          job_ref?: string | null
+          published_channels?: Json
+          published_on?: string | null
+          service_line?: string | null
+          shot_on?: string | null
+          status?: Database["public"]["Enums"]["content_item_status"]
+          title: string
+          type?: Database["public"]["Enums"]["content_item_type"]
+          updated_at?: string
+          youtube_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by_id?: string | null
+          creator_id?: string | null
+          drive_url?: string | null
+          hook?: string | null
+          id?: string
+          job_ref?: string | null
+          published_channels?: Json
+          published_on?: string | null
+          service_line?: string | null
+          shot_on?: string | null
+          status?: Database["public"]["Enums"]["content_item_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["content_item_type"]
+          updated_at?: string
+          youtube_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_items_created_by_id_fkey"
+            columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_items_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           created_at: string
@@ -2032,6 +2166,169 @@ export type Database = {
           },
         ]
       }
+      referral_outreach: {
+        Row: {
+          attempts: number
+          call_status: Database["public"]["Enums"]["outreach_call_status"]
+          campaign_id: string
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          id: string
+          jobber_client_id: string
+          last_called_at: string | null
+          last_job_note: string | null
+          notes: string | null
+          owner_id: string | null
+          segment: Database["public"]["Enums"]["outreach_segment"]
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          call_status?: Database["public"]["Enums"]["outreach_call_status"]
+          campaign_id: string
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          id?: string
+          jobber_client_id: string
+          last_called_at?: string | null
+          last_job_note?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          segment?: Database["public"]["Enums"]["outreach_segment"]
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          call_status?: Database["public"]["Enums"]["outreach_call_status"]
+          campaign_id?: string
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          id?: string
+          jobber_client_id?: string
+          last_called_at?: string | null
+          last_job_note?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          segment?: Database["public"]["Enums"]["outreach_segment"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_outreach_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_outreach_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          created_by_id: string | null
+          id: string
+          jobber_job_url: string | null
+          jobber_quote_url: string | null
+          notes: string | null
+          outreach_id: string | null
+          referred_email: string | null
+          referred_name: string
+          referred_phone: string | null
+          referrer_jobber_client_id: string | null
+          referrer_name: string
+          reward_note: string | null
+          reward_sent_at: string | null
+          reward_status: Database["public"]["Enums"]["referral_reward_status"]
+          reward_type: Database["public"]["Enums"]["referral_reward_type"]
+          service_interest: string | null
+          source: Database["public"]["Enums"]["referral_source"]
+          stage: Database["public"]["Enums"]["referral_stage"]
+          updated_at: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          created_by_id?: string | null
+          id?: string
+          jobber_job_url?: string | null
+          jobber_quote_url?: string | null
+          notes?: string | null
+          outreach_id?: string | null
+          referred_email?: string | null
+          referred_name: string
+          referred_phone?: string | null
+          referrer_jobber_client_id?: string | null
+          referrer_name: string
+          reward_note?: string | null
+          reward_sent_at?: string | null
+          reward_status?: Database["public"]["Enums"]["referral_reward_status"]
+          reward_type?: Database["public"]["Enums"]["referral_reward_type"]
+          service_interest?: string | null
+          source?: Database["public"]["Enums"]["referral_source"]
+          stage?: Database["public"]["Enums"]["referral_stage"]
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          created_by_id?: string | null
+          id?: string
+          jobber_job_url?: string | null
+          jobber_quote_url?: string | null
+          notes?: string | null
+          outreach_id?: string | null
+          referred_email?: string | null
+          referred_name?: string
+          referred_phone?: string | null
+          referrer_jobber_client_id?: string | null
+          referrer_name?: string
+          reward_note?: string | null
+          reward_sent_at?: string | null
+          reward_status?: Database["public"]["Enums"]["referral_reward_status"]
+          reward_type?: Database["public"]["Enums"]["referral_reward_type"]
+          service_interest?: string | null
+          source?: Database["public"]["Enums"]["referral_source"]
+          stage?: Database["public"]["Enums"]["referral_stage"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_created_by_id_fkey"
+            columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_outreach_id_fkey"
+            columns: ["outreach_id"]
+            isOneToOne: false
+            referencedRelation: "referral_outreach"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_activity: {
         Row: {
           actor_id: string
@@ -3142,6 +3439,10 @@ export type Database = {
         Args: { m: Database["public"]["Tables"]["meetings"]["Row"] }
         Returns: boolean
       }
+      user_is_marketing: {
+        Args: never
+        Returns: boolean
+      }
     }
     Enums: {
       asset_status:
@@ -3150,6 +3451,30 @@ export type Database = {
         | "in_use_today"
         | "maintenance_needed"
         | "out_of_service"
+      campaign_status: "draft" | "active" | "paused" | "completed"
+      campaign_type:
+        | "referral"
+        | "service_spotlight"
+        | "seasonal"
+        | "event"
+        | "other"
+      content_item_status:
+        | "idea"
+        | "scripted"
+        | "scheduled_shoot"
+        | "filmed"
+        | "editing"
+        | "ready"
+        | "published"
+        | "archived"
+      content_item_type:
+        | "long_video"
+        | "short"
+        | "pov_clip"
+        | "before_after"
+        | "photo_set"
+        | "blog_post"
+        | "other"
       feedback_category: "bug" | "feature_request" | "question" | "other"
       feedback_status: "new" | "in_progress" | "resolved" | "wont_fix"
       invoice_status:
@@ -3185,6 +3510,14 @@ export type Database = {
         | "discussed"
         | "done"
         | "archived"
+      outreach_call_status:
+        | "queued"
+        | "no_answer"
+        | "declined"
+        | "referred"
+        | "do_not_call"
+        | "invalid_number"
+      outreach_segment: "residential" | "b2b_partner"
       project_status:
         | "intake"
         | "planning"
@@ -3209,6 +3542,16 @@ export type Database = {
         | "technology"
       ready_status: "ready" | "needs_prep" | "not_ready"
       recurrence_freq: "daily" | "weekly" | "biweekly" | "monthly"
+      referral_reward_status: "not_earned" | "due" | "sent"
+      referral_reward_type: "visa_250" | "care_plan_1yr" | "undecided"
+      referral_source: "call" | "jobber_link" | "word_of_mouth" | "other"
+      referral_stage:
+        | "lead"
+        | "contacted"
+        | "quoted"
+        | "signed"
+        | "completed_paid"
+        | "lost"
       reservation_status: "active" | "cancelled" | "completed"
       roll_status:
         | "available"
@@ -3381,6 +3724,33 @@ export const Constants = {
         "maintenance_needed",
         "out_of_service",
       ],
+      campaign_status: ["draft", "active", "paused", "completed"],
+      campaign_type: [
+        "referral",
+        "service_spotlight",
+        "seasonal",
+        "event",
+        "other",
+      ],
+      content_item_status: [
+        "idea",
+        "scripted",
+        "scheduled_shoot",
+        "filmed",
+        "editing",
+        "ready",
+        "published",
+        "archived",
+      ],
+      content_item_type: [
+        "long_video",
+        "short",
+        "pov_clip",
+        "before_after",
+        "photo_set",
+        "blog_post",
+        "other",
+      ],
       feedback_category: ["bug", "feature_request", "question", "other"],
       feedback_status: ["new", "in_progress", "resolved", "wont_fix"],
       invoice_status: [
@@ -3419,6 +3789,15 @@ export const Constants = {
         "done",
         "archived",
       ],
+      outreach_call_status: [
+        "queued",
+        "no_answer",
+        "declined",
+        "referred",
+        "do_not_call",
+        "invalid_number",
+      ],
+      outreach_segment: ["residential", "b2b_partner"],
       project_status: [
         "intake",
         "planning",
@@ -3445,6 +3824,17 @@ export const Constants = {
       ],
       ready_status: ["ready", "needs_prep", "not_ready"],
       recurrence_freq: ["daily", "weekly", "biweekly", "monthly"],
+      referral_reward_status: ["not_earned", "due", "sent"],
+      referral_reward_type: ["visa_250", "care_plan_1yr", "undecided"],
+      referral_source: ["call", "jobber_link", "word_of_mouth", "other"],
+      referral_stage: [
+        "lead",
+        "contacted",
+        "quoted",
+        "signed",
+        "completed_paid",
+        "lost",
+      ],
       reservation_status: ["active", "cancelled", "completed"],
       roll_status: [
         "available",
