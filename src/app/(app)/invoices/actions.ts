@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { sendInvoiceNotification } from "@/lib/integrations/slack";
@@ -368,7 +367,7 @@ export async function updateInvoiceFields(
   // (b) compute a money-fields diff for the audit comment.
   const { data: currentRaw } = await supabase
     .from("invoices")
-    .select("status, subtotal, tax, total_amount, vendor_id")
+    .select("status, subtotal, tax, total_amount, vendor_id, project_id")
     .eq("id", id)
     .single();
   if (!currentRaw) return { error: "Invoice not found", success: false };
@@ -378,6 +377,7 @@ export async function updateInvoiceFields(
     tax: number | null;
     total_amount: number | null;
     vendor_id: string | null;
+    project_id: string | null;
   };
 
   // Once an invoice is approved or paid, only admin can amend it. Otherwise
@@ -394,11 +394,19 @@ export async function updateInvoiceFields(
   const getStr = (key: string) => { const v = formData.get(key); return v === null ? undefined : (v === "" ? null : String(v)); };
   const getNum = (key: string) => { const v = formData.get(key); return v === null || v === "" ? undefined : Number(v); };
 
+  // vendor_id/project_id come from <select>s, but a direct POST can send
+  // anything — validate as UUIDs so bad input fails here, not as a DB error.
+  const links = z.object({
+    vendor_id:  z.string().uuid().nullish(),
+    project_id: z.string().uuid().nullish(),
+  }).safeParse({ vendor_id: getStr("vendor_id"), project_id: getStr("project_id") });
+  if (!links.success) return { error: "Invalid vendor or project selection", success: false };
+
   const payload = {
     updated_at:           new Date().toISOString(),
     title:                getStr("title") ?? undefined,
-    vendor_id:            getStr("vendor_id"),
-    project_id:           getStr("project_id"),
+    vendor_id:            links.data.vendor_id,
+    project_id:           links.data.project_id,
     invoice_number:       getStr("invoice_number"),
     invoice_date:         getStr("invoice_date"),
     service_period_start: getStr("service_period_start"),
@@ -423,6 +431,7 @@ export async function updateInvoiceFields(
   if (payload.tax          !== undefined && payload.tax          !== current.tax)          changes.push(`tax: ${current.tax ?? "—"} → ${payload.tax}`);
   if (payload.total_amount !== undefined && payload.total_amount !== current.total_amount) changes.push(`total_amount: ${current.total_amount ?? "—"} → ${payload.total_amount}`);
   if (payload.vendor_id    !== undefined && payload.vendor_id    !== current.vendor_id)    changes.push(`vendor changed`);
+  if (payload.project_id   !== undefined && payload.project_id   !== current.project_id)   changes.push(`project changed`);
   if (changes.length > 0) {
     await supabase.from("invoice_comments").insert({
       invoice_id: id,

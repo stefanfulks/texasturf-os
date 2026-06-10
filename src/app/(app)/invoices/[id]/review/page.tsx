@@ -34,6 +34,21 @@ export default async function InvoiceReviewPage({ params }: { params: Promise<{ 
   const vendors   = (vendorsRes.data ?? []) as Pick<Vendor, "id" | "name" | "type">[];
   const projects  = (projectsRes.data ?? []) as Pick<Project, "id" | "name" | "status">[];
 
+  // Keep the invoice's current vendor/project selectable even when the vendor
+  // is inactive or the project closed — otherwise the select falls back to
+  // "None" and saving the form would silently clear the link.
+  if (vendorData && !vendors.some((v) => v.id === vendorData.id)) {
+    vendors.push({ id: vendorData.id, name: vendorData.name, type: vendorData.type });
+    vendors.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  if (inv.project_id && !projects.some((p) => p.id === inv.project_id)) {
+    const { data: pd } = await supabase.from("projects").select("id, name, status").eq("id", inv.project_id).single();
+    if (pd) {
+      projects.push(pd as Pick<Project, "id" | "name" | "status">);
+      projects.sort((a, b) => a.name.localeCompare(b.name));
+    }
+  }
+
   return (
     <div className="max-w-3xl space-y-6">
       <Link href={`/invoices/${id}`} className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">← Invoice</Link>

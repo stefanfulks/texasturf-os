@@ -152,6 +152,27 @@ export function ReviewForm({
           </div>
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-zinc-500 mb-1">Vendor</label>
+            <select name="vendor_id" defaultValue={invoice.vendor_id ?? ""} className={field}>
+              <option value="">— None —</option>
+              {vendors.map((vendor) => (
+                <option key={vendor.id} value={vendor.id}>{vendor.name}{vendor.type ? ` (${vendor.type})` : ""}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-zinc-500 mb-1">Project</label>
+            <select name="project_id" defaultValue={invoice.project_id ?? ""} className={field}>
+              <option value="">— None —</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>{project.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-zinc-500 mb-1">Customer Name</label>
