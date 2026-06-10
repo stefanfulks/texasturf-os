@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       app_feedback: {
@@ -3439,10 +3414,7 @@ export type Database = {
         Args: { m: Database["public"]["Tables"]["meetings"]["Row"] }
         Returns: boolean
       }
-      user_is_marketing: {
-        Args: never
-        Returns: boolean
-      }
+      user_is_marketing: { Args: never; Returns: boolean }
     }
     Enums: {
       asset_status:
@@ -3712,9 +3684,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       asset_status: [
