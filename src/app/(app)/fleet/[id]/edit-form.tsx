@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { updateAsset, type UpdateAssetState } from "./actions";
-import type { Asset } from "@/lib/database.types";
+import type { Asset } from "@/lib/db-helpers.types";
 
 const STATUS_OPTIONS: { value: Asset["status"]; label: string }[] = [
   { value: "available", label: "Available" },

@@ -5,7 +5,7 @@ import { ChevronLeft, ExternalLink, MapPin, Calendar, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/server";
 import { JobForm } from "../job-form";
 import { JobArchiveButton } from "./archive-button";
-import type { Project, Task, TaskStatus, TaskPriority, ProjectStatus } from "@/lib/database.types";
+import type { Project, Task, TaskStatus, TaskPriority, ProjectStatus } from "@/lib/db-helpers.types";
 
 const STATUS_LABEL: Record<ProjectStatus, string> = {
   intake: "Intake", planning: "Planning", waiting_customer: "Waiting (Customer)",

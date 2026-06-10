@@ -307,7 +307,7 @@ on conflict (slug) do nothing;
 
 - [ ] **Step 1.4: Verify applied:** `supabase migration list` shows `20260610200000` under Remote.
 
-- [ ] **Step 1.5: Regenerate types:** `pnpm exec supabase gen types typescript --linked > src/lib/database.types.ts`, then `git diff src/lib/database.types.ts --stat` shows changes (campaigns/referral_outreach/referrals/content_items present).
+- [ ] **Step 1.5: Regenerate types:** `pnpm typegen`, then `git diff src/lib/database.types.ts --stat` shows changes (campaigns/referral_outreach/referrals/content_items present).
 
 - [ ] **Step 1.6: Typecheck:** `pnpm typecheck` → exit 0.
 

@@ -3,7 +3,7 @@ import { ClipboardList } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ReturnsClient } from "./returns-client";
 import { redirectIfNotOfficeOrAdmin } from "../_lib/require-role";
-import type { InvJob, InvRoll, InvProduct } from "@/lib/database.types";
+import type { InvJob, InvRoll, InvProduct } from "@/lib/db-helpers.types";
 
 const ACTIVE_JOB_STATUSES = ["in_progress", "staged", "completed"];
 

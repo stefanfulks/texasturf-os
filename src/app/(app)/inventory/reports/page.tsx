@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import type { InvRoll, RollStatus } from "@/lib/database.types";
+import type { InvRoll, RollStatus } from "@/lib/db-helpers.types";
 
 function daysSince(iso: string) {
   return Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24));

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ItemForm } from "./item-form";
 import { ItemRow } from "./item-row";
-import type { InvItem, InvLocation } from "@/lib/database.types";
+import type { InvItem, InvLocation } from "@/lib/db-helpers.types";
 
 export default async function InventoryItemsPage({
   searchParams,

@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { ApprovalForm } from "./approval-form";
-import type { Invoice, InvoiceLineItem, Vendor } from "@/lib/database.types";
+import type { Invoice, InvoiceLineItem, Vendor } from "@/lib/db-helpers.types";
 
 export default async function InvoiceApprovalPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import type { TeamMember, TeamKpiDefinition, TeamKpiEntry } from "@/lib/database.types";
+import type { TeamMember, TeamKpiDefinition, TeamKpiEntry } from "@/lib/db-helpers.types";
 import { saveTeamKpis, type SaveKpisState } from "./actions";
 
 type Props = {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EditInvoiceForm } from "./edit-form";
-import type { Invoice, Vendor, Project } from "@/lib/database.types";
+import type { Invoice, Vendor, Project } from "@/lib/db-helpers.types";
 
 export default async function InvoiceEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

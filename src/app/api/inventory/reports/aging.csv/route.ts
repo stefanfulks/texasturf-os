@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { InvRoll, InvProduct, InvLocation } from "@/lib/database.types";
+import type { InvRoll, InvProduct, InvLocation } from "@/lib/db-helpers.types";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

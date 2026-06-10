@@ -40,11 +40,11 @@ Bundling blows the output-token limit and loses the session. See `/scope`.
 
 ## 5. Database — Supabase native, DDL on the direct connection only
 
-This project uses Supabase directly. There is **no Prisma**. Migrations live in `supabase/migrations/<timestamp>_<name>.sql`. Generated types live in `src/lib/database.types.ts` and **are imported by app code** — they MUST be regenerated after every schema change or typecheck will lie.
+This project uses Supabase directly. There is **no Prisma**. Migrations live in `supabase/migrations/<timestamp>_<name>.sql`. Generated types live in `src/lib/database.types.ts` — **pure generator output; regen fully overwrites it, so never hand-edit it.** Hand-curated convenience aliases (`Vendor`, `Invoice`, `Task`, …) live in `src/lib/db-helpers.types.ts`, which is what app code imports — add new aliases there. Types MUST be regenerated after every schema change or typecheck will lie.
 
 - **DDL goes through the direct connection (port 5432)** — `DIRECT_URL` / `SUPABASE_DB_URL`. The **transaction pooler (port 6543)** silently swallows DDL.
 - **Apply migrations via `supabase db push`** (CLI authenticated + linked). Until the CLI is wired, the dashboard SQL Editor path documented in `supabase/README.md` is the fallback.
-- **Regenerate types every migration:** `pnpm exec supabase gen types typescript --linked > src/lib/database.types.ts`.
+- **Regenerate types every migration:** `pnpm typegen` (wraps `supabase gen types typescript --project-id ybedvthhofoutbqgwnvm > src/lib/database.types.ts`). The overwrite is safe — manual aliases live in `src/lib/db-helpers.types.ts`. Project identity verified 2026-06-10: **`ybedvthhofoutbqgwnvm` ("texasturf os") is the live app DB**; `htyxspaorzyvihrfxpia` ("texasturf-command-center") is a separate Jobber-related project — never generate types from it or point the app at it.
 - **Destructive DDL needs explicit approval** — `DROP TABLE`, `DROP COLUMN`, `ALTER COLUMN ... TYPE`, `TRUNCATE`, enum value renames. Surface what data is at risk and offer a safer path (additive migration + backfill + later cleanup) first.
 - **Enum value renames:** never use a regular migration that drops/recreates the type — that destroys column data. Write `ALTER TYPE "X" RENAME VALUE 'OLD' TO 'NEW';` as its own migration.
 

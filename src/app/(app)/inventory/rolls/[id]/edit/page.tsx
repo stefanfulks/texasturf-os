@@ -7,7 +7,7 @@ import type {
   InvLocation,
   InvProduct,
   Vendor,
-} from "@/lib/database.types";
+} from "@/lib/db-helpers.types";
 
 export default async function EditRollPage({
   params,

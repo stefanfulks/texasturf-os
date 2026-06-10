@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import type { AllocationFormState } from "../../../actions";
-import type { InvProduct } from "@/lib/database.types";
+import type { InvProduct } from "@/lib/db-helpers.types";
 
 const initial: AllocationFormState = { error: null, success: false };
 const field =

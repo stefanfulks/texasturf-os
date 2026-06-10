@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TeamMemberArchiveButton } from "./archive-button";
-import type { TeamMember, TeamKpiDefinition, TeamKpiEntry } from "@/lib/database.types";
+import type { TeamMember, TeamKpiDefinition, TeamKpiEntry } from "@/lib/db-helpers.types";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 

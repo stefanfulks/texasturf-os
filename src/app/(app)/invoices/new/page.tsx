@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { InvoiceUploadForm } from "./invoice-upload-form";
-import type { Vendor } from "@/lib/database.types";
+import type { Vendor } from "@/lib/db-helpers.types";
 
 export default async function NewInvoicePage() {
   const supabase = await createClient();

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/client";
-import type { Notification } from "@/lib/database.types";
+import type { Notification } from "@/lib/db-helpers.types";
 
 // Project notifications render under /jobs/[id] — the OS "projects" table is
 // the same data and there is no /projects route on disk. Audit P0: the

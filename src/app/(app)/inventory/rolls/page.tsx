@@ -8,7 +8,7 @@ import type {
   InvLocation,
   InvProduct,
   RollStatus,
-} from "@/lib/database.types";
+} from "@/lib/db-helpers.types";
 
 const ROLL_STATUSES: RollStatus[] = [
   "available",

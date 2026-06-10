@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { createJob, updateJob, type JobFormState } from "./actions";
 import { JOB_STATUS_OPTIONS } from "@/components/inventory/job-status-badge";
-import type { InvJob } from "@/lib/database.types";
+import type { InvJob } from "@/lib/db-helpers.types";
 
 const initial: JobFormState = { error: null, success: false };
 const field =

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "typegen": "supabase gen types typescript --project-id ybedvthhofoutbqgwnvm > src/lib/database.types.ts",
     "import:inventory": "node scripts/import-inventory.mjs",
     "import:inventory:dry": "node scripts/import-inventory.mjs --dry-run"
   },

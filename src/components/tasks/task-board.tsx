@@ -8,7 +8,7 @@ import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-p
 import { cn } from "@/lib/utils";
 import { updateTaskStatus, createTask } from "@/app/(app)/tasks/actions";
 import { TaskSlideOver } from "@/components/tasks/task-slide-over";
-import type { Task, TaskStatus, TaskPriority, Profile, Project } from "@/lib/database.types";
+import type { Task, TaskStatus, TaskPriority, Profile, Project } from "@/lib/db-helpers.types";
 
 // ─── Config ────────────────────────────────────────────────────────────────────
 

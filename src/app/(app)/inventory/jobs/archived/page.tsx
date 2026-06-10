@@ -2,7 +2,7 @@ import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { restoreJob } from "../actions";
-import type { InvJob } from "@/lib/database.types";
+import type { InvJob } from "@/lib/db-helpers.types";
 
 export default async function ArchivedJobsPage() {
   const supabase = await createClient();

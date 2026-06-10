@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { submitInvoice, type SubmitInvoiceState } from "../actions";
-import type { Vendor } from "@/lib/database.types";
+import type { Vendor } from "@/lib/db-helpers.types";
 
 const field = "w-full text-sm border border-zinc-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
 const initial: SubmitInvoiceState = { error: null, invoiceId: null };

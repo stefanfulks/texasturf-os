@@ -1,5 +1,5 @@
 import type { IntegrationResult } from "./types";
-import type { Invoice, InvoiceStatus } from "@/lib/database.types";
+import type { Invoice, InvoiceStatus } from "@/lib/db-helpers.types";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM_EMAIL     = process.env.EMAIL_FROM ?? "noreply@texasturfusa.com";

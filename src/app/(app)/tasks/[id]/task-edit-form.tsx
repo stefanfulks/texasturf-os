@@ -3,7 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import { updateTask, type UpdateTaskState } from "./actions";
 import { updateTaskAssignees } from "../actions";
-import type { Task, Profile } from "@/lib/database.types";
+import type { Task, Profile } from "@/lib/db-helpers.types";
 
 const initial: UpdateTaskState = { error: null, success: false };
 

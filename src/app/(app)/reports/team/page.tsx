@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { TeamMember, TeamKpiDefinition, TeamKpiEntry } from "@/lib/database.types";
+import type { TeamMember, TeamKpiDefinition, TeamKpiEntry } from "@/lib/db-helpers.types";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
-import type { InvTransaction, InvRoll, InvJob } from "@/lib/database.types";
+import type { InvTransaction, InvRoll, InvJob } from "@/lib/db-helpers.types";
 
 const TYPE_COLORS: Record<string, string> = {
   receive:    "bg-emerald-50 text-emerald-700",

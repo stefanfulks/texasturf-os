@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { toggleItemActive } from "./actions";
 import { ItemForm } from "./item-form";
 import { ItemAdjustButton } from "./item-adjust-button";
-import type { InvItem, InvLocation } from "@/lib/database.types";
+import type { InvItem, InvLocation } from "@/lib/db-helpers.types";
 
 export function ItemRow({
   item,

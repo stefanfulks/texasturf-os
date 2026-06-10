@@ -1,5 +1,5 @@
 import type { IntegrationResult } from "./types";
-import type { Invoice, InvoiceStatus } from "@/lib/database.types";
+import type { Invoice, InvoiceStatus } from "@/lib/db-helpers.types";
 
 const MONDAY_API_KEY      = process.env.MONDAY_API_KEY;
 const MONDAY_BOARD_ID     = process.env.MONDAY_INVOICE_BOARD_ID;

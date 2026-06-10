@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { createJob, updateJob, type JobFormState } from "./actions";
-import type { Project } from "@/lib/database.types";
+import type { Project } from "@/lib/db-helpers.types";
 
 const initial: JobFormState = { error: null, success: false };
 const field =

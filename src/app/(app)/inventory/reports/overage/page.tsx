@@ -5,7 +5,7 @@ import type {
   InvJob,
   InvAllocation,
   InvTransaction,
-} from "@/lib/database.types";
+} from "@/lib/db-helpers.types";
 
 function varianceColor(pct: number): string {
   const abs = Math.abs(pct);

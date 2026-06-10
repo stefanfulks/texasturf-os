@@ -5,7 +5,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { X, ExternalLink } from "lucide-react";
 import { TaskEditForm } from "@/app/(app)/tasks/[id]/task-edit-form";
-import type { Task, Profile } from "@/lib/database.types";
+import type { Task, Profile } from "@/lib/db-helpers.types";
 
 /**
  * Side panel that opens over the tasks list when ?taskId=... is in the URL.

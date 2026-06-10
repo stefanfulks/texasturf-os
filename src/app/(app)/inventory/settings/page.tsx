@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loadInventorySettings } from "@/lib/inventory/settings";
 import { SettingsForm } from "./settings-form";
 import { redirectIfNotOfficeOrAdmin } from "../_lib/require-role";
-import type { InvLocation } from "@/lib/database.types";
+import type { InvLocation } from "@/lib/db-helpers.types";
 
 export const dynamic = "force-dynamic";
 

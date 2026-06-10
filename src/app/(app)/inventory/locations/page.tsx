@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { LocationForm } from "./location-form";
 import { LocationRow } from "./location-row";
-import type { InvLocation } from "@/lib/database.types";
+import type { InvLocation } from "@/lib/db-helpers.types";
 
 export default async function InventoryLocationsPage() {
   const supabase = await createClient();

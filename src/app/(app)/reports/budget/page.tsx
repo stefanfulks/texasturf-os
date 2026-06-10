@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Budget } from "@/lib/database.types";
+import type { Budget } from "@/lib/db-helpers.types";
 import { BudgetForm } from "./budget-form";
 
 function monthName(month: number, year: number) {

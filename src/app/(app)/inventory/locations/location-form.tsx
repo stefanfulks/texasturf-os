@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { createLocation, updateLocation, type LocationFormState } from "./actions";
-import type { InvLocation } from "@/lib/database.types";
+import type { InvLocation } from "@/lib/db-helpers.types";
 
 const initial: LocationFormState = { error: null, success: false };
 const field = "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";

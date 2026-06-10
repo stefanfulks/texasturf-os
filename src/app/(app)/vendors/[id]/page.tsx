@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { VendorForm } from "../vendor-form";
 import { VendorArchiveButton } from "./archive-button";
-import type { Vendor, Invoice, InvoiceStatus } from "@/lib/database.types";
+import type { Vendor, Invoice, InvoiceStatus } from "@/lib/db-helpers.types";
 
 const STATUS_BADGE: Record<InvoiceStatus, string> = {
   draft:             "bg-zinc-100 text-zinc-500",

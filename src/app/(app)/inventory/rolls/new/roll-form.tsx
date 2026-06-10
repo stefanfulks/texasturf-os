@@ -15,7 +15,7 @@ import type {
   Vendor,
   RollStatus,
   RollType,
-} from "@/lib/database.types";
+} from "@/lib/db-helpers.types";
 
 const field =
   "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { KpiEntry } from "@/lib/database.types";
+import type { KpiEntry } from "@/lib/db-helpers.types";
 import { KpiForm } from "./kpi-form";
 
 function monthName(month: number, year: number) {

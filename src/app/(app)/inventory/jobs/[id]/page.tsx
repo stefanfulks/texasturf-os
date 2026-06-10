@@ -19,7 +19,7 @@ import type {
   InvRoll,
   InvTransaction,
   RollStatus,
-} from "@/lib/database.types";
+} from "@/lib/db-helpers.types";
 
 // ─── Allocation status pill ───────────────────────────────────────────────────
 

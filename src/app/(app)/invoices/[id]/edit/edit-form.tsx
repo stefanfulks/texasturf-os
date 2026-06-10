@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { updateInvoiceFields, type UpdateInvoiceFieldsState } from "../../actions";
-import type { Invoice, Vendor, Project } from "@/lib/database.types";
+import type { Invoice, Vendor, Project } from "@/lib/db-helpers.types";
 
 const field = "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
 const label = "text-xs font-medium text-zinc-500 mb-1";

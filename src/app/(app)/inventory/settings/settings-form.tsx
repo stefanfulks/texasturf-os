@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { saveInventorySettings, type SaveSettingsState } from "./actions";
-import type { InvLocation } from "@/lib/database.types";
+import type { InvLocation } from "@/lib/db-helpers.types";
 import type { InventorySettings } from "@/lib/inventory/settings";
 
 const initialState: SaveSettingsState = { status: "idle" };

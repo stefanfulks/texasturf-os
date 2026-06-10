@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireOfficeOrAdmin } from "../_lib/require-role";
-import type { Database, RollStatus } from "@/lib/database.types";
+import type { Database } from "@/lib/database.types";
+import type { RollStatus } from "@/lib/db-helpers.types";
 
 /**
  * Statuses that explicitly forbid further mutation through normal workflow.

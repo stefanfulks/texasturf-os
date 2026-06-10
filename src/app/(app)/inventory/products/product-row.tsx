@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { toggleProductActive } from "./actions";
 import { ProductForm } from "./product-form";
-import type { InvProduct } from "@/lib/database.types";
+import type { InvProduct } from "@/lib/db-helpers.types";
 
 export function ProductRow({
   product,

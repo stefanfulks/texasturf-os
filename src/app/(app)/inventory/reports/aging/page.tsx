@@ -6,7 +6,7 @@ import type {
   InvRoll,
   InvProduct,
   InvLocation,
-} from "@/lib/database.types";
+} from "@/lib/db-helpers.types";
 
 type Bucket = {
   id: string;

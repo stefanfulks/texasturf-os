@@ -4,7 +4,7 @@ import { formatDistanceToNowStrict, format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { RollStatusBadge } from "@/components/inventory/roll-status-badge";
 import { PendingReturnActions } from "./pending-returns-actions";
-import type { InvRoll, InvJob, InvTransaction } from "@/lib/database.types";
+import type { InvRoll, InvJob, InvTransaction } from "@/lib/db-helpers.types";
 
 function fmtLen(n: number | null | undefined) {
   if (n === null || n === undefined) return "—";

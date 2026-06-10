@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { CutRollForm } from "./cut-roll-form";
 import { redirectIfNotOfficeOrAdmin } from "../_lib/require-role";
-import type { InvRoll } from "@/lib/database.types";
+import type { InvRoll } from "@/lib/db-helpers.types";
 
 type ParentRollOption = Pick<
   InvRoll,

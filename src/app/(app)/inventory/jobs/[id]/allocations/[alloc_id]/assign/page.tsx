@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { RollStatusBadge } from "@/components/inventory/roll-status-badge";
 import { assignRoll, swapRoll } from "../../../../actions";
-import type { InvJob, InvAllocation, InvRoll, RollStatus } from "@/lib/database.types";
+import type { InvJob, InvAllocation, InvRoll, RollStatus } from "@/lib/db-helpers.types";
 
 export default async function AssignRollPage({
   params,

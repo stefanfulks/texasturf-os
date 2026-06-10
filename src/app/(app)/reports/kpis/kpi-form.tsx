@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import type { KpiEntry } from "@/lib/database.types";
+import type { KpiEntry } from "@/lib/db-helpers.types";
 import { saveKpis, type SaveKpisState } from "./actions";
 
 const KPI_DEFINITIONS = [

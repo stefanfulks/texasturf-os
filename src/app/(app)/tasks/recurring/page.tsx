@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { RecurringRuleForm } from "./rule-form";
 import { RuleRow } from "./rule-row";
-import type { RecurringRule, Profile, Project } from "@/lib/database.types";
+import type { RecurringRule, Profile, Project } from "@/lib/db-helpers.types";
 
 export default async function RecurringTasksPage() {
   const supabase = await createClient();

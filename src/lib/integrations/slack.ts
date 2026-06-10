@@ -1,5 +1,5 @@
 import type { IntegrationResult } from "./types";
-import type { Invoice, InvoiceStatus } from "@/lib/database.types";
+import type { Invoice, InvoiceStatus } from "@/lib/db-helpers.types";
 
 const SLACK_BOT_TOKEN   = process.env.SLACK_BOT_TOKEN;
 const DEFAULT_CHANNEL   = process.env.SLACK_INVOICE_CHANNEL_ID ?? "#invoices";

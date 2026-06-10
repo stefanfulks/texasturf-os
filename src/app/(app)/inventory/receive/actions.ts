@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireOfficeOrAdmin } from "../_lib/require-role";
-import type { InvRoll, InvProduct, InvLocation } from "@/lib/database.types";
+import type { InvRoll, InvProduct, InvLocation } from "@/lib/db-helpers.types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

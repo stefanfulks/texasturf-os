@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EditForm } from "./edit-form";
 import { AssetArchiveButton } from "./archive-button";
-import type { Asset } from "@/lib/database.types";
+import type { Asset } from "@/lib/db-helpers.types";
 
 const UNIT_LABELS: Record<Asset["unit_type"], string> = {
   truck: "Truck",

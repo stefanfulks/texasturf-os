@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAllocation } from "../../../actions";
 import { AllocationForm } from "./allocation-form";
-import type { InvJob, InvProduct } from "@/lib/database.types";
+import type { InvJob, InvProduct } from "@/lib/db-helpers.types";
 
 export default async function NewAllocationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

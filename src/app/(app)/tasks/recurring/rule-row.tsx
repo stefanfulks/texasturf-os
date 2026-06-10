@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { format, parseISO } from "date-fns";
 import { toggleRecurringRule } from "./actions";
-import type { RecurringRule, RecurrenceFreq } from "@/lib/database.types";
+import type { RecurringRule, RecurrenceFreq } from "@/lib/db-helpers.types";
 
 const FREQ_LABELS: Record<RecurrenceFreq, string> = {
   daily:    "Daily",

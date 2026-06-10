@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { toggleLocationActive } from "./actions";
 import { LocationForm } from "./location-form";
-import type { InvLocation } from "@/lib/database.types";
+import type { InvLocation } from "@/lib/db-helpers.types";
 
 export function LocationRow({
   location,

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { InvLocation, InvProduct, RollStatus } from "@/lib/database.types";
+import type { InvLocation, InvProduct, RollStatus } from "@/lib/db-helpers.types";
 
 const STATUS_OPTIONS: Array<[RollStatus, string]> = [
   ["available", "Available"],

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { JobStatusBadge } from "@/components/inventory/job-status-badge";
-import type { InvJob, InvAllocation } from "@/lib/database.types";
+import type { InvJob, InvAllocation } from "@/lib/db-helpers.types";
 
 const STATUS_FILTERS = [
   { label: "All Active",  value: "all"          },

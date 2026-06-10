@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { createRecurringRule, type RuleFormState } from "./actions";
-import type { Profile, Project, RecurrenceFreq } from "@/lib/database.types";
+import type { Profile, Project, RecurrenceFreq } from "@/lib/db-helpers.types";
 
 const initial: RuleFormState = { error: null, success: false };
 const field = "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";

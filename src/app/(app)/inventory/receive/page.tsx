@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ReceiveForm } from "./receive-form";
 import { redirectIfNotOfficeOrAdmin } from "../_lib/require-role";
 import { loadInventorySettings } from "@/lib/inventory/settings";
-import type { Vendor, InvProduct, InvLocation } from "@/lib/database.types";
+import type { Vendor, InvProduct, InvLocation } from "@/lib/db-helpers.types";
 
 export default async function InventoryReceivePage() {
   await redirectIfNotOfficeOrAdmin();

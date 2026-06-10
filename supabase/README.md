@@ -28,3 +28,11 @@ supabase db push
 ```
 
 Then migrations apply via `supabase db push` from this repo.
+
+> **Project identity (verified 2026-06-10):** the live app project is
+> **`ybedvthhofoutbqgwnvm`** ("texasturf os") — confirmed against the production
+> JS bundle and live session cookies at os.texasturfusa.com.
+> `htyxspaorzyvihrfxpia` ("texasturf-command-center") is a **separate
+> Jobber-related project** — never point the app, the CLI link, or `pnpm typegen`
+> at it. Type regen (`pnpm typegen`) pins `--project-id ybedvthhofoutbqgwnvm`
+> explicitly, so it works regardless of link state.

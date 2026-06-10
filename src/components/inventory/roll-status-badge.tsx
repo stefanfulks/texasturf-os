@@ -1,4 +1,4 @@
-import type { RollStatus } from "@/lib/database.types";
+import type { RollStatus } from "@/lib/db-helpers.types";
 
 const STATUS_STYLES: Record<RollStatus, string> = {
   available:  "bg-green-50 text-green-700 border-green-200",

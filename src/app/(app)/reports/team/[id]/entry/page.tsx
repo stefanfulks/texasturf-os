@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import type { TeamMember, TeamKpiDefinition, TeamKpiEntry } from "@/lib/database.types";
+import type { TeamMember, TeamKpiDefinition, TeamKpiEntry } from "@/lib/db-helpers.types";
 import { TeamKpiEntryForm } from "./kpi-entry-form";
 
 export default async function TeamKpiEntryPage({

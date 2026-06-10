@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { sendInvoiceNotification } from "@/lib/integrations/slack";
 import { createMondayItem, updateMondayItem } from "@/lib/integrations/monday";
 import { sendInvoiceEmail } from "@/lib/integrations/email";
-import type { Invoice, InvoiceStatus } from "@/lib/database.types";
+import type { Invoice, InvoiceStatus } from "@/lib/db-helpers.types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -296,7 +296,7 @@ export async function changeInvoiceStatus(
   const prevStatus = invoice.status as InvoiceStatus;
 
   // Build update payload — cast to satisfy Supabase's strict update types
-  type InvoiceUpdatePayload = import("@/lib/database.types").InvoiceUpdate;
+  type InvoiceUpdatePayload = import("@/lib/db-helpers.types").InvoiceUpdate;
   const updates: InvoiceUpdatePayload = {
     status:            d.new_status as InvoiceStatus,
     status_changed_at: new Date().toISOString(),
@@ -411,7 +411,7 @@ export async function updateInvoiceFields(
     admin_notes:          getStr("admin_notes"),
     variance_notes:       getStr("variance_notes"),
     approval_deadline:    getStr("approval_deadline"),
-  } satisfies import("@/lib/database.types").InvoiceUpdate;
+  } satisfies import("@/lib/db-helpers.types").InvoiceUpdate;
 
   const { error } = await supabase.from("invoices").update(payload).eq("id", id);
   if (error) return { error: error.message, success: false };

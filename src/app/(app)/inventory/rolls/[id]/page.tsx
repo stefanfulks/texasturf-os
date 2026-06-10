@@ -12,7 +12,7 @@ import type {
   InvTransaction,
   InvAllocation,
   Vendor,
-} from "@/lib/database.types";
+} from "@/lib/db-helpers.types";
 
 function fmtFt(n: number | null | undefined) {
   if (n == null) return "—";

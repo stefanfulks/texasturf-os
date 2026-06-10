@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { VendorForm } from "./vendor-form";
-import type { Vendor } from "@/lib/database.types";
+import type { Vendor } from "@/lib/db-helpers.types";
 
 const TYPE_LABELS: Record<string, string> = {
   installer:       "Installer",

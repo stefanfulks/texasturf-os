@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { addSubtask, type AddSubtaskState } from "./actions";
-import type { TaskStatus, TaskPriority } from "@/lib/database.types";
+import type { TaskStatus, TaskPriority } from "@/lib/db-helpers.types";
 
 type Subtask = {
   id: string;

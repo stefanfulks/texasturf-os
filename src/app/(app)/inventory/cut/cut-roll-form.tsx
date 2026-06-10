@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { Scissors } from "lucide-react";
 import { cutRoll, type CutRollState } from "../rolls/actions";
-import type { InvRoll } from "@/lib/database.types";
+import type { InvRoll } from "@/lib/db-helpers.types";
 
 type ParentRollOption = Pick<
   InvRoll,

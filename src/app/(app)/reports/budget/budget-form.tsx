@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import type { Budget } from "@/lib/database.types";
+import type { Budget } from "@/lib/db-helpers.types";
 import { saveBudgets, type SaveBudgetsState } from "./actions";
 
 const CATEGORIES = [

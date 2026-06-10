@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { changeInvoiceStatus, type ChangeStatusState } from "../../actions";
-import type { InvoiceStatus } from "@/lib/database.types";
+import type { InvoiceStatus } from "@/lib/db-helpers.types";
 
 const initial: ChangeStatusState = { error: null, success: false };
 const field = "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";

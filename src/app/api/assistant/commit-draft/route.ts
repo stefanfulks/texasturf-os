@@ -17,7 +17,7 @@ import { createTask, updateTaskStatus } from "@/app/(app)/tasks/actions";
 import { getValidGoogleAccessToken } from "@/lib/google/tokens";
 import { createEvent } from "@/lib/google/calendar";
 import { postMessage as slackPostMessage } from "@/lib/integrations/slack";
-import type { TaskStatus } from "@/lib/database.types";
+import type { TaskStatus } from "@/lib/db-helpers.types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

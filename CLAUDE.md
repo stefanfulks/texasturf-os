@@ -16,7 +16,7 @@ Next.js 16 + Supabase (SSR) + Sentry + PostHog. pnpm. Deploys to Vercel from `ma
 - `pnpm lint` — eslint, must exit 0 before shipping
 - `pnpm build` — production build (Sentry source-map upload happens here)
 - `supabase db push` — apply pending migrations (uses direct connection, NOT pooler — pooler silently blocks DDL)
-- `pnpm exec supabase gen types typescript --linked > src/lib/database.types.ts` — regen DB types after a migration
+- `pnpm typegen` — regen DB types after a migration (fully overwrites `src/lib/database.types.ts`; hand-curated aliases live in `src/lib/db-helpers.types.ts` and survive regen)
 
 ## Integrations wired in this repo
 Jobber (OAuth + GraphQL sync + webhooks), Slack (bot + invoices), Monday (3 boards), Google (Calendar + OAuth), Resend (email), Sentry, PostHog, OpenAI (OCR + assistant). Secrets live in `.env.local` (gitignored). Schema for required keys: `.env.example`.

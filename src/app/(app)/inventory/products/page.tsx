@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { ProductForm } from "./product-form";
 import { ProductRow } from "./product-row";
-import type { InvProduct, RollStatus } from "@/lib/database.types";
+import type { InvProduct, RollStatus } from "@/lib/db-helpers.types";
 
 const IN_STOCK_STATUSES: RollStatus[] = ["available", "allocated"];
 

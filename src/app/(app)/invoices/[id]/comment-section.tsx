@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { format, parseISO } from "date-fns";
 import { addInvoiceComment, type AddCommentState } from "../actions";
-import type { InvoiceComment } from "@/lib/database.types";
+import type { InvoiceComment } from "@/lib/db-helpers.types";
 
 const initial: AddCommentState = { error: null, success: false };
 

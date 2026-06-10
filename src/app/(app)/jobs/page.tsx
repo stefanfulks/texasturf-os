@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Plus, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import type { ProjectStatus, ProjectType, TaskPriority } from "@/lib/database.types";
+import type { ProjectStatus, ProjectType, TaskPriority } from "@/lib/db-helpers.types";
 
 export const metadata = { title: "Jobs · TexasTurf OS" };
 

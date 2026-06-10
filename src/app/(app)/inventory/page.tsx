@@ -6,7 +6,7 @@ import type {
   InvTransaction,
   InvItem,
   RollStatus,
-} from "@/lib/database.types";
+} from "@/lib/db-helpers.types";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 

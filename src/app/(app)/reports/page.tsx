@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Invoice, Vendor, Budget, KpiEntry } from "@/lib/database.types";
+import type { Invoice, Vendor, Budget, KpiEntry } from "@/lib/db-helpers.types";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 

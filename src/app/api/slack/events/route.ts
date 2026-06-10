@@ -328,7 +328,7 @@ async function processSlackFile(
       original_file_name:   fileName,
       submitted_at:         now.toISOString(),
       status_changed_at:    now.toISOString(),
-    } as unknown as import("@/lib/database.types").InvoiceInsert)
+    } as unknown as import("@/lib/db-helpers.types").InvoiceInsert)
     .select()
     .single();
 

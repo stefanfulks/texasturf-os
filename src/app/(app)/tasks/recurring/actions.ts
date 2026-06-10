@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, addWeeks, addMonths, nextDay, setDate, format } from "date-fns";
-import type { RecurrenceFreq } from "@/lib/database.types";
+import type { RecurrenceFreq } from "@/lib/db-helpers.types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

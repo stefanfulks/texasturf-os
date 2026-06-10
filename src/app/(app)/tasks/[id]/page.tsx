@@ -6,7 +6,7 @@ import { TaskEditForm } from "./task-edit-form";
 import { TaskArchiveButton } from "./archive-button";
 import { CommentSection } from "./comment-section";
 import { SubtasksSection } from "./subtasks-section";
-import type { Task, TaskPriority, TaskStatus } from "@/lib/database.types";
+import type { Task, TaskPriority, TaskStatus } from "@/lib/db-helpers.types";
 
 const STATUS_LABELS: Record<TaskStatus, string> = {
   inbox: "Inbox", in_progress: "In Progress", waiting: "Waiting",
