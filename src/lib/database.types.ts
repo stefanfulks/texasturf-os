@@ -636,6 +636,41 @@ export type Database = {
           },
         ]
       }
+      inv_settings: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inv_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inv_transactions: {
         Row: {
           created_at: string
@@ -3094,46 +3129,6 @@ export type Database = {
           },
         ]
       }
-      // ─── MANUAL ADDITION ───────────────────────────────────────────────
-      // `inv_settings` is missing from `supabase gen types --linked` output,
-      // probably a missing GRANT to anon/authenticated that prevents
-      // PostgREST introspection. Until a follow-up migration grants access,
-      // re-paste this block after every regen. See AGENTS.md §5.
-      inv_settings: {
-        Row: {
-          id: string
-          key: string
-          value: unknown | null
-          description: string | null
-          updated_at: string
-          updated_by: string | null
-        }
-        Insert: {
-          id?: string
-          key: string
-          value?: unknown | null
-          description?: string | null
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Update: {
-          id?: string
-          key?: string
-          value?: unknown | null
-          description?: string | null
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "inv_settings_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -3494,11 +3489,10 @@ export const Constants = {
 } as const
 
 // ─── MANUAL ADDITION — re-paste after every regen ──────────────────────────
-// Convenience row/insert/update/enum aliases used throughout the app.
-// These were hand-added to the old types file (last commit on May 29) and
-// must be preserved through every `gen types --linked` regen until they're
-// either auto-generated or moved into a dedicated augmentation file.
-// See AGENTS.md §5.
+// Convenience row/insert/update/enum aliases used throughout the app
+// (90+ import sites). The auto-gen doesn't produce these; they must be
+// preserved through every `gen types --linked` regen. Long-term fix: move
+// them into a separate file once a `pnpm typegen` wrapper is added.
 
 // Convenience row types — use these throughout the app instead of repeating the long path
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"]
