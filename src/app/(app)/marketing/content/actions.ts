@@ -92,6 +92,39 @@ export async function updateContentStatus(_prev: ActionState, formData: FormData
   return { error: null, success: true };
 }
 
+const categorySchema = z.object({
+  id: z.string().uuid(),
+  type: z.enum(TYPES).optional(),
+  service_line: z.string().optional(),
+});
+
+/** Quick re-categorize: set type and/or service line on an item in one tap. */
+export async function updateContentCategory(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated", success: false };
+
+  const parsed = categorySchema.safeParse({
+    id: formData.get("id"),
+    type: formData.get("type") || undefined,
+    service_line: formData.get("service_line") || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
+  }
+
+  const patch: Database["public"]["Tables"]["content_items"]["Update"] = {};
+  if (parsed.data.type) patch.type = parsed.data.type;
+  if (parsed.data.service_line !== undefined) patch.service_line = parsed.data.service_line || null;
+  if (Object.keys(patch).length === 0) return { error: "Nothing to update.", success: false };
+
+  const { error } = await supabase.from("content_items").update(patch).eq("id", parsed.data.id);
+  if (error) return { error: error.message, success: false };
+
+  revalidatePath("/marketing/content");
+  return { error: null, success: true };
+}
+
 const linksSchema = z.object({
   id: z.string().uuid(),
   drive_url: z.string().url().optional().or(z.literal("")),

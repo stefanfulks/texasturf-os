@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { updateContentLinks, type ActionState } from "./actions";
+import { updateContentLinks, updateContentCategory, type ActionState } from "./actions";
 import type { ContentWithUrl } from "./page";
+
+const SERVICE_LINES = [
+  "turf", "xeriscape", "lot_clearing", "pavers", "tree_removal", "excavation",
+  "stone_work", "site_prep", "concrete", "courts", "fencing", "welding", "landscape_design",
+];
 
 const initial: ActionState = { error: null, success: false };
 
@@ -19,6 +24,29 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 const TYPE_FILTERS = ["long_video", "short", "pov_clip", "before_after", "photo_set", "voice_memo", "blog_post"] as const;
+
+function ServiceLineChips({ item }: { item: ContentWithUrl }) {
+  const [, formAction] = useActionState(updateContentCategory, initial);
+  return (
+    <form action={formAction} className="flex flex-wrap gap-1 items-center">
+      <input type="hidden" name="id" value={item.id} />
+      <span className="text-[11px] text-zinc-400 mr-1">Tag:</span>
+      {SERVICE_LINES.map((s) => (
+        <button
+          key={s}
+          type="submit"
+          name="service_line"
+          value={s}
+          className={`text-[11px] px-2 py-0.5 rounded-full border ${
+            item.service_line === s ? "bg-zinc-900 text-white border-zinc-900" : "border-zinc-200 text-zinc-500 hover:bg-zinc-50"
+          }`}
+        >
+          {s.replace(/_/g, " ")}
+        </button>
+      ))}
+    </form>
+  );
+}
 
 function LinkEditor({ item }: { item: ContentWithUrl }) {
   const [state, formAction, isPending] = useActionState(updateContentLinks, initial);
@@ -99,7 +127,12 @@ export function LibraryList({
           <div className="divide-y divide-zinc-100">
             {items.map((i) => (
               <div key={i.id} className="px-5 py-3 space-y-2">
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-start gap-3 flex-wrap">
+                  {/* Thumbnail for uploaded photos */}
+                  {i.asset_path && i.type !== "voice_memo" && i.signed_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={i.signed_url} alt={i.title} className="h-12 w-12 rounded object-cover border border-zinc-200 flex-shrink-0" />
+                  )}
                   <div className="flex-1 min-w-48">
                     <p className="text-sm font-medium text-zinc-900">{i.title}</p>
                     <p className="text-xs text-zinc-400">
@@ -120,17 +153,20 @@ export function LibraryList({
                 </div>
 
                 {/* Voice memo player */}
-                {i.type === "voice_memo" && i.signed_audio_url && (
-                  <audio controls preload="none" src={i.signed_audio_url} className="w-full max-w-md h-9">
+                {i.type === "voice_memo" && i.signed_url && (
+                  <audio controls preload="none" src={i.signed_url} className="w-full max-w-md h-9">
                     Your browser does not support audio playback.
                   </audio>
                 )}
-                {i.type === "voice_memo" && !i.signed_audio_url && i.asset_path && (
-                  <p className="text-xs text-amber-600">Audio link expired — refresh to play.</p>
+                {i.asset_path && !i.signed_url && (
+                  <p className="text-xs text-amber-600">Preview link expired — refresh to reload.</p>
                 )}
 
-                {/* Link attach for non-voice items */}
-                {i.type !== "voice_memo" && <LinkEditor item={i} />}
+                {/* Quick re-categorize by service line */}
+                <ServiceLineChips item={i} />
+
+                {/* Link attach for non-uploaded items */}
+                {!i.asset_path && <LinkEditor item={i} />}
               </div>
             ))}
           </div>

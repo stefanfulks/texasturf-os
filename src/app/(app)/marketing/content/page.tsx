@@ -5,9 +5,15 @@ import type { Database } from "@/lib/database.types";
 import { PipelineBoard } from "./pipeline-board";
 import { LibraryList } from "./library-list";
 import { AddContentForm } from "./add-content-form";
+import { QuickCapture } from "./quick-capture";
+
+const SERVICE_LINES = [
+  "turf", "xeriscape", "lot_clearing", "pavers", "tree_removal", "excavation",
+  "stone_work", "site_prep", "concrete", "courts", "fencing", "welding", "landscape_design",
+];
 
 export type ContentRow = Database["public"]["Tables"]["content_items"]["Row"];
-export type ContentWithUrl = ContentRow & { signed_audio_url: string | null };
+export type ContentWithUrl = ContentRow & { signed_url: string | null };
 
 const PIPELINE_STATUSES = ["idea", "scripted", "scheduled_shoot", "filmed", "editing", "ready", "published"] as const;
 
@@ -53,11 +59,12 @@ export default async function ContentPage({
     { label: "Ideas in bank", value: items.filter((i) => i.status === "idea").length },
   ];
 
-  // Mint short-lived signed URLs for voice memos so the team can press play.
-  const voiceItems = items.filter((i) => i.type === "voice_memo" && i.asset_path);
+  // Mint short-lived signed URLs for any uploaded file (voice memos + photos)
+  // so the team can play/preview them inline.
+  const uploadedItems = items.filter((i) => i.asset_path);
   const signedByPath = new Map<string, string>();
-  if (voiceItems.length > 0) {
-    const paths = [...new Set(voiceItems.map((i) => i.asset_path as string))];
+  if (uploadedItems.length > 0) {
+    const paths = [...new Set(uploadedItems.map((i) => i.asset_path as string))];
     const { data: signed } = await supabase.storage
       .from("marketing")
       .createSignedUrls(paths, 60 * 60); // 1 hour
@@ -67,7 +74,7 @@ export default async function ContentPage({
   }
   const withUrls: ContentWithUrl[] = items.map((i) => ({
     ...i,
-    signed_audio_url: i.asset_path ? signedByPath.get(i.asset_path) ?? null : null,
+    signed_url: i.asset_path ? signedByPath.get(i.asset_path) ?? null : null,
   }));
 
   // Library filtering
@@ -87,6 +94,9 @@ export default async function ContentPage({
           </p>
         </div>
       </div>
+
+      {/* Quick capture — drop a voice memo or photo, categorize in one tap */}
+      <QuickCapture serviceLines={SERVICE_LINES} />
 
       {/* Scoreboard */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
