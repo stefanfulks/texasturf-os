@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/database.types";
 
 export type ActionState = { error: string | null; success: boolean; info?: string };
 
@@ -78,7 +79,7 @@ export async function updateContentStatus(_prev: ActionState, formData: FormData
     return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
   }
 
-  const patch: Record<string, unknown> = { status: parsed.data.status };
+  const patch: Database["public"]["Tables"]["content_items"]["Update"] = { status: parsed.data.status };
   if (parsed.data.status === "published") {
     patch.published_on = new Date().toISOString().slice(0, 10);
   }
