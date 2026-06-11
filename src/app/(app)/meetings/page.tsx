@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Calendar, ChevronRight } from "lucide-react";
+import { Plus, Calendar, ChevronRight, Video } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { upcomingOccurrence, formatCadence, formatOccurrence } from "@/lib/meetings/cadence";
 import type { Meeting } from "@/lib/meetings/types";
@@ -128,6 +128,11 @@ export default async function MeetingsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-base font-semibold text-zinc-900 group-hover:underline">{m.name}</p>
+                    {m.meet_url && (
+                      <span title="Has a Google Meet link" className="inline-flex">
+                        <Video className="h-3.5 w-3.5 text-emerald-600" />
+                      </span>
+                    )}
                     {openCount > 0 && (
                       <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
                         {openCount} open

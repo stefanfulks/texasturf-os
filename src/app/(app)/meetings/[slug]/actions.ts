@@ -128,6 +128,33 @@ export async function updateMeetingItemStatus(formData: FormData) {
   revalidatePath("/meetings");
 }
 
+// ─── Set / replace the Meet link (admin manual fallback) ────────────────────
+
+export async function setMeetingMeetUrl(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  // RLS also enforces admin-only meeting writes; checking here gives a clean
+  // early exit instead of a silent no-op update.
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  if ((profile as { role?: string } | null)?.role !== "admin") return;
+
+  const meetingId = (formData.get("meeting_id") as string | null)?.trim();
+  const meetUrl = (formData.get("meet_url") as string | null)?.trim();
+  if (!meetingId || !meetUrl || !/^https:\/\/\S+$/.test(meetUrl)) return;
+
+  await (
+    supabase.from("meetings") as unknown as {
+      update: (row: { meet_url: string }) => { eq: (c: string, v: string) => Promise<unknown> };
+    }
+  )
+    .update({ meet_url: meetUrl })
+    .eq("id", meetingId);
+
+  revalidatePath("/meetings");
+}
+
 // ─── Carry open items forward to the next occurrence ────────────────────────
 
 export async function carryMeetingItemsForward(formData: FormData) {

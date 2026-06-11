@@ -4,6 +4,7 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { scheduleMeetingOnGoogle } from "@/lib/meetings/gcal";
 import type { MeetingSection } from "@/lib/meetings/types";
 
 const ROLES = ["admin", "office", "field"] as const;
@@ -120,17 +121,65 @@ export async function createMeeting(
     created_by: user.id,
   };
 
-  const { error } = await (
+  const { data: created, error } = await (
     supabase.from("meetings") as unknown as {
-      insert: (row: InsertRow) => Promise<{ error: { message: string; code?: string } | null }>;
+      insert: (row: InsertRow) => {
+        select: (cols: string) => {
+          single: () => Promise<{ data: { id: string } | null; error: { message: string; code?: string } | null }>;
+        };
+      };
     }
-  ).insert(insertRow);
+  )
+    .insert(insertRow)
+    .select("id")
+    .single();
 
-  if (error) {
-    if (error.code === "23505") {
+  if (error || !created) {
+    if (error?.code === "23505") {
       return { status: "error", message: `A meeting at /meetings/${parsed.data.slug} already exists — change the URL slug.` };
     }
-    return { status: "error", message: error.message };
+    return { status: "error", message: error?.message ?? "Failed to create meeting." };
+  }
+
+  // Best-effort: put it on Google Calendar with a Meet link and invite the
+  // people it's scoped to. Any failure leaves the meeting intact — the
+  // detail page offers a manual link fallback.
+  try {
+    const { data: profileRows } = await supabase
+      .from("profiles")
+      .select("id, email, role, departments");
+    const scheduled = await scheduleMeetingOnGoogle(
+      {
+        id: created.id,
+        slug: parsed.data.slug,
+        name: parsed.data.name,
+        description: parsed.data.description ?? null,
+        cadence: parsed.data.cadence,
+        day_of_week: parsed.data.day_of_week ?? null,
+        day_of_month: parsed.data.day_of_month ?? null,
+        scheduled_on: parsed.data.cadence === "once" ? parsed.data.scheduled_on ?? null : null,
+        start_time: parsed.data.start_time ?? null,
+        duration_min: parsed.data.duration_min ?? null,
+        allowed_roles,
+        allowed_departments,
+        invited_user_ids,
+      },
+      (profileRows ?? []) as Array<{ id: string; email: string; role: string | null; departments: string[] | null }>,
+      user.id,
+    );
+    if (scheduled.ok) {
+      await (
+        supabase.from("meetings") as unknown as {
+          update: (row: { meet_url: string | null; gcal_event_id: string }) => {
+            eq: (c: string, v: string) => Promise<unknown>;
+          };
+        }
+      )
+        .update({ meet_url: scheduled.meetUrl, gcal_event_id: scheduled.eventId })
+        .eq("id", created.id);
+    }
+  } catch {
+    // Meeting exists; Meet link can be added manually from the detail page.
   }
 
   revalidatePath("/meetings");

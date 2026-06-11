@@ -12,6 +12,7 @@ import { ACCENT_CLASSES, type Meeting, type MeetingItem, type MeetingSection, ty
 import { NewItemFab } from "./new-item-fab";
 import { AgendaActions } from "./agenda-actions";
 import { ItemRow } from "./item-row";
+import { MeetLink } from "./meet-link";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,7 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
   const prevOn = occurrenceOffset(occursOn, meeting, -1);
   const nextOn = occurrenceOffset(occursOn, meeting, +1);
 
-  const [itemsRes, profilesRes] = await Promise.all([
+  const [itemsRes, profilesRes, viewerRes] = await Promise.all([
     (supabase.from("meeting_items") as unknown as {
       select: (cols: string) => {
         eq: (c: string, v: string) => {
@@ -69,8 +70,10 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
       .eq("occurs_on", occursOn)
       .order("created_at", { ascending: true }),
     supabase.from("profiles").select("id, full_name, email").order("full_name", { ascending: true }),
+    supabase.from("profiles").select("role").eq("id", user.id).single(),
   ]);
 
+  const isAdmin = (viewerRes.data as { role?: string } | null)?.role === "admin";
   const items = itemsRes.data ?? [];
   const profiles = (profilesRes.data ?? []) as Array<{ id: string; full_name: string | null; email: string }>;
   const profileById = new Map(profiles.map((p) => [p.id, p]));
@@ -152,6 +155,9 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
           <span className="h-10 w-10" />
         )}
       </div>
+
+      {/* Meet link / join + copy */}
+      <MeetLink meetingId={meeting.id} meetUrl={meeting.meet_url} isAdmin={isAdmin} />
 
       {/* Top actions */}
       <AgendaActions
