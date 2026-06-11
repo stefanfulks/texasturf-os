@@ -1,8 +1,10 @@
 "use client";
 
-import { useActionState, useMemo, useRef, useState } from "react";
+import { Fragment, useActionState, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { addComment, type AddCommentState } from "./actions";
+import { RefInput } from "@/components/refs/ref-input";
+import { RefText } from "@/components/refs/ref-text";
 
 type Profile = { id: string; full_name: string | null; email: string };
 
@@ -59,7 +61,10 @@ export function CommentSection({
                   </span>
                 </div>
                 <p className="text-sm text-zinc-700 whitespace-pre-wrap">
-                  {renderWithMentions(c.body)}
+                  <RefText
+                    text={c.body}
+                    renderText={(t, key) => <Fragment key={key}>{renderWithMentions(t)}</Fragment>}
+                  />
                 </p>
               </div>
             </div>
@@ -70,19 +75,24 @@ export function CommentSection({
       <form action={formAction} className="space-y-2">
         <input type="hidden" name="task_id" value={taskId} />
         <input type="hidden" name="mentions" value={JSON.stringify(mentions)} />
-        <MentionTextarea
+        <RefInput
           name="body"
           value={draft}
           onChange={setDraft}
           mentions={mentions}
           onMentionsChange={setMentions}
           profiles={profiles}
-          placeholder="Add a comment… Type @ to mention someone."
+          multiline
+          rows={2}
+          required
+          dropdownPosition="above"
+          placeholder="Add a comment… @ to mention, # to link a task, job, invoice, or client."
+          className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 placeholder:text-zinc-400 resize-none"
         />
         {state.error && <p className="text-xs text-red-600">{state.error}</p>}
         <div className="flex justify-between items-center">
           <p className="text-[10px] text-zinc-400">
-            {mentions.length > 0 ? `${mentions.length} person mentioned` : "Type @ to mention"}
+            {mentions.length > 0 ? `${mentions.length} person mentioned` : "@ to mention · # to link"}
           </p>
           <button
             type="submit"
@@ -93,140 +103,6 @@ export function CommentSection({
           </button>
         </div>
       </form>
-    </div>
-  );
-}
-
-// ─── Mention-aware textarea ──────────────────────────────────────────────────
-
-function MentionTextarea({
-  name,
-  value,
-  onChange,
-  mentions,
-  onMentionsChange,
-  profiles,
-  placeholder,
-}: {
-  name: string;
-  value: string;
-  onChange: (v: string) => void;
-  mentions: string[];
-  onMentionsChange: (v: string[]) => void;
-  profiles: Profile[];
-  placeholder?: string;
-}) {
-  const taRef = useRef<HTMLTextAreaElement>(null);
-  const [suggestion, setSuggestion] = useState<{ start: number; query: string } | null>(null);
-  const [highlightedIdx, setHighlightedIdx] = useState(0);
-
-  // Filter profiles by what the user is typing after "@"
-  const filtered = useMemo(() => {
-    if (!suggestion) return [];
-    const q = suggestion.query.toLowerCase();
-    if (q.length === 0) return profiles.slice(0, 6);
-    return profiles
-      .filter((p) => {
-        const name = (p.full_name ?? "").toLowerCase();
-        const local = p.email.split("@")[0].toLowerCase();
-        return name.includes(q) || local.includes(q);
-      })
-      .slice(0, 6);
-  }, [profiles, suggestion]);
-
-  function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    const v = e.target.value;
-    onChange(v);
-    const caret = e.target.selectionStart;
-    // Find the last "@" before the caret, with no whitespace between
-    const upToCaret = v.slice(0, caret);
-    const match = upToCaret.match(/(^|\s)@([\w-]*)$/);
-    if (match) {
-      setSuggestion({ start: caret - match[2].length - 1, query: match[2] });
-      setHighlightedIdx(0);
-    } else {
-      setSuggestion(null);
-    }
-  }
-
-  function selectProfile(p: Profile) {
-    if (!suggestion) return;
-    const ta = taRef.current;
-    if (!ta) return;
-    const display = (p.full_name ?? p.email.split("@")[0]).replace(/\s+/g, "");
-    const before = value.slice(0, suggestion.start);
-    const afterCaretIdx = suggestion.start + suggestion.query.length + 1; // +1 for "@"
-    const after = value.slice(afterCaretIdx);
-    const next = `${before}@${display} ${after}`;
-    onChange(next);
-    if (!mentions.includes(p.id)) onMentionsChange([...mentions, p.id]);
-    setSuggestion(null);
-    // Move caret to just after the mention + space
-    requestAnimationFrame(() => {
-      const pos = before.length + display.length + 2; // "@" + space
-      ta.setSelectionRange(pos, pos);
-      ta.focus();
-    });
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (!suggestion || filtered.length === 0) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightedIdx((i) => (i + 1) % filtered.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightedIdx((i) => (i - 1 + filtered.length) % filtered.length);
-    } else if (e.key === "Enter" || e.key === "Tab") {
-      e.preventDefault();
-      selectProfile(filtered[highlightedIdx]);
-    } else if (e.key === "Escape") {
-      setSuggestion(null);
-    }
-  }
-
-  return (
-    <div className="relative">
-      <textarea
-        ref={taRef}
-        name={name}
-        value={value}
-        onChange={handleInput}
-        onKeyDown={handleKeyDown}
-        onBlur={() => setTimeout(() => setSuggestion(null), 150)}
-        rows={2}
-        placeholder={placeholder}
-        required
-        className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 placeholder:text-zinc-400 resize-none"
-      />
-      {suggestion && filtered.length > 0 && (
-        <div className="absolute z-30 left-2 right-2 bottom-full mb-1 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
-          <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-50 border-b border-zinc-100">
-            Mention someone
-          </p>
-          {filtered.map((p, i) => {
-            const display = p.full_name ?? p.email.split("@")[0];
-            return (
-              <button
-                key={p.id}
-                type="button"
-                onMouseDown={(e) => { e.preventDefault(); selectProfile(p); }}
-                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
-                  i === highlightedIdx ? "bg-zinc-100" : "hover:bg-zinc-50"
-                }`}
-              >
-                <span className="inline-flex w-6 h-6 rounded-full bg-zinc-200 items-center justify-center text-[10px] font-semibold text-zinc-700">
-                  {display[0].toUpperCase()}
-                </span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-zinc-900 truncate">{display}</span>
-                  <span className="block text-[10px] text-zinc-500 truncate">{p.email}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }
