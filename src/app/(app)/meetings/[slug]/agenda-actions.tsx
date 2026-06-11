@@ -57,7 +57,7 @@ export function AgendaActions({
         {copied ? "Copied — paste into Google Docs" : "Copy as Markdown"}
       </button>
 
-      {!confirming ? (
+      {meeting.cadence === "once" ? null : !confirming ? (
         <button
           type="button"
           onClick={() => setConfirming(true)}

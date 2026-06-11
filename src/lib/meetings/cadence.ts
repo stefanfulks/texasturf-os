@@ -11,7 +11,7 @@ export function dayName(d: number | null): string {
  * today qualifies (e.g. today is the meeting's day), today is returned.
  */
 export function upcomingOccurrence(
-  meeting: Pick<Meeting, "cadence" | "day_of_week" | "day_of_month">,
+  meeting: Pick<Meeting, "cadence" | "day_of_week" | "day_of_month"> & Partial<Pick<Meeting, "scheduled_on">>,
   from: Date = new Date(),
 ): string {
   const d = new Date(from);
@@ -20,6 +20,10 @@ export function upcomingOccurrence(
   switch (meeting.cadence) {
     case "daily":
       return iso(d);
+
+    case "once":
+      // A one-time meeting has exactly one occurrence.
+      return meeting.scheduled_on ?? iso(d);
 
     case "weekly":
     case "biweekly": {
@@ -54,6 +58,7 @@ export function occurrenceOffset(
     case "biweekly": d.setDate(d.getDate() + steps * 14); break;
     case "monthly":  d.setMonth(d.getMonth() + steps); break;
     case "adhoc":    d.setDate(d.getDate() + steps * 7); break;
+    case "once":     break; // no other occurrence to step to
   }
   return iso(d);
 }
@@ -85,6 +90,7 @@ export function formatCadence(
     case "biweekly": return `Every other ${dayName(meeting.day_of_week) || "week"}${time}`;
     case "monthly":  return `Monthly on day ${meeting.day_of_month ?? 1}${time}`;
     case "adhoc":    return "As needed";
+    case "once":     return `One-time${time}`;
   }
 }
 

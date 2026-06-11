@@ -53,10 +53,10 @@ export async function createMeetingItem(
   if (!occursOn) {
     const { data: m } = await (
       supabase.from("meetings") as unknown as {
-        select: (cols: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: Pick<Meeting, "cadence" | "day_of_week" | "day_of_month"> | null }> } };
+        select: (cols: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: Pick<Meeting, "cadence" | "day_of_week" | "day_of_month" | "scheduled_on"> | null }> } };
       }
     )
-      .select("cadence, day_of_week, day_of_month")
+      .select("cadence, day_of_week, day_of_month, scheduled_on")
       .eq("id", parsed.data.meeting_id)
       .single();
     if (!m) return { status: "error", message: "Meeting not found" };
@@ -149,6 +149,8 @@ export async function carryMeetingItemsForward(formData: FormData) {
     .eq("id", meetingId)
     .single();
   if (!m) return;
+  // A one-time meeting has nowhere to roll items forward to.
+  if (m.cadence === "once") return;
 
   const nextOn = occurrenceOffset(occursOn, m, 1);
 

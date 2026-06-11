@@ -87,6 +87,7 @@ export function MeetingForm() {
   const [cadence, setCadence] = useState<MeetingCadence>("weekly");
   const [dayOfWeek, setDayOfWeek] = useState<number>(5); // Fri
   const [dayOfMonth, setDayOfMonth] = useState<number>(1);
+  const [scheduledOn, setScheduledOn] = useState<string>(() => new Date().toISOString().slice(0, 10));
 
   // Access — empty means "everyone".
   const [roles, setRoles] = useState<string[]>([]);
@@ -185,8 +186,8 @@ export function MeetingForm() {
       <Section title="When does it happen?">
         <div>
           <label className="block text-xs font-semibold text-zinc-700 mb-2">Cadence</label>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
-            {(["daily", "weekly", "biweekly", "monthly", "adhoc"] as MeetingCadence[]).map((c) => (
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+            {(["once", "daily", "weekly", "biweekly", "monthly", "adhoc"] as MeetingCadence[]).map((c) => (
               <button
                 key={c}
                 type="button"
@@ -198,7 +199,7 @@ export function MeetingForm() {
                     : "border-zinc-200 bg-white text-zinc-700 active:bg-zinc-50")
                 }
               >
-                {c === "biweekly" ? "Bi-weekly" : c}
+                {c === "biweekly" ? "Bi-weekly" : c === "once" ? "One-time" : c}
               </button>
             ))}
           </div>
@@ -225,6 +226,19 @@ export function MeetingForm() {
               ))}
             </div>
             <input type="hidden" name="day_of_week" value={dayOfWeek} />
+          </Field>
+        )}
+
+        {cadence === "once" && (
+          <Field label="Meeting date" required>
+            <input
+              type="date"
+              name="scheduled_on"
+              required
+              value={scheduledOn}
+              onChange={(e) => setScheduledOn(e.target.value)}
+              className={fieldCls}
+            />
           </Field>
         )}
 

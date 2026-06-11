@@ -43,7 +43,7 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
       };
     }
   )
-    .select("id, slug, name, description, cadence, day_of_week, day_of_month, start_time, duration_min, allowed_roles, allowed_departments, sections, archived")
+    .select("id, slug, name, description, cadence, day_of_week, day_of_month, scheduled_on, start_time, duration_min, allowed_roles, allowed_departments, invited_user_ids, meet_url, gcal_event_id, sections, archived")
     .eq("slug", slug)
     .single();
 
@@ -103,17 +103,24 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
         <p className="text-xs text-zinc-500 mt-1">{formatCadence(meeting)}</p>
       </div>
 
-      {/* Occurrence navigation */}
+      {/* Occurrence navigation — a one-time meeting has exactly one occurrence,
+          so the prev/next steppers only render for recurring cadences. */}
       <div className="flex items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white p-3">
-        <Link
-          href={`/meetings/${meeting.slug}?date=${prevOn}`}
-          className="inline-flex items-center justify-center h-10 w-10 rounded-lg text-zinc-600 hover:bg-zinc-100 active:bg-zinc-200"
-          aria-label="Previous occurrence"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Link>
+        {meeting.cadence !== "once" ? (
+          <Link
+            href={`/meetings/${meeting.slug}?date=${prevOn}`}
+            className="inline-flex items-center justify-center h-10 w-10 rounded-lg text-zinc-600 hover:bg-zinc-100 active:bg-zinc-200"
+            aria-label="Previous occurrence"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Link>
+        ) : (
+          <span className="h-10 w-10" />
+        )}
         <div className="min-w-0 text-center">
-          <p className="text-xs uppercase tracking-wider text-zinc-500">Meeting</p>
+          <p className="text-xs uppercase tracking-wider text-zinc-500">
+            {meeting.cadence === "once" ? "One-time meeting" : "Meeting"}
+          </p>
           <p className="text-sm sm:text-base font-semibold text-zinc-900 truncate">
             {formatOccurrence(occursOn, meeting)}
           </p>
@@ -121,13 +128,17 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
             {openCount} open · {doneCount} done · {items.length} total
           </p>
         </div>
-        <Link
-          href={`/meetings/${meeting.slug}?date=${nextOn}`}
-          className="inline-flex items-center justify-center h-10 w-10 rounded-lg text-zinc-600 hover:bg-zinc-100 active:bg-zinc-200"
-          aria-label="Next occurrence"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </Link>
+        {meeting.cadence !== "once" ? (
+          <Link
+            href={`/meetings/${meeting.slug}?date=${nextOn}`}
+            className="inline-flex items-center justify-center h-10 w-10 rounded-lg text-zinc-600 hover:bg-zinc-100 active:bg-zinc-200"
+            aria-label="Next occurrence"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Link>
+        ) : (
+          <span className="h-10 w-10" />
+        )}
       </div>
 
       {/* Top actions */}

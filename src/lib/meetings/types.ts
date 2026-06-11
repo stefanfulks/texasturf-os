@@ -3,7 +3,7 @@
 // JSON, so a sales huddle and a leadership meeting can coexist without
 // schema changes.
 
-export type MeetingCadence = "daily" | "weekly" | "biweekly" | "monthly" | "adhoc";
+export type MeetingCadence = "daily" | "weekly" | "biweekly" | "monthly" | "adhoc" | "once";
 
 export type MeetingItemStatus = "pending" | "carried_over" | "discussed" | "done" | "archived";
 
@@ -42,8 +42,15 @@ export type Meeting = {
   day_of_month: number | null;
   start_time: string | null;        // "HH:MM:SS"
   duration_min: number | null;
-  allowed_roles: string[];          // empty + empty departments = open to everyone
+  /** The single date a cadence="once" meeting happens (YYYY-MM-DD). */
+  scheduled_on: string | null;
+  allowed_roles: string[];          // empty + empty departments + no invitees = open to everyone
   allowed_departments: string[];
+  /** People invited directly — can see the meeting regardless of role/department. */
+  invited_user_ids: string[];
+  /** Google Meet link (auto-created with the calendar event, or pasted manually). */
+  meet_url: string | null;
+  gcal_event_id: string | null;
   sections: MeetingSection[];
   archived: boolean;
 };
@@ -79,4 +86,5 @@ export const CADENCE_LABEL: Record<MeetingCadence, string> = {
   biweekly: "Every other week",
   monthly:  "Monthly",
   adhoc:    "As needed",
+  once:     "One-time",
 };

@@ -8,18 +8,23 @@ import type { MeetingSection } from "@/lib/meetings/types";
 
 const ROLES = ["admin", "office", "field"] as const;
 const DEPARTMENTS = ["sales", "warehouse", "office", "field", "marketing", "financial"] as const;
-const CADENCES = ["daily", "weekly", "biweekly", "monthly", "adhoc"] as const;
+const CADENCES = ["daily", "weekly", "biweekly", "monthly", "adhoc", "once"] as const;
 
-const schema = z.object({
-  slug: z.string().min(1).max(60).regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and dashes only"),
-  name: z.string().min(1).max(120),
-  description: z.string().max(500).optional(),
-  cadence: z.enum(CADENCES),
-  day_of_week: z.coerce.number().int().min(0).max(6).optional(),
-  day_of_month: z.coerce.number().int().min(1).max(31).optional(),
-  start_time: z.string().regex(/^\d{2}:\d{2}$/).optional(),
-  duration_min: z.coerce.number().int().min(5).max(480).optional(),
-});
+const schema = z
+  .object({
+    slug: z.string().min(1).max(60).regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and dashes only"),
+    name: z.string().min(1).max(120),
+    description: z.string().max(500).optional(),
+    cadence: z.enum(CADENCES),
+    day_of_week: z.coerce.number().int().min(0).max(6).optional(),
+    day_of_month: z.coerce.number().int().min(1).max(31).optional(),
+    scheduled_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    start_time: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+    duration_min: z.coerce.number().int().min(5).max(480).optional(),
+  })
+  .refine((v) => v.cadence !== "once" || !!v.scheduled_on, {
+    message: "Pick the date for a one-time meeting",
+  });
 
 export type CreateMeetingState =
   | { status: "idle" }
@@ -47,6 +52,7 @@ export async function createMeeting(
     cadence: formData.get("cadence"),
     day_of_week: formData.get("day_of_week") || undefined,
     day_of_month: formData.get("day_of_month") || undefined,
+    scheduled_on: (formData.get("scheduled_on") as string | null) || undefined,
     start_time: (formData.get("start_time") as string | null) || undefined,
     duration_min: formData.get("duration_min") || undefined,
   });
@@ -85,6 +91,7 @@ export async function createMeeting(
     cadence: string;
     day_of_week: number | null;
     day_of_month: number | null;
+    scheduled_on: string | null;
     start_time: string | null;
     duration_min: number | null;
     allowed_roles: string[];
@@ -99,6 +106,7 @@ export async function createMeeting(
     cadence: parsed.data.cadence,
     day_of_week: parsed.data.day_of_week ?? null,
     day_of_month: parsed.data.day_of_month ?? null,
+    scheduled_on: parsed.data.cadence === "once" ? parsed.data.scheduled_on ?? null : null,
     start_time: parsed.data.start_time ?? null,
     duration_min: parsed.data.duration_min ?? null,
     allowed_roles,

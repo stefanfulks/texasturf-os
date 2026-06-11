@@ -24,7 +24,7 @@ export default async function MeetingsPage() {
       };
     }
   )
-    .select("id, slug, name, description, cadence, day_of_week, day_of_month, start_time, duration_min, allowed_roles, allowed_departments, sections, archived")
+    .select("id, slug, name, description, cadence, day_of_week, day_of_month, scheduled_on, start_time, duration_min, allowed_roles, allowed_departments, invited_user_ids, meet_url, gcal_event_id, sections, archived")
     .eq("archived", false)
     .order("name", { ascending: true });
 
