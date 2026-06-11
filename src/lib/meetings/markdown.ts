@@ -1,5 +1,6 @@
 import type { Meeting } from "./types";
 import { formatOccurrence } from "./cadence";
+import { refsToMarkdown } from "@/lib/refs";
 
 export type RenderItem = {
   id: string;
@@ -22,6 +23,8 @@ export function renderMeetingMarkdown(
   meeting: Meeting,
   occursOn: string,
   items: RenderItem[],
+  // Origin makes #ref links absolute so they work when pasted into Google Docs.
+  origin = "",
 ): string {
   const lines: string[] = [];
 
@@ -77,9 +80,9 @@ export function renderMeetingMarkdown(
         if (item.ownerName) tags.push(`Owner: ${item.ownerName}`);
         if (item.dueDate) tags.push(`Due ${item.dueDate}`);
         const tagStr = tags.length ? `  _${tags.join(" · ")}_` : "";
-        lines.push(`- **${item.title}**${tagStr}`);
+        lines.push(`- **${refsToMarkdown(item.title, origin)}**${tagStr}`);
         if (item.body) {
-          const body = item.body
+          const body = refsToMarkdown(item.body, origin)
             .trim()
             .split("\n")
             .map((l) => "    " + l)

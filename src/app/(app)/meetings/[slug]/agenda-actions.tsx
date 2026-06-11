@@ -22,7 +22,7 @@ export function AgendaActions({
   const [carryPending, startCarry] = useTransition();
 
   async function copyAsMarkdown() {
-    const md = renderMeetingMarkdown(meeting, occursOn, items);
+    const md = renderMeetingMarkdown(meeting, occursOn, items, window.location.origin);
     try {
       await navigator.clipboard.writeText(md);
       setCopied(true);

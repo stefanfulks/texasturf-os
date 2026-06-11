@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X, AlertCircle } from "lucide-react";
 import { createMeetingItem } from "./actions";
+import { RefInput } from "@/components/refs/ref-input";
 import type { Meeting } from "@/lib/meetings/types";
 
 // 16px font + 48px height keeps the form iOS-friendly (no auto-zoom, big taps).
@@ -30,12 +31,16 @@ export function NewItemFab({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [sectionKey, setSectionKey] = useState<string>(defaultSectionKey ?? meeting.sections[0]?.key ?? "");
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
 
   const section = meeting.sections.find((s) => s.key === sectionKey) ?? meeting.sections[0] ?? null;
 
   function openModal() {
     setError(null);
     setSectionKey(defaultSectionKey ?? meeting.sections[0]?.key ?? "");
+    setTitle("");
+    setBody("");
     setOpen(true);
   }
 
@@ -151,24 +156,31 @@ export function NewItemFab({
                     <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
                       Title <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <RefInput
                       name="title"
+                      value={title}
+                      onChange={setTitle}
                       required
                       autoFocus
                       placeholder={section.placeholder ?? "Short summary"}
                       className={fieldCls}
                     />
+                    <p className="mt-1 text-[11px] text-zinc-400">
+                      Type <span className="font-semibold text-zinc-500">#</span> to link a task, job, invoice, or client
+                    </p>
                   </div>
 
                   <div>
                     <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
                       Details <span className="font-normal text-zinc-400">(optional)</span>
                     </label>
-                    <textarea
+                    <RefInput
                       name="body"
+                      value={body}
+                      onChange={setBody}
+                      multiline
                       rows={4}
-                      placeholder="Background, links, context…"
+                      placeholder="Background, links, context… (# to link)"
                       className="w-full text-base border border-zinc-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 placeholder:text-zinc-400 resize-none"
                     />
                   </div>

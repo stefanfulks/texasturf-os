@@ -12,7 +12,8 @@ import type { Meeting } from "@/lib/meetings/types";
 const createSchema = z.object({
   meeting_id:   z.string().uuid(),
   section_key:  z.string().min(1),
-  title:        z.string().min(1, "Title is required").max(280),
+  // 500 not 280: inline #[Label](type:id) ref tokens inflate the raw length.
+  title:        z.string().min(1, "Title is required").max(500),
   body:         z.string().max(4000).optional(),
   occurs_on:    z.string().optional(),
   owner_id:     z.string().uuid().optional(),

@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { Check, MessageSquare, Archive } from "lucide-react";
 import { updateMeetingItemStatus } from "./actions";
+import { RefText } from "@/components/refs/ref-text";
 import type { MeetingItem, MeetingSection, MeetingItemStatus } from "@/lib/meetings/types";
 
 type Profile = { id: string; full_name: string | null; email: string };
@@ -61,12 +62,12 @@ export function ItemRow({
 
         <div className="flex-1 min-w-0">
           <p className={"text-sm font-medium leading-snug break-words " + (isComplete ? "line-through text-zinc-500" : "text-zinc-900")}>
-            {item.title}
+            <RefText text={item.title} />
           </p>
 
           {item.body && (
             <p className="text-xs text-zinc-600 mt-1 whitespace-pre-wrap leading-relaxed">
-              {item.body}
+              <RefText text={item.body} />
             </p>
           )}
 
