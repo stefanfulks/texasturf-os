@@ -73,7 +73,9 @@ function slugify(s: string): string {
     .slice(0, 60);
 }
 
-export function MeetingForm() {
+type Profile = { id: string; full_name: string | null; email: string };
+
+export function MeetingForm({ profiles }: { profiles: Profile[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -89,9 +91,10 @@ export function MeetingForm() {
   const [dayOfMonth, setDayOfMonth] = useState<number>(1);
   const [scheduledOn, setScheduledOn] = useState<string>(() => new Date().toISOString().slice(0, 10));
 
-  // Access — empty means "everyone".
+  // Access — everything empty means "everyone".
   const [roles, setRoles] = useState<string[]>([]);
   const [depts, setDepts] = useState<string[]>([]);
+  const [invitees, setInvitees] = useState<string[]>([]);
 
   // Sections editor.
   const [sections, setSections] = useState<MeetingSection[]>(TEMPLATES[0].sections);
@@ -269,7 +272,7 @@ export function MeetingForm() {
       </Section>
 
       {/* Access */}
-      <Section title="Who can see this meeting?" hint="Leave both empty to make it visible to everyone">
+      <Section title="Who's in this meeting?" hint="Leave everything empty to make it visible to everyone">
         <div>
           <label className="block text-xs font-semibold text-zinc-700 mb-2">Roles</label>
           <div className="flex flex-wrap gap-1.5">
@@ -318,6 +321,35 @@ export function MeetingForm() {
             })}
           </div>
           {depts.map((d) => <input key={d} type="hidden" name="allowed_departments" value={d} />)}
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-zinc-700 mb-2">
+            Specific people
+            <span className="font-normal text-zinc-400 ml-1.5">invited regardless of role or department</span>
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {profiles.map((p) => {
+              const on = invitees.includes(p.id);
+              const display = p.full_name ?? p.email.split("@")[0];
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => toggle(invitees, setInvitees, p.id)}
+                  className={
+                    "h-10 px-4 rounded-full border text-xs font-semibold transition-colors " +
+                    (on
+                      ? "border-zinc-900 bg-zinc-900 text-white"
+                      : "border-zinc-200 bg-white text-zinc-700 active:bg-zinc-50")
+                  }
+                >
+                  {display}
+                </button>
+              );
+            })}
+          </div>
+          {invitees.map((id) => <input key={id} type="hidden" name="invited_user_ids" value={id} />)}
         </div>
       </Section>
 

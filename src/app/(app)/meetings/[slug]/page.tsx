@@ -101,6 +101,18 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
           <p className="text-sm sm:text-base text-zinc-600 mt-1">{meeting.description}</p>
         )}
         <p className="text-xs text-zinc-500 mt-1">{formatCadence(meeting)}</p>
+        {meeting.invited_user_ids.length > 0 && (
+          <p className="text-xs text-zinc-500 mt-1">
+            Invited:{" "}
+            {meeting.invited_user_ids
+              .map((id) => {
+                const p = profileById.get(id);
+                return p ? p.full_name ?? p.email.split("@")[0] : null;
+              })
+              .filter(Boolean)
+              .join(", ")}
+          </p>
+        )}
       </div>
 
       {/* Occurrence navigation — a one-time meeting has exactly one occurrence,

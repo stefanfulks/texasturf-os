@@ -63,6 +63,9 @@ export async function createMeeting(
 
   const allowed_roles = formData.getAll("allowed_roles").filter((v): v is string => typeof v === "string" && (ROLES as readonly string[]).includes(v));
   const allowed_departments = formData.getAll("allowed_departments").filter((v): v is string => typeof v === "string" && (DEPARTMENTS as readonly string[]).includes(v));
+  const invited_user_ids = formData
+    .getAll("invited_user_ids")
+    .filter((v): v is string => typeof v === "string" && z.string().uuid().safeParse(v).success);
 
   // Sections come in as JSON in a single hidden field — the form widget
   // serializes the editable list of {key,label,emoji,time_min,owner,accent}.
@@ -96,6 +99,7 @@ export async function createMeeting(
     duration_min: number | null;
     allowed_roles: string[];
     allowed_departments: string[];
+    invited_user_ids: string[];
     sections: MeetingSection[];
     created_by: string;
   };
@@ -111,6 +115,7 @@ export async function createMeeting(
     duration_min: parsed.data.duration_min ?? null,
     allowed_roles,
     allowed_departments,
+    invited_user_ids,
     sections,
     created_by: user.id,
   };

@@ -11,8 +11,12 @@ export default async function NewMeetingPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  const [{ data: profile }, profilesRes] = await Promise.all([
+    supabase.from("profiles").select("role").eq("id", user.id).single(),
+    supabase.from("profiles").select("id, full_name, email").order("full_name", { ascending: true }),
+  ]);
   const isAdmin = (profile as { role?: string } | null)?.role === "admin";
+  const profiles = (profilesRes.data ?? []) as Array<{ id: string; full_name: string | null; email: string }>;
   if (!isAdmin) {
     return (
       <div className="max-w-xl mx-auto px-4 py-8 space-y-5">
@@ -45,7 +49,7 @@ export default async function NewMeetingPage() {
           Define cadence, who can see it, and the agenda sections people will file items under.
         </p>
       </div>
-      <MeetingForm />
+      <MeetingForm profiles={profiles} />
     </div>
   );
 }
