@@ -119,7 +119,9 @@ export async function createEvent(
               conferenceData: {
                 createRequest: {
                   requestId: crypto.randomUUID(),
-                  conferenceSolutionKey: { key: "hangoutsMeet" },
+                  // The API field is `type` (not `key`) — sending anything
+                  // else fails with 400 "Invalid conference data".
+                  conferenceSolutionKey: { type: "hangoutsMeet" },
                 },
               },
             }
