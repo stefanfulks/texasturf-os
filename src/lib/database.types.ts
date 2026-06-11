@@ -1741,8 +1741,12 @@ export type Database = {
           day_of_week: number | null
           description: string | null
           duration_min: number | null
+          gcal_event_id: string | null
           id: string
+          invited_user_ids: string[]
+          meet_url: string | null
           name: string
+          scheduled_on: string | null
           sections: Json
           slug: string
           start_time: string | null
@@ -1759,8 +1763,12 @@ export type Database = {
           day_of_week?: number | null
           description?: string | null
           duration_min?: number | null
+          gcal_event_id?: string | null
           id?: string
+          invited_user_ids?: string[]
+          meet_url?: string | null
           name: string
+          scheduled_on?: string | null
           sections?: Json
           slug: string
           start_time?: string | null
@@ -1777,8 +1785,12 @@ export type Database = {
           day_of_week?: number | null
           description?: string | null
           duration_min?: number | null
+          gcal_event_id?: string | null
           id?: string
+          invited_user_ids?: string[]
+          meet_url?: string | null
           name?: string
+          scheduled_on?: string | null
           sections?: Json
           slug?: string
           start_time?: string | null
@@ -3544,7 +3556,13 @@ export type Database = {
         | "on_hold"
       load_status: "empty" | "partially_loaded" | "fully_loaded" | "trash"
       maintenance_interval_type: "time" | "mileage" | "hours"
-      meeting_cadence: "daily" | "weekly" | "biweekly" | "monthly" | "adhoc"
+      meeting_cadence:
+        | "daily"
+        | "weekly"
+        | "biweekly"
+        | "monthly"
+        | "adhoc"
+        | "once"
       meeting_item_status:
         | "pending"
         | "carried_over"
@@ -3822,7 +3840,14 @@ export const Constants = {
       ],
       load_status: ["empty", "partially_loaded", "fully_loaded", "trash"],
       maintenance_interval_type: ["time", "mileage", "hours"],
-      meeting_cadence: ["daily", "weekly", "biweekly", "monthly", "adhoc"],
+      meeting_cadence: [
+        "daily",
+        "weekly",
+        "biweekly",
+        "monthly",
+        "adhoc",
+        "once",
+      ],
       meeting_item_status: [
         "pending",
         "carried_over",
