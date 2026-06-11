@@ -177,9 +177,12 @@ export async function createMeeting(
       )
         .update({ meet_url: scheduled.meetUrl, gcal_event_id: scheduled.eventId })
         .eq("id", created.id);
+    } else {
+      console.error(`[meetings] no Meet link for "${parsed.data.slug}": ${scheduled.reason}`);
     }
-  } catch {
+  } catch (err) {
     // Meeting exists; Meet link can be added manually from the detail page.
+    console.error(`[meetings] gcal scheduling threw for "${parsed.data.slug}":`, err);
   }
 
   revalidatePath("/meetings");
