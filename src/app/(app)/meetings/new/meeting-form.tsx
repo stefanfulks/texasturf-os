@@ -63,11 +63,25 @@ const TEMPLATES: { name: string; sections: MeetingSection[] }[] = [
   },
 ];
 
+// "Sales Huddle!" → "sales-huddle". Spaces and symbols become dashes so
+// people can type natural names without hitting the no-spaces slug rule.
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
 export function MeetingForm() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Slug follows the name until the user edits the slug field directly.
+  const [slug, setSlug] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
 
   // Cadence + day-of-week control which date fields show.
   const [cadence, setCadence] = useState<MeetingCadence>("weekly");
@@ -130,10 +144,31 @@ export function MeetingForm() {
       <Section title="Basics">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Name" required>
-            <input name="name" required placeholder="Sales Huddle" className={fieldCls} />
+            <input
+              name="name"
+              required
+              placeholder="Sales Huddle"
+              className={fieldCls}
+              onChange={(e) => {
+                if (!slugEdited) setSlug(slugify(e.target.value));
+              }}
+            />
           </Field>
-          <Field label="URL slug" required hint="Lowercase, no spaces">
-            <input name="slug" required pattern="[a-z0-9-]+" placeholder="sales-huddle" className={fieldCls} />
+          <Field label="URL slug" required hint="Auto-generated from name">
+            <input
+              name="slug"
+              required
+              pattern="[a-z0-9-]+"
+              placeholder="sales-huddle"
+              className={fieldCls}
+              value={slug}
+              onChange={(e) => {
+                setSlugEdited(true);
+                // Sanitize as they type instead of rejecting on submit —
+                // spaces become dashes, uppercase folds to lowercase.
+                setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+              }}
+            />
           </Field>
         </div>
         <Field label="Description" optional>

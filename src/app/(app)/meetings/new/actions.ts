@@ -109,11 +109,14 @@ export async function createMeeting(
 
   const { error } = await (
     supabase.from("meetings") as unknown as {
-      insert: (row: InsertRow) => Promise<{ error: { message: string } | null }>;
+      insert: (row: InsertRow) => Promise<{ error: { message: string; code?: string } | null }>;
     }
   ).insert(insertRow);
 
   if (error) {
+    if (error.code === "23505") {
+      return { status: "error", message: `A meeting at /meetings/${parsed.data.slug} already exists — change the URL slug.` };
+    }
     return { status: "error", message: error.message };
   }
 
