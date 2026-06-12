@@ -9,6 +9,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import { TurfyLauncher } from "@/components/turfy-launcher";
 import { AnalyticsIdentify } from "@/components/analytics-identify";
 import { PostHogProvider } from "@/components/posthog-provider";
+import { parseDepartments } from "@/lib/departments";
 
 export default async function AppLayout({
   children,
@@ -22,13 +23,19 @@ export default async function AppLayout({
 
   if (!user) redirect("/login");
 
-  // Profile drives the UserMenu (name + role) AND the admin-only nav surfaces.
+  // Profile drives the UserMenu (name + role), the admin-only nav surfaces,
+  // and the department-aware tab ordering (field crew sees Today first,
+  // office sees Invoices, warehouse sees Operations…).
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, email, role")
+    .select("full_name, email, role, departments")
     .eq("id", user.id)
     .single();
   const isAdmin = profile?.role === "admin";
+  const userDepartments = parseDepartments(
+    (profile as { departments?: unknown } | null)?.departments,
+  );
+  const primaryDepartment = userDepartments[0] ?? null;
 
   // Count unread notifications for the bell badge.
   const { count: unreadCount } = await supabase
@@ -64,7 +71,7 @@ export default async function AppLayout({
               isAdmin={isAdmin}
             />
             <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
-            <NavLinks isAdmin={isAdmin} />
+            <NavLinks isAdmin={isAdmin} department={primaryDepartment} />
           </div>
 
           {/* RIGHT — notifications + settings gear */}

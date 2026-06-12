@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
+import type { Department } from "@/lib/departments";
 
 /**
  * Top-level navigation tabs. The UserMenu (left of these tabs) holds the
@@ -11,8 +12,14 @@ import { Menu, X } from "lucide-react";
  * notifications) opens /settings. These tabs are the high-frequency
  * destinations everyone needs one click away.
  *
- * The Team tab is admin-only and gets appended by the (app) layout, which
- * fetches the user's role server-side and passes `isAdmin` here.
+ * Tabs are ordered around the user's PRIMARY department so each person's
+ * daily pages are one click away (field → Today first, office → Invoices,
+ * warehouse → Operations…). Falls back to the generalist set when no
+ * department is picked. Every set ends with Turfy; Feedback is spliced in
+ * just before it, and the Team tab is appended for admins.
+ *
+ * The (app) layout fetches role + departments server-side and passes
+ * `isAdmin` / `department` here.
  */
 type NavTab = { href: string; label: string; prefixes?: string[] };
 
@@ -26,6 +33,62 @@ const PERSONAL_TABS_BASE: NavTab[] = [
   { href: "/attention",          label: "Attention", prefixes: ["/attention"] },
   { href: "/assistant",          label: "Turfy",     prefixes: ["/assistant"] },
 ];
+
+// Daily-workflow tab sets per department. Keep each ≤7 before Feedback/Team
+// get spliced in — more than that stops being "one click away".
+const DEPT_TABS: Partial<Record<Department, NavTab[]>> = {
+  field: [
+    { href: "/today",              label: "Today",     prefixes: ["/today", "/install"] },
+    { href: "/tasks",              label: "Tasks",     prefixes: ["/tasks"] },
+    { href: "/jobs",               label: "Jobs",      prefixes: ["/jobs"] },
+    { href: "/calendar",           label: "Calendar",  prefixes: ["/calendar"] },
+    { href: "/fleet/reservations", label: "Vehicles",  prefixes: ["/fleet/reservations"] },
+    { href: "/assistant",          label: "Turfy",     prefixes: ["/assistant"] },
+  ],
+  warehouse: [
+    { href: "/dashboard",  label: "Home",       prefixes: ["/dashboard", "/"] },
+    { href: "/operations", label: "Operations", prefixes: ["/operations"] },
+    { href: "/inventory",  label: "Inventory",  prefixes: ["/inventory"] },
+    { href: "/tasks",      label: "Tasks",      prefixes: ["/tasks"] },
+    { href: "/calendar",   label: "Calendar",   prefixes: ["/calendar"] },
+    { href: "/assistant",  label: "Turfy",      prefixes: ["/assistant"] },
+  ],
+  office: [
+    { href: "/dashboard", label: "Home",      prefixes: ["/dashboard", "/"] },
+    { href: "/invoices",  label: "Invoices",  prefixes: ["/invoices"] },
+    { href: "/tasks",     label: "Tasks",     prefixes: ["/tasks"] },
+    { href: "/meetings",  label: "Meetings",  prefixes: ["/meetings"] },
+    { href: "/calendar",  label: "Calendar",  prefixes: ["/calendar"] },
+    { href: "/attention", label: "Attention", prefixes: ["/attention"] },
+    { href: "/assistant", label: "Turfy",     prefixes: ["/assistant"] },
+  ],
+  sales: [
+    { href: "/dashboard", label: "Home",     prefixes: ["/dashboard", "/"] },
+    { href: "/pricing",   label: "Pricing",  prefixes: ["/pricing", "/sales"] },
+    { href: "/clients",   label: "Clients",  prefixes: ["/clients"] },
+    { href: "/jobs",      label: "Jobs",     prefixes: ["/jobs"] },
+    { href: "/tasks",     label: "Tasks",    prefixes: ["/tasks"] },
+    { href: "/calendar",  label: "Calendar", prefixes: ["/calendar"] },
+    { href: "/assistant", label: "Turfy",    prefixes: ["/assistant"] },
+  ],
+  financial: [
+    { href: "/dashboard", label: "Home",      prefixes: ["/dashboard", "/"] },
+    { href: "/reports",   label: "Reports",   prefixes: ["/reports"] },
+    { href: "/invoices",  label: "Invoices",  prefixes: ["/invoices"] },
+    { href: "/tasks",     label: "Tasks",     prefixes: ["/tasks"] },
+    { href: "/calendar",  label: "Calendar",  prefixes: ["/calendar"] },
+    { href: "/attention", label: "Attention", prefixes: ["/attention"] },
+    { href: "/assistant", label: "Turfy",     prefixes: ["/assistant"] },
+  ],
+  marketing: [
+    { href: "/dashboard", label: "Home",      prefixes: ["/dashboard", "/"] },
+    { href: "/marketing", label: "Marketing", prefixes: ["/marketing"] },
+    { href: "/tasks",     label: "Tasks",     prefixes: ["/tasks"] },
+    { href: "/calendar",  label: "Calendar",  prefixes: ["/calendar"] },
+    { href: "/meetings",  label: "Meetings",  prefixes: ["/meetings"] },
+    { href: "/assistant", label: "Turfy",     prefixes: ["/assistant"] },
+  ],
+};
 
 // Feedback tab is per-role:
 //   admin → goes straight to the triage inbox (/admin/feedback)
@@ -43,7 +106,13 @@ function isActive(pathname: string, tab: NavTab): boolean {
   return prefixes.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
-export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
+export function NavLinks({
+  isAdmin = false,
+  department = null,
+}: {
+  isAdmin?: boolean;
+  department?: Department | null;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -53,10 +122,13 @@ export function NavLinks({ isAdmin = false }: { isAdmin?: boolean }) {
     label:    "Feedback",
     prefixes: FEEDBACK_PREFIXES,
   };
-  // Slot Feedback just before Turfy (the last personal tab), then append admin tabs.
+  // Department-ordered base (daily pages first), falling back to the
+  // generalist set. Every base ends with Turfy — slot Feedback just before
+  // it, then append admin tabs.
+  const base = (department && DEPT_TABS[department]) || PERSONAL_TABS_BASE;
   const tabs: NavTab[] = isAdmin
-    ? [...PERSONAL_TABS_BASE.slice(0, -1), feedbackTab, PERSONAL_TABS_BASE.at(-1)!, ...ADMIN_TABS]
-    : [...PERSONAL_TABS_BASE.slice(0, -1), feedbackTab, PERSONAL_TABS_BASE.at(-1)!];
+    ? [...base.slice(0, -1), feedbackTab, base.at(-1)!, ...ADMIN_TABS]
+    : [...base.slice(0, -1), feedbackTab, base.at(-1)!];
 
   // Close on outside click + on route change
   useEffect(() => {
