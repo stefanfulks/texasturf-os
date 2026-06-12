@@ -1,7 +1,14 @@
 #!/usr/bin/env node
-// Regenerate the PWA assets (home-screen icons + iOS launch screens).
+// Regenerate the PWA assets (home-screen icons + iOS launch screens) from the
+// TexasTurf brand mark.
 //
 //   node scripts/generate-pwa-assets.mjs
+//
+// Source mark: scripts/assets/texasturf-mark.png — the "T" logo (charcoal/green
+// split, Texas star, grass) with the wordmark and ™ cropped off, on a
+// transparent background. To re-crop it from a full-logo export, extract the
+// T-mark bounding box and trim the transparency (the original was lifted from
+// "TexasTurf Favicon (black) logo.png", region ~{left:235,top:0,w:800,h:760}).
 //
 // Outputs:
 //   src/app/icon.png            — browser-tab icon (Next file convention)
@@ -33,37 +40,34 @@ function loadSharp() {
 }
 const sharp = loadSharp();
 
-// ── The mark ─────────────────────────────────────────────────────────────────
-// The TexasTurf favicon mark: a white upward triangle on a solid black field.
-// The favicon's own circular container is dropped here — on a home screen iOS
-// supplies the rounded-square mask, so the black field fills the tile edge to
-// edge (also what makes the 512 double as a maskable icon). Triangle geometry
-// matches the favicon's proportions (~49% wide, ~40% tall, optically centered).
-function iconSvg({ cornerRadius = 0 } = {}) {
-  const clip =
-    cornerRadius > 0
-      ? `<clipPath id="tile"><rect width="512" height="512" rx="${cornerRadius}"/></clipPath>`
-      : "";
-  const wrap = cornerRadius > 0 ? ` clip-path="url(#tile)"` : "";
-  return `<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <defs>${clip}</defs>
-  <g${wrap}>
-    <rect width="512" height="512" fill="#000000"/>
-    <polygon points="256,158 382,366 130,366" fill="#ffffff"/>
-  </g>
-</svg>`;
-}
+const MARK = path.join(root, "scripts", "assets", "texasturf-mark.png");
 
-const flat = Buffer.from(iconSvg());
-const tile = Buffer.from(iconSvg({ cornerRadius: 114 })); // iOS-style rounded tile for launch screens
+// Palette — the icon tile is white (the mark was drawn for a light ground, so
+// its charcoal half and navy star keep full contrast). The splash sits on the
+// app's warm canvas so first paint of the installed app matches.
+const ICON_BG = "#ffffff";
+const CANVAS = "#faf9f6";
 
 const iconsDir = path.join(root, "public", "icons");
 const splashDir = path.join(root, "public", "splash");
 mkdirSync(iconsDir, { recursive: true });
 mkdirSync(splashDir, { recursive: true });
 
-async function png(svg, size, file) {
-  await sharp(svg).resize(size, size).png().toFile(file);
+// Scale the mark to fit (contain) inside a square box of `box` px.
+function markFitting(box) {
+  return sharp(MARK).resize(box, box, { fit: "inside" }).png().toBuffer();
+}
+
+// Full-bleed square icon: white field, mark centered at ~78% (iOS rounds the
+// corners itself, so no rounding baked in).
+async function icon(size, file) {
+  const mark = await markFitting(Math.round(size * 0.78));
+  await sharp({
+    create: { width: size, height: size, channels: 4, background: ICON_BG },
+  })
+    .composite([{ input: mark, gravity: "center" }])
+    .png()
+    .toFile(file);
   console.log(`✓ ${path.relative(root, file)} (${size}x${size})`);
 }
 
@@ -82,29 +86,24 @@ const SPLASH_DEVICES = [
   { css: [440, 956], dpr: 3 }, // 16 Pro Max / 17 Pro Max
 ];
 
+// Launch screen: the mark centered on the warm canvas, sized to ~30% of the
+// shorter edge so it reads the same across device classes.
 async function splash({ css, dpr }) {
   const [w, h] = [css[0] * dpr, css[1] * dpr];
-  const tileSize = Math.round(w * 0.3);
-  const icon = await sharp(tile).resize(tileSize, tileSize).png().toBuffer();
+  const mark = await markFitting(Math.round(Math.min(w, h) * 0.3));
   const file = path.join(splashDir, `splash-${w}x${h}.png`);
   await sharp({
-    create: { width: w, height: h, channels: 3, background: "#faf9f6" },
+    create: { width: w, height: h, channels: 3, background: CANVAS },
   })
-    .composite([
-      {
-        input: icon,
-        left: Math.round((w - tileSize) / 2),
-        top: Math.round((h - tileSize) / 2),
-      },
-    ])
+    .composite([{ input: mark, gravity: "center" }])
     .png()
     .toFile(file);
   console.log(`✓ ${path.relative(root, file)}`);
 }
 
-await png(flat, 192, path.join(iconsDir, "icon-192.png"));
-await png(flat, 512, path.join(iconsDir, "icon-512.png"));
-await png(flat, 512, path.join(root, "src", "app", "icon.png"));
-await png(flat, 180, path.join(root, "src", "app", "apple-icon.png"));
+await icon(192, path.join(iconsDir, "icon-192.png"));
+await icon(512, path.join(iconsDir, "icon-512.png"));
+await icon(512, path.join(root, "src", "app", "icon.png"));
+await icon(180, path.join(root, "src", "app", "apple-icon.png"));
 for (const device of SPLASH_DEVICES) await splash(device);
 console.log("Done.");
