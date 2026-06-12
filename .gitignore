@@ -48,3 +48,8 @@ next-env.d.ts
 
 # Supabase CLI cache
 supabase/.temp/
+
+# Confidential finance data — never commit to this public repo
+# (COGS/pricing spreadsheets, one-off quote scripts that carry cost + markup)
+/docs/finance-sheets/
+/scripts/update-quote-*.mjs
