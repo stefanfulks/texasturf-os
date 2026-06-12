@@ -1,10 +1,16 @@
 "use client";
 
 import { useActionState } from "react";
-import { sendMagicLink, type LoginState } from "./actions";
+import {
+  sendMagicLink,
+  verifyEmailOtp,
+  type LoginState,
+  type VerifyOtpState,
+} from "./actions";
 import { GoogleSignInButton } from "./google-button";
 
 const initialState: LoginState = { status: "idle" };
+const verifyInitialState: VerifyOtpState = { status: "idle" };
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(
@@ -42,12 +48,7 @@ export default function LoginPage() {
 
         <div className="card p-6 sm:p-7" style={{ boxShadow: "var(--shadow-pop)" }}>
           {state.status === "sent" ? (
-            <div className="rounded-xl border border-brand-line bg-brand-tint p-4 text-sm">
-              <p className="font-semibold text-brand-strong">Check your inbox.</p>
-              <p className="mt-1 text-brand">
-                Magic link sent to <strong>{state.email}</strong>.
-              </p>
-            </div>
+            <VerifyCodeForm email={state.email} />
           ) : (
             <div className="space-y-4">
               <GoogleSignInButton />
@@ -83,7 +84,7 @@ export default function LoginPage() {
                   disabled={pending}
                   className="btn btn-primary h-11 w-full disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {pending ? "Sending…" : "Send magic link"}
+                  {pending ? "Sending…" : "Send sign-in email"}
                 </button>
               </form>
             </div>
@@ -95,6 +96,64 @@ export default function LoginPage() {
         </p>
       </div>
     </main>
+  );
+}
+
+function VerifyCodeForm({ email }: { email: string }) {
+  const [state, formAction, pending] = useActionState(
+    verifyEmailOtp,
+    verifyInitialState,
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-brand-line bg-brand-tint p-4 text-sm">
+        <p className="font-semibold text-brand-strong">Check your inbox.</p>
+        <p className="mt-1 text-brand">
+          We sent a sign-in link and a 6-digit code to <strong>{email}</strong>.
+        </p>
+      </div>
+
+      <form action={formAction} className="space-y-3">
+        <input type="hidden" name="email" value={email} />
+        <div>
+          <label htmlFor="token" className="mb-1.5 block text-xs font-semibold text-ink-2">
+            6-digit code
+          </label>
+          <input
+            id="token"
+            name="token"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            required
+            placeholder="000000"
+            className="field-input text-center text-lg tracking-[0.4em]"
+          />
+        </div>
+
+        {state.status === "error" && (
+          <p className="text-sm text-danger">{state.message}</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={pending}
+          className="btn btn-primary h-11 w-full disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {pending ? "Verifying…" : "Verify code"}
+        </button>
+      </form>
+
+      <p className="text-center text-xs text-ink-4">
+        On a computer? You can click the sign-in link in the email instead.{" "}
+        <a href="/login" className="font-semibold text-ink-2 underline">
+          Start over
+        </a>
+      </p>
+    </div>
   );
 }
 

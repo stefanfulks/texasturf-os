@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export type LoginState =
@@ -43,6 +44,55 @@ export async function sendMagicLink(
   }
 
   return { status: "sent", email };
+}
+
+// ─── Email OTP code ───────────────────────────────────────────────────────────
+// The installed PWA (iPhone home screen) has a cookie jar separate from Safari,
+// so a tapped magic link signs in Safari — not the app. Typing the emailed
+// 6-digit code verifies inside the app itself. The same email carries both.
+
+export type VerifyOtpState =
+  | { status: "idle" }
+  | { status: "error"; message: string };
+
+export async function verifyEmailOtp(
+  _prev: VerifyOtpState,
+  formData: FormData,
+): Promise<VerifyOtpState> {
+  const rawEmail = formData.get("email");
+  const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
+  const rawToken = formData.get("token");
+  const token = typeof rawToken === "string" ? rawToken.replace(/\D/g, "") : "";
+
+  if (!email.endsWith("@texasturfusa.com")) {
+    return {
+      status: "error",
+      message: "Only @texasturfusa.com emails can sign in.",
+    };
+  }
+
+  if (token.length !== 6) {
+    return { status: "error", message: "Enter the 6-digit code from the email." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "email",
+  });
+
+  if (error) {
+    return {
+      status: "error",
+      message:
+        "That code did not work — it may be expired or already used. Start over to get a new one.",
+    };
+  }
+
+  // Same landing as the magic-link callback: root routes new users to
+  // onboarding and everyone else to the dashboard.
+  redirect("/");
 }
 
 // ─── Google SSO ───────────────────────────────────────────────────────────────
