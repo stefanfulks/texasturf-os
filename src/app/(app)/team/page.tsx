@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { UserRow } from "./user-row";
 import { InviteUserForm } from "./invite-form";

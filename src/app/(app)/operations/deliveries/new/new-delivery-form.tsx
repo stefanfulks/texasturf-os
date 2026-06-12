@@ -252,7 +252,6 @@ export function NewDeliveryForm({
         )}
         {photoUrl ? (
           <div className="space-y-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <Image
               src={photoUrl}
               alt="Delivery preview"

@@ -43,7 +43,6 @@ export function NewMaintenanceForm({
       setSchedules([]);
       return;
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSchedulesLoading(true);
     fetch(`/api/operations/maintenance-schedules?asset_id=${encodeURIComponent(assetId)}`)
       .then((r) => r.ok ? r.json() : { schedules: [] })

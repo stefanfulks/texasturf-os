@@ -26,7 +26,6 @@ export function InvoiceUploadForm({ vendors }: Props) {
 
   const [state, formAction, isPending] = useActionState(submitInvoice, initial);
 
-  const [file, setFile]           = useState<File | null>(null);
   const [preview, setPreview]     = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl]   = useState<string | null>(null);
@@ -44,7 +43,6 @@ export function InvoiceUploadForm({ vendors }: Props) {
     const f = e.target.files?.[0];
     if (!f) return;
 
-    setFile(f);
     setUploadError(null);
 
     // Preview for images

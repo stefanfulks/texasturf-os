@@ -5,7 +5,7 @@ import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { InvoiceCommentSection } from "./comment-section";
 import { ArchiveButton } from "./archive-button";
-import type { Invoice, InvoiceStatus, InvoiceLineItem, InvoiceStatusHistory, InvoiceComment, Vendor, Profile } from "@/lib/db-helpers.types";
+import type { Invoice, InvoiceStatus, InvoiceLineItem, InvoiceStatusHistory, InvoiceComment, Vendor } from "@/lib/db-helpers.types";
 
 const STATUS_CONFIG: Record<InvoiceStatus, { label: string; badge: string; dot: string }> = {
   draft:              { label: "Draft",             badge: "bg-zinc-100 text-zinc-500",     dot: "bg-zinc-300"    },

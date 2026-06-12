@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
-import type { Invoice, InvoiceStatus, Vendor } from "@/lib/db-helpers.types";
+import type { Invoice, InvoiceStatus } from "@/lib/db-helpers.types";
 
 // ─── Status config ─────────────────────────────────────────────────────────────
 

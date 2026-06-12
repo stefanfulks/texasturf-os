@@ -118,7 +118,6 @@ function ReturnFromJob({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setRollState({});
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSubmitState(null);
   }, [selectedJob?.id]);
 

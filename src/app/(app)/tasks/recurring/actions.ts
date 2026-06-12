@@ -22,7 +22,6 @@ function calcNextDue(
     return addDays(base, 1);
   }
   if (freq === "weekly" || freq === "biweekly") {
-    const weeks = freq === "biweekly" ? 2 : 1;
     const dow = dayOfWeek ?? 1; // default Monday
     // nextDay returns next occurrence of that day starting from base
     const candidate = nextDay(base, dow as 0 | 1 | 2 | 3 | 4 | 5 | 6);

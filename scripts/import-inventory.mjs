@@ -121,13 +121,6 @@ function loadCsv(...candidates) {
 
 // ─── Normalization ───────────────────────────────────────────────────────────
 
-// Canonical product names (matches pricing-tool data + Product_export.csv)
-const CANONICAL_PRODUCTS = [
-  "TexasMoss", "TexasLush", "TexasPlay", "TexasHaven",
-  "Royal 40", "Saratoga 40", "Saratoga 60", "Kent 44", "Monte Carlo 60", "Majestic 70",
-  "TexasPutt",
-];
-
 // Map messy Base44 product names → canonical
 function canonicalProduct(name) {
   if (!name) return null;
