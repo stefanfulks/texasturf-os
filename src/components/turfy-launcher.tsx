@@ -57,11 +57,13 @@ export function TurfyLauncher({ greetingName }: { greetingName: string }) {
         aria-label={isOpen ? "Close Turfy" : "Open Turfy"}
         aria-expanded={isOpen}
         className={
-          "fixed bottom-5 right-5 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full " +
+          // bottom offsets add env(safe-area-inset-bottom) so the FAB clears
+          // the iPhone home indicator in the installed app (0 in browsers)
+          "fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-5 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full " +
           "bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 " +
           "hover:bg-zinc-700 hover:scale-105 active:scale-95 transition-all " +
           "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-400 " +
-          "sm:bottom-6 sm:right-6"
+          "sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] sm:right-6"
         }
       >
         {isOpen ? <X className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
@@ -79,9 +81,10 @@ export function TurfyLauncher({ greetingName }: { greetingName: string }) {
           className={
             "fixed z-40 flex flex-col rounded-2xl border border-zinc-200 bg-white shadow-2xl shadow-zinc-900/10 " +
             // Desktop: anchor bottom-right above the FAB
-            "sm:bottom-24 sm:right-6 sm:w-[400px] sm:h-[600px] sm:max-h-[calc(100vh-8rem)] " +
-            // Mobile: near-fullscreen with margin
-            "inset-x-3 bottom-20 top-16 " +
+            "sm:bottom-[calc(6rem+env(safe-area-inset-bottom))] sm:right-6 sm:w-[400px] sm:h-[600px] sm:max-h-[calc(100vh-8rem)] " +
+            // Mobile: near-fullscreen with margin (cleared above the home
+            // indicator in the installed app)
+            "inset-x-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] top-16 " +
             (isOpen ? "" : "hidden")
           }
         >
