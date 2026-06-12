@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import {
   getJobProgressBulk,
   JOB_PROGRESS_SHORT,
@@ -22,7 +22,7 @@ const STATE_TONE: Record<JobProgressState, string> = {
 export const dynamic = "force-dynamic";
 
 export default async function TodayPage() {
-  const sb = supabaseAdmin();
+  const sb = await createClient();
 
   const start = new Date();
   start.setHours(0, 0, 0, 0);
