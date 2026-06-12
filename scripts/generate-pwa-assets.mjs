@@ -34,9 +34,11 @@ function loadSharp() {
 const sharp = loadSharp();
 
 // ── The mark ─────────────────────────────────────────────────────────────────
-// Twin-T monogram (TexasTurf) in white on the brand turf-green gradient
-// (--color-brand-hi → --color-brand-strong from globals.css). Pure geometry —
-// no font dependencies, renders identically everywhere.
+// The TexasTurf favicon mark: a white upward triangle on a solid black field.
+// The favicon's own circular container is dropped here — on a home screen iOS
+// supplies the rounded-square mask, so the black field fills the tile edge to
+// edge (also what makes the 512 double as a maskable icon). Triangle geometry
+// matches the favicon's proportions (~49% wide, ~40% tall, optically centered).
 function iconSvg({ cornerRadius = 0 } = {}) {
   const clip =
     cornerRadius > 0
@@ -44,26 +46,10 @@ function iconSvg({ cornerRadius = 0 } = {}) {
       : "";
   const wrap = cornerRadius > 0 ? ` clip-path="url(#tile)"` : "";
   return `<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="turf" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#248049"/>
-      <stop offset="1" stop-color="#155730"/>
-    </linearGradient>
-    <radialGradient id="sheen" cx="0.5" cy="0" r="1">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.14"/>
-      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    ${clip}
-  </defs>
+  <defs>${clip}</defs>
   <g${wrap}>
-    <rect width="512" height="512" fill="url(#turf)"/>
-    <rect width="512" height="512" fill="url(#sheen)"/>
-    <!-- T 1 -->
-    <rect x="96"  y="148" width="148" height="46"  rx="12" fill="#ffffff"/>
-    <rect x="147" y="148" width="46"  height="216" rx="12" fill="#ffffff"/>
-    <!-- T 2 -->
-    <rect x="268" y="148" width="148" height="46"  rx="12" fill="#ffffff"/>
-    <rect x="319" y="148" width="46"  height="216" rx="12" fill="#ffffff"/>
+    <rect width="512" height="512" fill="#000000"/>
+    <polygon points="256,158 382,366 130,366" fill="#ffffff"/>
   </g>
 </svg>`;
 }
