@@ -118,8 +118,10 @@ export function RollFilterBar({
             }}
             onFocus={() => setShowSuggest(true)}
             placeholder="Search TT SKU, mfg #, product…"
+            role="combobox"
             aria-autocomplete="list"
             aria-expanded={showSuggest && suggestions.length > 0}
+            aria-controls="roll-product-suggestions"
             className={`${field} w-full`}
           />
         </form>
@@ -127,7 +129,9 @@ export function RollFilterBar({
         {/* Product suggestions — appear after the 2nd character */}
         {showSuggest && suggestions.length > 0 && (
           <div
+            id="roll-product-suggestions"
             role="listbox"
+            aria-label="Product suggestions"
             className="absolute z-20 mt-1 w-full bg-white border border-zinc-200 rounded-lg shadow-lg overflow-hidden"
           >
             <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-50 border-b border-zinc-100">
@@ -138,6 +142,7 @@ export function RollFilterBar({
                 key={p.id}
                 type="button"
                 role="option"
+                aria-selected={false}
                 onClick={() => pickProduct(p)}
                 className="flex w-full items-center justify-between px-3 py-2 text-sm text-left hover:bg-zinc-100 focus:bg-zinc-100 focus:outline-none"
               >
