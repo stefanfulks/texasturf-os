@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +9,9 @@ export default async function ClientsPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const sb = supabaseAdmin();
+  // User-context client so RLS applies (jobber_clients has an authenticated
+  // read policy) — no service-role on a user-facing page.
+  const sb = await createClient();
   let query = sb
     .from("jobber_clients")
     .select("id, first_name, last_name, company_name, emails, phones, balance_cents, is_archived")
@@ -62,11 +64,13 @@ export default async function ClientsPage({
           </thead>
           <tbody>
             {(data ?? []).map((c) => (
-              <tr key={c.id} className="border-t border-line">
+              <tr key={c.id} className="row-link border-t border-line">
                 <td className="px-3 py-2">
-                  {c.company_name ??
-                    [c.first_name, c.last_name].filter(Boolean).join(" ") ??
-                    "—"}
+                  <Link href={`/clients/${c.id}`} className="block font-medium text-ink hover:text-brand transition-colors">
+                    {c.company_name ??
+                      [c.first_name, c.last_name].filter(Boolean).join(" ") ??
+                      "—"}
+                  </Link>
                 </td>
                 <td className="px-3 py-2 text-ink-2">
                   {(c.emails as { address: string }[])?.[0]?.address ?? ""}
@@ -102,9 +106,10 @@ export default async function ClientsPage({
           const email = (c.emails as { address: string }[])?.[0]?.address ?? "";
           const phone = (c.phones as { number: string }[])?.[0]?.number ?? "";
           return (
-            <div
+            <Link
               key={c.id}
-              className="rounded-lg border border-line bg-white p-3"
+              href={`/clients/${c.id}`}
+              className="block card card-hover p-3"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <p className="text-sm font-medium text-ink truncate">{name}</p>
@@ -119,7 +124,7 @@ export default async function ClientsPage({
                   {[email, phone].filter(Boolean).join(" · ")}
                 </p>
               )}
-            </div>
+            </Link>
           );
         })}
         {(!data || data.length === 0) && !error && (
