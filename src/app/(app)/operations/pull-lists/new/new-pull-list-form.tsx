@@ -264,7 +264,9 @@ export function NewPullListForm({
         </p>
       )}
 
-      <div className="flex justify-end gap-2">
+      {/* Sticky on phones so the submit is always a thumb away on this
+          long form — the daily warehouse workflow. */}
+      <div className="form-actions">
         <Link
           href="/operations/pull-lists"
           className="px-4 py-2 text-sm text-ink-2 hover:text-ink"
@@ -274,7 +276,7 @@ export function NewPullListForm({
         <button
           type="submit"
           disabled={isPending}
-          className="btn btn-primary disabled:opacity-50"
+          className="btn btn-primary h-11 px-5 disabled:opacity-50"
         >
           {isPending ? "Creating…" : "Create pull list"}
         </button>

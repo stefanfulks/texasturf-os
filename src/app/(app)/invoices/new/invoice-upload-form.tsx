@@ -220,13 +220,16 @@ export function InvoiceUploadForm({ vendors }: Props) {
         <p className="text-sm text-danger bg-danger-tint border border-danger/30 rounded-xl px-4 py-3">{state.error}</p>
       )}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full py-4 text-base font-semibold bg-brand text-white rounded-2xl hover:bg-brand-strong disabled:opacity-50 transition-colors"
-      >
-        {isSubmitting ? (uploading ? "Uploading file…" : "Submitting invoice…") : "Submit Invoice"}
-      </button>
+      {/* Sticky on phones — field crew submit invoices from the truck. */}
+      <div className="form-actions">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full py-4 text-base font-semibold bg-brand text-white rounded-2xl hover:bg-brand-strong disabled:opacity-50 transition-colors"
+        >
+          {isSubmitting ? (uploading ? "Uploading file…" : "Submitting invoice…") : "Submit Invoice"}
+        </button>
+      </div>
     </form>
   );
 }

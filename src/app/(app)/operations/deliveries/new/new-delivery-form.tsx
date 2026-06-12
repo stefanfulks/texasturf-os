@@ -299,7 +299,8 @@ export function NewDeliveryForm({
         </p>
       )}
 
-      <div className="flex justify-end gap-2">
+      {/* Sticky on phones — this form gets filled standing in a driveway. */}
+      <div className="form-actions">
         <Link
           href="/operations/deliveries"
           className="px-4 py-2 text-sm text-ink-2 hover:text-ink"
@@ -309,7 +310,7 @@ export function NewDeliveryForm({
         <button
           type="submit"
           disabled={isPending || photoUploading}
-          className="btn btn-primary disabled:opacity-50"
+          className="btn btn-primary h-11 px-5 disabled:opacity-50"
         >
           {isPending ? "Saving…" : "Log delivery + post to Slack"}
         </button>
