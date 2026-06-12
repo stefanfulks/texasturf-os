@@ -38,7 +38,7 @@ function ServiceLineChips({ item }: { item: ContentWithUrl }) {
           name="service_line"
           value={s}
           className={`text-[11px] px-2 py-0.5 rounded-full border ${
-            item.service_line === s ? "bg-ink text-white border-ink" : "border-line text-ink-3 hover:bg-hover"
+            item.service_line === s ? "bg-brand text-white border-ink" : "border-line text-ink-3 hover:bg-hover"
           }`}
         >
           {s.replace(/_/g, " ")}
@@ -98,22 +98,22 @@ export function LibraryList({
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex flex-wrap gap-1.5">
-        <Link href={qs({ type: null })} className={`text-xs px-2.5 py-1 rounded-full border ${!activeType ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
+        <Link href={qs({ type: null })} className={`text-xs px-2.5 py-1 rounded-full border ${!activeType ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
           All types
         </Link>
         {TYPE_FILTERS.map((t) => (
-          <Link key={t} href={qs({ type: t })} className={`text-xs px-2.5 py-1 rounded-full border ${activeType === t ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
+          <Link key={t} href={qs({ type: t })} className={`text-xs px-2.5 py-1 rounded-full border ${activeType === t ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
             {TYPE_LABEL[t]}
           </Link>
         ))}
       </div>
       {serviceLines.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          <Link href={qs({ service: null })} className={`text-xs px-2.5 py-1 rounded-full border ${!activeService ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
+          <Link href={qs({ service: null })} className={`text-xs px-2.5 py-1 rounded-full border ${!activeService ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
             All services
           </Link>
           {serviceLines.map((s) => (
-            <Link key={s} href={qs({ service: s })} className={`text-xs px-2.5 py-1 rounded-full border ${activeService === s ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
+            <Link key={s} href={qs({ service: s })} className={`text-xs px-2.5 py-1 rounded-full border ${activeService === s ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
               {s.replace(/_/g, " ")}
             </Link>
           ))}

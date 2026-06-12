@@ -19,7 +19,7 @@ import {
 import type { InvJob, InvRoll, InvProduct } from "@/lib/db-helpers.types";
 
 const field =
-  "w-full text-sm border border-line rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+  "field-input";
 
 type JobLite = Pick<InvJob, "id" | "job_number" | "job_name" | "status">;
 type RollLite = Pick<
@@ -327,7 +327,7 @@ function ReturnFromJob({
                 type="button"
                 onClick={handleSubmit}
                 disabled={isPending || selectedRolls.length === 0}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-brand text-white rounded-xl hover:bg-brand-strong disabled:opacity-50"
               >
                 <RotateCcw className="w-4 h-4" aria-hidden="true" />
                 {isPending ? "Processing…" : "Process returns"}
@@ -525,7 +525,7 @@ function UnmarkedReturnForm({ products }: { products: ProductLite[] }) {
         <button
           type="submit"
           disabled={isPending}
-          className="px-5 py-2.5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink disabled:opacity-50"
+          className="px-5 py-2.5 text-sm font-semibold bg-brand text-white rounded-xl hover:bg-brand-strong disabled:opacity-50"
         >
           {isPending ? "Saving…" : "Log unmarked return"}
         </button>

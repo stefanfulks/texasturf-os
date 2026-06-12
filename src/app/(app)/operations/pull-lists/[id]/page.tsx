@@ -57,7 +57,7 @@ export default async function PullListDetailPage({ params }: { params: Params })
             <form action={updatePullListStatus}>
               <input type="hidden" name="id" value={pl.id} />
               <input type="hidden" name="status" value={next} />
-              <button className="rounded-lg bg-ink px-3 py-1 text-xs font-medium text-white hover:bg-ink">
+              <button className="rounded-lg bg-brand px-3 py-1 text-xs font-medium text-white hover:bg-brand-strong">
                 Mark {cap(next)} →
               </button>
             </form>

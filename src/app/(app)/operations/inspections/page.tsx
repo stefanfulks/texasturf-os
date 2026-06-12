@@ -23,7 +23,7 @@ export default async function InspectionsListPage() {
         <div className="mt-4 flex justify-end">
           <Link
             href="/operations/inspections/new"
-            className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink dark:bg-white dark:text-ink dark:hover:bg-line"
+            className="btn btn-primary"
           >
             New inspection
           </Link>

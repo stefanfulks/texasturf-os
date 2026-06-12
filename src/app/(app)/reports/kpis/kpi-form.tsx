@@ -113,7 +113,7 @@ export function KpiForm({ entries, month, year }: Props) {
         <button
           type="submit"
           disabled={isPending}
-          className="bg-ink text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-ink disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? "Saving…" : "Save KPIs"}
         </button>

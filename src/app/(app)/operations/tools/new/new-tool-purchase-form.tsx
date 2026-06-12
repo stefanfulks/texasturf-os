@@ -9,8 +9,8 @@ type AssetOpt = { id: string; name: string; unit_type: string };
 type EmployeeOpt = { id: string; display_name: string };
 
 const field =
-  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
-const label = "block text-xs font-medium text-ink-3 mb-1";
+  "field-input";
+const label = "field-label";
 
 export function NewToolPurchaseForm({
   assets,
@@ -203,7 +203,7 @@ export function NewToolPurchaseForm({
               accept="image/*,application/pdf"
               onChange={onReceiptChange}
               disabled={receiptUploading}
-              className="block w-full text-sm text-ink-2 file:mr-3 file:rounded-lg file:border-0 file:bg-ink file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white file:cursor-pointer hover:file:bg-ink"
+              className="block w-full text-sm text-ink-2 file:mr-3 file:rounded-lg file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white file:cursor-pointer hover:file:bg-brand"
             />
             <p className="text-xs text-ink-3">
               {receiptUploading ? "Uploading…" : "Image or PDF. Stored in the warehouse bucket."}
@@ -243,7 +243,7 @@ export function NewToolPurchaseForm({
         <button
           type="submit"
           disabled={isPending || receiptUploading}
-          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink disabled:opacity-50"
+          className="btn btn-primary disabled:opacity-50"
         >
           {isPending ? "Logging…" : "Log purchase"}
         </button>

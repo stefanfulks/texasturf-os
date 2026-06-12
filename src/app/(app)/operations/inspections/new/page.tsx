@@ -81,7 +81,7 @@ export default async function NewInspectionPage() {
                 name="failure_notes"
                 rows={3}
                 placeholder="If FAIL, document the issues here."
-                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm dark:border-line-strong dark:bg-ink"
+                className="mt-1 field-input"
               />
             </div>
           </fieldset>
@@ -95,7 +95,7 @@ export default async function NewInspectionPage() {
             </Link>
             <button
               type="submit"
-              className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink dark:bg-white dark:text-ink dark:hover:bg-line"
+              className="btn btn-primary"
             >
               Save inspection
             </button>

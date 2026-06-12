@@ -398,7 +398,7 @@ export default async function ReportsPage({
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-line bg-white hover:bg-hover transition-colors text-sm font-medium text-ink-2"
               >
                 {STATUS_LABELS[status]}
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-ink text-white text-xs font-bold">
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand text-white text-xs font-bold">
                   {count}
                 </span>
               </Link>

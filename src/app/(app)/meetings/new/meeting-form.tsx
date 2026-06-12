@@ -7,7 +7,7 @@ import { createMeeting } from "./actions";
 import type { MeetingCadence, MeetingSection, SectionAccent } from "@/lib/meetings/types";
 
 const fieldCls =
-  "w-full h-12 text-base border border-line-strong rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white";
+  "field-input";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const ROLES = [
@@ -198,7 +198,7 @@ export function MeetingForm({ profiles }: { profiles: Profile[] }) {
                 className={
                   "h-11 px-2 rounded-xl border text-xs font-semibold capitalize transition-colors " +
                   (cadence === c
-                    ? "border-ink bg-ink text-white"
+                    ? "border-ink bg-brand text-white"
                     : "border-line bg-white text-ink-2 active:bg-hover")
                 }
               >
@@ -220,7 +220,7 @@ export function MeetingForm({ profiles }: { profiles: Profile[] }) {
                   className={
                     "h-11 rounded-xl border text-xs font-semibold transition-colors " +
                     (dayOfWeek === i
-                      ? "border-ink bg-ink text-white"
+                      ? "border-ink bg-brand text-white"
                       : "border-line bg-white text-ink-2 active:bg-hover")
                   }
                 >
@@ -286,7 +286,7 @@ export function MeetingForm({ profiles }: { profiles: Profile[] }) {
                   className={
                     "h-10 px-4 rounded-full border text-xs font-semibold transition-colors " +
                     (on
-                      ? "border-ink bg-ink text-white"
+                      ? "border-ink bg-brand text-white"
                       : "border-line bg-white text-ink-2 active:bg-hover")
                   }
                 >
@@ -311,7 +311,7 @@ export function MeetingForm({ profiles }: { profiles: Profile[] }) {
                   className={
                     "h-10 px-4 rounded-full border text-xs font-semibold transition-colors " +
                     (on
-                      ? "border-ink bg-ink text-white"
+                      ? "border-ink bg-brand text-white"
                       : "border-line bg-white text-ink-2 active:bg-hover")
                   }
                 >
@@ -340,7 +340,7 @@ export function MeetingForm({ profiles }: { profiles: Profile[] }) {
                   className={
                     "h-10 px-4 rounded-full border text-xs font-semibold transition-colors " +
                     (on
-                      ? "border-ink bg-ink text-white"
+                      ? "border-ink bg-brand text-white"
                       : "border-line bg-white text-ink-2 active:bg-hover")
                   }
                 >
@@ -472,7 +472,7 @@ export function MeetingForm({ profiles }: { profiles: Profile[] }) {
         <button
           type="submit"
           disabled={pending}
-          className="block w-full h-12 rounded-xl bg-ink text-base font-semibold text-white hover:bg-ink active:bg-ink disabled:opacity-60"
+          className="block w-full h-12 rounded-xl bg-brand text-base font-semibold text-white hover:bg-brand-strong active:bg-brand-strong disabled:opacity-60"
         >
           {pending ? "Creating…" : "Create meeting"}
         </button>

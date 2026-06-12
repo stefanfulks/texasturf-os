@@ -73,7 +73,7 @@ export default async function VehiclesPage({
         </div>
         <Link
           href="/operations/vehicles/new"
-          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
+          className="btn btn-primary"
         >
           + Log service
         </Link>
@@ -137,7 +137,7 @@ export default async function VehiclesPage({
               className={
                 "rounded-full border px-3 py-1 text-xs font-medium transition-colors " +
                 (active
-                  ? "border-ink bg-ink text-white"
+                  ? "border-ink bg-brand text-white"
                   : "border-line bg-white text-ink-2 hover:border-line-strong")
               }
             >
@@ -156,7 +156,7 @@ export default async function VehiclesPage({
           </p>
           <Link
             href="/operations/vehicles/new"
-            className="mt-4 inline-block rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
+            className="btn btn-primary mt-4"
           >
             + Log service
           </Link>

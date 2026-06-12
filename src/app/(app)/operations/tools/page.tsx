@@ -81,7 +81,7 @@ export default async function ToolsPage({
         </div>
         <Link
           href="/operations/tools/new"
-          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
+          className="btn btn-primary"
         >
           + Log purchase
         </Link>
@@ -145,7 +145,7 @@ export default async function ToolsPage({
               className={
                 "rounded-full border px-3 py-1 text-xs font-medium transition-colors " +
                 (active
-                  ? "border-ink bg-ink text-white"
+                  ? "border-ink bg-brand text-white"
                   : "border-line bg-white text-ink-2 hover:border-line-strong")
               }
             >
@@ -164,7 +164,7 @@ export default async function ToolsPage({
           </p>
           <Link
             href="/operations/tools/new"
-            className="mt-4 inline-block rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
+            className="btn btn-primary mt-4"
           >
             + Log purchase
           </Link>

@@ -7,7 +7,7 @@ import { updateAccount, type UpdateAccountState } from "./actions";
 const initial: UpdateAccountState = { error: null, success: false };
 
 const fieldCls =
-  "w-full h-12 text-base border border-line-strong rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white";
+  "field-input";
 
 const DEPARTMENTS = [
   { key: "sales",     label: "Sales",     emoji: "💼" },
@@ -81,7 +81,7 @@ export function AccountForm({
                 className={
                   "flex items-center gap-2 h-12 rounded-xl border px-3 text-sm font-medium text-left transition-colors " +
                   (on
-                    ? "border-ink bg-ink text-white"
+                    ? "border-ink bg-brand text-white"
                     : "border-line bg-white text-ink-2 active:bg-hover")
                 }
               >
@@ -114,7 +114,7 @@ export function AccountForm({
         <button
           type="submit"
           disabled={pending}
-          className="h-11 px-5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink active:bg-ink disabled:opacity-50"
+          className="btn btn-primary h-11 px-5 disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save changes"}
         </button>

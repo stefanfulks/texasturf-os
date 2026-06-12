@@ -203,7 +203,7 @@ export default async function RollDetailPage({
           {canCut && (
             <Link
               href={`/inventory/cut?roll_id=${roll.id}`}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-strong transition-colors"
             >
               <Scissors className="h-4 w-4" />
               Cut Roll

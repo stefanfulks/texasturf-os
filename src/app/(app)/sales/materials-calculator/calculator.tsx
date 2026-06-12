@@ -202,7 +202,7 @@ export function MaterialsCalculator() {
                     className={
                       "flex flex-col items-center justify-center gap-1 h-16 rounded-xl border text-[11px] font-medium transition-colors " +
                       (active
-                        ? "border-ink bg-ink text-white"
+                        ? "border-ink bg-brand text-white"
                         : "border-line bg-white text-ink-2 active:bg-hover")
                     }
                   >
@@ -289,7 +289,7 @@ export function MaterialsCalculator() {
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); copySummary(); }}
-                className="inline-flex items-center gap-1.5 h-10 px-3 rounded-lg bg-ink text-white text-xs font-semibold active:bg-ink"
+                className="inline-flex items-center gap-1.5 h-10 px-3 rounded-lg bg-brand text-white text-xs font-semibold active:bg-brand-strong"
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? "Copied" : "Copy"}
@@ -486,7 +486,7 @@ function BigStat({ label, value, primary }: { label: string; value: string; prim
   return (
     <div className={
       "rounded-xl border p-3 " +
-      (primary ? "border-ink bg-ink text-white" : "border-line bg-hover text-ink")
+      (primary ? "border-ink bg-brand text-white" : "border-line bg-hover text-ink")
     }>
       <p className={"text-[10px] uppercase tracking-wider " + (primary ? "text-ink-4" : "text-ink-3")}>
         {label}

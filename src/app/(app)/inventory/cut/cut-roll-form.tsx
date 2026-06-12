@@ -18,7 +18,7 @@ type ParentRollOption = Pick<
 
 const initial: CutRollState = { error: null, success: false };
 const field =
-  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+  "field-input";
 
 function fmtFt(n: number | null | undefined) {
   if (n == null) return "—";
@@ -181,7 +181,7 @@ export function CutRollForm({
         <button
           type="submit"
           disabled={isPending || !validCut}
-          className="inline-flex items-center gap-2 rounded-xl bg-ink px-5 py-2.5 text-sm font-semibold text-white hover:bg-ink disabled:opacity-50 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong disabled:opacity-50 transition-colors"
         >
           <Scissors className="h-4 w-4" />
           {isPending ? "Cutting…" : "Cut Roll"}

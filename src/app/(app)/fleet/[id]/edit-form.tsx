@@ -41,7 +41,7 @@ export function EditForm({ asset }: { asset: Asset }) {
           name="name"
           defaultValue={asset.name}
           required
-          className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
+          className="field-input"
         />
       </div>
 
@@ -52,7 +52,7 @@ export function EditForm({ asset }: { asset: Asset }) {
           <select
             name="status"
             defaultValue={asset.status}
-            className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
+            className="field-input"
           >
             {STATUS_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -67,7 +67,7 @@ export function EditForm({ asset }: { asset: Asset }) {
           <select
             name="ready_status"
             defaultValue={asset.ready_status}
-            className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
+            className="field-input"
           >
             {READY_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -82,7 +82,7 @@ export function EditForm({ asset }: { asset: Asset }) {
           <select
             name="load_status"
             defaultValue={asset.load_status}
-            className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
+            className="field-input"
           >
             {LOAD_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -132,7 +132,7 @@ export function EditForm({ asset }: { asset: Asset }) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-strong disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? "Saving…" : "Save Changes"}
         </button>

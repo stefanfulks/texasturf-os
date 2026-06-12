@@ -60,7 +60,7 @@ export function TurfyLauncher({ greetingName }: { greetingName: string }) {
           // bottom offsets add env(safe-area-inset-bottom) so the FAB clears
           // the iPhone home indicator in the installed app (0 in browsers)
           "fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-5 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full " +
-          "bg-ink text-white shadow-lg shadow-ink/20 " +
+          "bg-brand text-white shadow-lg shadow-ink/20 " +
           "hover:bg-ink hover:scale-105 active:scale-95 transition-all " +
           "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-line-strong " +
           "sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] sm:right-6"

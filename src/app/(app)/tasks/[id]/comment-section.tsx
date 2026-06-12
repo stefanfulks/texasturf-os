@@ -97,7 +97,7 @@ export function CommentSection({
           <button
             type="submit"
             disabled={isPending || draft.trim().length === 0}
-            className="px-3 py-1.5 text-xs font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
+            className="px-3 py-1.5 text-xs font-medium bg-brand text-white rounded-lg hover:bg-brand-strong disabled:opacity-50"
           >
             {isPending ? "Posting…" : "Post Comment"}
           </button>

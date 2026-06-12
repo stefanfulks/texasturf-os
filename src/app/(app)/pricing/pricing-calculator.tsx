@@ -628,7 +628,7 @@ function PillGroup({
             onClick={() => onChange(opt.value)}
             className={
               "px-3 py-1.5 rounded-md text-sm font-medium transition-colors " +
-              (active ? "bg-ink text-white" : "text-ink-2 hover:text-ink")
+              (active ? "bg-brand text-white" : "text-ink-2 hover:text-ink")
             }
             aria-pressed={active}
           >

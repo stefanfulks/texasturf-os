@@ -76,7 +76,7 @@ export default async function InventoryJobsPage({
           </Link>
           <Link
             href="/inventory/jobs/new"
-            className="flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink transition-colors"
+            className="btn btn-primary"
           >
             <span className="text-lg leading-none">+</span> New Job
           </Link>
@@ -98,7 +98,7 @@ export default async function InventoryJobsPage({
                 href={href}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                   active
-                    ? "bg-ink text-white border-ink"
+                    ? "bg-brand text-white border-ink"
                     : "bg-white text-ink-2 border-line hover:border-line-strong"
                 }`}
               >

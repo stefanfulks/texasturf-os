@@ -44,7 +44,7 @@ export function SectionCard({
           {icon}
         </div>
         {badge != null && badge !== 0 && (
-          <span className="rounded-full bg-ink px-2 py-0.5 text-xs font-semibold text-white">
+          <span className="rounded-full bg-brand px-2 py-0.5 text-xs font-semibold text-white">
             {badge}
           </span>
         )}

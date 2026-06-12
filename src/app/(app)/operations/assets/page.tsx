@@ -36,7 +36,7 @@ export default async function AssetsPage() {
               <select
                 name="kind"
                 required
-                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm dark:border-line-strong dark:bg-ink"
+                className="mt-1 field-input"
                 defaultValue="truck"
               >
                 {(Object.keys(KIND_LABELS) as AssetKind[]).map((k) => (
@@ -54,7 +54,7 @@ export default async function AssetsPage() {
             <div className="sm:col-span-2 flex justify-end">
               <button
                 type="submit"
-                className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink dark:bg-white dark:text-ink dark:hover:bg-line"
+                className="btn btn-primary"
               >
                 Add asset
               </button>
@@ -121,7 +121,7 @@ function Input({
         type={type ?? "text"}
         placeholder={placeholder}
         required={required}
-        className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm dark:border-line-strong dark:bg-ink"
+        className="mt-1 field-input"
       />
     </label>
   );

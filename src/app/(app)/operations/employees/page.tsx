@@ -42,7 +42,7 @@ export default async function EmployeesPage() {
               <span className="block font-medium">Role</span>
               <select
                 name="role"
-                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm dark:border-line-strong dark:bg-ink"
+                className="mt-1 field-input"
                 defaultValue=""
               >
                 <option value="">— optional —</option>
@@ -58,7 +58,7 @@ export default async function EmployeesPage() {
             <div className="sm:col-span-2 flex justify-end">
               <button
                 type="submit"
-                className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink dark:bg-white dark:text-ink dark:hover:bg-line"
+                className="btn btn-primary"
               >
                 Add employee
               </button>
@@ -122,7 +122,7 @@ function Input({
         name={name}
         type={type ?? "text"}
         required={required}
-        className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm dark:border-line-strong dark:bg-ink"
+        className="mt-1 field-input"
       />
     </label>
   );

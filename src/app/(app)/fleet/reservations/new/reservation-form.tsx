@@ -29,7 +29,7 @@ function toLocalInput(d: Date): string {
 // Inputs use text-base (16px) so iOS Safari doesn't auto-zoom on focus.
 // All controls are h-12 (48px) — well above Apple's 44pt minimum.
 const fieldCls =
-  "block w-full h-12 rounded-xl border border-line-strong bg-white px-3 text-base text-ink placeholder:text-ink-4 focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink";
+  "field-input";
 
 const textareaCls =
   "block w-full rounded-xl border border-line-strong bg-white px-3 py-2.5 text-base text-ink placeholder:text-ink-4 focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink";
@@ -168,7 +168,7 @@ export function ReservationForm({
         <button
           type="submit"
           disabled={pending}
-          className="block w-full h-12 rounded-xl bg-ink text-base font-semibold text-white shadow-sm transition-colors hover:bg-ink active:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
+          className="block w-full h-12 rounded-xl bg-brand text-base font-semibold text-white shadow-sm transition-colors hover:bg-brand-strong active:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending ? "Saving…" : "Reserve vehicle"}
         </button>

@@ -150,7 +150,7 @@ export default async function AssignRollPage({
                         <form action={action}>
                           <button
                             type="submit"
-                            className="text-xs px-3 py-1.5 rounded-md bg-ink text-white font-medium hover:bg-ink"
+                            className="text-xs px-3 py-1.5 rounded-md bg-brand text-white font-medium hover:bg-brand-strong"
                           >
                             {isSwap ? "Swap to this roll" : "Assign"}
                           </button>

@@ -57,7 +57,7 @@ export default async function MeetingsSettingsPage() {
         {isAdmin && (
           <Link
             href="/meetings/new"
-            className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
+            className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand-strong active:bg-brand-strong"
           >
             <Plus className="h-4 w-4" />
             New meeting
@@ -104,7 +104,7 @@ export default async function MeetingsSettingsPage() {
           {isAdmin && (
             <Link
               href="/meetings/new"
-              className="inline-flex items-center gap-1.5 mt-4 h-11 px-5 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
+              className="btn btn-primary h-11 px-5 mt-4"
             >
               <Plus className="h-4 w-4" />
               New meeting

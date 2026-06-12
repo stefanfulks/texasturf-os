@@ -64,7 +64,7 @@ function Pill({
       className={
         "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors " +
         (active
-          ? "bg-ink text-white"
+          ? "bg-brand text-white"
           : "text-ink-2 hover:bg-sunken hover:text-ink")
       }
     >

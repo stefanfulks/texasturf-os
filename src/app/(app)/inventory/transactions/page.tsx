@@ -143,7 +143,7 @@ export default async function InventoryTransactionsPage({
           <select
             name="type"
             defaultValue={type}
-            className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
+            className="field-input w-auto"
           >
             <option value="all">All Types</option>
             {types.map((t) => (
@@ -159,7 +159,7 @@ export default async function InventoryTransactionsPage({
             type="date"
             name="date_from"
             defaultValue={dateFrom}
-            className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
+            className="field-input w-auto"
           />
         </div>
         <div>
@@ -168,7 +168,7 @@ export default async function InventoryTransactionsPage({
             type="date"
             name="date_to"
             defaultValue={dateTo}
-            className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
+            className="field-input w-auto"
           />
         </div>
         <div className="flex-1 min-w-[180px]">
@@ -182,7 +182,7 @@ export default async function InventoryTransactionsPage({
         </div>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink"
+          className="btn btn-primary"
         >
           Filter
         </button>

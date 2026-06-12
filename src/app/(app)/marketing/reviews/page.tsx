@@ -94,11 +94,11 @@ export default async function ReviewsPage({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <a href="/marketing/reviews" className={`text-xs px-2.5 py-1 rounded-full border ${!status ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
+        <a href="/marketing/reviews" className={`text-xs px-2.5 py-1 rounded-full border ${!status ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
           All
         </a>
         {STATUSES.map((s) => (
-          <a key={s} href={`/marketing/reviews?status=${s}`} className={`text-xs px-2.5 py-1 rounded-full border ${status === s ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
+          <a key={s} href={`/marketing/reviews?status=${s}`} className={`text-xs px-2.5 py-1 rounded-full border ${status === s ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
             {STATUS_LABEL[s]} {counts[s]}
           </a>
         ))}

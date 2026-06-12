@@ -13,7 +13,7 @@ import {
 import type { Vendor, InvProduct, InvLocation } from "@/lib/db-helpers.types";
 
 const field =
-  "w-full text-sm border border-line rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+  "field-input";
 
 type Props = {
   vendors: Pick<Vendor, "id" | "name">[];
@@ -279,7 +279,7 @@ function QuickAddForm({
           <button
             type="submit"
             disabled={isPending}
-            className="px-5 py-2.5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink disabled:opacity-50 transition-colors"
+            className="px-5 py-2.5 text-sm font-semibold bg-brand text-white rounded-xl hover:bg-brand-strong disabled:opacity-50 transition-colors"
           >
             {isPending ? "Receiving…" : "Receive Roll"}
           </button>
@@ -463,7 +463,7 @@ function BulkPasteForm() {
             <button
               type="submit"
               disabled={isSubmitting || previewState.hasErrors}
-              className="px-4 py-2 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold bg-brand text-white rounded-xl hover:bg-brand-strong disabled:opacity-50"
             >
               {isSubmitting ? "Importing…" : "Confirm import"}
             </button>

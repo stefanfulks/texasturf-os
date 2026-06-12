@@ -63,7 +63,7 @@ export function ProgressButtons({
           type="button"
           onClick={() => trigger(primary)}
           disabled={busy !== null || isPending}
-          className="w-full rounded-2xl bg-ink px-6 py-5 text-base font-semibold text-white hover:bg-ink active:bg-ink disabled:opacity-50 transition-colors"
+          className="w-full rounded-2xl bg-brand px-6 py-5 text-base font-semibold text-white hover:bg-brand-strong active:bg-brand-strong disabled:opacity-50 transition-colors"
         >
           {busy === primary ? "Saving…" : `Mark: ${JOB_PROGRESS_LABELS[primary]}`}
         </button>

@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { createBudget } from "@/lib/warehouse/actions";
 
 const field =
-  "w-full text-sm border border-line rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+  "field-input";
 
 /**
  * Inline "+ Add budget" form. Collapsed by default; expands into a row of
@@ -93,7 +93,7 @@ export function NewBudgetForm({
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white hover:bg-ink disabled:opacity-50"
+          className="rounded-lg bg-brand px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-strong disabled:opacity-50"
         >
           {isPending ? "Adding…" : "Add"}
         </button>

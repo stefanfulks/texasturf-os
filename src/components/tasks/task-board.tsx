@@ -140,13 +140,13 @@ export function TaskBoard({
         <div className="flex items-center gap-2 flex-wrap">
           {/* View toggle */}
           <div className="flex rounded-md border border-line overflow-hidden text-sm">
-            <button onClick={() => setView("kanban")} className={cn("px-3 py-1.5 font-medium transition-colors", view === "kanban" ? "bg-ink text-white" : "bg-white text-ink-2 hover:bg-hover")}>Board</button>
-            <button onClick={() => setView("list")}   className={cn("px-3 py-1.5 font-medium border-l border-line transition-colors", view === "list"   ? "bg-ink text-white" : "bg-white text-ink-2 hover:bg-hover")}>List</button>
+            <button onClick={() => setView("kanban")} className={cn("px-3 py-1.5 font-medium transition-colors", view === "kanban" ? "bg-brand text-white" : "bg-white text-ink-2 hover:bg-hover")}>Board</button>
+            <button onClick={() => setView("list")}   className={cn("px-3 py-1.5 font-medium border-l border-line transition-colors", view === "list"   ? "bg-brand text-white" : "bg-white text-ink-2 hover:bg-hover")}>List</button>
           </div>
           <Link href="/tasks/recurring" className="rounded-md border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink-2 hover:bg-hover hover:text-ink transition-colors">
             Recurring
           </Link>
-          <button onClick={() => openCreate()} className="flex items-center gap-1.5 rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-white hover:bg-ink-2">
+          <button onClick={() => openCreate()} className="flex items-center gap-1.5 rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-strong-2">
             <span className="text-base leading-none">+</span> New Task
           </button>
         </div>
@@ -157,7 +157,7 @@ export function TaskBoard({
         {/* Scope */}
         <div className="flex rounded-md border border-line overflow-hidden text-xs font-medium">
           {([["mine", "My Tasks"], ["team", "Team"], ["by_me", "Assigned by Me"]] as [ScopeFilter, string][]).map(([val, label]) => (
-            <button key={val} onClick={() => setScope(val)} className={cn("px-3 py-1.5 border-r border-line last:border-r-0 transition-colors", scope === val ? "bg-ink text-white" : "bg-white text-ink-2 hover:bg-hover")}>
+            <button key={val} onClick={() => setScope(val)} className={cn("px-3 py-1.5 border-r border-line last:border-r-0 transition-colors", scope === val ? "bg-brand text-white" : "bg-white text-ink-2 hover:bg-hover")}>
               {label}
             </button>
           ))}
@@ -172,7 +172,7 @@ export function TaskBoard({
               className={cn(
                 "px-2.5 py-1 text-xs rounded-full font-medium border transition-colors",
                 priorityFilter === p
-                  ? "bg-ink text-white border-ink"
+                  ? "bg-brand text-white border-ink"
                   : "bg-white text-ink-3 border-line hover:border-line-strong"
               )}
             >
@@ -597,7 +597,7 @@ function CreateTaskDialog({
   };
 
   // 16px-rem font on inputs keeps iOS Safari from auto-zooming on focus.
-  const fieldCls = "w-full text-base border border-line-strong rounded-xl h-12 px-3 focus:outline-none focus:ring-2 focus:ring-brand focus:border-ink bg-white";
+  const fieldCls = "field-input";
 
   return (
     <>
@@ -666,7 +666,7 @@ function CreateTaskDialog({
           </div>
           <div className="flex justify-end gap-2 px-5 py-4 border-t border-line shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <button type="button" onClick={onClose} className="h-11 px-4 text-sm font-medium text-ink-2 hover:text-ink rounded-lg">Cancel</button>
-            <button type="submit" disabled={isPending} className="h-11 px-5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink active:bg-ink-2 disabled:opacity-50">
+            <button type="submit" disabled={isPending} className="h-11 px-5 text-sm font-semibold bg-brand text-white rounded-xl hover:bg-brand-strong active:bg-brand-strong-2 disabled:opacity-50">
               {isPending ? "Creating…" : "Create Task"}
             </button>
           </div>
@@ -755,7 +755,7 @@ function AssigneePicker({
               >
                 <Avatar profile={p} />
                 <span className="flex-1 text-sm truncate">{nameOf(p)}{p.id === currentUserId ? " (me)" : ""}</span>
-                <span className={cn("w-5 h-5 rounded border flex items-center justify-center", isOn ? "bg-ink border-ink text-white" : "border-line-strong")}>
+                <span className={cn("w-5 h-5 rounded border flex items-center justify-center", isOn ? "bg-brand border-ink text-white" : "border-line-strong")}>
                   {isOn && (
                     <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
                       <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

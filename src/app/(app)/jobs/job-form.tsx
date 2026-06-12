@@ -6,7 +6,7 @@ import type { Project } from "@/lib/db-helpers.types";
 
 const initial: JobFormState = { error: null, success: false };
 const field =
-  "w-full h-12 text-base border border-line-strong rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white";
+  "field-input";
 const textareaCls =
   "w-full text-base border border-line-strong rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white resize-none";
 
@@ -124,7 +124,7 @@ export function JobForm({ mode, job }: { mode: "create" | "edit"; job?: Project 
       )}
 
       <div className="flex justify-end">
-        <button type="submit" disabled={isPending} className="h-11 px-5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink active:bg-ink disabled:opacity-50">
+        <button type="submit" disabled={isPending} className="btn btn-primary h-11 px-5 disabled:opacity-50">
           {isPending ? (mode === "create" ? "Creating…" : "Saving…") : (mode === "create" ? "Create Job" : "Save Changes")}
         </button>
       </div>

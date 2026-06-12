@@ -5,7 +5,7 @@ import { createLocation, updateLocation, type LocationFormState } from "./action
 import type { InvLocation } from "@/lib/db-helpers.types";
 
 const initial: LocationFormState = { error: null, success: false };
-const field = "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const field = "field-input";
 
 export function LocationForm({
   mode,
@@ -72,7 +72,7 @@ export function LocationForm({
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
+          className="btn btn-primary disabled:opacity-50"
         >
           {isPending ? (mode === "create" ? "Adding…" : "Saving…") : (mode === "create" ? "Add Location" : "Save")}
         </button>

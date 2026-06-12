@@ -9,8 +9,8 @@ import type {
 } from "@/lib/warehouse/queries";
 
 const field =
-  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
-const label = "block text-xs font-medium text-ink-3 mb-1";
+  "field-input";
+const label = "field-label";
 
 export function NewMaintenanceForm({
   assets,
@@ -203,7 +203,7 @@ export function NewMaintenanceForm({
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink disabled:opacity-50"
+          className="btn btn-primary disabled:opacity-50"
         >
           {isPending ? "Logging…" : "Log service"}
         </button>

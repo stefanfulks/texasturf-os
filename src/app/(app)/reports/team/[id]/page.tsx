@@ -229,7 +229,7 @@ export default async function TeamMemberDetailPage({
             )}
             <Link
               href={`/reports/team/${member.id}/entry?month=${month}&year=${year}`}
-              className="bg-ink text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-ink transition-colors"
+              className="bg-brand text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-brand-strong transition-colors"
             >
               Enter / Edit KPIs →
             </Link>

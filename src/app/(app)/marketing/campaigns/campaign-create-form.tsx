@@ -5,7 +5,7 @@ import { createCampaign, type ActionState } from "./actions";
 
 const initial: ActionState = { error: null, success: false };
 const field =
-  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+  "field-input";
 
 const TYPES = [
   ["service_spotlight", "Service spotlight"],
@@ -50,7 +50,7 @@ export function CampaignCreateForm() {
         <textarea name="brief_md" rows={3} placeholder="Angle, audience, the kit…" className={field} />
       </div>
       <div className="sm:col-span-2 flex items-center gap-3">
-        <button type="submit" disabled={isPending} className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50">
+        <button type="submit" disabled={isPending} className="btn btn-primary disabled:opacity-50">
           {isPending ? "Creating…" : "Create campaign"}
         </button>
         {state.error && <span className="text-xs text-danger">{state.error}</span>}

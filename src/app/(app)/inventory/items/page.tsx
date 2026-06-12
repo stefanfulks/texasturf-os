@@ -83,7 +83,7 @@ export default async function InventoryItemsPage({
             href={`/inventory/items${q ? `?q=${encodeURIComponent(q)}` : ""}`}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               !lowOnly
-                ? "bg-ink text-white border-ink"
+                ? "bg-brand text-white border-ink"
                 : "bg-white text-ink-2 border-line hover:border-line-strong"
             }`}
           >
@@ -93,7 +93,7 @@ export default async function InventoryItemsPage({
             href={`/inventory/items?low=1${q ? `&q=${encodeURIComponent(q)}` : ""}`}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               lowOnly
-                ? "bg-ink text-white border-ink"
+                ? "bg-brand text-white border-ink"
                 : "bg-white text-ink-2 border-line hover:border-line-strong"
             }`}
           >

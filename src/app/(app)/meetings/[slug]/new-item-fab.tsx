@@ -9,7 +9,7 @@ import type { Meeting } from "@/lib/meetings/types";
 
 // 16px font + 48px height keeps the form iOS-friendly (no auto-zoom, big taps).
 const fieldCls =
-  "w-full h-12 text-base border border-line-strong rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white";
+  "field-input";
 
 type Profile = { id: string; full_name: string | null; email: string };
 
@@ -75,7 +75,7 @@ export function NewItemFab({
     <button
       type="button"
       onClick={openModal}
-      className="sm:hidden fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-30 inline-flex items-center gap-2 h-14 px-5 rounded-full bg-ink text-white text-sm font-semibold shadow-lg active:bg-ink"
+      className="sm:hidden fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-30 inline-flex items-center gap-2 h-14 px-5 rounded-full bg-brand text-white text-sm font-semibold shadow-lg active:bg-brand-strong"
     >
       <Plus className="h-5 w-5" />
       Add item
@@ -92,7 +92,7 @@ export function NewItemFab({
           <button
             type="button"
             onClick={openModal}
-            className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-ink text-white text-sm font-semibold shadow-sm hover:bg-ink active:bg-ink"
+            className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-brand text-white text-sm font-semibold shadow-sm hover:bg-brand-strong active:bg-brand-strong"
           >
             <Plus className="h-4 w-4" />
             Add item
@@ -140,7 +140,7 @@ export function NewItemFab({
                             className={
                               "flex items-center gap-2 h-11 px-3 rounded-xl border text-sm font-medium text-left transition-colors " +
                               (active
-                                ? "border-ink bg-ink text-white"
+                                ? "border-ink bg-brand text-white"
                                 : "border-line bg-white text-ink-2 active:bg-hover")
                             }
                           >
@@ -227,7 +227,7 @@ export function NewItemFab({
                   <button
                     type="submit"
                     disabled={pending}
-                    className="h-11 px-5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink active:bg-ink disabled:opacity-50"
+                    className="btn btn-primary h-11 px-5 disabled:opacity-50"
                   >
                     {pending ? "Adding…" : "Add to agenda"}
                   </button>

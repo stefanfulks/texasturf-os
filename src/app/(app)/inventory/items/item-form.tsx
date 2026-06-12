@@ -5,7 +5,7 @@ import { createItem, updateItem, type ItemFormState } from "./actions";
 import type { InvItem, InvLocation } from "@/lib/db-helpers.types";
 
 const initial: ItemFormState = { error: null, success: false };
-const field = "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const field = "field-input";
 
 export function ItemForm({
   mode,
@@ -134,7 +134,7 @@ export function ItemForm({
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
+          className="btn btn-primary disabled:opacity-50"
         >
           {isPending ? (mode === "create" ? "Adding…" : "Saving…") : (mode === "create" ? "Add Item" : "Save")}
         </button>

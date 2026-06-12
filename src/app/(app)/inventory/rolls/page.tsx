@@ -148,7 +148,7 @@ export default async function InventoryRollsPage({
         </div>
         <Link
           href="/inventory/rolls/new"
-          className="flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink transition-colors"
+          className="btn btn-primary"
         >
           <span className="text-lg leading-none">+</span> New Roll
         </Link>

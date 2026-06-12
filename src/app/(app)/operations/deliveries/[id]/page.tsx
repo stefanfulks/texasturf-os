@@ -55,7 +55,7 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
           ) : (
             <form action={repostDeliveryToSlack}>
               <input type="hidden" name="id" value={d.id} />
-              <button className="rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white hover:bg-ink">
+              <button className="rounded-lg bg-brand px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-strong">
                 Post to Slack
               </button>
             </form>

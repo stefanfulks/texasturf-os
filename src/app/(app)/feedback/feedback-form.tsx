@@ -81,7 +81,7 @@ export function FeedbackForm() {
             category === "question"        ? "What's your question? — e.g. 'How do I assign a roll to a job?'" :
                                              "What's on your mind?"
           }
-          className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong"
+          className="field-input"
         />
       </div>
 
@@ -111,7 +111,7 @@ export function FeedbackForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-semibold bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
+          className="px-4 py-2 text-sm font-semibold bg-brand text-white rounded-lg hover:bg-brand-strong disabled:opacity-50"
         >
           {isPending ? "Sending…" : "Send feedback"}
         </button>

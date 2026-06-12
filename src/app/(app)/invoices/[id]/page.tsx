@@ -115,7 +115,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       {(canReview || canApprove || isOfficeOrAdmin) && (
         <div className="flex gap-3 flex-wrap items-center">
           {canReview && (
-            <Link href={`/invoices/${id}/review`} className="px-4 py-2 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink transition-colors">
+            <Link href={`/invoices/${id}/review`} className="px-4 py-2 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand-strong transition-colors">
               Review Invoice
             </Link>
           )}

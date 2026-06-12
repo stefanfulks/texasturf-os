@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { updateInvoiceFields, type UpdateInvoiceFieldsState } from "../../actions";
 import type { Invoice, Vendor, Project } from "@/lib/db-helpers.types";
 
-const field = "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
-const label = "text-xs font-medium text-ink-3 mb-1";
+const field = "field-input";
+const label = "field-label";
 
 const initial: UpdateInvoiceFieldsState = { error: null, success: false };
 
@@ -147,7 +147,7 @@ export function EditInvoiceForm({
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink disabled:opacity-50 transition-colors"
+          className="px-4 py-2 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand-strong disabled:opacity-50 transition-colors"
         >
           {isPending ? "Saving…" : "Save changes"}
         </button>

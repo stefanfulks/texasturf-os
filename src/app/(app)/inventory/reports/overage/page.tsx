@@ -117,7 +117,7 @@ export default async function TurfOverageReportPage({
           <select
             name="status"
             defaultValue={effectiveStatus}
-            className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
+            className="field-input w-auto"
           >
             <option value="completed">Completed</option>
             <option value="in_progress">In Progress</option>
@@ -130,7 +130,7 @@ export default async function TurfOverageReportPage({
             type="date"
             name="date_from"
             defaultValue={date_from ?? ""}
-            className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
+            className="field-input w-auto"
           />
         </div>
         <div>
@@ -139,12 +139,12 @@ export default async function TurfOverageReportPage({
             type="date"
             name="date_to"
             defaultValue={date_to ?? ""}
-            className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
+            className="field-input w-auto"
           />
         </div>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink"
+          className="btn btn-primary"
         >
           Filter
         </button>

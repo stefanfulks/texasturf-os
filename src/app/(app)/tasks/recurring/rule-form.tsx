@@ -5,7 +5,7 @@ import { createRecurringRule, type RuleFormState } from "./actions";
 import type { Profile, Project, RecurrenceFreq } from "@/lib/db-helpers.types";
 
 const initial: RuleFormState = { error: null, success: false };
-const field = "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const field = "field-input";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const FREQ_LABELS: Record<RecurrenceFreq, string> = {
@@ -37,7 +37,7 @@ export function RecurringRuleForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink"
+        className="btn btn-primary"
       >
         + New rule
       </button>
@@ -146,7 +146,7 @@ export function RecurringRuleForm({
           <button
             type="submit"
             disabled={isPending}
-            className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
+            className="btn btn-primary disabled:opacity-50"
           >
             {isPending ? "Creating…" : "Create Rule"}
           </button>

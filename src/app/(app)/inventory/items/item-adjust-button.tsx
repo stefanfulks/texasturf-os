@@ -73,7 +73,7 @@ export function ItemAdjustButton({ itemId, itemName }: { itemId: string; itemNam
         <button
           onClick={submit}
           disabled={isPending}
-          className="text-xs font-medium bg-ink text-white px-3 py-1 rounded hover:bg-ink disabled:opacity-50"
+          className="text-xs font-medium bg-brand text-white px-3 py-1 rounded hover:bg-brand-strong disabled:opacity-50"
         >
           {isPending ? "…" : "Apply"}
         </button>

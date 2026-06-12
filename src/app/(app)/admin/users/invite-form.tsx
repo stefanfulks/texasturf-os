@@ -30,7 +30,7 @@ export function InviteUserForm() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-white hover:bg-ink transition-colors"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white hover:bg-brand-strong transition-colors"
       >
         <span className="text-base leading-none">+</span> Invite user
       </button>
@@ -55,7 +55,7 @@ export function InviteUserForm() {
               type="email"
               placeholder="someone@texasturfusa.com"
               required
-              className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong"
+              className="field-input"
             />
           </div>
           <div>
@@ -64,7 +64,7 @@ export function InviteUserForm() {
               name="full_name"
               type="text"
               placeholder="Maximilian Garcia"
-              className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong"
+              className="field-input"
             />
           </div>
         </div>
@@ -129,7 +129,7 @@ export function InviteUserForm() {
           <button
             type="submit"
             disabled={isPending}
-            className="px-4 py-1.5 text-sm font-semibold bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
+            className="px-4 py-1.5 text-sm font-semibold bg-brand text-white rounded-lg hover:bg-brand-strong disabled:opacity-50"
           >
             {isPending ? "Sending…" : "Send invite"}
           </button>

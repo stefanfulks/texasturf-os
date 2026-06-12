@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { submitInvoice, type SubmitInvoiceState } from "../actions";
 import type { Vendor } from "@/lib/db-helpers.types";
 
-const field = "w-full text-sm border border-line rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const field = "field-input";
 const initial: SubmitInvoiceState = { error: null, invoiceId: null };
 
 const VENDOR_TYPE_LABELS: Record<string, string> = {
@@ -223,7 +223,7 @@ export function InvoiceUploadForm({ vendors }: Props) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full py-4 text-base font-semibold bg-ink text-white rounded-2xl hover:bg-ink disabled:opacity-50 transition-colors"
+        className="w-full py-4 text-base font-semibold bg-brand text-white rounded-2xl hover:bg-brand-strong disabled:opacity-50 transition-colors"
       >
         {isSubmitting ? (uploading ? "Uploading file…" : "Submitting invoice…") : "Submit Invoice"}
       </button>

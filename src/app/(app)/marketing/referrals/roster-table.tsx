@@ -7,7 +7,7 @@ import type { OutreachRow } from "./page";
 
 const initial: ActionState = { error: null, success: false };
 const field =
-  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+  "field-input";
 
 const STATUS_BADGE: Record<OutreachRow["call_status"], string> = {
   queued: "bg-sunken text-ink-2",
@@ -36,7 +36,7 @@ export function BuildRosterButton({ campaignId }: { campaignId: string }) {
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
+          className="btn btn-primary disabled:opacity-50"
         >
           {isPending ? "Building…" : "Build roster from Jobber"}
         </button>

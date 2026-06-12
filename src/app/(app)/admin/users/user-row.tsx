@@ -148,7 +148,7 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
             <button
               type="submit"
               disabled={isPending}
-              className="px-3 py-1 text-xs font-semibold bg-ink text-white rounded-md hover:bg-ink disabled:opacity-50"
+              className="btn btn-primary btn-sm disabled:opacity-50"
             >
               {isPending ? "Saving…" : "Save"}
             </button>

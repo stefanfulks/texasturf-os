@@ -7,7 +7,7 @@ import type { InvJob } from "@/lib/db-helpers.types";
 
 const initial: JobFormState = { error: null, success: false };
 const field =
-  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+  "field-input";
 
 export function JobForm({ mode, job }: { mode: "create" | "edit"; job?: InvJob }) {
   const action = mode === "create" ? createJob : updateJob;
@@ -93,7 +93,7 @@ export function JobForm({ mode, job }: { mode: "create" | "edit"; job?: InvJob }
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
+          className="btn btn-primary disabled:opacity-50"
         >
           {isPending
             ? (mode === "create" ? "Creating…" : "Saving…")

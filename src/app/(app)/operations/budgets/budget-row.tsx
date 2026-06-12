@@ -9,7 +9,7 @@ function fmtUSD(cents: number): string {
 }
 
 const field =
-  "w-full text-sm border border-line rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+  "field-input";
 
 /**
  * A single budget row. Default state shows the period + amount + spend bar.
@@ -82,7 +82,7 @@ export function BudgetRow({ budget }: { budget: BudgetWithSpend }) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white hover:bg-ink disabled:opacity-50"
+                className="rounded-lg bg-brand px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-strong disabled:opacity-50"
               >
                 {isPending ? "Saving…" : "Save"}
               </button>

@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { changeInvoiceStatus, type ChangeStatusState } from "../../actions";
 
 const initial: ChangeStatusState = { error: null, success: false };
-const field = "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const field = "field-input";
 
 const PAYMENT_METHODS = ["Check","ACH","Wire","Zelle","Cash","Credit Card","Other"];
 

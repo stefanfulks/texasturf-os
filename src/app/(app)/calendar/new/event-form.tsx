@@ -31,7 +31,7 @@ export function EventForm() {
           type="text"
           name="summary"
           required
-          className="mt-1 block w-full rounded-md border border-line-strong bg-white px-3 py-2 text-sm shadow-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
+          className="mt-1 field-input"
           placeholder="Site visit at 123 Main St"
         />
       </label>
@@ -44,7 +44,7 @@ export function EventForm() {
             name="start"
             required
             defaultValue={defaultStartIso()}
-            className="mt-1 block w-full rounded-md border border-line-strong bg-white px-3 py-2 text-sm shadow-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
+            className="mt-1 field-input"
           />
         </label>
         <label className="block text-sm font-medium text-ink-2">
@@ -54,7 +54,7 @@ export function EventForm() {
             name="end"
             required
             defaultValue={defaultEndIso()}
-            className="mt-1 block w-full rounded-md border border-line-strong bg-white px-3 py-2 text-sm shadow-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
+            className="mt-1 field-input"
           />
         </label>
       </div>
@@ -64,7 +64,7 @@ export function EventForm() {
         <input
           type="text"
           name="location"
-          className="mt-1 block w-full rounded-md border border-line-strong bg-white px-3 py-2 text-sm shadow-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
+          className="mt-1 field-input"
           placeholder="Customer address or place name"
         />
       </label>
@@ -74,7 +74,7 @@ export function EventForm() {
         <textarea
           name="description"
           rows={4}
-          className="mt-1 block w-full rounded-md border border-line-strong bg-white px-3 py-2 text-sm shadow-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
+          className="mt-1 field-input"
         />
       </label>
 
@@ -83,7 +83,7 @@ export function EventForm() {
         <input
           type="text"
           name="attendees"
-          className="mt-1 block w-full rounded-md border border-line-strong bg-white px-3 py-2 text-sm shadow-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
+          className="mt-1 field-input"
           placeholder="colin@texasturfusa.com, allison@texasturfusa.com"
         />
       </label>
@@ -104,7 +104,7 @@ export function EventForm() {
       <button
         type="submit"
         disabled={pending}
-        className="block w-full rounded-md bg-ink px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
+        className="block w-full rounded-md bg-brand px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
       >
         {pending ? "Creating…" : "Create event"}
       </button>

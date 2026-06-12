@@ -242,7 +242,7 @@ export default async function TeamPerformancePage({
                   </Link>
                   <Link
                     href={`/reports/team/${member.id}/entry?month=${month}&year=${year}`}
-                    className="text-center text-sm font-semibold bg-ink text-white rounded-xl px-4 py-2 hover:bg-ink transition-colors"
+                    className="text-center text-sm font-semibold bg-brand text-white rounded-xl px-4 py-2 hover:bg-brand-strong transition-colors"
                   >
                     Enter KPIs &rarr;
                   </Link>

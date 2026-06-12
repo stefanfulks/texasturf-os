@@ -120,7 +120,7 @@ export default async function ReferralsPage({
       <div className="flex flex-wrap gap-2">
         <Link
           href="/marketing/referrals"
-          className={`text-xs px-2.5 py-1 rounded-full border ${!status ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}
+          className={`text-xs px-2.5 py-1 rounded-full border ${!status ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}
         >
           All {rosterTotal}
         </Link>
@@ -128,7 +128,7 @@ export default async function ReferralsPage({
           <Link
             key={s}
             href={`/marketing/referrals?status=${s}`}
-            className={`text-xs px-2.5 py-1 rounded-full border ${status === s ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}
+            className={`text-xs px-2.5 py-1 rounded-full border ${status === s ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}
           >
             {STATUS_LABEL[s]} {counts[s]}
           </Link>

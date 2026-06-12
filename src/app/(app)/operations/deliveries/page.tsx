@@ -28,7 +28,7 @@ export default async function DeliveriesPage() {
         </div>
         <Link
           href="/operations/deliveries/new"
-          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
+          className="btn btn-primary"
         >
           + Log delivery
         </Link>
@@ -43,7 +43,7 @@ export default async function DeliveriesPage() {
           </p>
           <Link
             href="/operations/deliveries/new"
-            className="mt-4 inline-block rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
+            className="btn btn-primary mt-4"
           >
             + Log delivery
           </Link>

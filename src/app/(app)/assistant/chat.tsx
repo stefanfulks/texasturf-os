@@ -282,7 +282,7 @@ export function AssistantChat({
         <button
           type="submit"
           disabled={busy || input.trim().length === 0}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-white hover:bg-ink disabled:opacity-50 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-white hover:bg-brand-strong disabled:opacity-50 transition-colors"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           {busy ? "Thinking" : "Send"}
@@ -333,7 +333,7 @@ function Bubble({
         <div
           className={
             isUser
-              ? "rounded-2xl rounded-tr-sm bg-ink text-white px-4 py-2.5 text-sm"
+              ? "rounded-2xl rounded-tr-sm bg-brand text-white px-4 py-2.5 text-sm"
               : "rounded-2xl rounded-tl-sm bg-hover border border-line text-ink px-4 py-2.5 text-sm whitespace-pre-wrap"
           }
         >
@@ -449,7 +449,7 @@ function DraftCardView({
           type="button"
           onClick={onConfirm}
           disabled={isCommitting}
-          className="inline-flex items-center gap-1 rounded-md bg-ink px-2.5 py-1 text-xs font-semibold text-white hover:bg-ink disabled:opacity-50 transition-colors"
+          className="inline-flex items-center gap-1 rounded-md bg-brand px-2.5 py-1 text-xs font-semibold text-white hover:bg-brand-strong disabled:opacity-50 transition-colors"
         >
           {isCommitting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
           {isCommitting ? "Creating" : "Confirm"}

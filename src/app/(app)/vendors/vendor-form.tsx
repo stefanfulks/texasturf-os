@@ -5,7 +5,7 @@ import { createVendor, updateVendor, type VendorFormState } from "./actions";
 import type { Vendor } from "@/lib/db-helpers.types";
 
 const initial: VendorFormState = { error: null, success: false };
-const field = "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const field = "field-input";
 
 const VENDOR_TYPES = [
   ["installer",       "Installer"],
@@ -72,7 +72,7 @@ export function VendorForm({ mode, vendor }: { mode: "create" | "edit"; vendor?:
       {state.success && mode === "edit" && <p className="text-sm text-brand bg-brand-tint border border-brand/30 rounded-lg px-3 py-2">Saved.</p>}
 
       <div className="flex justify-end">
-        <button type="submit" disabled={isPending} className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50">
+        <button type="submit" disabled={isPending} className="btn btn-primary disabled:opacity-50">
           {isPending ? (mode === "create" ? "Adding…" : "Saving…") : (mode === "create" ? "Add Vendor" : "Save Changes")}
         </button>
       </div>

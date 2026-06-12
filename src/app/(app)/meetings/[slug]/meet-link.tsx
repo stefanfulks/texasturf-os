@@ -105,7 +105,7 @@ export function MeetLink({
             type="button"
             onClick={save}
             disabled={pending}
-            className="h-10 px-3.5 rounded-lg bg-ink text-white text-xs font-semibold hover:bg-ink disabled:opacity-50"
+            className="h-10 px-3.5 rounded-lg bg-brand text-white text-xs font-semibold hover:bg-brand-strong disabled:opacity-50"
           >
             {pending ? "Saving…" : "Save"}
           </button>

@@ -8,7 +8,7 @@ import type { Task, Profile } from "@/lib/db-helpers.types";
 const initial: UpdateTaskState = { error: null, success: false };
 
 const field =
-  "w-full text-base border border-line-strong rounded-xl h-12 px-3 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white";
+  "field-input";
 
 const AVATAR_COLORS = [
   "bg-info-tint text-info",
@@ -79,7 +79,7 @@ export function TaskEditForm({
               <span
                 key={p.id}
                 className={`inline-flex items-center gap-1.5 rounded-full pl-1 pr-2 h-8 text-xs font-medium ${
-                  i === 0 ? "bg-ink text-white" : "bg-sunken text-ink"
+                  i === 0 ? "bg-brand text-white" : "bg-sunken text-ink"
                 }`}
               >
                 <span className={`w-6 h-6 rounded-full inline-flex items-center justify-center text-[10px] font-bold ${colorFor(p.id)}`}>
@@ -131,7 +131,7 @@ export function TaskEditForm({
                       {(p.full_name ?? p.email)[0]?.toUpperCase()}
                     </span>
                     <span className="flex-1 truncate">{p.full_name ?? p.email}</span>
-                    <span className={`w-5 h-5 rounded border flex items-center justify-center ${isOn ? "bg-ink border-ink text-white" : "border-line-strong"}`}>
+                    <span className={`w-5 h-5 rounded border flex items-center justify-center ${isOn ? "bg-brand border-ink text-white" : "border-line-strong"}`}>
                       {isOn && (
                         <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
                           <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -150,7 +150,7 @@ export function TaskEditForm({
             type="button"
             onClick={saveAssignees}
             disabled={savingAssignees}
-            className="h-10 px-4 text-xs font-semibold bg-ink text-white rounded-lg hover:bg-ink active:bg-ink disabled:opacity-50"
+            className="h-10 px-4 text-xs font-semibold bg-brand text-white rounded-lg hover:bg-brand-strong active:bg-brand-strong disabled:opacity-50"
           >
             {savingAssignees ? "Saving…" : "Save tags"}
           </button>
@@ -230,7 +230,7 @@ export function TaskEditForm({
           <button
             type="submit"
             disabled={isPending}
-            className="h-11 px-5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink active:bg-ink disabled:opacity-50"
+            className="btn btn-primary h-11 px-5 disabled:opacity-50"
           >
             {isPending ? "Saving…" : "Save Changes"}
           </button>

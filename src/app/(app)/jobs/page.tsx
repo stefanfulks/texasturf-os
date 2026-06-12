@@ -60,7 +60,7 @@ export default async function JobsPage() {
         </div>
         <Link
           href="/jobs/new"
-          className="hidden sm:inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
+          className="hidden sm:inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand-strong active:bg-brand-strong"
         >
           <Plus className="h-4 w-4" />
           New Job
@@ -74,7 +74,7 @@ export default async function JobsPage() {
           <p className="text-sm text-ink-3 mt-1">Create your first job to start tracking customer work.</p>
           <Link
             href="/jobs/new"
-            className="inline-flex items-center gap-1.5 mt-4 h-11 px-5 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
+            className="btn btn-primary h-11 px-5 mt-4"
           >
             <Plus className="h-4 w-4" />
             New Job
@@ -103,7 +103,7 @@ export default async function JobsPage() {
       {/* Mobile FAB */}
       <Link
         href="/jobs/new"
-        className="sm:hidden fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-30 inline-flex items-center gap-2 h-14 px-5 rounded-full bg-ink text-white text-sm font-semibold shadow-lg active:bg-ink"
+        className="sm:hidden fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-30 inline-flex items-center gap-2 h-14 px-5 rounded-full bg-brand text-white text-sm font-semibold shadow-lg active:bg-brand-strong"
       >
         <Plus className="h-5 w-5" />
         New Job

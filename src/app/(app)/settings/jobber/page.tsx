@@ -96,7 +96,7 @@ export default async function JobberSettingsPage({
         )}
         <a
           href="/api/jobber/connect"
-          className="mt-4 inline-block rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
+          className="btn btn-primary mt-4"
         >
           {accounts.length > 0 ? "Reconnect Jobber" : "Connect Jobber"}
         </a>
