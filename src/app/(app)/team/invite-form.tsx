@@ -30,7 +30,7 @@ export function InviteUserForm() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-2 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-white hover:bg-ink transition-colors"
       >
         <span className="text-base leading-none">+</span> Invite user
       </button>
@@ -38,10 +38,10 @@ export function InviteUserForm() {
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-5">
+    <div className="rounded-xl border border-line bg-white p-5">
       <div className="flex items-start justify-between mb-3">
         <h2 className="text-sm font-semibold">Invite a teammate</h2>
-        <button onClick={() => setOpen(false)} className="text-zinc-400 hover:text-zinc-700 text-xl leading-none" aria-label="Close">
+        <button onClick={() => setOpen(false)} className="text-ink-4 hover:text-ink-2 text-xl leading-none" aria-label="Close">
           ×
         </button>
       </div>
@@ -49,31 +49,31 @@ export function InviteUserForm() {
         <input type="hidden" name="departments" value={departments.join(",")} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Email *</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Email *</label>
             <input
               name="email"
               type="email"
               placeholder="someone@texasturfusa.com"
               required
-              className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+              className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Full name (optional)</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Full name (optional)</label>
             <input
               name="full_name"
               type="text"
               placeholder="Maximilian Garcia"
-              className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+              className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong"
             />
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Role</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Role</label>
           <select
             name="role"
             defaultValue="field"
-            className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-400"
+            className="w-full text-sm border border-line rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-line-strong"
           >
             <option value="field">Field — installer view, read-only on shared tools</option>
             <option value="office">Office — full operational access</option>
@@ -81,7 +81,7 @@ export function InviteUserForm() {
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Departments</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Departments</label>
           <div className="flex flex-wrap gap-1.5">
             {DEPARTMENTS.map((d) => {
               const on = departments.includes(d);
@@ -93,14 +93,14 @@ export function InviteUserForm() {
                   className={
                     "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs transition-colors " +
                     (on
-                      ? "border-blue-400 bg-blue-100 text-blue-800"
-                      : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400")
+                      ? "border-info/30 bg-info-tint text-info"
+                      : "border-line bg-white text-ink-2 hover:border-line-strong")
                   }
                   aria-pressed={on}
                 >
                   <span>{DEPARTMENT_EMOJI[d]}</span>
                   {DEPARTMENT_LABEL[d]}
-                  {on && <span className="text-blue-600">✓</span>}
+                  {on && <span className="text-info">✓</span>}
                 </button>
               );
             })}
@@ -108,12 +108,12 @@ export function InviteUserForm() {
         </div>
 
         {state.error && (
-          <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          <p className="text-xs text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">
             {state.error}
           </p>
         )}
         {state.success && state.sentTo && (
-          <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+          <p className="text-xs text-brand bg-brand-tint border border-brand/30 rounded-lg px-3 py-2">
             ✓ Invite sent to <strong>{state.sentTo}</strong>. They&apos;ll get a magic-link email.
           </p>
         )}
@@ -122,14 +122,14 @@ export function InviteUserForm() {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="px-3 py-1.5 text-sm text-zinc-600 hover:text-zinc-900"
+            className="px-3 py-1.5 text-sm text-ink-2 hover:text-ink"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isPending}
-            className="px-4 py-1.5 text-sm font-semibold bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+            className="px-4 py-1.5 text-sm font-semibold bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
           >
             {isPending ? "Sending…" : "Send invite"}
           </button>

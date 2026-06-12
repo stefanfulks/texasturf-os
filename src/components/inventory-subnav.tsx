@@ -64,8 +64,8 @@ function Pill({
       className={
         "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors " +
         (active
-          ? "bg-zinc-900 text-white"
-          : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900")
+          ? "bg-ink text-white"
+          : "text-ink-2 hover:bg-sunken hover:text-ink")
       }
     >
       <Icon className="w-4 h-4" aria-hidden="true" />
@@ -80,7 +80,7 @@ export function InventorySubnav({ readOnly = false }: { readOnly?: boolean }) {
   return (
     <nav
       aria-label="Inventory navigation"
-      className="flex flex-wrap items-center gap-1.5 border-b border-zinc-200 pb-3"
+      className="flex flex-wrap items-center gap-1.5 border-b border-line pb-3"
     >
       {MAIN_ITEMS.map((item) => (
         <Pill
@@ -92,7 +92,7 @@ export function InventorySubnav({ readOnly = false }: { readOnly?: boolean }) {
         />
       ))}
 
-      <span aria-hidden="true" className="mx-2 h-5 w-px bg-zinc-200" />
+      <span aria-hidden="true" className="mx-2 h-5 w-px bg-line" />
 
       {ADMIN_ITEMS.map((item) => (
         <Pill
@@ -106,8 +106,8 @@ export function InventorySubnav({ readOnly = false }: { readOnly?: boolean }) {
 
       {readOnly && (
         <>
-          <span aria-hidden="true" className="mx-2 h-5 w-px bg-zinc-200" />
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+          <span aria-hidden="true" className="mx-2 h-5 w-px bg-line" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-warn-tint text-warn border border-warn/30">
             View only
           </span>
         </>

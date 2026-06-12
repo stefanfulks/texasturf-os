@@ -16,15 +16,15 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body className="flex min-h-screen items-center justify-center bg-zinc-50 p-8">
+      <body className="flex min-h-screen items-center justify-center bg-hover p-8">
         <div className="max-w-md text-center">
-          <p className="text-sm font-medium text-zinc-500">Something went wrong</p>
-          <p className="mt-2 text-xs text-zinc-400">
+          <p className="text-sm font-medium text-ink-3">Something went wrong</p>
+          <p className="mt-2 text-xs text-ink-4">
             The error has been reported automatically.
           </p>
           <button
             onClick={reset}
-            className="mt-6 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+            className="mt-6 rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
           >
             Try again
           </button>

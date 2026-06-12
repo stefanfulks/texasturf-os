@@ -55,12 +55,12 @@ function scoreColorClass(score: number | null): {
   label: string;
 } {
   if (score === null)
-    return { text: "text-zinc-400", bg: "bg-zinc-50", dot: "bg-zinc-300", label: "No data" };
+    return { text: "text-ink-4", bg: "bg-hover", dot: "bg-line-strong", label: "No data" };
   if (score >= 90)
-    return { text: "text-green-700", bg: "bg-green-50", dot: "bg-green-500", label: "On Track" };
+    return { text: "text-brand", bg: "bg-brand-tint", dot: "bg-brand", label: "On Track" };
   if (score >= 70)
-    return { text: "text-amber-600", bg: "bg-amber-50", dot: "bg-amber-400", label: "Needs Attention" };
-  return { text: "text-red-600", bg: "bg-red-50", dot: "bg-red-500", label: "At Risk" };
+    return { text: "text-warn", bg: "bg-warn-tint", dot: "bg-warn", label: "Needs Attention" };
+  return { text: "text-danger", bg: "bg-danger-tint", dot: "bg-danger", label: "At Risk" };
 }
 
 function formatValue(value: number | null, unit: string | null): string {
@@ -209,27 +209,27 @@ export default async function TeamMemberDetailPage({
       <div>
         <Link
           href={`/reports/team?month=${month}&year=${year}`}
-          className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-medium"
+          className="text-sm text-ink-3 hover:text-ink transition-colors font-medium"
         >
           &larr; Team Performance
         </Link>
         <div className="mt-3 flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">{member.full_name}</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">{member.role_title}</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-ink">{member.full_name}</h1>
+            <p className="text-sm text-ink-3 mt-0.5">{member.role_title}</p>
             {member.department && (
-              <p className="text-xs text-zinc-400 mt-0.5">{member.department}</p>
+              <p className="text-xs text-ink-4 mt-0.5">{member.department}</p>
             )}
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             {!member.active && (
-              <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-500">
+              <span className="rounded-full bg-sunken px-3 py-1 text-xs font-medium text-ink-3">
                 Inactive
               </span>
             )}
             <Link
               href={`/reports/team/${member.id}/entry?month=${month}&year=${year}`}
-              className="bg-zinc-900 text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-zinc-800 transition-colors"
+              className="bg-ink text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-ink transition-colors"
             >
               Enter / Edit KPIs →
             </Link>
@@ -241,8 +241,8 @@ export default async function TeamMemberDetailPage({
       </div>
 
       {/* Overall Score Card */}
-      <div className={`rounded-xl border border-zinc-200 p-6 ${overallColors.bg}`}>
-        <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-2">
+      <div className={`rounded-xl border border-line p-6 ${overallColors.bg}`}>
+        <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-2">
           Overall Performance — {monthName(month, year)}
         </p>
         <div className="flex items-end gap-4">
@@ -258,14 +258,14 @@ export default async function TeamMemberDetailPage({
               />
               {overallColors.label}
             </span>
-            <p className="text-xs text-zinc-500 mt-0.5">
+            <p className="text-xs text-ink-3 mt-0.5">
               {currentEntries.filter((e) => e.actual_value !== null).length} of{" "}
               {definitions.length} KPIs entered
             </p>
           </div>
         </div>
         {/* Progress bar */}
-        <div className="mt-4 h-2 rounded-full bg-zinc-200 overflow-hidden max-w-sm">
+        <div className="mt-4 h-2 rounded-full bg-line overflow-hidden max-w-sm">
           <div
             className={`h-full rounded-full transition-all ${overallColors.dot}`}
             style={{ width: `${overallScore ?? 0}%` }}
@@ -275,23 +275,23 @@ export default async function TeamMemberDetailPage({
 
       {/* KPI Table */}
       <section>
-        <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+        <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
           KPI Breakdown — {monthName(month, year)}
         </p>
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+        <div className="rounded-xl border border-line bg-white overflow-hidden">
           {definitions.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-sm text-zinc-400">No KPI definitions found for this member.</p>
+              <p className="text-sm text-ink-4">No KPI definitions found for this member.</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">KPI</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Target</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Actual</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Score</th>
-                  <th className="text-center px-4 py-3 font-semibold text-zinc-600">Status</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">KPI</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Target</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Actual</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Score</th>
+                  <th className="text-center px-4 py-3 font-semibold text-ink-2">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -300,17 +300,17 @@ export default async function TeamMemberDetailPage({
                   const score = computeKpiScore(def, entry);
                   const colors = scoreColorClass(score);
                   return (
-                    <tr key={def.id} className="border-b border-zinc-50 hover:bg-zinc-50/50">
-                      <td className="px-4 py-3 text-zinc-800 font-medium">
+                    <tr key={def.id} className="border-b border-line hover:bg-hover/50">
+                      <td className="px-4 py-3 text-ink font-medium">
                         {def.kpi_label}
                         {def.lower_is_better && (
-                          <span className="ml-1.5 text-xs text-zinc-400">(lower is better)</span>
+                          <span className="ml-1.5 text-xs text-ink-4">(lower is better)</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-right text-zinc-600">
+                      <td className="px-4 py-3 text-right text-ink-2">
                         {formatValue(def.target_value, def.unit)}
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-zinc-800">
+                      <td className="px-4 py-3 text-right font-medium text-ink">
                         {entry?.actual_value !== undefined
                           ? formatValue(entry.actual_value, def.unit)
                           : "—"}
@@ -342,21 +342,21 @@ export default async function TeamMemberDetailPage({
       {/* 6-Month Trend */}
       {hasTrendData && (
         <section>
-          <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+          <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
             6-Month Trend
           </p>
-          <div className="rounded-xl border border-zinc-200 bg-white overflow-x-auto">
+          <div className="rounded-xl border border-line bg-white overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600 min-w-[180px]">
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2 min-w-[180px]">
                     KPI
                   </th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Target</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Target</th>
                   {periods.map((p) => (
                     <th
                       key={`${p.year}-${p.month}`}
-                      className="text-right px-4 py-3 font-semibold text-zinc-600 min-w-[80px]"
+                      className="text-right px-4 py-3 font-semibold text-ink-2 min-w-[80px]"
                     >
                       {p.label}
                     </th>
@@ -368,9 +368,9 @@ export default async function TeamMemberDetailPage({
                   const kpiTrend = trendMap.get(def.kpi_key);
                   if (!kpiTrend || kpiTrend.size === 0) return null;
                   return (
-                    <tr key={def.id} className="border-b border-zinc-50 hover:bg-zinc-50/50">
-                      <td className="px-4 py-3 text-zinc-800 font-medium">{def.kpi_label}</td>
-                      <td className="px-4 py-3 text-right text-zinc-500">
+                    <tr key={def.id} className="border-b border-line hover:bg-hover/50">
+                      <td className="px-4 py-3 text-ink font-medium">{def.kpi_label}</td>
+                      <td className="px-4 py-3 text-right text-ink-3">
                         {formatValue(def.target_value, def.unit)}
                       </td>
                       {periods.map((p) => {
@@ -383,7 +383,7 @@ export default async function TeamMemberDetailPage({
                           <td
                             key={`${p.year}-${p.month}`}
                             className={`px-4 py-3 text-right font-medium ${
-                              isCurrent ? "bg-zinc-50" : ""
+                              isCurrent ? "bg-hover" : ""
                             } ${c.text}`}
                           >
                             {formatValue(val, def.unit)}

@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { createBudget } from "@/lib/warehouse/actions";
 
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+  "w-full text-sm border border-line rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 
 /**
  * Inline "+ Add budget" form. Collapsed by default; expands into a row of
@@ -52,7 +52,7 @@ export function NewBudgetForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-lg border border-dashed border-zinc-300 bg-white px-3 py-2 text-xs font-medium text-zinc-700 hover:border-zinc-500 hover:text-zinc-900"
+        className="rounded-lg border border-dashed border-line-strong bg-white px-3 py-2 text-xs font-medium text-ink-2 hover:border-line-strong hover:text-ink"
       >
         + Add budget
       </button>
@@ -62,19 +62,19 @@ export function NewBudgetForm({
   return (
     <form
       action={handleCreate}
-      className="rounded-xl border border-zinc-200 bg-white p-3 flex flex-wrap items-end gap-2"
+      className="rounded-xl border border-line bg-white p-3 flex flex-wrap items-end gap-2"
     >
       <input type="hidden" name="kind" value={kind} />
       <div>
-        <label className="block text-[10px] uppercase tracking-wide text-zinc-500">Start</label>
+        <label className="block text-[10px] uppercase tracking-wide text-ink-3">Start</label>
         <input type="date" name="period_start" defaultValue={defaults.start} required className={field} />
       </div>
       <div>
-        <label className="block text-[10px] uppercase tracking-wide text-zinc-500">End</label>
+        <label className="block text-[10px] uppercase tracking-wide text-ink-3">End</label>
         <input type="date" name="period_end" defaultValue={defaults.end} required className={field} />
       </div>
       <div>
-        <label className="block text-[10px] uppercase tracking-wide text-zinc-500">Amount (USD)</label>
+        <label className="block text-[10px] uppercase tracking-wide text-ink-3">Amount (USD)</label>
         <input
           type="number"
           step="0.01"
@@ -86,14 +86,14 @@ export function NewBudgetForm({
         />
       </div>
       <div className="flex-1 min-w-[160px]">
-        <label className="block text-[10px] uppercase tracking-wide text-zinc-500">Notes</label>
+        <label className="block text-[10px] uppercase tracking-wide text-ink-3">Notes</label>
         <input name="notes" placeholder="Optional" className={field} />
       </div>
       <div className="flex items-center gap-1">
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+          className="rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white hover:bg-ink disabled:opacity-50"
         >
           {isPending ? "Adding…" : "Add"}
         </button>
@@ -101,13 +101,13 @@ export function NewBudgetForm({
           type="button"
           onClick={() => { setOpen(false); setError(null); }}
           disabled={isPending}
-          className="px-2 py-1.5 text-xs text-zinc-600 hover:text-zinc-900"
+          className="px-2 py-1.5 text-xs text-ink-2 hover:text-ink"
         >
           Cancel
         </button>
       </div>
       {error && (
-        <p className="basis-full text-xs text-red-700">{error}</p>
+        <p className="basis-full text-xs text-danger">{error}</p>
       )}
     </form>
   );

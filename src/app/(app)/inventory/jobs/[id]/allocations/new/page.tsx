@@ -24,17 +24,17 @@ export default async function NewAllocationPage({ params }: { params: Promise<{ 
     <div className="max-w-2xl space-y-6">
       <Link
         href={`/inventory/jobs/${id}`}
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink"
       >
         ← {job.job_number ? `${job.job_number} · ` : ""}{job.job_name}
       </Link>
 
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Add Allocation</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">Request material for this job. You can assign a roll afterwards.</p>
+        <p className="text-sm text-ink-3 mt-0.5">Request material for this job. You can assign a roll afterwards.</p>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-6">
+      <div className="rounded-xl border border-line bg-white p-6">
         <AllocationForm jobId={id} products={products} action={createAllocation} />
       </div>
     </div>

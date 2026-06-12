@@ -73,11 +73,11 @@ export default async function ToolPurchaseDetailPage({ params }: { params: Param
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <Link href="/operations/tools" className="text-xs text-zinc-500 hover:text-zinc-900">
+        <Link href="/operations/tools" className="text-xs text-ink-3 hover:text-ink">
           ← All purchases
         </Link>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">{p.item_name}</h1>
-        <p className="mt-0.5 text-sm text-zinc-500">
+        <p className="mt-0.5 text-sm text-ink-3">
           {fmtDate(p.purchase_date)}
           {p.vendor && <> · {p.vendor}</>}
         </p>
@@ -100,7 +100,7 @@ export default async function ToolPurchaseDetailPage({ params }: { params: Param
 
       {submitter && (
         <Card title="Submitted by">
-          <p className="text-sm font-medium text-zinc-900">{submitter}</p>
+          <p className="text-sm font-medium text-ink">{submitter}</p>
         </Card>
       )}
 
@@ -110,7 +110,7 @@ export default async function ToolPurchaseDetailPage({ params }: { params: Param
             href={p.receipt_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-zinc-700 underline-offset-2 hover:underline break-all"
+            className="text-sm text-ink-2 underline-offset-2 hover:underline break-all"
           >
             Open receipt ↗
           </a>
@@ -122,7 +122,7 @@ export default async function ToolPurchaseDetailPage({ params }: { params: Param
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
+    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
       <h2 className="text-sm font-semibold">{title}</h2>
       {children}
     </section>
@@ -132,8 +132,8 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 function Stat({ name, value }: { name: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="text-zinc-500">{name}</span>
-      <span className="font-medium text-zinc-900 text-right">{value}</span>
+      <span className="text-ink-3">{name}</span>
+      <span className="font-medium text-ink text-right">{value}</span>
     </div>
   );
 }

@@ -33,29 +33,29 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
     <div className="space-y-6 max-w-3xl">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <Link href="/operations/deliveries" className="text-xs text-zinc-500 hover:text-zinc-900">
+          <Link href="/operations/deliveries" className="text-xs text-ink-3 hover:text-ink">
             ← All deliveries
           </Link>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">
             {d.client_name ?? "(no client)"}
           </h1>
-          <p className="mt-0.5 text-sm text-zinc-500 tabular-nums">
+          <p className="mt-0.5 text-sm text-ink-3 tabular-nums">
             Delivered {fmtDateTime(d.delivered_at)}
           </p>
           {d.address && (
-            <p className="mt-0.5 text-sm text-zinc-500">📍 {d.address}</p>
+            <p className="mt-0.5 text-sm text-ink-3">📍 {d.address}</p>
           )}
         </div>
 
         <div className="flex items-center gap-2">
           {d.slack_message_ts ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-800">
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand-tint px-2.5 py-1 text-xs font-medium text-brand">
               ✓ Posted to Slack
             </span>
           ) : (
             <form action={repostDeliveryToSlack}>
               <input type="hidden" name="id" value={d.id} />
-              <button className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700">
+              <button className="rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white hover:bg-ink">
                 Post to Slack
               </button>
             </form>
@@ -63,7 +63,7 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
           {d.slack_message_ts && (
             <form action={repostDeliveryToSlack}>
               <input type="hidden" name="id" value={d.id} />
-              <button className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50">
+              <button className="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-medium text-ink-2 hover:bg-hover">
                 Repost
               </button>
             </form>
@@ -112,7 +112,7 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
           />
         )}
         {!turf && !dg && !infill && !fasteners && (
-          <p className="text-sm text-zinc-500">No materials recorded.</p>
+          <p className="text-sm text-ink-3">No materials recorded.</p>
         )}
       </Card>
 
@@ -123,7 +123,7 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
           <img
             src={d.photo_url}
             alt="Delivery photo"
-            className="max-h-96 rounded-lg border border-zinc-200"
+            className="max-h-96 rounded-lg border border-line"
           />
         </Card>
       )}
@@ -131,7 +131,7 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
       {/* ─── Notes ──────────────────────────────────────────────────── */}
       {d.notes && (
         <Card title="Notes">
-          <p className="whitespace-pre-wrap text-sm text-zinc-700">{d.notes}</p>
+          <p className="whitespace-pre-wrap text-sm text-ink-2">{d.notes}</p>
         </Card>
       )}
 
@@ -140,7 +140,7 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
         <Card title="Linkage">
           <Link
             href={`/operations/pull-lists/${d.pull_list_id}`}
-            className="text-sm text-zinc-700 underline-offset-2 hover:underline"
+            className="text-sm text-ink-2 underline-offset-2 hover:underline"
           >
             View pull list →
           </Link>
@@ -152,7 +152,7 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
+    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
       <h2 className="text-sm font-semibold">{title}</h2>
       {children}
     </section>
@@ -162,8 +162,8 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 function Stat({ name, value }: { name: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="text-zinc-500">{name}</span>
-      <span className="font-medium text-zinc-900 text-right">{value}</span>
+      <span className="text-ink-3">{name}</span>
+      <span className="font-medium text-ink text-right">{value}</span>
     </div>
   );
 }

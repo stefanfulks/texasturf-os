@@ -18,7 +18,7 @@ type ParentRollOption = Pick<
 
 const initial: CutRollState = { error: null, success: false };
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 
 function fmtFt(n: number | null | undefined) {
   if (n == null) return "—";
@@ -56,10 +56,10 @@ export function CutRollForm({
       {/* Step 1: Select parent */}
       <div>
         <div className="flex items-baseline justify-between mb-2">
-          <h2 className="text-sm font-semibold text-zinc-900">
+          <h2 className="text-sm font-semibold text-ink">
             1. Select Parent Roll
           </h2>
-          <span className="text-xs text-zinc-400">
+          <span className="text-xs text-ink-4">
             {parentRolls.length} available
           </span>
         </div>
@@ -83,33 +83,33 @@ export function CutRollForm({
         </select>
 
         {selectedRoll && (
-          <div className="mt-3 rounded-lg bg-zinc-50 border border-zinc-200 p-4">
+          <div className="mt-3 rounded-lg bg-hover border border-line p-4">
             <div className="flex items-start justify-between gap-3 mb-2">
               <div>
-                <p className="font-mono font-bold text-zinc-900">
+                <p className="font-mono font-bold text-ink">
                   {selectedRoll.tt_sku_tag_number ?? "—"}
                 </p>
-                <p className="text-sm text-zinc-600">
+                <p className="text-sm text-ink-2">
                   {selectedRoll.product_name ?? "No product"}
                 </p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3 text-xs">
               <div>
-                <p className="text-zinc-500">Dye Lot</p>
-                <p className="font-medium text-zinc-800">
+                <p className="text-ink-3">Dye Lot</p>
+                <p className="font-medium text-ink">
                   {selectedRoll.dye_lot ?? "—"}
                 </p>
               </div>
               <div>
-                <p className="text-zinc-500">Width</p>
-                <p className="font-medium text-zinc-800">
+                <p className="text-ink-3">Width</p>
+                <p className="font-medium text-ink">
                   {fmtFt(selectedRoll.width_ft)}
                 </p>
               </div>
               <div>
-                <p className="text-zinc-500">Remaining</p>
-                <p className="font-medium text-green-700">
+                <p className="text-ink-3">Remaining</p>
+                <p className="font-medium text-brand">
                   {fmtFt(selectedRoll.current_length_ft)}
                 </p>
               </div>
@@ -120,7 +120,7 @@ export function CutRollForm({
 
       {/* Step 2: Cut length */}
       <div>
-        <h2 className="text-sm font-semibold text-zinc-900 mb-2">
+        <h2 className="text-sm font-semibold text-ink mb-2">
           2. Cut Length
         </h2>
         <input
@@ -135,17 +135,17 @@ export function CutRollForm({
           disabled={!selectedRoll}
           className={`${field} text-lg font-mono`}
         />
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-1 text-xs text-ink-3">
           Length in feet to cut from the parent roll.
         </p>
         {selectedRoll && !isNaN(cutNum) && cutNum > 0 && (
           <>
             {cutNum > (selectedRoll.current_length_ft ?? 0) ? (
-              <p className="mt-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <p className="mt-2 text-sm text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">
                 Cut length exceeds remaining {fmtFt(selectedRoll.current_length_ft)}.
               </p>
             ) : (
-              <p className="mt-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+              <p className="mt-2 text-sm text-brand bg-brand-tint border border-brand/30 rounded-lg px-3 py-2">
                 Parent will have {fmtFt(remainder)} remaining after the cut.
                 {remainder !== null && remainder <= 0 && (
                   <span className="block text-xs mt-0.5">
@@ -160,7 +160,7 @@ export function CutRollForm({
 
       {/* Notes */}
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">
+        <label className="block text-xs font-medium text-ink-3 mb-1">
           Notes (optional)
         </label>
         <textarea
@@ -172,7 +172,7 @@ export function CutRollForm({
       </div>
 
       {state.error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <p className="text-sm text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">
           {state.error}
         </p>
       )}
@@ -181,7 +181,7 @@ export function CutRollForm({
         <button
           type="submit"
           disabled={isPending || !validCut}
-          className="inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl bg-ink px-5 py-2.5 text-sm font-semibold text-white hover:bg-ink disabled:opacity-50 transition-colors"
         >
           <Scissors className="h-4 w-4" />
           {isPending ? "Cutting…" : "Cut Roll"}

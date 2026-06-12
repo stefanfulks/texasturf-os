@@ -14,11 +14,11 @@ export default async function NewInspectionPage() {
   ]);
 
   return (
-    <main className="min-h-dvh bg-zinc-50 px-8 py-12 dark:bg-zinc-950">
+    <main className="min-h-dvh bg-hover px-8 py-12 dark:bg-ink">
       <div className="mx-auto max-w-3xl">
         <div className="flex items-baseline justify-between">
           <h1 className="text-2xl font-semibold">New inspection</h1>
-          <Link href="/operations/inspections" className="text-sm text-zinc-500 hover:underline">
+          <Link href="/operations/inspections" className="text-sm text-ink-3 hover:underline">
             ← Inspections
           </Link>
         </div>
@@ -30,7 +30,7 @@ export default async function NewInspectionPage() {
                 name="inspector"
                 required
                 placeholder="Name"
-                className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900"
+                className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm dark:border-line-strong dark:bg-ink"
               />
             </Field>
             <Field label="Inspector (linked employee)">
@@ -48,7 +48,7 @@ export default async function NewInspectionPage() {
           </fieldset>
 
           {INSPECTION_CHECKLIST.map((section) => (
-            <fieldset key={section.section} className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+            <fieldset key={section.section} className="rounded-lg border border-line p-4 dark:border-line-strong">
               <legend className="px-1 text-sm font-medium">{section.label}</legend>
               <div className="mt-2 space-y-2">
                 {section.items.map((item) => (
@@ -62,7 +62,7 @@ export default async function NewInspectionPage() {
             </fieldset>
           ))}
 
-          <fieldset className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+          <fieldset className="rounded-lg border border-line p-4 dark:border-line-strong">
             <legend className="px-1 text-sm font-medium">Result</legend>
             <div className="mt-2 flex gap-6">
               <label className="flex items-center gap-2 text-sm">
@@ -72,7 +72,7 @@ export default async function NewInspectionPage() {
                 <input type="radio" name="result" value="fail" /> Fail
               </label>
             </div>
-            <p className="mt-2 text-xs text-zinc-500">
+            <p className="mt-2 text-xs text-ink-3">
               Auto-set to <em>fail</em> if any item is marked No, unless explicitly overridden.
             </p>
             <div className="mt-3">
@@ -81,7 +81,7 @@ export default async function NewInspectionPage() {
                 name="failure_notes"
                 rows={3}
                 placeholder="If FAIL, document the issues here."
-                className="mt-1 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900"
+                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm dark:border-line-strong dark:bg-ink"
               />
             </div>
           </fieldset>
@@ -89,13 +89,13 @@ export default async function NewInspectionPage() {
           <div className="flex justify-end gap-3">
             <Link
               href="/operations/inspections"
-              className="rounded-md border border-zinc-200 px-4 py-2 text-sm dark:border-zinc-800"
+              className="rounded-md border border-line px-4 py-2 text-sm dark:border-line-strong"
             >
               Cancel
             </Link>
             <button
               type="submit"
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+              className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink dark:bg-white dark:text-ink dark:hover:bg-line"
             >
               Save inspection
             </button>
@@ -117,7 +117,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function ChecklistRow({ name, label }: { name: string; label: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-zinc-100 py-1 last:border-0 dark:border-zinc-800">
+    <div className="flex items-center justify-between gap-4 border-b border-line py-1 last:border-0 dark:border-line-strong">
       <span className="text-sm">{label}</span>
       <div className="flex shrink-0 gap-3 text-xs">
         <label className="flex items-center gap-1">
@@ -126,7 +126,7 @@ function ChecklistRow({ name, label }: { name: string; label: string }) {
         <label className="flex items-center gap-1">
           <input type="radio" name={name} value="no" /> No
         </label>
-        <label className="flex items-center gap-1 text-zinc-500">
+        <label className="flex items-center gap-1 text-ink-3">
           <input type="radio" name={name} value="na" /> N/A
         </label>
       </div>
@@ -144,7 +144,7 @@ function EmployeeSelect({
   return (
     <select
       name={name}
-      className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900"
+      className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm dark:border-line-strong dark:bg-ink"
       defaultValue=""
     >
       <option value="">— optional —</option>
@@ -169,7 +169,7 @@ function AssetSelect({
   return (
     <select
       name={name}
-      className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900"
+      className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm dark:border-line-strong dark:bg-ink"
       defaultValue=""
     >
       <option value="">{placeholder}</option>

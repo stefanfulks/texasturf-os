@@ -142,13 +142,13 @@ export default async function InventoryRollsPage({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Rolls</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             {rolls.length} roll{rolls.length !== 1 ? "s" : ""}
           </p>
         </div>
         <Link
           href="/inventory/rolls/new"
-          className="flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
+          className="flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink transition-colors"
         >
           <span className="text-lg leading-none">+</span> New Roll
         </Link>
@@ -165,41 +165,41 @@ export default async function InventoryRollsPage({
       />
 
       {/* Table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
         {rolls.length === 0 ? (
-          <div className="py-16 text-center text-sm text-zinc-400">
+          <div className="py-16 text-center text-sm text-ink-4">
             No rolls found.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50 text-left">
-                  <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                <tr className="border-b border-line bg-hover text-left">
+                  <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                     TT SKU
                   </th>
-                  <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                  <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                     Mfg #
                   </th>
-                  <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                  <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                     Product
                   </th>
-                  <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                  <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                     Dye Lot
                   </th>
-                  <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide text-right">
+                  <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide text-right">
                     Width
                   </th>
-                  <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide text-right">
+                  <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide text-right">
                     Length
                   </th>
-                  <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                  <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                     Status
                   </th>
-                  <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                  <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                     Location
                   </th>
-                  <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                  <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                     Updated
                   </th>
                 </tr>
@@ -208,43 +208,43 @@ export default async function InventoryRollsPage({
                 {rolls.map((r) => (
                   <tr
                     key={r.id}
-                    className="border-b border-zinc-50 hover:bg-zinc-50/60 transition-colors"
+                    className="border-b border-line hover:bg-hover/60 transition-colors"
                   >
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/inventory/rolls/${r.id}`}
-                        className="font-mono font-medium text-zinc-900 hover:underline"
+                        className="font-mono font-medium text-ink hover:underline"
                       >
                         {r.tt_sku_tag_number ?? "—"}
                       </Link>
                       {r.roll_type === "child" && (
-                        <span className="ml-2 text-[10px] uppercase font-semibold text-zinc-400">
+                        <span className="ml-2 text-[10px] uppercase font-semibold text-ink-4">
                           child
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-600">
+                    <td className="px-4 py-2.5 text-ink-2">
                       {r.manufacturer_roll_number ?? (
-                        <span className="text-zinc-300">—</span>
+                        <span className="text-ink-4">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-700">
+                    <td className="px-4 py-2.5 text-ink-2">
                       {r.product_name ?? (
-                        <span className="text-zinc-300">—</span>
+                        <span className="text-ink-4">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-600">
-                      {r.dye_lot ?? <span className="text-zinc-300">—</span>}
+                    <td className="px-4 py-2.5 text-ink-2">
+                      {r.dye_lot ?? <span className="text-ink-4">—</span>}
                     </td>
-                    <td className="px-4 py-2.5 text-right text-zinc-700">
+                    <td className="px-4 py-2.5 text-right text-ink-2">
                       {fmtFt(r.width_ft)}
                     </td>
-                    <td className="px-4 py-2.5 text-right text-zinc-700">
+                    <td className="px-4 py-2.5 text-right text-ink-2">
                       <span className="font-medium">
                         {fmtFt(r.current_length_ft)}
                       </span>
                       {r.original_length_ft != null && (
-                        <span className="text-zinc-400">
+                        <span className="text-ink-4">
                           {" "}
                           / {fmtFt(r.original_length_ft)}
                         </span>
@@ -253,14 +253,14 @@ export default async function InventoryRollsPage({
                     <td className="px-4 py-2.5">
                       <RollStatusBadge status={r.status} />
                     </td>
-                    <td className="px-4 py-2.5 text-zinc-600">
+                    <td className="px-4 py-2.5 text-ink-2">
                       {r.location_id ? (
                         locationMap.get(r.location_id) ?? "—"
                       ) : (
-                        <span className="text-zinc-300">—</span>
+                        <span className="text-ink-4">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-xs text-zinc-400 whitespace-nowrap">
+                    <td className="px-4 py-2.5 text-xs text-ink-4 whitespace-nowrap">
                       {relativeTime(r.updated_at)}
                     </td>
                   </tr>

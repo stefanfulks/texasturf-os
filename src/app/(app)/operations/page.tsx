@@ -10,11 +10,11 @@ export default async function WarehousePage() {
     <div className="mx-auto max-w-5xl">
       <div className="flex items-baseline justify-between gap-2">
         <h1 className="text-xl sm:text-2xl font-semibold">Warehouse</h1>
-        <Link href="/inventory" className="text-sm text-zinc-500 hover:underline shrink-0">
+        <Link href="/inventory" className="text-sm text-ink-3 hover:underline shrink-0">
           Inventory →
         </Link>
       </div>
-      <p className="mt-1 text-sm text-zinc-600">
+      <p className="mt-1 text-sm text-ink-2">
         Pull lists, inspections, deliveries, vehicles, and tool/equipment spend.
       </p>
 
@@ -65,7 +65,7 @@ export default async function WarehousePage() {
         </section>
 
         <section className="mt-8">
-          <h2 className="text-sm font-medium text-zinc-500">Setup</h2>
+          <h2 className="text-sm font-medium text-ink-3">Setup</h2>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             <Card
               href="/operations/budgets"
@@ -89,8 +89,8 @@ export default async function WarehousePage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="text-xs text-zinc-500">{label}</div>
+    <div className="rounded-lg border border-line bg-white p-4 dark:border-line-strong dark:bg-ink">
+      <div className="text-xs text-ink-3">{label}</div>
       <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
     </div>
   );
@@ -114,15 +114,15 @@ function Card({
       href={href}
       className={`rounded-lg border p-5 transition hover:shadow-sm ${
         dim
-          ? "border-zinc-200 bg-zinc-50 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
-          : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+          ? "border-line bg-hover hover:border-line-strong dark:border-line-strong dark:bg-ink dark:hover:border-line-strong"
+          : "border-line bg-white hover:border-line-strong dark:border-line-strong dark:bg-ink dark:hover:border-line-strong"
       }`}
     >
       <div className="flex items-center justify-between">
         <div className="font-medium">{title}</div>
-        <div className="text-xs text-zinc-500">{cta} →</div>
+        <div className="text-xs text-ink-3">{cta} →</div>
       </div>
-      <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{body}</div>
+      <div className="mt-1 text-sm text-ink-2 dark:text-ink-4">{body}</div>
     </Link>
   );
 }

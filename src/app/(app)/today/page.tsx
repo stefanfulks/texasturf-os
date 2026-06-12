@@ -7,16 +7,16 @@ import {
 } from "@/lib/jobs/progress";
 
 const STATE_TONE: Record<JobProgressState, string> = {
-  scheduled:     "bg-zinc-100 text-zinc-700",
-  started:       "bg-amber-100 text-amber-800",
-  tear_out_done: "bg-amber-100 text-amber-800",
-  base_started:  "bg-blue-100 text-blue-800",
-  base_done:     "bg-blue-100 text-blue-800",
-  turf_started:  "bg-violet-100 text-violet-800",
-  two_hours_out: "bg-orange-100 text-orange-900",
-  turf_done:     "bg-violet-100 text-violet-800",
-  final_qa_done: "bg-green-100 text-green-800",
-  on_hold:       "bg-red-100 text-red-800",
+  scheduled:     "bg-sunken text-ink-2",
+  started:       "bg-warn-tint text-warn",
+  tear_out_done: "bg-warn-tint text-warn",
+  base_started:  "bg-info-tint text-info",
+  base_done:     "bg-info-tint text-info",
+  turf_started:  "bg-info-tint text-info",
+  two_hours_out: "bg-warn-tint text-warn",
+  turf_done:     "bg-info-tint text-info",
+  final_qa_done: "bg-brand-tint text-brand",
+  on_hold:       "bg-danger-tint text-danger",
 };
 
 export const dynamic = "force-dynamic";
@@ -63,13 +63,13 @@ export default async function TodayPage() {
             day: "numeric",
           })}
         </h1>
-        <Link href="/calendar" className="text-sm text-zinc-500 hover:underline shrink-0">
+        <Link href="/calendar" className="text-sm text-ink-3 hover:underline shrink-0">
           Calendar →
         </Link>
       </div>
 
       {error && (
-        <p className="mt-6 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <p className="mt-6 rounded-md border border-danger/30 bg-danger-tint p-3 text-sm text-danger">
           {error.message}
         </p>
       )}
@@ -86,9 +86,9 @@ export default async function TodayPage() {
             <Link
               key={v.id}
               href={`/install/${v.id}`}
-              className="flex items-center gap-3 sm:gap-4 rounded-lg border border-zinc-200 bg-white p-3 sm:p-4 hover:border-zinc-400 active:bg-zinc-50 transition-colors"
+              className="flex items-center gap-3 sm:gap-4 rounded-lg border border-line bg-white p-3 sm:p-4 hover:border-line-strong active:bg-hover transition-colors"
             >
-              <div className="w-14 sm:w-20 text-xs sm:text-sm tabular-nums text-zinc-500 shrink-0">
+              <div className="w-14 sm:w-20 text-xs sm:text-sm tabular-nums text-ink-3 shrink-0">
                 {v.starts_at
                   ? new Date(v.starts_at).toLocaleTimeString([], {
                       hour: "numeric",
@@ -100,7 +100,7 @@ export default async function TodayPage() {
                 <div className="text-sm sm:text-base font-medium truncate">
                   {v.title || clientName}
                 </div>
-                <div className="text-xs sm:text-sm text-zinc-500 truncate">{clientName}</div>
+                <div className="text-xs sm:text-sm text-ink-3 truncate">{clientName}</div>
               </div>
               <span
                 className={
@@ -110,11 +110,11 @@ export default async function TodayPage() {
               >
                 {JOB_PROGRESS_SHORT[state]}
               </span>
-              <div className="hidden sm:block text-xs text-zinc-500">
+              <div className="hidden sm:block text-xs text-ink-3">
                 {v.assigned_user_ids?.length ?? 0} assigned
               </div>
               {v.is_complete && (
-                <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] sm:text-xs text-green-800">
+                <span className="rounded-full bg-brand-tint px-2 py-0.5 text-[10px] sm:text-xs text-brand">
                   jobber ✓
                 </span>
               )}
@@ -122,7 +122,7 @@ export default async function TodayPage() {
           );
         })}
         {(!visits || visits.length === 0) && !error && (
-          <div className="rounded-lg border border-dashed border-zinc-300 p-10 text-center text-zinc-500">
+          <div className="rounded-lg border border-dashed border-line-strong p-10 text-center text-ink-3">
             <p className="text-sm">No visits synced for today.</p>
             <p className="mt-1 text-xs">
               If you expected something here, sync Jobber from

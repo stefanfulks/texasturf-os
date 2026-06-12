@@ -52,8 +52,8 @@ export function ItemRow({
           className={
             "mt-0.5 h-6 w-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors " +
             (isComplete
-              ? "border-green-500 bg-green-500 text-white"
-              : "border-zinc-300 hover:border-green-500 active:border-green-600")
+              ? "border-brand/30 bg-brand text-white"
+              : "border-line-strong hover:border-brand/30 active:border-brand/30")
           }
           title={isComplete ? "Reopen" : isAction ? "Mark done" : "Mark discussed"}
         >
@@ -61,24 +61,24 @@ export function ItemRow({
         </button>
 
         <div className="flex-1 min-w-0">
-          <p className={"text-sm font-medium leading-snug break-words " + (isComplete ? "line-through text-zinc-500" : "text-zinc-900")}>
+          <p className={"text-sm font-medium leading-snug break-words " + (isComplete ? "line-through text-ink-3" : "text-ink")}>
             <RefText text={item.title} />
           </p>
 
           {item.body && (
-            <p className="text-xs text-zinc-600 mt-1 whitespace-pre-wrap leading-relaxed">
+            <p className="text-xs text-ink-2 mt-1 whitespace-pre-wrap leading-relaxed">
               <RefText text={item.body} />
             </p>
           )}
 
           <div className="flex items-center gap-1.5 mt-2 flex-wrap text-[11px]">
-            <span className="text-zinc-500">
+            <span className="text-ink-3">
               {nameOf(author)}{author?.id === currentUserId && " (you)"}
             </span>
 
             {owner && (
               <>
-                <span className="text-zinc-300">·</span>
+                <span className="text-ink-4">·</span>
                 <span className={"inline-flex items-center rounded-full border px-2 py-0.5 font-medium " + accentClass}>
                   Owner: {nameOf(owner)}
                 </span>
@@ -87,21 +87,21 @@ export function ItemRow({
 
             {item.due_date && (
               <>
-                <span className="text-zinc-300">·</span>
-                <span className="text-zinc-600 tabular-nums">
+                <span className="text-ink-4">·</span>
+                <span className="text-ink-2 tabular-nums">
                   Due {new Date(item.due_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </span>
               </>
             )}
 
             {isCarriedOver && (
-              <span className="rounded-full bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 font-bold uppercase tracking-wider text-[9px]">
+              <span className="rounded-full bg-warn-tint text-warn border border-warn/30 px-2 py-0.5 font-bold uppercase tracking-wider text-[9px]">
                 Carried over
               </span>
             )}
 
             {isComplete && (
-              <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-bold uppercase tracking-wider text-[9px]">
+              <span className="rounded-full bg-brand-tint text-brand border border-brand/30 px-2 py-0.5 font-bold uppercase tracking-wider text-[9px]">
                 {item.status === "done" ? "Done" : "Discussed"}
               </span>
             )}
@@ -114,7 +114,7 @@ export function ItemRow({
               type="button"
               onClick={() => setStatus("discussed")}
               disabled={pending}
-              className="hidden sm:inline-flex items-center gap-1 h-8 px-2 rounded-lg text-xs text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
+              className="hidden sm:inline-flex items-center gap-1 h-8 px-2 rounded-lg text-xs text-ink-3 hover:text-ink hover:bg-hover"
               title="Mark discussed"
             >
               <MessageSquare className="h-3.5 w-3.5" />
@@ -124,7 +124,7 @@ export function ItemRow({
             type="button"
             onClick={() => setStatus("archived")}
             disabled={pending}
-            className="hidden sm:inline-flex items-center gap-1 h-8 px-2 rounded-lg text-xs text-zinc-400 hover:text-red-700 hover:bg-red-50"
+            className="hidden sm:inline-flex items-center gap-1 h-8 px-2 rounded-lg text-xs text-ink-4 hover:text-danger hover:bg-danger-tint"
             title="Archive"
           >
             <Archive className="h-3.5 w-3.5" />

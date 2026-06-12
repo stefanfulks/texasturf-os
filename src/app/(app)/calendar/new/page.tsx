@@ -16,11 +16,11 @@ export default async function NewEventPage() {
   if (!isGoogleUser) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-4">
-        <Link href="/calendar" className="text-sm text-zinc-500 hover:text-zinc-900">
+        <Link href="/calendar" className="text-sm text-ink-3 hover:text-ink">
           ← Calendar
         </Link>
-        <h1 className="text-2xl font-bold text-zinc-900">New event</h1>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <h1 className="text-2xl font-bold text-ink">New event</h1>
+        <div className="rounded-xl border border-warn/30 bg-warn-tint p-4 text-sm text-warn">
           Creating events requires a Google sign-in. Sign out and sign back in with Google to enable this.
         </div>
       </div>
@@ -29,12 +29,12 @@ export default async function NewEventPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      <Link href="/calendar" className="text-sm text-zinc-500 hover:text-zinc-900">
+      <Link href="/calendar" className="text-sm text-ink-3 hover:text-ink">
         ← Calendar
       </Link>
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900">New event</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
+        <h1 className="text-2xl font-bold text-ink">New event</h1>
+        <p className="text-sm text-ink-3 mt-0.5">
           Creates an event on your primary Google Calendar.
         </p>
       </div>

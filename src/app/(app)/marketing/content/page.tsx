@@ -38,7 +38,7 @@ export default async function ContentPage({
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold tracking-tight">Content</h1>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">
+        <div className="rounded-xl border border-warn/30 bg-warn-tint p-6 text-sm text-warn">
           Content tables aren&rsquo;t in the database yet. Apply the marketing_content migration, then reload.
         </div>
       </div>
@@ -89,7 +89,7 @@ export default async function ContentPage({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Content</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             Troy&rsquo;s videos, POV clips, field proof, and voice memos. Master files live in Drive/YouTube — this is the index + pipeline.
           </p>
         </div>
@@ -101,31 +101,31 @@ export default async function ContentPage({
       {/* Scoreboard */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {scoreboard.map((s) => (
-          <div key={s.label} className="rounded-xl border border-zinc-200 bg-white p-4">
-            <p className="text-xs text-zinc-500">{s.label}</p>
-            <p className="text-2xl font-semibold mt-1 text-zinc-900">{s.value}</p>
+          <div key={s.label} className="rounded-xl border border-line bg-white p-4">
+            <p className="text-xs text-ink-3">{s.label}</p>
+            <p className="text-2xl font-semibold mt-1 text-ink">{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-zinc-200">
+      <div className="flex gap-2 border-b border-line">
         <Link
           href="/marketing/content?tab=pipeline"
-          className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 ${view === "pipeline" ? "border-zinc-900 text-zinc-900" : "border-transparent text-zinc-500 hover:text-zinc-700"}`}
+          className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 ${view === "pipeline" ? "border-ink text-ink" : "border-transparent text-ink-3 hover:text-ink-2"}`}
         >
           Pipeline
         </Link>
         <Link
           href="/marketing/content?tab=library"
-          className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 ${view === "library" ? "border-zinc-900 text-zinc-900" : "border-transparent text-zinc-500 hover:text-zinc-700"}`}
+          className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 ${view === "library" ? "border-ink text-ink" : "border-transparent text-ink-3 hover:text-ink-2"}`}
         >
           Library
         </Link>
       </div>
 
       {/* Add */}
-      <details className="rounded-xl border border-zinc-200 bg-white p-5">
+      <details className="rounded-xl border border-line bg-white p-5">
         <summary className="text-sm font-semibold cursor-pointer select-none">
           Add content (idea, video, or voice memo)
         </summary>

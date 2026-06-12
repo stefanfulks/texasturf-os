@@ -76,8 +76,8 @@ export default async function CalendarPage() {
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Calendar</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-ink">Calendar</h1>
+          <p className="text-sm text-ink-3 mt-0.5">
             {isGoogleUser
               ? "Your personal Google Calendar, plus the shared TexasTurf calendar."
               : "Sign in with Google to see your personal calendar."}
@@ -85,7 +85,7 @@ export default async function CalendarPage() {
         </div>
         <Link
           href="/calendar/new"
-          className="bg-zinc-900 text-white rounded-xl px-4 py-2 text-sm font-semibold hover:bg-zinc-800 transition-colors"
+          className="bg-ink text-white rounded-xl px-4 py-2 text-sm font-semibold hover:bg-ink transition-colors"
         >
           New event
         </Link>
@@ -94,38 +94,38 @@ export default async function CalendarPage() {
       {/* Personal agenda (Google API) */}
       {isGoogleUser ? (
         <section>
-          <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+          <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
             Your next 2 weeks
           </p>
           {fetchError ? (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <div className="rounded-xl border border-warn/30 bg-warn-tint p-4 text-sm text-warn">
               Couldn&apos;t load Google Calendar events: {fetchError}.
               Try signing out and back in with Google.
             </div>
           ) : groupedEvents.size === 0 ? (
-            <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-400">
+            <div className="rounded-xl border border-line bg-white p-8 text-center text-sm text-ink-4">
               No upcoming events in the next 2 weeks.
             </div>
           ) : (
             <div className="space-y-4">
               {Array.from(groupedEvents.entries()).map(([day, dayEvents]) => (
-                <div key={day} className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-                  <div className="bg-zinc-50 px-4 py-2 border-b border-zinc-100">
-                    <p className="font-semibold text-zinc-900 text-sm">{day}</p>
+                <div key={day} className="rounded-xl border border-line bg-white overflow-hidden">
+                  <div className="bg-hover px-4 py-2 border-b border-line">
+                    <p className="font-semibold text-ink text-sm">{day}</p>
                   </div>
-                  <ul className="divide-y divide-zinc-100">
+                  <ul className="divide-y divide-line">
                     {dayEvents.map((event) => (
-                      <li key={event.id} className="px-4 py-3 hover:bg-zinc-50/50">
+                      <li key={event.id} className="px-4 py-3 hover:bg-hover/50">
                         <a
                           href={event.htmlLink}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block"
                         >
-                          <p className="font-medium text-zinc-900 text-sm">
+                          <p className="font-medium text-ink text-sm">
                             {event.summary || "(no title)"}
                           </p>
-                          <p className="text-xs text-zinc-500 mt-0.5">
+                          <p className="text-xs text-ink-3 mt-0.5">
                             {formatEventTime(event)}
                             {event.location && <span> · {event.location}</span>}
                           </p>
@@ -139,14 +139,14 @@ export default async function CalendarPage() {
           )}
         </section>
       ) : (
-        <div className="rounded-xl border border-zinc-200 bg-white p-6">
-          <p className="text-sm text-zinc-700">
-            <strong className="text-zinc-900">Connect your Google account</strong> to see your personal calendar inline.
+        <div className="rounded-xl border border-line bg-white p-6">
+          <p className="text-sm text-ink-2">
+            <strong className="text-ink">Connect your Google account</strong> to see your personal calendar inline.
             Sign out and sign back in using the &quot;Continue with Google&quot; button.
           </p>
           <Link
             href="/login"
-            className="mt-3 inline-block text-sm font-medium text-zinc-900 underline"
+            className="mt-3 inline-block text-sm font-medium text-ink underline"
           >
             Go to sign-in →
           </Link>
@@ -156,10 +156,10 @@ export default async function CalendarPage() {
       {/* Shared TexasTurf calendar embed */}
       {embedSrc ? (
         <section>
-          <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+          <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
             Shared TexasTurf calendar
           </p>
-          <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+          <div className="rounded-xl border border-line bg-white overflow-hidden">
             <iframe
               src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(embedSrc)}&ctz=America%2FChicago&mode=WEEK&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0`}
               className="w-full"
@@ -170,12 +170,12 @@ export default async function CalendarPage() {
         </section>
       ) : (
         <section>
-          <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+          <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
             Shared TexasTurf calendar
           </p>
-          <div className="rounded-xl border border-zinc-200 bg-white p-6 text-sm text-zinc-600">
-            Set <code className="bg-zinc-100 px-1.5 py-0.5 rounded text-xs">NEXT_PUBLIC_GOOGLE_CALENDAR_EMBED_SRC</code> in
-            Vercel to the Google Calendar ID (e.g. <code className="bg-zinc-100 px-1.5 py-0.5 rounded text-xs">team@texasturfusa.com</code>) to embed
+          <div className="rounded-xl border border-line bg-white p-6 text-sm text-ink-2">
+            Set <code className="bg-sunken px-1.5 py-0.5 rounded text-xs">NEXT_PUBLIC_GOOGLE_CALENDAR_EMBED_SRC</code> in
+            Vercel to the Google Calendar ID (e.g. <code className="bg-sunken px-1.5 py-0.5 rounded text-xs">team@texasturfusa.com</code>) to embed
             the shared calendar here. Make sure the calendar is set to
             &quot;Make available for TexasTurf&quot; or fully public.
           </div>

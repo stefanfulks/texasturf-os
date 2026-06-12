@@ -60,7 +60,7 @@ export function MeetLink({
           href={meetUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 active:bg-emerald-800"
+          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg bg-brand text-white text-xs font-semibold hover:bg-brand active:bg-brand"
         >
           <Video className="h-3.5 w-3.5" />
           Join Google Meet
@@ -68,10 +68,10 @@ export function MeetLink({
         <button
           type="button"
           onClick={copy}
-          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg border border-zinc-200 bg-white text-xs font-semibold text-zinc-700 hover:border-zinc-400 active:bg-zinc-50"
+          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg border border-line bg-white text-xs font-semibold text-ink-2 hover:border-line-strong active:bg-hover"
           title="Copy Meet link"
         >
-          {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? <Check className="h-3.5 w-3.5 text-brand" /> : <Copy className="h-3.5 w-3.5" />}
           {copied ? "Copied" : "Copy link"}
         </button>
       </div>
@@ -86,7 +86,7 @@ export function MeetLink({
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg border border-dashed border-zinc-300 bg-white text-xs font-medium text-zinc-600 hover:border-zinc-500 hover:text-zinc-900"
+          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg border border-dashed border-line-strong bg-white text-xs font-medium text-ink-2 hover:border-line-strong hover:text-ink"
         >
           <Plus className="h-3.5 w-3.5" />
           Add Meet link
@@ -99,24 +99,24 @@ export function MeetLink({
             onChange={(e) => setDraft(e.target.value)}
             placeholder="https://meet.google.com/…"
             autoFocus
-            className="h-10 w-64 text-sm border border-zinc-300 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-white"
+            className="h-10 w-64 text-sm border border-line-strong rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-ink bg-white"
           />
           <button
             type="button"
             onClick={save}
             disabled={pending}
-            className="h-10 px-3.5 rounded-lg bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 disabled:opacity-50"
+            className="h-10 px-3.5 rounded-lg bg-ink text-white text-xs font-semibold hover:bg-ink disabled:opacity-50"
           >
             {pending ? "Saving…" : "Save"}
           </button>
           <button
             type="button"
             onClick={() => { setAdding(false); setError(null); }}
-            className="h-10 px-2 rounded-lg text-xs font-medium text-zinc-500 hover:text-zinc-900"
+            className="h-10 px-2 rounded-lg text-xs font-medium text-ink-3 hover:text-ink"
           >
             Cancel
           </button>
-          {error && <p className="text-xs text-red-600 w-full">{error}</p>}
+          {error && <p className="text-xs text-danger w-full">{error}</p>}
         </div>
       )}
     </div>

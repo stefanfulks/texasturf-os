@@ -37,15 +37,15 @@ export default async function VehiclesSettingsPage() {
     <div className="max-w-2xl mx-auto px-4 py-4 sm:py-6 space-y-5">
       <Link
         href="/settings"
-        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-zinc-500 hover:text-zinc-900"
+        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-ink-3 hover:text-ink"
       >
         <ChevronLeft className="h-4 w-4" />
         Settings
       </Link>
 
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">Vehicles</h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Vehicles</h1>
+        <p className="text-sm sm:text-base text-ink-2 mt-1">
           Fleet snapshot. Manage trucks, trailers, and reservations from here.
         </p>
       </div>
@@ -88,9 +88,9 @@ export default async function VehiclesSettingsPage() {
 
 function Stat({ label, value, tone = "neutral" }: { label: string; value: number; tone?: "neutral" | "red" }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3">
-      <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">{label}</p>
-      <p className={"text-xl font-bold tabular-nums " + (tone === "red" ? "text-red-600" : "text-zinc-900")}>
+    <div className="rounded-2xl border border-line bg-white px-4 py-3">
+      <p className="text-[10px] uppercase tracking-wider text-ink-3 mb-0.5">{label}</p>
+      <p className={"text-xl font-bold tabular-nums " + (tone === "red" ? "text-danger" : "text-ink")}>
         {value}
       </p>
     </div>
@@ -115,9 +115,9 @@ function Tile({
   accent: "green" | "blue" | "amber";
 }) {
   const accentMap = {
-    green: "bg-emerald-50 text-emerald-700",
-    blue:  "bg-blue-50 text-blue-700",
-    amber: "bg-amber-50 text-amber-700",
+    green: "bg-brand-tint text-brand",
+    blue:  "bg-info-tint text-info",
+    amber: "bg-warn-tint text-warn",
   };
   const inner = (
     <>
@@ -126,26 +126,26 @@ function Tile({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-sm font-semibold text-zinc-900">{title}</p>
+          <p className="text-sm font-semibold text-ink">{title}</p>
           {comingSoon && (
-            <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500">
+            <span className="rounded bg-sunken px-1.5 py-0.5 text-[10px] font-medium text-ink-3">
               soon
             </span>
           )}
           {badge && (
-            <span className="rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+            <span className="rounded-full bg-warn-tint text-warn px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
               {badge}
             </span>
           )}
         </div>
-        <p className="text-xs text-zinc-500 mt-0.5">{description}</p>
+        <p className="text-xs text-ink-3 mt-0.5">{description}</p>
       </div>
     </>
   );
 
   if (comingSoon) {
     return (
-      <div className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-4 opacity-60 cursor-not-allowed">
+      <div className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4 opacity-60 cursor-not-allowed">
         {inner}
       </div>
     );
@@ -153,7 +153,7 @@ function Tile({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-4 hover:border-zinc-300 hover:shadow-sm transition-all"
+      className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4 hover:border-line-strong hover:shadow-sm transition-all"
     >
       {inner}
     </Link>

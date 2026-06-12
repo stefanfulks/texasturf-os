@@ -44,7 +44,7 @@ export default async function InventoryItemsPage({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Other Inventory</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             Consumables, fasteners, infill, accessories
           </p>
         </div>
@@ -52,26 +52,26 @@ export default async function InventoryItemsPage({
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Total Items</p>
-          <p className="text-2xl font-semibold text-zinc-900">{allItems.length}</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Total Items</p>
+          <p className="text-2xl font-semibold text-ink">{allItems.length}</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Active</p>
-          <p className="text-2xl font-semibold text-zinc-900">
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Active</p>
+          <p className="text-2xl font-semibold text-ink">
             {allItems.filter((i) => i.active).length}
           </p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Low Stock</p>
-          <p className={`text-2xl font-semibold ${lowStockCount > 0 ? "text-red-700" : "text-zinc-400"}`}>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Low Stock</p>
+          <p className={`text-2xl font-semibold ${lowStockCount > 0 ? "text-danger" : "text-ink-4"}`}>
             {lowStockCount}
           </p>
         </div>
       </div>
 
       {/* Add form */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-6">
+      <div className="rounded-xl border border-line bg-white p-6">
         <h2 className="text-sm font-semibold mb-4">Add Item</h2>
         <ItemForm mode="create" locations={locations} />
       </div>
@@ -83,8 +83,8 @@ export default async function InventoryItemsPage({
             href={`/inventory/items${q ? `?q=${encodeURIComponent(q)}` : ""}`}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               !lowOnly
-                ? "bg-zinc-900 text-white border-zinc-900"
-                : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
+                ? "bg-ink text-white border-ink"
+                : "bg-white text-ink-2 border-line hover:border-line-strong"
             }`}
           >
             All
@@ -93,8 +93,8 @@ export default async function InventoryItemsPage({
             href={`/inventory/items?low=1${q ? `&q=${encodeURIComponent(q)}` : ""}`}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               lowOnly
-                ? "bg-zinc-900 text-white border-zinc-900"
-                : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
+                ? "bg-ink text-white border-ink"
+                : "bg-white text-ink-2 border-line hover:border-line-strong"
             }`}
           >
             Low Stock Only {lowStockCount > 0 && `(${lowStockCount})`}
@@ -107,32 +107,32 @@ export default async function InventoryItemsPage({
             name="q"
             defaultValue={q}
             placeholder="Search items…"
-            className="w-full text-sm border border-zinc-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white"
+            className="w-full text-sm border border-line rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
           />
         </form>
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-x-auto">
+      <div className="rounded-xl border border-line bg-white overflow-x-auto">
         {items.length === 0 ? (
-          <div className="py-12 text-center text-sm text-zinc-400">
+          <div className="py-12 text-center text-sm text-ink-4">
             {lowOnly ? "No low-stock items." : "No items yet."}
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-100 bg-zinc-50">
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">Name</th>
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">SKU</th>
-                <th className="text-right px-4 py-3 font-semibold text-zinc-600">Qty</th>
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">Unit</th>
-                <th className="text-right px-4 py-3 font-semibold text-zinc-600">Min</th>
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">Location</th>
-                <th className="text-center px-4 py-3 font-semibold text-zinc-600">Status</th>
-                <th className="text-right px-4 py-3 font-semibold text-zinc-600">Actions</th>
+              <tr className="border-b border-line bg-hover">
+                <th className="text-left px-4 py-3 font-semibold text-ink-2">Name</th>
+                <th className="text-left px-4 py-3 font-semibold text-ink-2">SKU</th>
+                <th className="text-right px-4 py-3 font-semibold text-ink-2">Qty</th>
+                <th className="text-left px-4 py-3 font-semibold text-ink-2">Unit</th>
+                <th className="text-right px-4 py-3 font-semibold text-ink-2">Min</th>
+                <th className="text-left px-4 py-3 font-semibold text-ink-2">Location</th>
+                <th className="text-center px-4 py-3 font-semibold text-ink-2">Status</th>
+                <th className="text-right px-4 py-3 font-semibold text-ink-2">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-line">
               {items.map((it) => (
                 <ItemRow
                   key={it.id}

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { updateInvoiceFields, type UpdateInvoiceFieldsState } from "../../actions";
 import type { Invoice, Vendor, Project } from "@/lib/db-helpers.types";
 
-const field = "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
-const label = "text-xs font-medium text-zinc-500 mb-1";
+const field = "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const label = "text-xs font-medium text-ink-3 mb-1";
 
 const initial: UpdateInvoiceFieldsState = { error: null, success: false };
 
@@ -35,7 +35,7 @@ export function EditInvoiceForm({
       <input type="hidden" name="invoice_id" value={invoice.id} />
 
       {/* Basic info */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+      <div className="rounded-xl border border-line bg-white p-5 space-y-4">
         <h2 className="text-sm font-semibold">Basics</h2>
 
         <div>
@@ -77,7 +77,7 @@ export function EditInvoiceForm({
       </div>
 
       {/* Invoice meta */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+      <div className="rounded-xl border border-line bg-white p-5 space-y-4">
         <h2 className="text-sm font-semibold">Invoice meta</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -104,7 +104,7 @@ export function EditInvoiceForm({
       </div>
 
       {/* Amounts */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+      <div className="rounded-xl border border-line bg-white p-5 space-y-4">
         <h2 className="text-sm font-semibold">Amounts</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
@@ -123,7 +123,7 @@ export function EditInvoiceForm({
       </div>
 
       {/* Notes */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
+      <div className="rounded-xl border border-line bg-white p-5 space-y-4">
         <h2 className="text-sm font-semibold">Notes</h2>
         <div>
           <p className={label}>Admin notes</p>
@@ -137,24 +137,24 @@ export function EditInvoiceForm({
 
       {/* Footer */}
       {state.error && (
-        <p className="text-sm text-red-600">{state.error}</p>
+        <p className="text-sm text-danger">{state.error}</p>
       )}
       {state.success && (
-        <p className="text-sm text-green-700">Saved.</p>
+        <p className="text-sm text-brand">Saved.</p>
       )}
 
       <div className="flex items-center gap-3">
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+          className="px-4 py-2 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink disabled:opacity-50 transition-colors"
         >
           {isPending ? "Saving…" : "Save changes"}
         </button>
         <button
           type="button"
           onClick={() => router.push(`/invoices/${invoice.id}`)}
-          className="px-4 py-2 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700 hover:border-zinc-400 transition-colors"
+          className="px-4 py-2 rounded-xl border border-line bg-white text-sm font-semibold text-ink-2 hover:border-line-strong transition-colors"
         >
           Cancel
         </button>

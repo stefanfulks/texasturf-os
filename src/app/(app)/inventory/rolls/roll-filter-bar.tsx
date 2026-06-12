@@ -16,7 +16,7 @@ const STATUS_OPTIONS: Array<[RollStatus, string]> = [
 ];
 
 const field =
-  "text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+  "text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 
 export function RollFilterBar({
   locations,
@@ -132,9 +132,9 @@ export function RollFilterBar({
             id="roll-product-suggestions"
             role="listbox"
             aria-label="Product suggestions"
-            className="absolute z-20 mt-1 w-full bg-white border border-zinc-200 rounded-lg shadow-lg overflow-hidden"
+            className="absolute z-20 mt-1 w-full bg-white border border-line rounded-lg shadow-lg overflow-hidden"
           >
-            <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-50 border-b border-zinc-100">
+            <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-ink-4 bg-hover border-b border-line">
               Products
             </div>
             {suggestions.map((p) => (
@@ -144,16 +144,16 @@ export function RollFilterBar({
                 role="option"
                 aria-selected={false}
                 onClick={() => pickProduct(p)}
-                className="flex w-full items-center justify-between px-3 py-2 text-sm text-left hover:bg-zinc-100 focus:bg-zinc-100 focus:outline-none"
+                className="flex w-full items-center justify-between px-3 py-2 text-sm text-left hover:bg-sunken focus:bg-sunken focus:outline-none"
               >
-                <span className="text-zinc-900">{highlightMatch(p.name, search)}</span>
-                <span className="text-xs text-zinc-400">filter by product</span>
+                <span className="text-ink">{highlightMatch(p.name, search)}</span>
+                <span className="text-xs text-ink-4">filter by product</span>
               </button>
             ))}
           </div>
         )}
         {showSuggest && search.trim().length >= 2 && suggestions.length === 0 && (
-          <div className="absolute z-20 mt-1 w-full bg-white border border-zinc-200 rounded-lg shadow-lg px-3 py-2 text-xs text-zinc-500">
+          <div className="absolute z-20 mt-1 w-full bg-white border border-line rounded-lg shadow-lg px-3 py-2 text-xs text-ink-3">
             No products match — press Enter to search rolls by SKU / mfg #.
           </div>
         )}
@@ -210,7 +210,7 @@ export function RollFilterBar({
       {hasFilters && (
         <button
           onClick={reset}
-          className="text-xs text-zinc-500 hover:text-zinc-900 px-2 py-1"
+          className="text-xs text-ink-3 hover:text-ink px-2 py-1"
         >
           Clear
         </button>
@@ -229,7 +229,7 @@ function highlightMatch(name: string, query: string): React.ReactNode {
   return (
     <>
       {name.slice(0, idx)}
-      <strong className="font-semibold text-zinc-900 bg-yellow-100 rounded px-0.5">
+      <strong className="font-semibold text-ink bg-warn-tint rounded px-0.5">
         {name.slice(idx, idx + q.length)}
       </strong>
       {name.slice(idx + q.length)}

@@ -17,16 +17,16 @@ export default async function MaterialsCalculatorPage() {
     <div className="max-w-5xl mx-auto px-4 py-4 sm:py-6 space-y-4">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-zinc-500 hover:text-zinc-900 active:text-zinc-700"
+        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-ink-3 hover:text-ink active:text-ink-2"
       >
         <ChevronLeft className="h-4 w-4" />
         Home
       </Link>
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
           Materials Calculator
         </h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1">
+        <p className="text-sm sm:text-base text-ink-2 mt-1">
           Tell us the area — get tons & cubic yards in seconds.
         </p>
       </div>

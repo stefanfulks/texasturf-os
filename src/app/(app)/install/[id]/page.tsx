@@ -85,30 +85,30 @@ export default async function InstallPage({ params }: { params: Params }) {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <Link href="/today" className="text-xs text-zinc-500 hover:text-zinc-900">
+        <Link href="/today" className="text-xs text-ink-3 hover:text-ink">
           ← Today
         </Link>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">{clientName(visit)}</h1>
-        <p className="mt-0.5 text-sm text-zinc-500">
+        <p className="mt-0.5 text-sm text-ink-3">
           {fmtTime(visit.starts_at)}
           {visit.ends_at && <> → {fmtTime(visit.ends_at)}</>}
         </p>
         {visit.title && (
-          <p className="mt-0.5 text-sm text-zinc-700">{visit.title}</p>
+          <p className="mt-0.5 text-sm text-ink-2">{visit.title}</p>
         )}
         {pullList?.address && (
-          <p className="mt-0.5 text-sm text-zinc-500">📍 {pullList.address}</p>
+          <p className="mt-0.5 text-sm text-ink-3">📍 {pullList.address}</p>
         )}
       </div>
 
       {/* ─── Current state ───────────────────────────────────────────── */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5">
-        <div className="text-xs uppercase tracking-wide text-zinc-500">Current state</div>
-        <div className="mt-1 text-xl font-semibold text-zinc-900">
+      <div className="rounded-xl border border-line bg-white p-5">
+        <div className="text-xs uppercase tracking-wide text-ink-3">Current state</div>
+        <div className="mt-1 text-xl font-semibold text-ink">
           {JOB_PROGRESS_LABELS[current]}
         </div>
         {!visit.client?.slack_channel_id && (
-          <p className="mt-2 text-xs text-amber-700">
+          <p className="mt-2 text-xs text-warn">
             No Slack channel linked for this client. State changes won&apos;t auto-post
             until <Link href="/operations/clients" className="underline">a channel is linked</Link>.
           </p>
@@ -117,9 +117,9 @@ export default async function InstallPage({ params }: { params: Params }) {
 
       {/* ─── Next-state buttons (mobile-friendly) ──────────────────── */}
       {isTerminal ? (
-        <div className="rounded-xl border border-green-200 bg-green-50 p-5 text-center">
-          <p className="text-sm font-medium text-green-900">Job complete ✓</p>
-          <p className="mt-1 text-xs text-green-800">
+        <div className="rounded-xl border border-brand/30 bg-brand-tint p-5 text-center">
+          <p className="text-sm font-medium text-brand">Job complete ✓</p>
+          <p className="mt-1 text-xs text-brand">
             Final QA passed on {fmtTime(events[0]?.recorded_at ?? null)}.
           </p>
         </div>
@@ -134,11 +134,11 @@ export default async function InstallPage({ params }: { params: Params }) {
 
       {/* ─── Linked pull list ──────────────────────────────────────── */}
       {pullList && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
-          <div className="text-xs uppercase tracking-wide text-zinc-500">Materials</div>
+        <div className="rounded-xl border border-line bg-white p-5">
+          <div className="text-xs uppercase tracking-wide text-ink-3">Materials</div>
           <Link
             href={`/operations/pull-lists/${pullList.id}`}
-            className="mt-1 inline-block text-sm font-medium text-zinc-900 underline-offset-2 hover:underline"
+            className="mt-1 inline-block text-sm font-medium text-ink underline-offset-2 hover:underline"
           >
             Open pull list →
           </Link>
@@ -146,10 +146,10 @@ export default async function InstallPage({ params }: { params: Params }) {
       )}
 
       {/* ─── Timeline ──────────────────────────────────────────────── */}
-      <section className="rounded-xl border border-zinc-200 bg-white p-5">
+      <section className="rounded-xl border border-line bg-white p-5">
         <h2 className="text-sm font-semibold">Timeline</h2>
         {events.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-ink-3">
             No events yet — tap a button above to record the first one.
           </p>
         ) : (
@@ -161,16 +161,16 @@ export default async function InstallPage({ params }: { params: Params }) {
                 || "Unknown";
               return (
                 <li key={e.id} className="flex items-start gap-3 text-sm">
-                  <div className="mt-1 h-2 w-2 rounded-full bg-zinc-400" />
+                  <div className="mt-1 h-2 w-2 rounded-full bg-ink-4" />
                   <div className="flex-1">
-                    <div className="font-medium text-zinc-900">
+                    <div className="font-medium text-ink">
                       {JOB_PROGRESS_LABELS[e.state as JobProgressState]}
                     </div>
-                    <div className="text-xs text-zinc-500">
+                    <div className="text-xs text-ink-3">
                       {fmtTime(e.recorded_at)} · {who}
                     </div>
                     {e.notes && (
-                      <p className="mt-1 text-xs text-zinc-700">{e.notes}</p>
+                      <p className="mt-1 text-xs text-ink-2">{e.notes}</p>
                     )}
                   </div>
                 </li>

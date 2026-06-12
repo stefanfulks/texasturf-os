@@ -46,19 +46,19 @@ export default async function EditRollPage({
     <div className="max-w-3xl space-y-6">
       <Link
         href={`/inventory/rolls/${roll.id}`}
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink"
       >
         ← Roll {roll.tt_sku_tag_number ?? ""}
       </Link>
 
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Edit Roll</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
+        <p className="text-sm text-ink-3 mt-0.5">
           Update roll details. Status changes are logged as transactions.
         </p>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-6">
+      <div className="rounded-xl border border-line bg-white p-6">
         <RollForm
           mode="edit"
           roll={roll}

@@ -36,23 +36,23 @@ export function EditForm({ asset }: { asset: Asset }) {
 
       {/* Name */}
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Name</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Name</label>
         <input
           name="name"
           defaultValue={asset.name}
           required
-          className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+          className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
         />
       </div>
 
       {/* Status, Ready, Load — 3 columns */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Status</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Status</label>
           <select
             name="status"
             defaultValue={asset.status}
-            className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+            className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
           >
             {STATUS_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -63,11 +63,11 @@ export function EditForm({ asset }: { asset: Asset }) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Ready Status</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Ready Status</label>
           <select
             name="ready_status"
             defaultValue={asset.ready_status}
-            className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+            className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
           >
             {READY_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -78,11 +78,11 @@ export function EditForm({ asset }: { asset: Asset }) {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Load Status</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Load Status</label>
           <select
             name="load_status"
             defaultValue={asset.load_status}
-            className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+            className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
           >
             {LOAD_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -95,35 +95,35 @@ export function EditForm({ asset }: { asset: Asset }) {
 
       {/* Next Action */}
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Next Action</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Next Action</label>
         <input
           name="next_action"
           defaultValue={asset.next_action ?? ""}
           placeholder="e.g. Needs oil change before Friday"
-          className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+          className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-4 focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
         />
       </div>
 
       {/* Notes */}
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Notes</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Notes</label>
         <textarea
           name="notes"
           defaultValue={asset.notes ?? ""}
           rows={3}
           placeholder="Any additional notes..."
-          className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 resize-none"
+          className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-4 focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong resize-none"
         />
       </div>
 
       {/* Feedback */}
       {state.success && (
-        <p className="rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-800">
+        <p className="rounded-md bg-brand-tint border border-brand/30 px-3 py-2 text-sm text-brand">
           Saved successfully.
         </p>
       )}
       {state.error && (
-        <p className="rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-800">
+        <p className="rounded-md bg-danger-tint border border-danger/30 px-3 py-2 text-sm text-danger">
           {state.error}
         </p>
       )}
@@ -132,7 +132,7 @@ export function EditForm({ asset }: { asset: Asset }) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPending ? "Saving…" : "Save Changes"}
         </button>

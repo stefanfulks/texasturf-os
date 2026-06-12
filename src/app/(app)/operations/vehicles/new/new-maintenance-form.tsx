@@ -9,8 +9,8 @@ import type {
 } from "@/lib/warehouse/queries";
 
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
-const label = "block text-xs font-medium text-zinc-500 mb-1";
+  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const label = "block text-xs font-medium text-ink-3 mb-1";
 
 export function NewMaintenanceForm({
   assets,
@@ -88,7 +88,7 @@ export function NewMaintenanceForm({
             ))}
           </select>
           {assets.length === 0 && (
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-ink-3">
               No active vehicles. Add one in{" "}
               <Link href="/operations/assets" className="underline">Assets</Link> first.
             </p>
@@ -98,7 +98,7 @@ export function NewMaintenanceForm({
         <div>
           <label className={label}>
             Linked schedule (optional)
-            {schedulesLoading && <span className="ml-2 text-zinc-400">loading…</span>}
+            {schedulesLoading && <span className="ml-2 text-ink-4">loading…</span>}
           </label>
           <select name="schedule_id" defaultValue="" className={field} disabled={!assetId || schedulesLoading}>
             <option value="">— none —</option>
@@ -110,7 +110,7 @@ export function NewMaintenanceForm({
               </option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-ink-3">
             Picking one bumps last_serviced_at + last_serviced_meter on that schedule.
           </p>
         </div>
@@ -191,19 +191,19 @@ export function NewMaintenanceForm({
       </Section>
 
       {submitError && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-danger/30 bg-danger-tint px-3 py-2 text-sm text-danger">
           {submitError}
         </p>
       )}
 
       <div className="flex justify-end gap-2">
-        <Link href="/operations/vehicles" className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">
+        <Link href="/operations/vehicles" className="px-4 py-2 text-sm text-ink-2 hover:text-ink">
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink disabled:opacity-50"
         >
           {isPending ? "Logging…" : "Log service"}
         </button>
@@ -214,8 +214,8 @@ export function NewMaintenanceForm({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
-      <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
+    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
+      <h2 className="text-sm font-semibold text-ink">{title}</h2>
       {children}
     </section>
   );

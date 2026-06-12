@@ -74,14 +74,14 @@ export default async function ToolsPage({
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Tools &amp; Equipment Spend</h1>
-          <p className="mt-0.5 text-sm text-zinc-500">
+          <p className="mt-0.5 text-sm text-ink-3">
             Field-logged purchases of tools, small equipment, and supplies.
             Sits alongside <Link href="/invoices" className="underline">invoices</Link>.
           </p>
         </div>
         <Link
           href="/operations/tools/new"
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
         >
           + Log purchase
         </Link>
@@ -89,46 +89,46 @@ export default async function ToolsPage({
 
       {/* ─── Spend rollup ────────────────────────────────────────── */}
       <section className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-zinc-200 bg-white p-4">
-          <div className="text-xs uppercase tracking-wide text-zinc-500">{monthLabel} spend</div>
+        <div className="rounded-xl border border-line bg-white p-4">
+          <div className="text-xs uppercase tracking-wide text-ink-3">{monthLabel} spend</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums">{fmtUSD(monthSpend)}</div>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white p-4">
-          <div className="text-xs uppercase tracking-wide text-zinc-500">Budget</div>
+        <div className="rounded-xl border border-line bg-white p-4">
+          <div className="text-xs uppercase tracking-wide text-ink-3">Budget</div>
           {budget ? (
             <>
               <div className="mt-1 text-2xl font-semibold tabular-nums">
                 {fmtUSD(budget.amount_cents)}
               </div>
-              <div className="text-xs text-zinc-500 mt-0.5">
+              <div className="text-xs text-ink-3 mt-0.5">
                 {budget.period_start} → {budget.period_end}
               </div>
             </>
           ) : (
-            <div className="mt-1 text-sm text-zinc-500">
+            <div className="mt-1 text-sm text-ink-3">
               No active budget.{" "}
-              <Link href="/operations/budgets" className="underline text-zinc-700 hover:text-zinc-900">
+              <Link href="/operations/budgets" className="underline text-ink-2 hover:text-ink">
                 Set one →
               </Link>
             </div>
           )}
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white p-4">
-          <div className="text-xs uppercase tracking-wide text-zinc-500">Vs budget</div>
+        <div className="rounded-xl border border-line bg-white p-4">
+          <div className="text-xs uppercase tracking-wide text-ink-3">Vs budget</div>
           {budget ? (
             <>
-              <div className={"mt-1 text-2xl font-semibold tabular-nums " + (overBudget ? "text-red-700" : "text-zinc-900")}>
+              <div className={"mt-1 text-2xl font-semibold tabular-nums " + (overBudget ? "text-danger" : "text-ink")}>
                 {budgetPct ?? 0}%
               </div>
-              <div className="mt-2 h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+              <div className="mt-2 h-1.5 rounded-full bg-sunken overflow-hidden">
                 <div
-                  className={"h-full " + (overBudget ? "bg-red-500" : "bg-zinc-900")}
+                  className={"h-full " + (overBudget ? "bg-danger" : "bg-ink")}
                   style={{ width: `${Math.min(budgetPct ?? 0, 100)}%` }}
                 />
               </div>
             </>
           ) : (
-            <div className="mt-1 text-sm text-zinc-500">—</div>
+            <div className="mt-1 text-sm text-ink-3">—</div>
           )}
         </div>
       </section>
@@ -145,8 +145,8 @@ export default async function ToolsPage({
               className={
                 "rounded-full border px-3 py-1 text-xs font-medium transition-colors " +
                 (active
-                  ? "border-zinc-900 bg-zinc-900 text-white"
-                  : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400")
+                  ? "border-ink bg-ink text-white"
+                  : "border-line bg-white text-ink-2 hover:border-line-strong")
               }
             >
               {f.label}
@@ -157,22 +157,22 @@ export default async function ToolsPage({
 
       {/* ─── Table ──────────────────────────────────────────────── */}
       {purchases.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-200 bg-white p-10 text-center">
-          <p className="text-sm font-medium text-zinc-700">No purchases logged yet for this filter.</p>
-          <p className="mt-1 text-xs text-zinc-500">
+        <div className="rounded-xl border border-dashed border-line bg-white p-10 text-center">
+          <p className="text-sm font-medium text-ink-2">No purchases logged yet for this filter.</p>
+          <p className="mt-1 text-xs text-ink-3">
             Snap a receipt and log it from the field — the team sees the running total instantly.
           </p>
           <Link
             href="/operations/tools/new"
-            className="mt-4 inline-block rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+            className="mt-4 inline-block rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink"
           >
             + Log purchase
           </Link>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-line bg-white">
           <table className="w-full text-sm">
-            <thead className="bg-zinc-50 text-left text-xs uppercase tracking-wide text-zinc-500">
+            <thead className="bg-hover text-left text-xs uppercase tracking-wide text-ink-3">
               <tr>
                 <th className="px-3 py-2 font-medium">Date</th>
                 <th className="px-3 py-2 font-medium">Item</th>
@@ -188,23 +188,23 @@ export default async function ToolsPage({
               {purchases.map((r) => {
                 const total = (r.cost_cents ?? 0) * (r.quantity ?? 1);
                 return (
-                  <tr key={r.id} className="border-t border-zinc-200 hover:bg-zinc-50">
+                  <tr key={r.id} className="border-t border-line hover:bg-hover">
                     <td className="px-3 py-2 tabular-nums whitespace-nowrap">{fmtDate(r.purchase_date)}</td>
                     <td className="px-3 py-2">
-                      <div className="font-medium text-zinc-900">{r.item_name}</div>
+                      <div className="font-medium text-ink">{r.item_name}</div>
                       {r.asset?.name && (
-                        <div className="text-xs text-zinc-500">for {r.asset.name}</div>
+                        <div className="text-xs text-ink-3">for {r.asset.name}</div>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-zinc-600">{CATEGORY_LABELS[r.category] ?? r.category}</td>
-                    <td className="px-3 py-2 text-zinc-600">{r.vendor ?? "—"}</td>
+                    <td className="px-3 py-2 text-ink-2">{CATEGORY_LABELS[r.category] ?? r.category}</td>
+                    <td className="px-3 py-2 text-ink-2">{r.vendor ?? "—"}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{r.quantity ?? 1}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(r.cost_cents ?? 0)}</td>
                     <td className="px-3 py-2 text-right tabular-nums font-medium">{fmtUSD(total)}</td>
                     <td className="px-3 py-2 text-right">
                       <Link
                         href={`/operations/tools/${r.id}`}
-                        className="text-xs font-medium text-zinc-700 hover:text-zinc-900"
+                        className="text-xs font-medium text-ink-2 hover:text-ink"
                       >
                         Open →
                       </Link>

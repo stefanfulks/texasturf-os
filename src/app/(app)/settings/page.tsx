@@ -29,15 +29,15 @@ export default async function SettingsHubPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">Settings</h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Settings</h1>
+        <p className="text-sm sm:text-base text-ink-2 mt-1">
           Tune your account, manage shared tools, and connect integrations.
         </p>
       </div>
 
       {/* Personal — visible to everyone */}
       <section>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2 px-1">
           You
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -61,7 +61,7 @@ export default async function SettingsHubPage() {
 
       {/* Shared tools — admin can edit, everyone can see */}
       <section>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2 px-1">
           Shared tools
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -95,7 +95,7 @@ export default async function SettingsHubPage() {
 
       {/* Integrations — admin-only edit, but the page lists what's connected */}
       <section>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2 px-1">
           Integrations
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -117,7 +117,7 @@ export default async function SettingsHubPage() {
 
       {isAdmin && (
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2 px-1">
             Admin
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -152,31 +152,31 @@ function SettingTile({
   const inner = (
     <>
       <div className="flex items-start gap-3 min-w-0 flex-1">
-        <div className="h-9 w-9 shrink-0 rounded-lg bg-zinc-100 text-zinc-700 flex items-center justify-center">
+        <div className="h-9 w-9 shrink-0 rounded-lg bg-sunken text-ink-2 flex items-center justify-center">
           {icon}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-sm font-semibold text-zinc-900">{title}</p>
+            <p className="text-sm font-semibold text-ink">{title}</p>
             {comingSoon && (
-              <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500">
+              <span className="rounded bg-sunken px-1.5 py-0.5 text-[10px] font-medium text-ink-3">
                 soon
               </span>
             )}
           </div>
-          <p className="text-xs text-zinc-500 mt-0.5">{description}</p>
+          <p className="text-xs text-ink-3 mt-0.5">{description}</p>
           {value && (
-            <p className="text-xs text-zinc-700 mt-1 font-medium truncate">{value}</p>
+            <p className="text-xs text-ink-2 mt-1 font-medium truncate">{value}</p>
           )}
         </div>
       </div>
-      <ChevronRight className="h-4 w-4 text-zinc-400 shrink-0" />
+      <ChevronRight className="h-4 w-4 text-ink-4 shrink-0" />
     </>
   );
 
   if (comingSoon) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-4 opacity-60 cursor-not-allowed">
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4 opacity-60 cursor-not-allowed">
         {inner}
       </div>
     );
@@ -185,7 +185,7 @@ function SettingTile({
   return (
     <Link
       href={href}
-      className="flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-4 hover:border-zinc-300 hover:shadow-sm transition-all"
+      className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4 hover:border-line-strong hover:shadow-sm transition-all"
     >
       {inner}
     </Link>

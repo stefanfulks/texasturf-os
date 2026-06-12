@@ -19,7 +19,7 @@ export function LocationRow({
 
   if (editing) {
     return (
-      <tr className="bg-zinc-50">
+      <tr className="bg-hover">
         <td colSpan={6} className="px-4 py-4">
           <LocationForm mode="edit" location={location} onDone={() => setEditing(false)} />
         </td>
@@ -28,19 +28,19 @@ export function LocationRow({
   }
 
   return (
-    <tr className={`hover:bg-zinc-50 transition-colors ${!location.active ? "opacity-60" : ""}`}>
-      <td className="px-4 py-3 font-medium text-zinc-800">{location.name}</td>
-      <td className="px-4 py-3 text-sm text-zinc-500 max-w-md truncate">
+    <tr className={`hover:bg-hover transition-colors ${!location.active ? "opacity-60" : ""}`}>
+      <td className="px-4 py-3 font-medium text-ink">{location.name}</td>
+      <td className="px-4 py-3 text-sm text-ink-3 max-w-md truncate">
         {location.description || "—"}
       </td>
-      <td className="px-4 py-3 text-sm text-right text-zinc-700">{rollCount}</td>
-      <td className="px-4 py-3 text-sm text-right text-zinc-700">{itemCount}</td>
+      <td className="px-4 py-3 text-sm text-right text-ink-2">{rollCount}</td>
+      <td className="px-4 py-3 text-sm text-right text-ink-2">{itemCount}</td>
       <td className="px-4 py-3 text-center">
         <span
           className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
             location.active
-              ? "bg-green-50 text-green-700"
-              : "bg-zinc-100 text-zinc-500"
+              ? "bg-brand-tint text-brand"
+              : "bg-sunken text-ink-3"
           }`}
         >
           {location.active ? "Active" : "Inactive"}
@@ -50,7 +50,7 @@ export function LocationRow({
         <div className="flex items-center justify-end gap-2">
           <button
             onClick={() => setEditing(true)}
-            className="text-xs font-medium text-zinc-600 hover:text-zinc-900"
+            className="text-xs font-medium text-ink-2 hover:text-ink"
           >
             Edit
           </button>
@@ -59,7 +59,7 @@ export function LocationRow({
               startTransition(() => toggleLocationActive(location.id, !location.active))
             }
             disabled={isPending}
-            className="text-xs font-medium text-zinc-500 hover:text-zinc-900 disabled:opacity-50"
+            className="text-xs font-medium text-ink-3 hover:text-ink disabled:opacity-50"
           >
             {location.active ? "Deactivate" : "Activate"}
           </button>

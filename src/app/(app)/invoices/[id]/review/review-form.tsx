@@ -6,7 +6,7 @@ import { updateInvoiceFields, changeInvoiceStatus, type UpdateInvoiceFieldsState
 import { upsertLineItems } from "../../actions";
 import type { Invoice, InvoiceLineItem, Vendor, Project } from "@/lib/db-helpers.types";
 
-const field = "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+const field = "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 const initFields: UpdateInvoiceFieldsState = { error: null, success: false };
 const initStatus: ChangeStatusState = { error: null, success: false };
 
@@ -100,61 +100,61 @@ export function ReviewForm({
   return (
     <div className="space-y-6">
       {/* Invoice fields editor */}
-      <form action={fieldsAction} className="rounded-xl border border-zinc-200 bg-white p-6 space-y-5">
+      <form action={fieldsAction} className="rounded-xl border border-line bg-white p-6 space-y-5">
         <h2 className="text-sm font-semibold">Invoice Details</h2>
         <input type="hidden" name="invoice_id" value={invoice.id} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Invoice Title</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Invoice Title</label>
             <input name="title" defaultValue={invoice.title} className={field} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Invoice #</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Invoice #</label>
             <input name="invoice_number" defaultValue={invoice.invoice_number ?? ""} className={field} />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Invoice Date</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Invoice Date</label>
             <input type="date" name="invoice_date" defaultValue={invoice.invoice_date ?? ""} className={field} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Approval Deadline</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Approval Deadline</label>
             <input type="date" name="approval_deadline" defaultValue={invoice.approval_deadline ?? ""} className={field} />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Service Period Start</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Service Period Start</label>
             <input type="date" name="service_period_start" defaultValue={invoice.service_period_start ?? ""} className={field} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Service Period End</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Service Period End</label>
             <input type="date" name="service_period_end" defaultValue={invoice.service_period_end ?? ""} className={field} />
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Subtotal</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Subtotal</label>
             <input type="number" step="0.01" name="subtotal" defaultValue={invoice.subtotal ?? ""} className={field} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Tax</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Tax</label>
             <input type="number" step="0.01" name="tax" defaultValue={invoice.tax ?? ""} className={field} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Total Amount</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Total Amount</label>
             <input type="number" step="0.01" name="total_amount" defaultValue={invoice.total_amount ?? ""} className={field} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Vendor</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Vendor</label>
             <select name="vendor_id" defaultValue={invoice.vendor_id ?? ""} className={field}>
               <option value="">— None —</option>
               {vendors.map((vendor) => (
@@ -163,7 +163,7 @@ export function ReviewForm({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Project</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Project</label>
             <select name="project_id" defaultValue={invoice.project_id ?? ""} className={field}>
               <option value="">— None —</option>
               {projects.map((project) => (
@@ -175,47 +175,47 @@ export function ReviewForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Customer Name</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Customer Name</label>
             <input name="customer_name" defaultValue={invoice.customer_name ?? ""} className={field} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Job Name</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Job Name</label>
             <input name="job_name" defaultValue={invoice.job_name ?? ""} className={field} />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Admin Notes</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Admin Notes</label>
           <textarea name="admin_notes" rows={2} defaultValue={invoice.admin_notes ?? ""} className={`${field} resize-none`} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Variance Notes</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Variance Notes</label>
           <textarea name="variance_notes" rows={2} defaultValue={invoice.variance_notes ?? ""} placeholder="e.g. Labor rate $0.25 above standard…" className={`${field} resize-none`} />
         </div>
 
-        {fieldsState.success && <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">Saved.</p>}
-        {fieldsState.error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{fieldsState.error}</p>}
+        {fieldsState.success && <p className="text-sm text-brand bg-brand-tint border border-brand/30 rounded-lg px-3 py-2">Saved.</p>}
+        {fieldsState.error && <p className="text-sm text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">{fieldsState.error}</p>}
 
         <div className="flex justify-end">
-          <button type="submit" disabled={fieldsIsPending} className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50">
+          <button type="submit" disabled={fieldsIsPending} className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50">
             {fieldsIsPending ? "Saving…" : "Save Details"}
           </button>
         </div>
       </form>
 
       {/* Line items editor */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Line Items</h2>
-          <button type="button" onClick={addLine} className="text-xs text-zinc-600 hover:text-zinc-900 font-medium">+ Add line</button>
+          <button type="button" onClick={addLine} className="text-xs text-ink-2 hover:text-ink font-medium">+ Add line</button>
         </div>
 
         <div className="p-4 space-y-3">
           {lineItems.length === 0 && (
-            <p className="text-sm text-zinc-400 text-center py-4">No line items. Click &quot;+ Add line&quot; to start.</p>
+            <p className="text-sm text-ink-4 text-center py-4">No line items. Click &quot;+ Add line&quot; to start.</p>
           )}
           {lineItems.map((item, idx) => (
-            <div key={item.id} className="border border-zinc-200 rounded-lg p-3 space-y-2">
+            <div key={item.id} className="border border-line rounded-lg p-3 space-y-2">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <input
                   value={item.description}
@@ -239,7 +239,7 @@ export function ReviewForm({
                   {VARIANCE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
                 <input value={item.variance_reason ?? ""} onChange={(e) => updateLine(idx, "variance_reason", e.target.value || null)} placeholder="Variance reason…" className={`flex-1 ${field}`} />
-                <button type="button" onClick={() => removeLine(idx)} className="text-zinc-300 hover:text-red-500 p-1">
+                <button type="button" onClick={() => removeLine(idx)} className="text-ink-4 hover:text-danger p-1">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
@@ -249,14 +249,14 @@ export function ReviewForm({
 
         {lineItems.length > 0 && (
           <div className="px-5 pb-4 flex justify-between items-center">
-            <span className="text-sm font-semibold text-zinc-700">
+            <span className="text-sm font-semibold text-ink-2">
               Total: ${lineItems.reduce((s, i) => s + i.line_total, 0).toFixed(2)}
             </span>
             <button
               type="button"
               onClick={handleSaveLines}
               disabled={savingLines}
-              className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
             >
               {savingLines ? "Saving…" : "Save Line Items"}
             </button>
@@ -265,17 +265,17 @@ export function ReviewForm({
       </div>
 
       {/* Status advance */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 space-y-4">
+      <div className="rounded-xl border border-line bg-white p-6 space-y-4">
         <h2 className="text-sm font-semibold">Advance Status</h2>
 
         <form action={statusAction} className="space-y-4">
           <input type="hidden" name="invoice_id" value={invoice.id} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
-              { status: "awaiting_approval", label: "✅ Send to Ownership Approval", style: "border-green-300 bg-green-50 text-green-800 hover:bg-green-100" },
-              { status: "request_change",    label: "✏️ Request Changes",             style: "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100" },
-              { status: "on_hold",           label: "🔒 Put On Hold",                 style: "border-zinc-300 bg-zinc-50 text-zinc-700 hover:bg-zinc-100"   },
-              { status: "rejected",          label: "❌ Reject",                       style: "border-red-300 bg-red-50 text-red-800 hover:bg-red-100"       },
+              { status: "awaiting_approval", label: "✅ Send to Ownership Approval", style: "border-brand/30 bg-brand-tint text-brand hover:bg-brand-tint" },
+              { status: "request_change",    label: "✏️ Request Changes",             style: "border-warn/30 bg-warn-tint text-warn hover:bg-warn-tint" },
+              { status: "on_hold",           label: "🔒 Put On Hold",                 style: "border-line-strong bg-hover text-ink-2 hover:bg-sunken"   },
+              { status: "rejected",          label: "❌ Reject",                       style: "border-danger/30 bg-danger-tint text-danger hover:bg-danger-tint"       },
             ].map(({ status, label, style }) => (
               <button
                 key={status}
@@ -291,16 +291,16 @@ export function ReviewForm({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Notes (optional)</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Notes (optional)</label>
             <textarea name="notes" rows={2} placeholder="Add a note about this status change…" className={`${field} resize-none`} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">Change Request Reason (if requesting changes)</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Change Request Reason (if requesting changes)</label>
             <textarea name="change_request_reason" rows={2} placeholder="What needs to be corrected…" className={`${field} resize-none`} />
           </div>
 
-          {statusState.error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{statusState.error}</p>}
-          {statusState.success && <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">Status updated.</p>}
+          {statusState.error && <p className="text-sm text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">{statusState.error}</p>}
+          {statusState.success && <p className="text-sm text-brand bg-brand-tint border border-brand/30 rounded-lg px-3 py-2">Status updated.</p>}
         </form>
       </div>
     </div>

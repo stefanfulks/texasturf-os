@@ -40,19 +40,19 @@ export default async function InventoryCutPage({
     <div className="max-w-3xl space-y-6">
       <Link
         href="/inventory/rolls"
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink"
       >
         ← Rolls
       </Link>
 
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Cut Roll</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
+        <p className="text-sm text-ink-3 mt-0.5">
           Cut a length from a parent roll to create a child roll.
         </p>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-6">
+      <div className="rounded-xl border border-line bg-white p-6">
         <CutRollForm
           parentRolls={parentRolls}
           initialRollId={roll_id ?? ""}

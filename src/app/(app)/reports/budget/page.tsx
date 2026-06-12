@@ -50,11 +50,11 @@ export default async function BudgetPage({
         <div>
           <Link
             href={`/reports?month=${month}&year=${year}`}
-            className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
+            className="text-sm text-ink-3 hover:text-ink transition-colors"
           >
             &larr; Back to Reports
           </Link>
-          <h1 className="text-2xl font-bold text-zinc-900 mt-1">
+          <h1 className="text-2xl font-bold text-ink mt-1">
             Budget &mdash; {monthName(month, year)}
           </h1>
         </div>

@@ -57,14 +57,14 @@ export function PendingRollActions({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={rollTag ? `Reason for ${rollTag}` : "Reason"}
-            className="w-48 text-xs border border-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+            className="w-48 text-xs border border-line rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-line-strong"
             autoFocus
           />
           <button
             type="button"
             onClick={handleReject}
             disabled={isPending}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold bg-danger text-white rounded-lg hover:bg-danger disabled:opacity-50"
           >
             Confirm
           </button>
@@ -75,12 +75,12 @@ export function PendingRollActions({
               setReason("");
               setError(null);
             }}
-            className="text-xs text-zinc-500 hover:text-zinc-900"
+            className="text-xs text-ink-3 hover:text-ink"
           >
             Cancel
           </button>
         </div>
-        {error && <p className="text-xs text-red-700">{error}</p>}
+        {error && <p className="text-xs text-danger">{error}</p>}
       </div>
     );
   }
@@ -91,7 +91,7 @@ export function PendingRollActions({
         type="button"
         onClick={handleConfirm}
         disabled={isPending}
-        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold bg-brand text-white rounded-lg hover:bg-brand disabled:opacity-50"
       >
         <Check className="w-3.5 h-3.5" aria-hidden="true" /> Confirm
       </button>
@@ -99,11 +99,11 @@ export function PendingRollActions({
         type="button"
         onClick={() => setShowReject(true)}
         disabled={isPending}
-        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-50"
+        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-danger bg-danger-tint border border-danger/30 rounded-lg hover:bg-danger-tint disabled:opacity-50"
       >
         <X className="w-3.5 h-3.5" aria-hidden="true" /> Reject
       </button>
-      {error && <span className="text-xs text-red-700 ml-2">{error}</span>}
+      {error && <span className="text-xs text-danger ml-2">{error}</span>}
     </div>
   );
 }

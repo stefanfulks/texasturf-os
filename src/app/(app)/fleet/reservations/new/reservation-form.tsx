@@ -29,10 +29,10 @@ function toLocalInput(d: Date): string {
 // Inputs use text-base (16px) so iOS Safari doesn't auto-zoom on focus.
 // All controls are h-12 (48px) — well above Apple's 44pt minimum.
 const fieldCls =
-  "block w-full h-12 rounded-xl border border-zinc-300 bg-white px-3 text-base text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900";
+  "block w-full h-12 rounded-xl border border-line-strong bg-white px-3 text-base text-ink placeholder:text-ink-4 focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink";
 
 const textareaCls =
-  "block w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-base text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900";
+  "block w-full rounded-xl border border-line-strong bg-white px-3 py-2.5 text-base text-ink placeholder:text-ink-4 focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink";
 
 export function ReservationForm({
   assets,
@@ -94,7 +94,7 @@ export function ReservationForm({
       <FieldCard icon={<Calendar className="h-4 w-4" />} label="When" required>
         <div className="space-y-3">
           <div>
-            <span className="block text-xs font-medium text-zinc-500 mb-1">Pick up</span>
+            <span className="block text-xs font-medium text-ink-3 mb-1">Pick up</span>
             <input
               type="datetime-local"
               name="starts_at"
@@ -105,7 +105,7 @@ export function ReservationForm({
             />
           </div>
           <div>
-            <span className="block text-xs font-medium text-zinc-500 mb-1">Return by</span>
+            <span className="block text-xs font-medium text-ink-3 mb-1">Return by</span>
             <input
               type="datetime-local"
               name="ends_at"
@@ -152,13 +152,13 @@ export function ReservationForm({
       </FieldCard>
 
       {state.status === "error" && (
-        <div className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <div className="flex gap-2 rounded-xl border border-danger/30 bg-danger-tint p-3 text-sm text-danger">
           <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
           <p>{state.message}</p>
         </div>
       )}
       {state.status === "success" && (
-        <div className="flex gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+        <div className="flex gap-2 rounded-xl border border-brand/30 bg-brand-tint p-3 text-sm text-brand">
           <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
           <p>Reservation saved. Redirecting…</p>
         </div>
@@ -168,7 +168,7 @@ export function ReservationForm({
         <button
           type="submit"
           disabled={pending}
-          className="block w-full h-12 rounded-xl bg-zinc-900 text-base font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 active:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="block w-full h-12 rounded-xl bg-ink text-base font-semibold text-white shadow-sm transition-colors hover:bg-ink active:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending ? "Saving…" : "Reserve vehicle"}
         </button>
@@ -187,16 +187,16 @@ function FieldCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
+    <div className="rounded-2xl border border-line bg-white p-4 sm:p-5">
       <div className="flex items-center gap-2 mb-2.5">
-        <span className="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-zinc-100 text-zinc-600">
+        <span className="h-7 w-7 inline-flex items-center justify-center rounded-lg bg-sunken text-ink-2">
           {icon}
         </span>
-        <span className="text-sm font-semibold text-zinc-900">
+        <span className="text-sm font-semibold text-ink">
           {label}
-          {required && <span className="text-red-500 ml-0.5">*</span>}
+          {required && <span className="text-danger ml-0.5">*</span>}
         </span>
-        {hint && <span className="text-[11px] text-zinc-400 ml-auto">{hint}</span>}
+        {hint && <span className="text-[11px] text-ink-4 ml-auto">{hint}</span>}
       </div>
       {children}
     </div>

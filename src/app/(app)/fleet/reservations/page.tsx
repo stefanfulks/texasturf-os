@@ -96,7 +96,7 @@ export default async function ReservationsPage() {
     <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6 space-y-5 pb-32 sm:pb-6">
       <Link
         href="/fleet"
-        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-zinc-500 hover:text-zinc-900 active:text-zinc-700"
+        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-ink-3 hover:text-ink active:text-ink-2"
       >
         <ChevronLeft className="h-4 w-4" />
         Fleet
@@ -104,16 +104,16 @@ export default async function ReservationsPage() {
 
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
             Vehicle Reservations
           </h1>
-          <p className="text-sm sm:text-base text-zinc-600 mt-1">
+          <p className="text-sm sm:text-base text-ink-2 mt-1">
             Book a truck or trailer. We&apos;ll check for conflicts before saving.
           </p>
         </div>
         <Link
           href="/fleet/reservations/new"
-          className="hidden sm:inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-700 active:bg-zinc-800"
+          className="hidden sm:inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
         >
           <Plus className="h-4 w-4" />
           New reservation
@@ -121,7 +121,7 @@ export default async function ReservationsPage() {
       </div>
 
       {resRes.error ? (
-        <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-2xl border border-warn/30 bg-warn-tint p-4 text-sm text-warn">
           <p className="font-semibold">No reservations table yet.</p>
           <p className="mt-1">
             Apply migration{" "}
@@ -131,15 +131,15 @@ export default async function ReservationsPage() {
           <p className="mt-2 text-xs opacity-75">Details: {resRes.error.message}</p>
         </div>
       ) : reservations.length === 0 ? (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center">
+        <div className="rounded-2xl border border-line bg-white p-8 text-center">
           <div className="text-4xl mb-3">🚚</div>
-          <p className="text-base font-semibold text-zinc-900">No upcoming reservations</p>
-          <p className="text-sm text-zinc-500 mt-1">
+          <p className="text-base font-semibold text-ink">No upcoming reservations</p>
+          <p className="text-sm text-ink-3 mt-1">
             Nothing booked in the next 4 weeks. Grab a truck before someone else does.
           </p>
           <Link
             href="/fleet/reservations/new"
-            className="inline-flex items-center gap-1.5 mt-4 h-11 px-5 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-700 active:bg-zinc-800"
+            className="inline-flex items-center gap-1.5 mt-4 h-11 px-5 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
           >
             <Plus className="h-4 w-4" />
             Reserve a vehicle
@@ -149,7 +149,7 @@ export default async function ReservationsPage() {
         <div className="space-y-4">
           {Array.from(grouped.entries()).map(([label, items]) => (
             <section key={label}>
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2 px-1">
                 {label}
               </h2>
               <ul className="space-y-2">
@@ -160,50 +160,50 @@ export default async function ReservationsPage() {
                   return (
                     <li
                       key={r.id}
-                      className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5"
+                      className="rounded-2xl border border-line bg-white p-4 sm:p-5"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="h-10 w-10 shrink-0 rounded-xl bg-green-50 text-green-700 flex items-center justify-center">
+                        <div className="h-10 w-10 shrink-0 rounded-xl bg-brand-tint text-brand flex items-center justify-center">
                           <Truck className="h-5 w-5" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className="text-base font-semibold text-zinc-900">
+                            <p className="text-base font-semibold text-ink">
                               {asset?.name ?? "Unknown vehicle"}
                             </p>
                             {isMine && (
-                              <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                              <span className="rounded-full bg-info-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-info">
                                 Yours
                               </span>
                             )}
                           </div>
-                          <p className="text-sm font-medium text-zinc-700 mt-0.5 tabular-nums">
+                          <p className="text-sm font-medium text-ink-2 mt-0.5 tabular-nums">
                             {fmtRange(r.starts_at, r.ends_at)}
                           </p>
-                          <p className="text-sm text-zinc-700 mt-2">{r.purpose}</p>
+                          <p className="text-sm text-ink-2 mt-2">{r.purpose}</p>
                           {r.destination && (
-                            <p className="flex items-center gap-1 text-xs text-zinc-500 mt-1">
+                            <p className="flex items-center gap-1 text-xs text-ink-3 mt-1">
                               <MapPin className="h-3 w-3" />
                               {r.destination}
                             </p>
                           )}
-                          <p className="flex items-center gap-1 text-xs text-zinc-500 mt-1">
+                          <p className="flex items-center gap-1 text-xs text-ink-3 mt-1">
                             <User className="h-3 w-3" />
                             {driver?.full_name ?? driver?.email ?? "—"}
                           </p>
                           {r.notes && (
-                            <p className="text-xs text-zinc-500 mt-2 italic leading-relaxed">
+                            <p className="text-xs text-ink-3 mt-2 italic leading-relaxed">
                               {r.notes}
                             </p>
                           )}
                         </div>
                       </div>
                       {isMine && (
-                        <form action={cancelReservation} className="mt-3 pt-3 border-t border-zinc-100">
+                        <form action={cancelReservation} className="mt-3 pt-3 border-t border-line">
                           <input type="hidden" name="id" value={r.id} />
                           <button
                             type="submit"
-                            className="w-full h-10 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-600 hover:border-red-300 hover:text-red-700 active:bg-red-50"
+                            className="w-full h-10 rounded-lg border border-line text-sm font-medium text-ink-2 hover:border-danger/30 hover:text-danger active:bg-danger-tint"
                           >
                             Cancel reservation
                           </button>
@@ -221,7 +221,7 @@ export default async function ReservationsPage() {
       {/* Mobile FAB for "New reservation" */}
       <Link
         href="/fleet/reservations/new"
-        className="sm:hidden fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-30 inline-flex items-center gap-2 h-14 px-5 rounded-full bg-zinc-900 text-white text-sm font-semibold shadow-lg active:bg-zinc-700"
+        className="sm:hidden fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-30 inline-flex items-center gap-2 h-14 px-5 rounded-full bg-ink text-white text-sm font-semibold shadow-lg active:bg-ink"
       >
         <Plus className="h-5 w-5" />
         New reservation

@@ -22,12 +22,12 @@ export default async function NewMeetingPage() {
       <div className="max-w-xl mx-auto px-4 py-8 space-y-5">
         <Link
           href="/meetings"
-          className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-zinc-500 hover:text-zinc-900"
+          className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-ink-3 hover:text-ink"
         >
           <ChevronLeft className="h-4 w-4" />
           Meetings
         </Link>
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-2xl border border-warn/30 bg-warn-tint p-4 text-sm text-warn">
           Only admins can create meetings.
         </div>
       </div>
@@ -38,14 +38,14 @@ export default async function NewMeetingPage() {
     <div className="max-w-2xl mx-auto px-4 py-4 sm:py-6 space-y-5 pb-12">
       <Link
         href="/meetings"
-        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-zinc-500 hover:text-zinc-900 active:text-zinc-700"
+        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-ink-3 hover:text-ink active:text-ink-2"
       >
         <ChevronLeft className="h-4 w-4" />
         Meetings
       </Link>
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">New Meeting</h1>
-        <p className="text-sm sm:text-base text-zinc-600 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">New Meeting</h1>
+        <p className="text-sm sm:text-base text-ink-2 mt-1">
           Define cadence, who can see it, and the agenda sections people will file items under.
         </p>
       </div>

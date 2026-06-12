@@ -29,37 +29,37 @@ export default async function InventoryProductsPage() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Products</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             {active} active · {products.length} total
           </p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-6">
+      <div className="rounded-xl border border-line bg-white p-6">
         <h2 className="text-sm font-semibold mb-4">Add Product</h2>
         <ProductForm mode="create" />
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
         {products.length === 0 ? (
-          <div className="py-12 text-center text-sm text-zinc-400">
+          <div className="py-12 text-center text-sm text-ink-4">
             No products yet.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Name</th>
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">SKU</th>
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Width</th>
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Description</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Rolls in Stock</th>
-                  <th className="text-center px-4 py-3 font-semibold text-zinc-600">Status</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Actions</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Name</th>
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">SKU</th>
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Width</th>
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Description</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Rolls in Stock</th>
+                  <th className="text-center px-4 py-3 font-semibold text-ink-2">Status</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100">
+              <tbody className="divide-y divide-line">
                 {products.map((p) => (
                   <ProductRow
                     key={p.id}

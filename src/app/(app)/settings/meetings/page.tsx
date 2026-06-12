@@ -40,15 +40,15 @@ export default async function MeetingsSettingsPage() {
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-5">
       <Link
         href="/settings"
-        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-zinc-500 hover:text-zinc-900"
+        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-ink-3 hover:text-ink"
       >
         <ChevronLeft className="h-4 w-4" />
         Settings
       </Link>
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">Meetings</h1>
-          <p className="text-sm sm:text-base text-zinc-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Meetings</h1>
+          <p className="text-sm sm:text-base text-ink-2 mt-1">
             {isAdmin
               ? "Create, edit, archive meeting templates. Sections drive what people can file under each one."
               : "Browse what meeting templates exist. Admins can edit them."}
@@ -57,7 +57,7 @@ export default async function MeetingsSettingsPage() {
         {isAdmin && (
           <Link
             href="/meetings/new"
-            className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-800 active:bg-zinc-700"
+            className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
           >
             <Plus className="h-4 w-4" />
             New meeting
@@ -66,7 +66,7 @@ export default async function MeetingsSettingsPage() {
       </div>
 
       {meetingsRes.error && (
-        <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-2xl border border-warn/30 bg-warn-tint p-4 text-sm text-warn">
           <p className="font-semibold">Couldn&apos;t load meetings.</p>
           <p className="mt-1 text-xs">{meetingsRes.error.message}</p>
         </div>
@@ -74,7 +74,7 @@ export default async function MeetingsSettingsPage() {
 
       {active.length > 0 && (
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">Active</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2 px-1">Active</h2>
           <ul className="space-y-2">
             {active.map((m) => (
               <MeetingRow key={m.id} meeting={m} isAdmin={isAdmin} archived={false} />
@@ -85,7 +85,7 @@ export default async function MeetingsSettingsPage() {
 
       {archived.length > 0 && (
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">Archived</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2 px-1">Archived</h2>
           <ul className="space-y-2">
             {archived.map((m) => (
               <MeetingRow key={m.id} meeting={m} isAdmin={isAdmin} archived={true} />
@@ -95,16 +95,16 @@ export default async function MeetingsSettingsPage() {
       )}
 
       {meetings.length === 0 && !meetingsRes.error && (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center">
+        <div className="rounded-2xl border border-line bg-white p-10 text-center">
           <div className="text-4xl mb-3">📋</div>
-          <p className="text-base font-semibold text-zinc-900">No meeting templates yet</p>
-          <p className="text-sm text-zinc-500 mt-1">
+          <p className="text-base font-semibold text-ink">No meeting templates yet</p>
+          <p className="text-sm text-ink-3 mt-1">
             {isAdmin ? "Create one to start." : "Ask an admin to set one up for your team."}
           </p>
           {isAdmin && (
             <Link
               href="/meetings/new"
-              className="inline-flex items-center gap-1.5 mt-4 h-11 px-5 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-800 active:bg-zinc-700"
+              className="inline-flex items-center gap-1.5 mt-4 h-11 px-5 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
             >
               <Plus className="h-4 w-4" />
               New meeting
@@ -126,53 +126,53 @@ function MeetingRow({
   archived: boolean;
 }) {
   return (
-    <li className={"rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 " + (archived ? "opacity-60" : "")}>
+    <li className={"rounded-2xl border border-line bg-white p-4 sm:p-5 " + (archived ? "opacity-60" : "")}>
       <div className="flex items-start gap-3">
-        <div className="h-10 w-10 shrink-0 rounded-xl bg-zinc-100 text-zinc-700 flex items-center justify-center">
+        <div className="h-10 w-10 shrink-0 rounded-xl bg-sunken text-ink-2 flex items-center justify-center">
           <CalendarIcon className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               href={`/meetings/${meeting.slug}`}
-              className="text-sm sm:text-base font-semibold text-zinc-900 hover:underline"
+              className="text-sm sm:text-base font-semibold text-ink hover:underline"
             >
               {meeting.name}
             </Link>
-            <span className="text-xs text-zinc-500">/{meeting.slug}</span>
+            <span className="text-xs text-ink-3">/{meeting.slug}</span>
             {archived && (
-              <span className="rounded-full bg-zinc-100 text-zinc-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+              <span className="rounded-full bg-sunken text-ink-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                 Archived
               </span>
             )}
           </div>
           {meeting.description && (
-            <p className="text-xs text-zinc-600 mt-0.5">{meeting.description}</p>
+            <p className="text-xs text-ink-2 mt-0.5">{meeting.description}</p>
           )}
           <div className="flex items-center gap-2 mt-2 flex-wrap text-[11px]">
-            <span className="text-zinc-500">{formatCadence(meeting)}</span>
-            <span className="text-zinc-300">·</span>
-            <span className="text-zinc-500">{meeting.sections.length} section{meeting.sections.length === 1 ? "" : "s"}</span>
+            <span className="text-ink-3">{formatCadence(meeting)}</span>
+            <span className="text-ink-4">·</span>
+            <span className="text-ink-3">{meeting.sections.length} section{meeting.sections.length === 1 ? "" : "s"}</span>
             {meeting.allowed_roles.length > 0 && (
               <>
-                <span className="text-zinc-300">·</span>
-                <span className="rounded-full bg-zinc-100 text-zinc-700 px-2 py-0.5 font-medium capitalize">
+                <span className="text-ink-4">·</span>
+                <span className="rounded-full bg-sunken text-ink-2 px-2 py-0.5 font-medium capitalize">
                   {meeting.allowed_roles.join(", ")}
                 </span>
               </>
             )}
             {meeting.allowed_departments.length > 0 && (
               <>
-                <span className="text-zinc-300">·</span>
-                <span className="rounded-full bg-blue-50 text-blue-700 px-2 py-0.5 font-medium capitalize">
+                <span className="text-ink-4">·</span>
+                <span className="rounded-full bg-info-tint text-info px-2 py-0.5 font-medium capitalize">
                   {meeting.allowed_departments.join(", ")}
                 </span>
               </>
             )}
             {meeting.allowed_roles.length === 0 && meeting.allowed_departments.length === 0 && (
               <>
-                <span className="text-zinc-300">·</span>
-                <span className="rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5 font-medium">
+                <span className="text-ink-4">·</span>
+                <span className="rounded-full bg-brand-tint text-brand px-2 py-0.5 font-medium">
                   Everyone
                 </span>
               </>
@@ -189,7 +189,7 @@ function MeetingRow({
               type="submit"
               title={archived ? "Restore" : "Archive"}
               aria-label={archived ? "Restore meeting" : "Archive meeting"}
-              className="h-9 w-9 inline-flex items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-lg text-ink-3 hover:text-ink hover:bg-sunken"
             >
               {archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
             </button>

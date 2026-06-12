@@ -35,14 +35,14 @@ const ALL_ROLL_STATUSES: RollStatus[] = [
 ];
 
 const STATUS_COLORS: Record<RollStatus, string> = {
-  available:  "bg-green-50 text-green-700 border-green-200",
-  planned:    "bg-purple-50 text-purple-700 border-purple-200",
-  allocated:  "bg-blue-50 text-blue-700 border-blue-200",
-  staged:     "bg-blue-50 text-blue-700 border-blue-200",
-  dispatched: "bg-amber-50 text-amber-800 border-amber-200",
-  consumed:   "bg-zinc-50 text-zinc-600 border-zinc-200",
-  damaged:    "bg-zinc-50 text-zinc-600 border-zinc-200",
-  returned:   "bg-zinc-50 text-zinc-600 border-zinc-200",
+  available:  "bg-brand-tint text-brand border-brand/30",
+  planned:    "bg-info-tint text-info border-info/30",
+  allocated:  "bg-info-tint text-info border-info/30",
+  staged:     "bg-info-tint text-info border-info/30",
+  dispatched: "bg-warn-tint text-warn border-warn/30",
+  consumed:   "bg-hover text-ink-2 border-line",
+  damaged:    "bg-hover text-ink-2 border-line",
+  returned:   "bg-hover text-ink-2 border-line",
 };
 
 const STATUS_LABELS: Record<RollStatus, string> = {
@@ -199,7 +199,7 @@ export default async function InventoryDashboardPage() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Inventory Dashboard</h1>
-          <p className="text-sm text-zinc-500 mt-1">
+          <p className="text-sm text-ink-3 mt-1">
             Roll inventory, jobs, and stock at a glance.
           </p>
         </div>
@@ -207,62 +207,62 @@ export default async function InventoryDashboardPage() {
 
       {/* Stat row */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
-          <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
+        <div className="rounded-xl border border-line bg-white p-5">
+          <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
             Total Active Rolls
           </p>
           <p className="text-2xl font-semibold tracking-tight">
             {fmtInt(totalActiveRolls)}
           </p>
-          <p className="text-xs text-zinc-400 mt-1">In active lifecycle</p>
+          <p className="text-xs text-ink-4 mt-1">In active lifecycle</p>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
-          <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
+        <div className="rounded-xl border border-line bg-white p-5">
+          <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
             Linear Feet In Stock
           </p>
           <p className="text-2xl font-semibold tracking-tight">
             {fmtFt(totalInStockFt)}
-            <span className="text-sm font-normal text-zinc-400 ml-1">ft</span>
+            <span className="text-sm font-normal text-ink-4 ml-1">ft</span>
           </p>
-          <p className="text-xs text-zinc-400 mt-1">Available + allocated</p>
+          <p className="text-xs text-ink-4 mt-1">Available + allocated</p>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
-          <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
+        <div className="rounded-xl border border-line bg-white p-5">
+          <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
             Active Jobs
           </p>
           <p className="text-2xl font-semibold tracking-tight">
             {fmtInt(activeJobsCount)}
           </p>
-          <p className="text-xs text-zinc-400 mt-1">Not completed or archived</p>
+          <p className="text-xs text-ink-4 mt-1">Not completed or archived</p>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
-          <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">
+        <div className="rounded-xl border border-line bg-white p-5">
+          <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
             Open Allocations
           </p>
           <p className="text-2xl font-semibold tracking-tight">
             {fmtInt(openAllocationsCount)}
           </p>
-          <p className="text-xs text-zinc-400 mt-1">Awaiting fulfillment</p>
+          <p className="text-xs text-ink-4 mt-1">Awaiting fulfillment</p>
         </div>
       </section>
 
       {/* Two cards: Recent Activity + Low Stock */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent Activity */}
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-          <div className="px-5 py-3 border-b border-zinc-100 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-zinc-900">Recent Activity</h2>
-            <span className="text-xs text-zinc-400">Last 10</span>
+        <div className="rounded-xl border border-line bg-white overflow-hidden">
+          <div className="px-5 py-3 border-b border-line flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-ink">Recent Activity</h2>
+            <span className="text-xs text-ink-4">Last 10</span>
           </div>
           {transactions.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-sm text-zinc-400">No transactions yet.</p>
+              <p className="text-sm text-ink-4">No transactions yet.</p>
             </div>
           ) : (
-            <ul className="divide-y divide-zinc-100">
+            <ul className="divide-y divide-line">
               {transactions.map((tx) => {
                 const roll = tx.roll_id ? rollLookup.get(tx.roll_id) : null;
                 const job = tx.job_id ? jobLookup.get(tx.job_id) : null;
@@ -273,24 +273,24 @@ export default async function InventoryDashboardPage() {
 
                 return (
                   <li key={tx.id} className="px-5 py-3 flex items-center gap-3">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 text-xs font-semibold capitalize whitespace-nowrap">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-sunken text-ink-2 text-xs font-semibold capitalize whitespace-nowrap">
                       {tx.transaction_type.replace(/_/g, " ")}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-zinc-800 truncate">
-                        {rollLabel ?? <span className="text-zinc-400">No roll</span>}
+                      <p className="text-sm text-ink truncate">
+                        {rollLabel ?? <span className="text-ink-4">No roll</span>}
                         {jobLabel && (
                           <>
                             {" "}
-                            <span className="text-zinc-400">→</span>{" "}
-                            <span className="text-zinc-600">{jobLabel}</span>
+                            <span className="text-ink-4">→</span>{" "}
+                            <span className="text-ink-2">{jobLabel}</span>
                           </>
                         )}
                       </p>
-                      <p className="text-xs text-zinc-400">{relativeTime(tx.created_at)}</p>
+                      <p className="text-xs text-ink-4">{relativeTime(tx.created_at)}</p>
                     </div>
                     {tx.quantity_ft !== null && tx.quantity_ft !== undefined && (
-                      <span className="text-sm font-medium text-zinc-700 whitespace-nowrap">
+                      <span className="text-sm font-medium text-ink-2 whitespace-nowrap">
                         {fmtFt(tx.quantity_ft)} ft
                       </span>
                     )}
@@ -302,28 +302,28 @@ export default async function InventoryDashboardPage() {
         </div>
 
         {/* Low Stock Alert */}
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-          <div className="px-5 py-3 border-b border-zinc-100 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-zinc-900">Low Stock Alert</h2>
-            <span className="text-xs text-zinc-400">
+        <div className="rounded-xl border border-line bg-white overflow-hidden">
+          <div className="px-5 py-3 border-b border-line flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-ink">Low Stock Alert</h2>
+            <span className="text-xs text-ink-4">
               {lowStockItems.length} item{lowStockItems.length === 1 ? "" : "s"}
             </span>
           </div>
           {lowStockItems.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-sm text-zinc-400">All stock levels are healthy.</p>
+              <p className="text-sm text-ink-4">All stock levels are healthy.</p>
             </div>
           ) : (
-            <ul className="divide-y divide-zinc-100">
+            <ul className="divide-y divide-line">
               {lowStockItems.map((item) => (
                 <li key={item.id} className="px-5 py-3 flex items-center gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-zinc-800 truncate">{item.name}</p>
-                    <p className="text-xs text-zinc-400">
+                    <p className="text-sm font-medium text-ink truncate">{item.name}</p>
+                    <p className="text-xs text-ink-4">
                       Min: {fmtInt(item.min_quantity)} {item.unit}
                     </p>
                   </div>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-red-50 text-red-700 text-xs font-semibold whitespace-nowrap">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-danger-tint text-danger text-xs font-semibold whitespace-nowrap">
                     {fmtInt(item.quantity)} {item.unit}
                   </span>
                 </li>
@@ -334,9 +334,9 @@ export default async function InventoryDashboardPage() {
       </section>
 
       {/* Rolls by status */}
-      <section className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100">
-          <h2 className="text-sm font-semibold text-zinc-900">Rolls by Status</h2>
+      <section className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line">
+          <h2 className="text-sm font-semibold text-ink">Rolls by Status</h2>
         </div>
         <div className="p-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {ALL_ROLL_STATUSES.map((status) => (

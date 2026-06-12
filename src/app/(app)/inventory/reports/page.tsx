@@ -45,12 +45,12 @@ export default async function InventoryReportsPage() {
 
   return (
     <div className="space-y-6">
-      <Link href="/inventory" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">
+      <Link href="/inventory" className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink">
         ← Inventory
       </Link>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Inventory Reports</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
+        <p className="text-sm text-ink-3 mt-0.5">
           Aging, usage variance, and stock value analysis
         </p>
       </div>
@@ -59,26 +59,26 @@ export default async function InventoryReportsPage() {
         {/* Aging */}
         <Link
           href="/inventory/reports/aging"
-          className="group rounded-xl border border-zinc-200 bg-white p-6 hover:border-zinc-400 hover:shadow-sm transition-all"
+          className="group rounded-xl border border-line bg-white p-6 hover:border-line-strong hover:shadow-sm transition-all"
         >
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h2 className="text-sm font-semibold text-zinc-900 group-hover:underline">
+              <h2 className="text-sm font-semibold text-ink group-hover:underline">
                 Aging Report
               </h2>
-              <p className="text-xs text-zinc-500 mt-0.5">
+              <p className="text-xs text-ink-3 mt-0.5">
                 How long available rolls have been sitting
               </p>
             </div>
-            <span className="text-zinc-300 group-hover:text-zinc-600">→</span>
+            <span className="text-ink-4 group-hover:text-ink-2">→</span>
           </div>
           <div className="space-y-2">
             <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-semibold text-zinc-900">{totalAvailable}</p>
-              <p className="text-xs text-zinc-400">available rolls</p>
+              <p className="text-2xl font-semibold text-ink">{totalAvailable}</p>
+              <p className="text-xs text-ink-4">available rolls</p>
             </div>
             {oldRolls.length > 0 && (
-              <p className="text-xs text-amber-700">
+              <p className="text-xs text-warn">
                 {oldRolls.length} sitting 91+ days · {Math.round(oldRollFt).toLocaleString()} ft
               </p>
             )}
@@ -88,43 +88,43 @@ export default async function InventoryReportsPage() {
         {/* Overage */}
         <Link
           href="/inventory/reports/overage"
-          className="group rounded-xl border border-zinc-200 bg-white p-6 hover:border-zinc-400 hover:shadow-sm transition-all"
+          className="group rounded-xl border border-line bg-white p-6 hover:border-line-strong hover:shadow-sm transition-all"
         >
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h2 className="text-sm font-semibold text-zinc-900 group-hover:underline">
+              <h2 className="text-sm font-semibold text-ink group-hover:underline">
                 Turf Overage
               </h2>
-              <p className="text-xs text-zinc-500 mt-0.5">
+              <p className="text-xs text-ink-3 mt-0.5">
                 Requested vs dispatched per completed job
               </p>
             </div>
-            <span className="text-zinc-300 group-hover:text-zinc-600">→</span>
+            <span className="text-ink-4 group-hover:text-ink-2">→</span>
           </div>
           <div className="space-y-2">
             <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-semibold text-zinc-900">{completedJobs ?? 0}</p>
-              <p className="text-xs text-zinc-400">completed jobs</p>
+              <p className="text-2xl font-semibold text-ink">{completedJobs ?? 0}</p>
+              <p className="text-xs text-ink-4">completed jobs</p>
             </div>
           </div>
         </Link>
 
         {/* Inventory snapshot */}
-        <div className="rounded-xl border border-zinc-200 bg-white p-6">
+        <div className="rounded-xl border border-line bg-white p-6">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h2 className="text-sm font-semibold text-zinc-900">In-Stock Snapshot</h2>
-              <p className="text-xs text-zinc-500 mt-0.5">Available + allocated</p>
+              <h2 className="text-sm font-semibold text-ink">In-Stock Snapshot</h2>
+              <p className="text-xs text-ink-3 mt-0.5">Available + allocated</p>
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex items-baseline gap-2">
-              <p className="text-2xl font-semibold text-zinc-900">
+              <p className="text-2xl font-semibold text-ink">
                 {Math.round(totalLinearFt).toLocaleString()}
               </p>
-              <p className="text-xs text-zinc-400">linear ft</p>
+              <p className="text-xs text-ink-4">linear ft</p>
             </div>
-            <p className="text-xs text-zinc-500">{inStockCount} rolls in stock</p>
+            <p className="text-xs text-ink-3">{inStockCount} rolls in stock</p>
           </div>
         </div>
       </div>

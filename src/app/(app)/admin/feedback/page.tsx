@@ -42,7 +42,7 @@ export default async function AdminFeedbackPage() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Feedback</h1>
-            <p className="mt-0.5 text-sm text-zinc-500">
+            <p className="mt-0.5 text-sm text-ink-3">
               Bugs, feature requests, and questions from the team. Triage
               by setting a status and (optionally) replying with admin
               notes — submitters see your reply on their feedback page.
@@ -51,14 +51,14 @@ export default async function AdminFeedbackPage() {
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               href="/feedback"
-              className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-zinc-400 transition-colors"
+              className="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-semibold text-ink-2 hover:border-line-strong transition-colors"
             >
               Submit your own →
             </Link>
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+            <span className="rounded-full bg-info-tint px-3 py-1 text-xs font-semibold text-info">
               {open.length} open
             </span>
-            <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-500">
+            <span className="rounded-full bg-sunken px-3 py-1 text-xs font-semibold text-ink-3">
               {done.length} closed
             </span>
           </div>
@@ -66,9 +66,9 @@ export default async function AdminFeedbackPage() {
       </div>
 
       <section>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">Open</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-3">Open</h2>
         {open.length === 0 ? (
-          <div className="rounded-xl border border-zinc-200 bg-white px-5 py-10 text-center text-sm text-zinc-400">
+          <div className="rounded-xl border border-line bg-white px-5 py-10 text-center text-sm text-ink-4">
             Inbox zero. No open feedback right now.
           </div>
         ) : (
@@ -80,7 +80,7 @@ export default async function AdminFeedbackPage() {
 
       {done.length > 0 && (
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">Closed</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-3">Closed</h2>
           <ul className="space-y-3">
             {done.map((f) => <TriageRow key={f.id} item={f} />)}
           </ul>
@@ -92,10 +92,10 @@ export default async function AdminFeedbackPage() {
 
 // Re-export STATUS_BADGE used by the triage component
 export const FEEDBACK_STATUS_BADGE: Record<string, string> = {
-  new:         "bg-blue-100 text-blue-700",
-  in_progress: "bg-amber-100 text-amber-700",
-  resolved:    "bg-green-100 text-green-700",
-  wont_fix:    "bg-zinc-100 text-zinc-500",
+  new:         "bg-info-tint text-info",
+  in_progress: "bg-warn-tint text-warn",
+  resolved:    "bg-brand-tint text-brand",
+  wont_fix:    "bg-sunken text-ink-3",
 };
 
 // Util for the row component (mirrored there but exported here for tests)

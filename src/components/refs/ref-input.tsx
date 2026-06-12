@@ -218,7 +218,7 @@ export function RefInput({
       {showDropdown && (
         <div
           className={
-            "absolute left-0 right-0 z-50 rounded-xl border border-zinc-200 bg-white shadow-lg overflow-hidden " +
+            "absolute left-0 right-0 z-50 rounded-xl border border-line bg-white shadow-lg overflow-hidden " +
             (dropdownPosition === "above" ? "bottom-full mb-1" : "top-full mt-1")
           }
         >
@@ -232,20 +232,20 @@ export function RefInput({
                     type="button"
                     onMouseDown={(e) => { e.preventDefault(); pickPerson(p); }}
                     onMouseEnter={() => setActive(i)}
-                    className={"flex w-full items-center gap-2.5 px-3 py-2 text-left " + (i === active ? "bg-zinc-100" : "")}
+                    className={"flex w-full items-center gap-2.5 px-3 py-2 text-left " + (i === active ? "bg-sunken" : "")}
                   >
-                    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-semibold text-zinc-700">
+                    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-line text-[10px] font-semibold text-ink-2">
                       {display[0].toUpperCase()}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-zinc-900">{display}</span>
-                      <span className="block truncate text-[11px] text-zinc-500">{p.email}</span>
+                      <span className="block truncate text-sm font-medium text-ink">{display}</span>
+                      <span className="block truncate text-[11px] text-ink-3">{p.email}</span>
                     </span>
                   </button>
                 );
               })
             ) : results.length === 0 ? (
-              <p className="px-3 py-2 text-xs text-zinc-500">
+              <p className="px-3 py-2 text-xs text-ink-3">
                 {loading ? "Searching…" : suggestion && suggestion.query.trim() ? "No matches — keep typing or press Esc" : "Type to search tasks, jobs, invoices, clients"}
               </p>
             ) : (
@@ -257,14 +257,14 @@ export function RefInput({
                     type="button"
                     onMouseDown={(e) => { e.preventDefault(); pickRef(r); }}
                     onMouseEnter={() => setActive(i)}
-                    className={"flex w-full items-center gap-2.5 px-3 py-2 text-left " + (i === active ? "bg-zinc-100" : "")}
+                    className={"flex w-full items-center gap-2.5 px-3 py-2 text-left " + (i === active ? "bg-sunken" : "")}
                   >
-                    <Icon className="h-4 w-4 shrink-0 text-zinc-500" />
+                    <Icon className="h-4 w-4 shrink-0 text-ink-3" />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-zinc-900">{r.label}</span>
-                      {r.sublabel && <span className="block truncate text-[11px] text-zinc-500">{r.sublabel}</span>}
+                      <span className="block truncate text-sm font-medium text-ink">{r.label}</span>
+                      {r.sublabel && <span className="block truncate text-[11px] text-ink-3">{r.sublabel}</span>}
                     </span>
-                    <span className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                    <span className="shrink-0 rounded-full border border-line bg-hover px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink-3">
                       {REF_TYPE_LABEL[r.type]}
                     </span>
                   </button>
@@ -272,7 +272,7 @@ export function RefInput({
               })
             )}
           </div>
-          <p className="flex items-center gap-1 border-t border-zinc-100 bg-zinc-50 px-3 py-1.5 text-[10px] text-zinc-400">
+          <p className="flex items-center gap-1 border-t border-line bg-hover px-3 py-1.5 text-[10px] text-ink-4">
             <Hash className="h-3 w-3" />
             {suggestion?.kind === "person" ? "Mention someone" : "Link a task, job, invoice, or client"}
           </p>

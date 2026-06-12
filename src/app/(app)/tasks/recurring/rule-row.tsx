@@ -26,10 +26,10 @@ function freqLabel(rule: RecurringRule): string {
 }
 
 const PRIORITY_DOT: Record<string, string> = {
-  low:    "bg-zinc-300",
-  normal: "bg-blue-400",
-  high:   "bg-amber-400",
-  urgent: "bg-red-500",
+  low:    "bg-line-strong",
+  normal: "bg-info",
+  high:   "bg-warn",
+  urgent: "bg-danger",
 };
 
 export function RuleRow({
@@ -48,8 +48,8 @@ export function RuleRow({
 
       {/* Main info */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-zinc-900">{rule.title}</p>
-        <p className="text-xs text-zinc-400 mt-0.5">
+        <p className="text-sm font-medium text-ink">{rule.title}</p>
+        <p className="text-xs text-ink-4 mt-0.5">
           {freqLabel(rule)} · {assigneeName}
           {rule.next_due && ` · Next: ${format(parseISO(rule.next_due), "MMM d")}`}
         </p>
@@ -63,8 +63,8 @@ export function RuleRow({
         disabled={isPending}
         className={`text-xs px-2 py-0.5 rounded font-medium transition-colors ${
           rule.active
-            ? "bg-green-100 text-green-700 hover:bg-green-200"
-            : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
+            ? "bg-brand-tint text-brand hover:bg-brand-tint"
+            : "bg-sunken text-ink-3 hover:bg-line"
         }`}
         title={rule.active ? "Pause this rule (no new tasks will be generated)" : "Resume this rule"}
       >

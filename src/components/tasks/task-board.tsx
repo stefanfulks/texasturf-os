@@ -404,10 +404,10 @@ const AVATAR_COLORS = [
   "bg-info-tint text-info",
   "bg-warn-tint text-warn",
   "bg-brand-tint text-brand",
-  "bg-pink-100 text-pink-700",
   "bg-info-tint text-info",
-  "bg-teal-100 text-teal-700",
-  "bg-rose-100 text-rose-700",
+  "bg-info-tint text-info",
+  "bg-brand-tint text-brand",
+  "bg-danger-tint text-danger",
 ];
 
 function colorFor(id: string): string {

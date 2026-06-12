@@ -6,7 +6,7 @@ import type { InvProduct } from "@/lib/db-helpers.types";
 
 const initial: AllocationFormState = { error: null, success: false };
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 
 export function AllocationForm({
   jobId,
@@ -24,7 +24,7 @@ export function AllocationForm({
       <input type="hidden" name="job_id" value={jobId} />
 
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Product</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Product</label>
         <select name="product_id" defaultValue="" className={field}>
           <option value="">— Select a catalogued product (optional) —</option>
           {products.map((p) => (
@@ -33,11 +33,11 @@ export function AllocationForm({
             </option>
           ))}
         </select>
-        <p className="text-xs text-zinc-400 mt-1">Or enter a product name manually below.</p>
+        <p className="text-xs text-ink-4 mt-1">Or enter a product name manually below.</p>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Product Name (free text)</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Product Name (free text)</label>
         <input
           name="product_name"
           placeholder="e.g. Pristine Pro 75oz"
@@ -47,7 +47,7 @@ export function AllocationForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Width (ft)</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Width (ft)</label>
           <input
             type="number"
             step="0.01"
@@ -57,7 +57,7 @@ export function AllocationForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Requested Length (ft)</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Requested Length (ft)</label>
           <input
             type="number"
             step="0.01"
@@ -69,7 +69,7 @@ export function AllocationForm({
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Dye Lot Preference</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Dye Lot Preference</label>
         <input
           name="dye_lot_preference"
           placeholder="Optional — must match this dye lot"
@@ -78,12 +78,12 @@ export function AllocationForm({
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Notes</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Notes</label>
         <textarea name="notes" rows={2} className={`${field} resize-none`} />
       </div>
 
       {state.error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <p className="text-sm text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">
           {state.error}
         </p>
       )}
@@ -92,7 +92,7 @@ export function AllocationForm({
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
         >
           {isPending ? "Adding…" : "Add Allocation"}
         </button>

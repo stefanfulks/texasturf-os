@@ -8,15 +8,15 @@ import type { Task, Profile } from "@/lib/db-helpers.types";
 const initial: UpdateTaskState = { error: null, success: false };
 
 const field =
-  "w-full text-base border border-zinc-300 rounded-xl h-12 px-3 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 bg-white";
+  "w-full text-base border border-line-strong rounded-xl h-12 px-3 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white";
 
 const AVATAR_COLORS = [
-  "bg-blue-100 text-blue-700",
-  "bg-purple-100 text-purple-700",
-  "bg-amber-100 text-amber-800",
-  "bg-emerald-100 text-emerald-700",
-  "bg-pink-100 text-pink-700",
-  "bg-indigo-100 text-indigo-700",
+  "bg-info-tint text-info",
+  "bg-info-tint text-info",
+  "bg-warn-tint text-warn",
+  "bg-brand-tint text-brand",
+  "bg-info-tint text-info",
+  "bg-info-tint text-info",
 ];
 function colorFor(id: string): string {
   let h = 0;
@@ -69,8 +69,8 @@ export function TaskEditForm({
       {/* Tagged people block — saves independently of the rest of the form. */}
       <div>
         <div className="flex items-baseline justify-between mb-2">
-          <label className="text-xs font-semibold text-zinc-700">Tagged people</label>
-          <span className="text-[10px] text-zinc-400">{assigneeIds.length} tagged</span>
+          <label className="text-xs font-semibold text-ink-2">Tagged people</label>
+          <span className="text-[10px] text-ink-4">{assigneeIds.length} tagged</span>
         </div>
 
         {taggedProfiles.length > 0 && (
@@ -79,7 +79,7 @@ export function TaskEditForm({
               <span
                 key={p.id}
                 className={`inline-flex items-center gap-1.5 rounded-full pl-1 pr-2 h-8 text-xs font-medium ${
-                  i === 0 ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-800"
+                  i === 0 ? "bg-ink text-white" : "bg-sunken text-ink"
                 }`}
               >
                 <span className={`w-6 h-6 rounded-full inline-flex items-center justify-center text-[10px] font-bold ${colorFor(p.id)}`}>
@@ -92,7 +92,7 @@ export function TaskEditForm({
                   <button
                     type="button"
                     onClick={() => makePrimary(p.id)}
-                    className="text-[10px] uppercase tracking-wider text-zinc-500 hover:text-zinc-900 underline"
+                    className="text-[10px] uppercase tracking-wider text-ink-3 hover:text-ink underline"
                     title="Make primary"
                   >
                     set primary
@@ -112,10 +112,10 @@ export function TaskEditForm({
         )}
 
         <details className="group">
-          <summary className="list-none cursor-pointer h-10 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-zinc-300 px-3 text-xs font-medium text-zinc-600 hover:border-zinc-500 hover:text-zinc-900 group-open:border-solid">
+          <summary className="list-none cursor-pointer h-10 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-line-strong px-3 text-xs font-medium text-ink-2 hover:border-line-strong hover:text-ink group-open:border-solid">
             <span className="text-base leading-none">+</span> Add / remove people
           </summary>
-          <ul className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-zinc-200 bg-white divide-y divide-zinc-50">
+          <ul className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-line bg-white divide-y divide-line">
             {allProfiles.map((p) => {
               const isOn = assigneeIds.includes(p.id);
               return (
@@ -124,14 +124,14 @@ export function TaskEditForm({
                     type="button"
                     onClick={() => toggle(p.id)}
                     className={`w-full flex items-center gap-2.5 h-11 px-3 text-left text-sm transition-colors ${
-                      isOn ? "bg-zinc-50 text-zinc-900" : "text-zinc-700 hover:bg-zinc-50"
+                      isOn ? "bg-hover text-ink" : "text-ink-2 hover:bg-hover"
                     }`}
                   >
                     <span className={`w-6 h-6 rounded-full inline-flex items-center justify-center text-[10px] font-bold ${colorFor(p.id)}`}>
                       {(p.full_name ?? p.email)[0]?.toUpperCase()}
                     </span>
                     <span className="flex-1 truncate">{p.full_name ?? p.email}</span>
-                    <span className={`w-5 h-5 rounded border flex items-center justify-center ${isOn ? "bg-zinc-900 border-zinc-900 text-white" : "border-zinc-300"}`}>
+                    <span className={`w-5 h-5 rounded border flex items-center justify-center ${isOn ? "bg-ink border-ink text-white" : "border-line-strong"}`}>
                       {isOn && (
                         <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
                           <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -150,12 +150,12 @@ export function TaskEditForm({
             type="button"
             onClick={saveAssignees}
             disabled={savingAssignees}
-            className="h-10 px-4 text-xs font-semibold bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 active:bg-zinc-700 disabled:opacity-50"
+            className="h-10 px-4 text-xs font-semibold bg-ink text-white rounded-lg hover:bg-ink active:bg-ink disabled:opacity-50"
           >
             {savingAssignees ? "Saving…" : "Save tags"}
           </button>
           {assigneeMsg && (
-            <span className={`text-xs ${assigneeMsg === "Tags saved." ? "text-emerald-700" : "text-red-600"}`}>
+            <span className={`text-xs ${assigneeMsg === "Tags saved." ? "text-brand" : "text-danger"}`}>
               {assigneeMsg}
             </span>
           )}
@@ -170,7 +170,7 @@ export function TaskEditForm({
           name="title"
           defaultValue={task.title}
           required
-          className="w-full text-lg font-semibold border-0 border-b border-zinc-200 pb-2 focus:outline-none focus:border-zinc-400 bg-transparent text-zinc-900 placeholder:text-zinc-400"
+          className="w-full text-lg font-semibold border-0 border-b border-line pb-2 focus:outline-none focus:border-line-strong bg-transparent text-ink placeholder:text-ink-4"
           placeholder="Task title"
         />
 
@@ -179,12 +179,12 @@ export function TaskEditForm({
           defaultValue={task.description ?? ""}
           rows={3}
           placeholder="Add a description…"
-          className="w-full text-base border border-zinc-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 placeholder:text-zinc-400 resize-none"
+          className="w-full text-base border border-line-strong rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink placeholder:text-ink-4 resize-none"
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Status</label>
+            <label className="block text-xs font-semibold text-ink-2 mb-1.5">Status</label>
             <select name="status" defaultValue={task.status} className={field}>
               <option value="inbox">Inbox</option>
               <option value="in_progress">In Progress</option>
@@ -195,7 +195,7 @@ export function TaskEditForm({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Priority</label>
+            <label className="block text-xs font-semibold text-ink-2 mb-1.5">Priority</label>
             <select name="priority" defaultValue={task.priority} className={field}>
               <option value="low">Low</option>
               <option value="normal">Normal</option>
@@ -204,13 +204,13 @@ export function TaskEditForm({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Due date</label>
+            <label className="block text-xs font-semibold text-ink-2 mb-1.5">Due date</label>
             <input type="date" name="due_date" defaultValue={task.due_date ?? ""} className={field} />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Blocked reason</label>
+          <label className="block text-xs font-semibold text-ink-2 mb-1.5">Blocked reason</label>
           <input
             name="blocked_reason"
             defaultValue={task.blocked_reason ?? ""}
@@ -220,17 +220,17 @@ export function TaskEditForm({
         </div>
 
         {state.success && (
-          <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-3 py-2">Saved.</p>
+          <p className="text-sm text-brand bg-brand-tint border border-brand/30 rounded-xl px-3 py-2">Saved.</p>
         )}
         {state.error && (
-          <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{state.error}</p>
+          <p className="text-sm text-danger bg-danger-tint border border-danger/30 rounded-xl px-3 py-2">{state.error}</p>
         )}
 
         <div className="flex justify-end">
           <button
             type="submit"
             disabled={isPending}
-            className="h-11 px-5 text-sm font-semibold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 active:bg-zinc-700 disabled:opacity-50"
+            className="h-11 px-5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink active:bg-ink disabled:opacity-50"
           >
             {isPending ? "Saving…" : "Save Changes"}
           </button>

@@ -112,7 +112,7 @@ export function QuickCapture({ serviceLines }: { serviceLines: string[] }) {
         onDragLeave={() => setDragOver(false)}
         onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
         className={`rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
-          dragOver ? "border-emerald-400 bg-emerald-50" : "border-zinc-300 bg-white hover:border-zinc-400"
+          dragOver ? "border-brand/30 bg-brand-tint" : "border-line-strong bg-white hover:border-line-strong"
         }`}
       >
         <input
@@ -123,28 +123,28 @@ export function QuickCapture({ serviceLines }: { serviceLines: string[] }) {
           className="hidden"
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
         />
-        <p className="text-sm font-semibold text-zinc-800">
+        <p className="text-sm font-semibold text-ink">
           {busy ? "Uploading…" : "Drop voice memos or photos here — or tap to choose"}
         </p>
-        <p className="text-xs text-zinc-500 mt-1">
+        <p className="text-xs text-ink-3 mt-1">
           Audio &amp; images up to 30 MB. They upload instantly and the whole team can see them. (Video? Paste a Drive/YouTube link in “Add content”.)
         </p>
-        {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
+        {error && <p className="text-xs text-danger mt-2">{error}</p>}
       </div>
 
       {justAdded.length > 0 && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-3">
-          <p className="text-xs font-semibold text-zinc-600">Just added — tap a service line to categorize</p>
+        <div className="rounded-xl border border-line bg-white p-4 space-y-3">
+          <p className="text-xs font-semibold text-ink-2">Just added — tap a service line to categorize</p>
           {justAdded.map((u) => (
-            <div key={u.id} className="flex items-start gap-3 border-t border-zinc-100 pt-3 first:border-0 first:pt-0">
+            <div key={u.id} className="flex items-start gap-3 border-t border-line pt-3 first:border-0 first:pt-0">
               {u.isImage && u.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={u.url} alt={u.title} className="h-12 w-12 rounded object-cover border border-zinc-200" />
+                <img src={u.url} alt={u.title} className="h-12 w-12 rounded object-cover border border-line" />
               ) : (
-                <span className="h-12 w-12 rounded bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg">♪</span>
+                <span className="h-12 w-12 rounded bg-brand-tint text-brand flex items-center justify-center text-lg">♪</span>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-zinc-900 truncate">{u.title}</p>
+                <p className="text-sm font-medium text-ink truncate">{u.title}</p>
                 {u.url && !u.isImage && <audio controls preload="none" src={u.url} className="h-8 mt-1 w-full max-w-xs" />}
                 <div className="flex flex-wrap gap-1 mt-1.5">
                   {serviceLines.map((s) => (
@@ -153,7 +153,7 @@ export function QuickCapture({ serviceLines }: { serviceLines: string[] }) {
                       type="button"
                       onClick={() => setServiceLine(u.id, s)}
                       className={`text-[11px] px-2 py-0.5 rounded-full border ${
-                        u.service_line === s ? "bg-zinc-900 text-white border-zinc-900" : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
+                        u.service_line === s ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"
                       }`}
                     >
                       {s.replace(/_/g, " ")}

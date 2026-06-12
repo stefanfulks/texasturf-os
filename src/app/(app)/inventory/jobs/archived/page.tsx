@@ -19,66 +19,66 @@ export default async function ArchivedJobsPage() {
     <div className="space-y-6">
       <Link
         href="/inventory/jobs"
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink"
       >
         ← Jobs
       </Link>
 
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Archived Jobs</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
+        <p className="text-sm text-ink-3 mt-0.5">
           {jobs.length} archived job{jobs.length !== 1 ? "s" : ""}
         </p>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
         {jobs.length === 0 ? (
-          <div className="py-16 text-center text-sm text-zinc-400">No archived jobs.</div>
+          <div className="py-16 text-center text-sm text-ink-4">No archived jobs.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Job #</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Job Name</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Site Address</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Archived</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Actions</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Job #</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Job Name</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Site Address</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Archived</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {jobs.map((job) => {
                   const restoreAction = restoreJob.bind(null, job.id);
                   return (
-                    <tr key={job.id} className="border-b border-zinc-50">
-                      <td className="px-4 py-3 font-medium text-zinc-900">
+                    <tr key={job.id} className="border-b border-line">
+                      <td className="px-4 py-3 font-medium text-ink">
                         <Link href={`/inventory/jobs/${job.id}`} className="hover:underline">
                           {job.job_number ?? "—"}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-zinc-700">
+                      <td className="px-4 py-3 text-ink-2">
                         <Link href={`/inventory/jobs/${job.id}`} className="hover:underline">
                           {job.job_name}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-zinc-500 truncate max-w-[260px]">
-                        {job.site_address ?? <span className="text-zinc-300">—</span>}
+                      <td className="px-4 py-3 text-ink-3 truncate max-w-[260px]">
+                        {job.site_address ?? <span className="text-ink-4">—</span>}
                       </td>
-                      <td className="px-4 py-3 text-zinc-400 text-xs">
+                      <td className="px-4 py-3 text-ink-4 text-xs">
                         {format(parseISO(job.updated_at), "MMM d, yyyy")}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/inventory/jobs/${job.id}`}
-                            className="text-xs px-2.5 py-1 rounded-md border border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400"
+                            className="text-xs px-2.5 py-1 rounded-md border border-line bg-white text-ink-2 hover:border-line-strong"
                           >
                             View
                           </Link>
                           <form action={restoreAction}>
                             <button
                               type="submit"
-                              className="text-xs px-2.5 py-1 rounded-md border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-500"
+                              className="text-xs px-2.5 py-1 rounded-md border border-line-strong bg-white text-ink-2 hover:border-line-strong"
                             >
                               Restore
                             </button>

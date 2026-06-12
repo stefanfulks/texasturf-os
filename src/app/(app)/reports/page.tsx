@@ -238,20 +238,20 @@ export default async function ReportsPage({
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-10">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-2xl font-bold text-zinc-900">Reports</h1>
+        <h1 className="text-2xl font-bold text-ink">Reports</h1>
         <div className="flex items-center gap-3 text-sm">
           <Link
             href={`/reports?month=${prev.month}&year=${prev.year}`}
-            className="px-3 py-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 font-medium transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-line bg-white hover:bg-hover text-ink-2 font-medium transition-colors"
           >
             &larr; Prev
           </Link>
-          <span className="font-semibold text-zinc-900 min-w-[110px] text-center">
+          <span className="font-semibold text-ink min-w-[110px] text-center">
             {monthName(month, year)}
           </span>
           <Link
             href={`/reports?month=${next.month}&year=${next.year}`}
-            className="px-3 py-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 font-medium transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-line bg-white hover:bg-hover text-ink-2 font-medium transition-colors"
           >
             Next &rarr;
           </Link>
@@ -260,31 +260,31 @@ export default async function ReportsPage({
 
       {/* Section 1 — Financial Overview */}
       <section>
-        <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+        <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
           Financial Overview
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">Total Submitted</p>
-            <p className="text-2xl font-bold text-zinc-900">${fmt(totalSubmitted)}</p>
-            <p className="text-xs text-zinc-400 mt-1">{submittedCount} invoice{submittedCount !== 1 ? "s" : ""}</p>
+          <div className="rounded-xl border border-line bg-white p-5">
+            <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">Total Submitted</p>
+            <p className="text-2xl font-bold text-ink">${fmt(totalSubmitted)}</p>
+            <p className="text-xs text-ink-4 mt-1">{submittedCount} invoice{submittedCount !== 1 ? "s" : ""}</p>
           </div>
-          <div className="rounded-xl border border-zinc-200 bg-green-50 p-5">
-            <p className="text-xs font-medium text-green-700 uppercase tracking-wide mb-1">Total Approved</p>
-            <p className="text-2xl font-bold text-green-800">${fmt(totalApproved)}</p>
-            <p className="text-xs text-green-600 mt-1">{approvedCount} invoice{approvedCount !== 1 ? "s" : ""}</p>
+          <div className="rounded-xl border border-line bg-brand-tint p-5">
+            <p className="text-xs font-medium text-brand uppercase tracking-wide mb-1">Total Approved</p>
+            <p className="text-2xl font-bold text-brand">${fmt(totalApproved)}</p>
+            <p className="text-xs text-brand mt-1">{approvedCount} invoice{approvedCount !== 1 ? "s" : ""}</p>
           </div>
-          <div className="rounded-xl border border-zinc-200 bg-emerald-50 p-5">
-            <p className="text-xs font-medium text-emerald-700 uppercase tracking-wide mb-1">Total Paid</p>
-            <p className="text-2xl font-bold text-emerald-800">${fmt(totalPaid)}</p>
-            <p className="text-xs text-emerald-600 mt-1">{paidCount} invoice{paidCount !== 1 ? "s" : ""}</p>
+          <div className="rounded-xl border border-line bg-brand-tint p-5">
+            <p className="text-xs font-medium text-brand uppercase tracking-wide mb-1">Total Paid</p>
+            <p className="text-2xl font-bold text-brand">${fmt(totalPaid)}</p>
+            <p className="text-xs text-brand mt-1">{paidCount} invoice{paidCount !== 1 ? "s" : ""}</p>
           </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">Avg Approval Time</p>
-            <p className="text-2xl font-bold text-zinc-900">
+          <div className="rounded-xl border border-line bg-white p-5">
+            <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">Avg Approval Time</p>
+            <p className="text-2xl font-bold text-ink">
               {avgApprovalDays !== null ? `${avgApprovalDays.toFixed(1)} days` : "—"}
             </p>
-            <p className="text-xs text-zinc-400 mt-1">
+            <p className="text-xs text-ink-4 mt-1">
               {avgPaymentDays !== null ? `${avgPaymentDays.toFixed(1)} days to pay` : "No payments this period"}
             </p>
           </div>
@@ -294,21 +294,21 @@ export default async function ReportsPage({
       {/* Section 2 — Budget vs Actual */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">Budget vs Actual</p>
+          <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide">Budget vs Actual</p>
           <Link
             href={`/reports/budget?month=${month}&year=${year}`}
-            className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-medium"
+            className="text-sm text-ink-3 hover:text-ink transition-colors font-medium"
           >
             Edit Budget &rarr;
           </Link>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+        <div className="rounded-xl border border-line bg-white overflow-hidden">
           {budgets.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-sm text-zinc-400 mb-3">No budget set for this period.</p>
+              <p className="text-sm text-ink-4 mb-3">No budget set for this period.</p>
               <Link
                 href={`/reports/budget?month=${month}&year=${year}`}
-                className="text-sm font-semibold text-zinc-700 hover:text-zinc-900 underline underline-offset-2"
+                className="text-sm font-semibold text-ink-2 hover:text-ink underline underline-offset-2"
               >
                 Set budget for {monthName(month, year)}
               </Link>
@@ -316,12 +316,12 @@ export default async function ReportsPage({
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Category</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Budget</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Actual</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Variance</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">% Used</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Category</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Budget</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Actual</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Variance</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">% Used</th>
                 </tr>
               </thead>
               <tbody>
@@ -332,14 +332,14 @@ export default async function ReportsPage({
                   const variance = actual - budgeted;
                   const pctUsed = budgeted > 0 ? (actual / budgeted) * 100 : null;
                   return (
-                    <tr key={cat} className="border-b border-zinc-50 hover:bg-zinc-50/50">
-                      <td className="px-4 py-3 text-zinc-700 font-medium">{CATEGORY_LABELS[cat]}</td>
-                      <td className="px-4 py-3 text-right text-zinc-600">${fmt(budgeted)}</td>
-                      <td className="px-4 py-3 text-right text-zinc-800 font-medium">${fmt(actual)}</td>
-                      <td className={`px-4 py-3 text-right font-medium ${variance > 0 ? "text-red-600" : "text-green-700"}`}>
+                    <tr key={cat} className="border-b border-line hover:bg-hover/50">
+                      <td className="px-4 py-3 text-ink-2 font-medium">{CATEGORY_LABELS[cat]}</td>
+                      <td className="px-4 py-3 text-right text-ink-2">${fmt(budgeted)}</td>
+                      <td className="px-4 py-3 text-right text-ink font-medium">${fmt(actual)}</td>
+                      <td className={`px-4 py-3 text-right font-medium ${variance > 0 ? "text-danger" : "text-brand"}`}>
                         {variance > 0 ? "+" : ""}{fmt(variance)}
                       </td>
-                      <td className="px-4 py-3 text-right text-zinc-500">
+                      <td className="px-4 py-3 text-right text-ink-3">
                         {pctUsed !== null ? `${pctUsed.toFixed(0)}%` : "—"}
                       </td>
                     </tr>
@@ -347,19 +347,19 @@ export default async function ReportsPage({
                 })}
               </tbody>
               <tfoot>
-                <tr className="border-t-2 border-zinc-200 bg-zinc-50">
-                  <td className="px-4 py-3 font-bold text-zinc-800">Total</td>
-                  <td className="px-4 py-3 text-right font-bold text-zinc-800">
+                <tr className="border-t-2 border-line bg-hover">
+                  <td className="px-4 py-3 font-bold text-ink">Total</td>
+                  <td className="px-4 py-3 text-right font-bold text-ink">
                     ${fmt(budgets.reduce((s, b) => s + (b.budgeted_amount ?? 0), 0))}
                   </td>
-                  <td className="px-4 py-3 text-right font-bold text-zinc-800">
+                  <td className="px-4 py-3 text-right font-bold text-ink">
                     ${fmt(CATEGORIES.reduce((s, c) => s + (spendByCategory[c] ?? 0), 0))}
                   </td>
                   <td className={`px-4 py-3 text-right font-bold ${
                     CATEGORIES.reduce((s, c) => s + (spendByCategory[c] ?? 0), 0) -
                     budgets.reduce((s, b) => s + (b.budgeted_amount ?? 0), 0) > 0
-                      ? "text-red-600"
-                      : "text-green-700"
+                      ? "text-danger"
+                      : "text-brand"
                   }`}>
                     {(() => {
                       const v =
@@ -368,7 +368,7 @@ export default async function ReportsPage({
                       return `${v > 0 ? "+" : ""}${fmt(v)}`;
                     })()}
                   </td>
-                  <td className="px-4 py-3 text-right text-zinc-500">
+                  <td className="px-4 py-3 text-right text-ink-3">
                     {(() => {
                       const totalBudgeted = budgets.reduce((s, b) => s + (b.budgeted_amount ?? 0), 0);
                       const totalActual = CATEGORIES.reduce((s, c) => s + (spendByCategory[c] ?? 0), 0);
@@ -384,7 +384,7 @@ export default async function ReportsPage({
 
       {/* Section 3 — Invoice Pipeline */}
       <section>
-        <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+        <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
           Open Invoice Pipeline
         </p>
         <div className="flex flex-wrap gap-2">
@@ -395,48 +395,48 @@ export default async function ReportsPage({
               <Link
                 key={status}
                 href={`/invoices?status=${STATUS_LABELS[status]}`}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors text-sm font-medium text-zinc-700"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-line bg-white hover:bg-hover transition-colors text-sm font-medium text-ink-2"
               >
                 {STATUS_LABELS[status]}
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-zinc-900 text-white text-xs font-bold">
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-ink text-white text-xs font-bold">
                   {count}
                 </span>
               </Link>
             );
           })}
           {OPEN_STATUSES.every((s) => !pipelineCounts[s]) && (
-            <p className="text-sm text-zinc-400">No open invoices.</p>
+            <p className="text-sm text-ink-4">No open invoices.</p>
           )}
         </div>
       </section>
 
       {/* Section 4 — Top Vendors */}
       <section>
-        <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide mb-3">
+        <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
           Top Vendors This Period
         </p>
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+        <div className="rounded-xl border border-line bg-white overflow-hidden">
           {topVendors.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-sm text-zinc-400">No invoices this period.</p>
+              <p className="text-sm text-ink-4">No invoices this period.</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Vendor</th>
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Type</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Invoices</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Total Amount</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Vendor</th>
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Type</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Invoices</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Total Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {topVendors.map((v) => (
-                  <tr key={v.vendorId} className="border-b border-zinc-50 hover:bg-zinc-50/50">
-                    <td className="px-4 py-3 font-medium text-zinc-800">{v.name}</td>
-                    <td className="px-4 py-3 text-zinc-500 capitalize">{v.type.replace("_", " ")}</td>
-                    <td className="px-4 py-3 text-right text-zinc-600">{v.count}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-zinc-800">${fmt(v.total)}</td>
+                  <tr key={v.vendorId} className="border-b border-line hover:bg-hover/50">
+                    <td className="px-4 py-3 font-medium text-ink">{v.name}</td>
+                    <td className="px-4 py-3 text-ink-3 capitalize">{v.type.replace("_", " ")}</td>
+                    <td className="px-4 py-3 text-right text-ink-2">{v.count}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-ink">${fmt(v.total)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -448,20 +448,20 @@ export default async function ReportsPage({
       {/* Section 5 — KPI Tracking */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wide">KPI Tracking</p>
+          <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide">KPI Tracking</p>
           <Link
             href={`/reports/kpis?month=${month}&year=${year}`}
-            className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-medium"
+            className="text-sm text-ink-3 hover:text-ink transition-colors font-medium"
           >
             Edit KPIs &rarr;
           </Link>
         </div>
         {kpiEntries.length === 0 ? (
-          <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center">
-            <p className="text-sm text-zinc-400 mb-3">No KPIs entered for this period.</p>
+          <div className="rounded-xl border border-line bg-white p-8 text-center">
+            <p className="text-sm text-ink-4 mb-3">No KPIs entered for this period.</p>
             <Link
               href={`/reports/kpis?month=${month}&year=${year}`}
-              className="text-sm font-semibold text-zinc-700 hover:text-zinc-900 underline underline-offset-2"
+              className="text-sm font-semibold text-ink-2 hover:text-ink underline underline-offset-2"
             >
               Add KPIs for {monthName(month, year)}
             </Link>
@@ -471,29 +471,29 @@ export default async function ReportsPage({
             {kpiEntries.map((kpi) => {
               const actual = kpi.actual_value;
               const target = kpi.target_value;
-              let indicatorClass = "text-zinc-400";
+              let indicatorClass = "text-ink-4";
               if (actual !== null && target !== null && target !== 0) {
                 const ratio = actual / target;
-                if (ratio >= 1) indicatorClass = "text-green-700";
-                else if (ratio >= 0.9) indicatorClass = "text-amber-600";
-                else indicatorClass = "text-red-600";
+                if (ratio >= 1) indicatorClass = "text-brand";
+                else if (ratio >= 0.9) indicatorClass = "text-warn";
+                else indicatorClass = "text-danger";
               }
               return (
-                <div key={kpi.id} className="rounded-xl border border-zinc-200 bg-white p-5">
-                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2 truncate">
+                <div key={kpi.id} className="rounded-xl border border-line bg-white p-5">
+                  <p className="text-xs font-semibold text-ink-3 uppercase tracking-wide mb-2 truncate">
                     {kpi.kpi_label}
                   </p>
                   <p className={`text-2xl font-bold ${indicatorClass}`}>
                     {actual !== null ? actual.toLocaleString("en-US") : "—"}
-                    {kpi.unit && <span className="text-sm font-normal text-zinc-400 ml-1">{kpi.unit}</span>}
+                    {kpi.unit && <span className="text-sm font-normal text-ink-4 ml-1">{kpi.unit}</span>}
                   </p>
                   {target !== null && (
-                    <p className="text-xs text-zinc-400 mt-1">
+                    <p className="text-xs text-ink-4 mt-1">
                       Target: {target.toLocaleString("en-US")}{kpi.unit ? ` ${kpi.unit}` : ""}
                     </p>
                   )}
                   {kpi.notes && (
-                    <p className="text-xs text-zinc-400 mt-1 italic truncate">{kpi.notes}</p>
+                    <p className="text-xs text-ink-4 mt-1 italic truncate">{kpi.notes}</p>
                   )}
                 </div>
               );

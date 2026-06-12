@@ -9,7 +9,7 @@ function fmtUSD(cents: number): string {
 }
 
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+  "w-full text-sm border border-line rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 
 /**
  * A single budget row. Default state shows the period + amount + spend bar.
@@ -52,20 +52,20 @@ export function BudgetRow({ budget }: { budget: BudgetWithSpend }) {
 
   if (editing) {
     return (
-      <tr className="border-t border-zinc-200 bg-zinc-50">
+      <tr className="border-t border-line bg-hover">
         <td colSpan={6} className="px-3 py-3">
           <form action={handleUpdate} className="flex flex-wrap items-end gap-2">
             <input type="hidden" name="id" value={budget.id} />
             <div>
-              <label className="block text-[10px] uppercase tracking-wide text-zinc-500">Start</label>
+              <label className="block text-[10px] uppercase tracking-wide text-ink-3">Start</label>
               <input type="date" name="period_start" defaultValue={budget.period_start} required className={field} />
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-wide text-zinc-500">End</label>
+              <label className="block text-[10px] uppercase tracking-wide text-ink-3">End</label>
               <input type="date" name="period_end" defaultValue={budget.period_end} required className={field} />
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-wide text-zinc-500">Amount (USD)</label>
+              <label className="block text-[10px] uppercase tracking-wide text-ink-3">Amount (USD)</label>
               <input
                 type="number" step="0.01" min="0.01"
                 name="amount"
@@ -75,14 +75,14 @@ export function BudgetRow({ budget }: { budget: BudgetWithSpend }) {
               />
             </div>
             <div className="flex-1 min-w-[160px]">
-              <label className="block text-[10px] uppercase tracking-wide text-zinc-500">Notes</label>
+              <label className="block text-[10px] uppercase tracking-wide text-ink-3">Notes</label>
               <input name="notes" defaultValue={budget.notes ?? ""} placeholder="Optional" className={field} />
             </div>
             <div className="flex items-center gap-1">
               <button
                 type="submit"
                 disabled={isPending}
-                className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+                className="rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white hover:bg-ink disabled:opacity-50"
               >
                 {isPending ? "Saving…" : "Save"}
               </button>
@@ -90,13 +90,13 @@ export function BudgetRow({ budget }: { budget: BudgetWithSpend }) {
                 type="button"
                 onClick={() => { setEditing(false); setError(null); }}
                 disabled={isPending}
-                className="px-2 py-1.5 text-xs text-zinc-600 hover:text-zinc-900"
+                className="px-2 py-1.5 text-xs text-ink-2 hover:text-ink"
               >
                 Cancel
               </button>
             </div>
             {error && (
-              <p className="basis-full text-xs text-red-700">{error}</p>
+              <p className="basis-full text-xs text-danger">{error}</p>
             )}
           </form>
         </td>
@@ -105,11 +105,11 @@ export function BudgetRow({ budget }: { budget: BudgetWithSpend }) {
   }
 
   return (
-    <tr className="border-t border-zinc-200 hover:bg-zinc-50">
+    <tr className="border-t border-line hover:bg-hover">
       <td className="px-3 py-2 tabular-nums whitespace-nowrap">
         {budget.period_start} → {budget.period_end}
         {budget.is_active && (
-          <span className="ml-2 inline-block rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-800 uppercase tracking-wide">
+          <span className="ml-2 inline-block rounded-full bg-brand-tint px-2 py-0.5 text-[10px] font-medium text-brand uppercase tracking-wide">
             Active
           </span>
         )}
@@ -118,24 +118,24 @@ export function BudgetRow({ budget }: { budget: BudgetWithSpend }) {
       <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(budget.spent_cents)}</td>
       <td className="px-3 py-2 text-right">
         <div className="flex items-center justify-end gap-2">
-          <span className={"tabular-nums " + (over ? "text-red-700 font-medium" : "text-zinc-700")}>
+          <span className={"tabular-nums " + (over ? "text-danger font-medium" : "text-ink-2")}>
             {pct}%
           </span>
-          <div className="h-1.5 w-16 rounded-full bg-zinc-100 overflow-hidden">
+          <div className="h-1.5 w-16 rounded-full bg-sunken overflow-hidden">
             <div
-              className={"h-full " + (over ? "bg-red-500" : "bg-zinc-900")}
+              className={"h-full " + (over ? "bg-danger" : "bg-ink")}
               style={{ width: `${Math.min(pct, 100)}%` }}
             />
           </div>
         </div>
       </td>
-      <td className="px-3 py-2 text-zinc-600 max-w-xs truncate">{budget.notes ?? "—"}</td>
+      <td className="px-3 py-2 text-ink-2 max-w-xs truncate">{budget.notes ?? "—"}</td>
       <td className="px-3 py-2 text-right">
         <div className="flex justify-end gap-2">
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="text-xs font-medium text-zinc-700 hover:text-zinc-900"
+            className="text-xs font-medium text-ink-2 hover:text-ink"
           >
             Edit
           </button>
@@ -144,14 +144,14 @@ export function BudgetRow({ budget }: { budget: BudgetWithSpend }) {
             <button
               type="submit"
               disabled={isPending}
-              className="text-xs font-medium text-red-600 hover:text-red-800 disabled:opacity-50"
+              className="text-xs font-medium text-danger hover:text-danger disabled:opacity-50"
             >
               Delete
             </button>
           </form>
         </div>
         {error && (
-          <p className="mt-1 text-xs text-red-700">{error}</p>
+          <p className="mt-1 text-xs text-danger">{error}</p>
         )}
       </td>
     </tr>

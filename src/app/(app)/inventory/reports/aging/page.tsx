@@ -17,11 +17,11 @@ type Bucket = {
 };
 
 const BUCKETS: Bucket[] = [
-  { id: "0-30",   label: "0–30 days",   min: 0,   max: 30,  color: "bg-green-50 text-green-700 border-green-200" },
-  { id: "31-60",  label: "31–60 days",  min: 31,  max: 60,  color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  { id: "61-90",  label: "61–90 days",  min: 61,  max: 90,  color: "bg-amber-50 text-amber-700 border-amber-200" },
-  { id: "91-180", label: "91–180 days", min: 91,  max: 180, color: "bg-orange-50 text-orange-700 border-orange-200" },
-  { id: "180+",   label: "180+ days",   min: 181, max: Infinity, color: "bg-red-50 text-red-700 border-red-200" },
+  { id: "0-30",   label: "0–30 days",   min: 0,   max: 30,  color: "bg-brand-tint text-brand border-brand/30" },
+  { id: "31-60",  label: "31–60 days",  min: 31,  max: 60,  color: "bg-brand-tint text-brand border-brand/30" },
+  { id: "61-90",  label: "61–90 days",  min: 61,  max: 90,  color: "bg-warn-tint text-warn border-warn/30" },
+  { id: "91-180", label: "91–180 days", min: 91,  max: 180, color: "bg-warn-tint text-warn border-warn/30" },
+  { id: "180+",   label: "180+ days",   min: 181, max: Infinity, color: "bg-danger-tint text-danger border-danger/30" },
 ];
 
 function daysSince(iso: string) {
@@ -90,14 +90,14 @@ export default async function AgingReportPage() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Aging Report</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             Available rolls bucketed by days in stock. Older rolls should move first.
           </p>
         </div>
         <div className="flex gap-2">
           <Link
             href="/api/inventory/reports/aging.csv"
-            className="flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 hover:border-zinc-500 hover:text-zinc-900"
+            className="flex items-center gap-2 rounded-xl border border-line-strong bg-white px-4 py-2.5 text-sm font-semibold text-ink-2 hover:border-line-strong hover:text-ink"
           >
             Export CSV
           </Link>
@@ -116,60 +116,60 @@ export default async function AgingReportPage() {
       </div>
 
       {/* Old rolls table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zinc-900">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-ink">
             Rolls sitting 91+ days
           </h2>
-          <span className="text-xs text-zinc-400">{oldRolls.length} roll{oldRolls.length !== 1 ? "s" : ""}</span>
+          <span className="text-xs text-ink-4">{oldRolls.length} roll{oldRolls.length !== 1 ? "s" : ""}</span>
         </div>
         {oldRolls.length === 0 ? (
-          <div className="py-12 text-center text-sm text-zinc-400">
+          <div className="py-12 text-center text-sm text-ink-4">
             No rolls have been sitting that long.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">TT SKU</th>
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Product</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Width</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Length</th>
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Location</th>
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Received</th>
-                  <th className="text-right px-4 py-3 font-semibold text-zinc-600">Days</th>
-                  <th className="text-left px-4 py-3 font-semibold text-zinc-600">Status</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">TT SKU</th>
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Product</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Width</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Length</th>
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Location</th>
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Received</th>
+                  <th className="text-right px-4 py-3 font-semibold text-ink-2">Days</th>
+                  <th className="text-left px-4 py-3 font-semibold text-ink-2">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100">
+              <tbody className="divide-y divide-line">
                 {oldRolls.map(({ roll, days, bucket }) => (
-                  <tr key={roll.id} className="hover:bg-zinc-50">
+                  <tr key={roll.id} className="hover:bg-hover">
                     <td className="px-4 py-3 font-mono text-xs">
                       <Link
                         href={`/inventory/rolls/${roll.id}`}
-                        className="text-zinc-800 hover:underline"
+                        className="text-ink hover:underline"
                       >
                         {roll.tt_sku_tag_number ?? roll.id.slice(0, 8)}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-zinc-700">
+                    <td className="px-4 py-3 text-ink-2">
                       {roll.product_id
                         ? productMap.get(roll.product_id) ?? roll.product_name ?? "—"
                         : roll.product_name ?? "—"}
                     </td>
-                    <td className="px-4 py-3 text-right text-zinc-600">
+                    <td className="px-4 py-3 text-right text-ink-2">
                       {roll.width_ft != null ? `${roll.width_ft} ft` : "—"}
                     </td>
-                    <td className="px-4 py-3 text-right text-zinc-600">
+                    <td className="px-4 py-3 text-right text-ink-2">
                       {roll.current_length_ft != null
                         ? `${Math.round(roll.current_length_ft)} ft`
                         : "—"}
                     </td>
-                    <td className="px-4 py-3 text-xs text-zinc-500">
+                    <td className="px-4 py-3 text-xs text-ink-3">
                       {roll.location_id ? locationMap.get(roll.location_id) ?? "—" : "—"}
                     </td>
-                    <td className="px-4 py-3 text-xs text-zinc-500 whitespace-nowrap">
+                    <td className="px-4 py-3 text-xs text-ink-3 whitespace-nowrap">
                       {format(parseISO(roll.created_at), "MMM d, yyyy")}
                     </td>
                     <td className="px-4 py-3 text-right">

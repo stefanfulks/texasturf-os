@@ -65,11 +65,11 @@ export default async function MaintenanceDetailPage({ params }: { params: Params
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <Link href="/operations/vehicles" className="text-xs text-zinc-500 hover:text-zinc-900">
+        <Link href="/operations/vehicles" className="text-xs text-ink-3 hover:text-ink">
           ← All maintenance
         </Link>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">{log.description}</h1>
-        <p className="mt-0.5 text-sm text-zinc-500">{fmtDate(log.performed_at)}</p>
+        <p className="mt-0.5 text-sm text-ink-3">{fmtDate(log.performed_at)}</p>
       </div>
 
       <Card title="Vehicle">
@@ -87,7 +87,7 @@ export default async function MaintenanceDetailPage({ params }: { params: Params
             value={
               <Link
                 href={`/operations/vehicles?asset=${log.asset_id}`}
-                className="text-xs text-zinc-700 hover:text-zinc-900 underline-offset-2 hover:underline"
+                className="text-xs text-ink-2 hover:text-ink underline-offset-2 hover:underline"
               >
                 View all logs for this vehicle →
               </Link>
@@ -115,7 +115,7 @@ export default async function MaintenanceDetailPage({ params }: { params: Params
             href={log.invoice_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-zinc-700 underline-offset-2 hover:underline break-all"
+            className="text-sm text-ink-2 underline-offset-2 hover:underline break-all"
           >
             {log.invoice_url}
           </a>
@@ -124,7 +124,7 @@ export default async function MaintenanceDetailPage({ params }: { params: Params
 
       {log.notes && (
         <Card title="Notes">
-          <p className="whitespace-pre-wrap text-sm text-zinc-700">{log.notes}</p>
+          <p className="whitespace-pre-wrap text-sm text-ink-2">{log.notes}</p>
         </Card>
       )}
     </div>
@@ -133,7 +133,7 @@ export default async function MaintenanceDetailPage({ params }: { params: Params
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
+    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
       <h2 className="text-sm font-semibold">{title}</h2>
       {children}
     </section>
@@ -143,8 +143,8 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 function Stat({ name, value }: { name: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="text-zinc-500">{name}</span>
-      <span className="font-medium text-zinc-900 text-right">{value}</span>
+      <span className="text-ink-3">{name}</span>
+      <span className="font-medium text-ink text-right">{value}</span>
     </div>
   );
 }

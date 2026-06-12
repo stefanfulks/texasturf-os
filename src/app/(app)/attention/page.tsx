@@ -21,22 +21,22 @@ function fmtMoney(n: number | null | undefined): string {
 // ─── status badge ───────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, string> = {
-  submitted: "bg-blue-100 text-blue-700",
-  ocr_processing: "bg-purple-100 text-purple-700",
-  ocr_review_needed: "bg-yellow-100 text-yellow-700",
-  awaiting_review: "bg-yellow-100 text-yellow-700",
-  awaiting_approval: "bg-orange-100 text-orange-700",
-  approved: "bg-green-100 text-green-700",
-  request_change: "bg-red-100 text-red-700",
-  rejected: "bg-red-100 text-red-700",
-  on_hold: "bg-zinc-100 text-zinc-500",
-  paid: "bg-green-100 text-green-700",
-  archived: "bg-zinc-100 text-zinc-400",
-  draft: "bg-zinc-100 text-zinc-400",
+  submitted: "bg-info-tint text-info",
+  ocr_processing: "bg-info-tint text-info",
+  ocr_review_needed: "bg-warn-tint text-warn",
+  awaiting_review: "bg-warn-tint text-warn",
+  awaiting_approval: "bg-warn-tint text-warn",
+  approved: "bg-brand-tint text-brand",
+  request_change: "bg-danger-tint text-danger",
+  rejected: "bg-danger-tint text-danger",
+  on_hold: "bg-sunken text-ink-3",
+  paid: "bg-brand-tint text-brand",
+  archived: "bg-sunken text-ink-4",
+  draft: "bg-sunken text-ink-4",
 };
 
 function StatusBadge({ status }: { status: string }) {
-  const cls = STATUS_COLORS[status] ?? "bg-zinc-100 text-zinc-500";
+  const cls = STATUS_COLORS[status] ?? "bg-sunken text-ink-3";
   return (
     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>
       {status.replace(/_/g, " ")}
@@ -45,14 +45,14 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
-  urgent: "bg-red-100 text-red-700",
-  high: "bg-orange-100 text-orange-700",
-  normal: "bg-blue-100 text-blue-700",
-  low: "bg-zinc-100 text-zinc-500",
+  urgent: "bg-danger-tint text-danger",
+  high: "bg-warn-tint text-warn",
+  normal: "bg-info-tint text-info",
+  low: "bg-sunken text-ink-3",
 };
 
 function PriorityBadge({ priority }: { priority: string }) {
-  const cls = PRIORITY_COLORS[priority] ?? "bg-zinc-100 text-zinc-500";
+  const cls = PRIORITY_COLORS[priority] ?? "bg-sunken text-ink-3";
   return (
     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>
       {priority}
@@ -74,30 +74,30 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100">
+    <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-line">
         <div className="flex items-center gap-2.5">
           <span className="text-lg">{icon}</span>
-          <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
+          <h2 className="text-sm font-semibold text-ink">{title}</h2>
         </div>
         {count > 0 ? (
-          <span className="inline-flex items-center justify-center rounded-full bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 min-w-[1.5rem]">
+          <span className="inline-flex items-center justify-center rounded-full bg-danger-tint text-danger text-xs font-bold px-2 py-0.5 min-w-[1.5rem]">
             {count}
           </span>
         ) : (
-          <span className="inline-flex items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5">
+          <span className="inline-flex items-center justify-center rounded-full bg-brand-tint text-brand text-xs font-bold px-2 py-0.5">
             0
           </span>
         )}
       </div>
-      <div className="divide-y divide-zinc-100">{children}</div>
+      <div className="divide-y divide-line">{children}</div>
     </div>
   );
 }
 
 function EmptyRow({ message }: { message: string }) {
   return (
-    <div className="px-5 py-4 text-sm text-green-600 font-medium">{message}</div>
+    <div className="px-5 py-4 text-sm text-brand font-medium">{message}</div>
   );
 }
 
@@ -370,8 +370,8 @@ export default async function AttentionPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900">Attention Board</h1>
-        <p className="text-sm text-zinc-500 mt-1">
+        <h1 className="text-2xl font-bold text-ink">Attention Board</h1>
+        <p className="text-sm text-ink-3 mt-1">
           Items flagged across all modules
         </p>
       </div>
@@ -379,10 +379,10 @@ export default async function AttentionPage() {
       {/* Summary row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Stuck Invoices", count: stuckInvoices.length, color: "bg-red-50 border-red-200 text-red-700" },
-          { label: "Overdue Tasks", count: overdueTasks.length, color: "bg-orange-50 border-orange-200 text-orange-700" },
-          { label: "Approval Urgency", count: awaitingApproval.length, color: "bg-yellow-50 border-yellow-200 text-yellow-700" },
-          { label: "Pricing Anomalies", count: anomalies.length + kpiFlags.length, color: "bg-purple-50 border-purple-200 text-purple-700" },
+          { label: "Stuck Invoices", count: stuckInvoices.length, color: "bg-danger-tint border-danger/30 text-danger" },
+          { label: "Overdue Tasks", count: overdueTasks.length, color: "bg-warn-tint border-warn/30 text-warn" },
+          { label: "Approval Urgency", count: awaitingApproval.length, color: "bg-warn-tint border-warn/30 text-warn" },
+          { label: "Pricing Anomalies", count: anomalies.length + kpiFlags.length, color: "bg-info-tint border-info/30 text-info" },
         ].map(({ label, count, color }) => (
           <div
             key={label}
@@ -395,8 +395,8 @@ export default async function AttentionPage() {
       </div>
 
       {totalCount === 0 && (
-        <div className="rounded-xl border border-green-200 bg-green-50 px-5 py-6 text-center">
-          <p className="text-green-700 font-semibold text-sm">
+        <div className="rounded-xl border border-brand/30 bg-brand-tint px-5 py-6 text-center">
+          <p className="text-brand font-semibold text-sm">
             All clear — no items need attention right now.
           </p>
         </div>
@@ -412,28 +412,28 @@ export default async function AttentionPage() {
             return (
               <div
                 key={inv.id}
-                className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-zinc-50 transition-colors"
+                className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-hover transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <Link
                     href={`/invoices/${inv.id}`}
-                    className="text-sm font-medium text-zinc-900 hover:text-blue-600 truncate block"
+                    className="text-sm font-medium text-ink hover:text-info truncate block"
                   >
                     {inv.title}
                   </Link>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     {inv.vendor_id && vendorMap[inv.vendor_id] && (
-                      <span className="text-xs text-zinc-500">
+                      <span className="text-xs text-ink-3">
                         {vendorMap[inv.vendor_id]}
                       </span>
                     )}
                     <StatusBadge status={inv.status} />
-                    <span className="text-xs font-medium text-amber-600">
+                    <span className="text-xs font-medium text-warn">
                       stuck {daysStuck}d
                     </span>
                   </div>
                 </div>
-                <div className="text-sm font-semibold text-zinc-700 shrink-0">
+                <div className="text-sm font-semibold text-ink-2 shrink-0">
                   {fmtMoney(inv.total_amount)}
                 </div>
               </div>
@@ -460,23 +460,23 @@ export default async function AttentionPage() {
             return (
               <div
                 key={task.id}
-                className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-zinc-50 transition-colors"
+                className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-hover transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <Link
                     href={`/tasks/${task.id}`}
-                    className="text-sm font-medium text-zinc-900 hover:text-blue-600 truncate block"
+                    className="text-sm font-medium text-ink hover:text-info truncate block"
                   >
                     {task.title}
                   </Link>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     {task.assignee_id && assigneeMap[task.assignee_id] && (
-                      <span className="text-xs text-zinc-500">
+                      <span className="text-xs text-ink-3">
                         {assigneeMap[task.assignee_id]}
                       </span>
                     )}
-                    <span className="text-xs text-zinc-400">{dueDateFormatted}</span>
-                    <span className="text-xs font-medium text-red-600">
+                    <span className="text-xs text-ink-4">{dueDateFormatted}</span>
+                    <span className="text-xs font-medium text-danger">
                       {daysOverdue}d overdue
                     </span>
                     <PriorityBadge priority={task.priority} />
@@ -498,20 +498,20 @@ export default async function AttentionPage() {
             return (
               <div
                 key={inv.id}
-                className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-zinc-50 transition-colors"
+                className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-hover transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <Link
                     href={`/invoices/${inv.id}`}
-                    className="text-sm font-medium text-zinc-900 hover:text-blue-600 truncate block"
+                    className="text-sm font-medium text-ink hover:text-info truncate block"
                   >
                     {inv.title}
                   </Link>
-                  <p className="text-xs text-orange-600 font-medium mt-0.5">
+                  <p className="text-xs text-warn font-medium mt-0.5">
                     waiting {daysWaiting}d for approval
                   </p>
                 </div>
-                <div className="text-sm font-semibold text-zinc-700 shrink-0">
+                <div className="text-sm font-semibold text-ink-2 shrink-0">
                   {fmtMoney(inv.total_amount)}
                 </div>
               </div>
@@ -528,26 +528,26 @@ export default async function AttentionPage() {
           anomalies.map((a) => (
             <div
               key={a.invoiceId}
-              className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-zinc-50 transition-colors"
+              className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-hover transition-colors"
             >
               <div className="flex-1 min-w-0">
                 <Link
                   href={`/invoices/${a.invoiceId}`}
-                  className="text-sm font-medium text-zinc-900 hover:text-blue-600 truncate block"
+                  className="text-sm font-medium text-ink hover:text-info truncate block"
                 >
                   {a.invoiceTitle}
                 </Link>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-xs text-zinc-500">{a.vendorName}</span>
-                  <span className="text-xs text-zinc-400">
+                  <span className="text-xs text-ink-3">{a.vendorName}</span>
+                  <span className="text-xs text-ink-4">
                     avg {fmtMoney(a.vendorAvg)}
                   </span>
-                  <span className="text-xs font-semibold text-red-600">
+                  <span className="text-xs font-semibold text-danger">
                     +{a.pctOver.toFixed(0)}% over avg
                   </span>
                 </div>
               </div>
-              <div className="text-sm font-semibold text-zinc-700 shrink-0">
+              <div className="text-sm font-semibold text-ink-2 shrink-0">
                 {fmtMoney(a.amount)}
               </div>
             </div>
@@ -563,22 +563,22 @@ export default async function AttentionPage() {
           kpiFlags.map((flag) => (
             <div
               key={flag.id}
-              className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-zinc-50 transition-colors"
+              className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-hover transition-colors"
             >
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-zinc-900 truncate">
+                <p className="text-sm font-medium text-ink truncate">
                   {flag.kpi_label}
                 </p>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {flag.createdBy && kpiReporterMap[flag.createdBy] && (
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-ink-3">
                       {kpiReporterMap[flag.createdBy]}
                     </span>
                   )}
-                  <span className="text-xs text-zinc-400">
+                  <span className="text-xs text-ink-4">
                     actual {flag.actual_value} / target {flag.target_value}
                   </span>
-                  <span className="text-xs font-semibold text-red-600">
+                  <span className="text-xs font-semibold text-danger">
                     {flag.direction === "below" ? "−" : "+"}
                     {flag.pctOff.toFixed(0)}% off target
                   </span>

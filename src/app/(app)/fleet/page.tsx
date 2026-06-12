@@ -8,11 +8,11 @@ const UNIT_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  available: "bg-green-100 text-green-800",
-  assigned_to_job: "bg-blue-100 text-blue-800",
-  in_use_today: "bg-amber-100 text-amber-800",
-  maintenance_needed: "bg-orange-100 text-orange-800",
-  out_of_service: "bg-red-100 text-red-800",
+  available: "bg-brand-tint text-brand",
+  assigned_to_job: "bg-info-tint text-info",
+  in_use_today: "bg-warn-tint text-warn",
+  maintenance_needed: "bg-warn-tint text-warn",
+  out_of_service: "bg-danger-tint text-danger",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -24,9 +24,9 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const READY_COLORS: Record<string, string> = {
-  ready: "bg-green-100 text-green-800",
-  needs_prep: "bg-amber-100 text-amber-800",
-  not_ready: "bg-red-100 text-red-800",
+  ready: "bg-brand-tint text-brand",
+  needs_prep: "bg-warn-tint text-warn",
+  not_ready: "bg-danger-tint text-danger",
 };
 
 export default async function FleetPage({
@@ -55,21 +55,21 @@ export default async function FleetPage({
       <div className="flex items-end justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Fleet</h1>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-ink-2">
             Trucks, trailers, and heavy equipment.
-            {showArchived && <span className="ml-1 text-zinc-500">Showing archived assets.</span>}
+            {showArchived && <span className="ml-1 text-ink-3">Showing archived assets.</span>}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href="/fleet/reservations"
-            className="text-xs font-medium text-zinc-700 hover:text-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 bg-white hover:border-zinc-400"
+            className="text-xs font-medium text-ink-2 hover:text-ink px-2.5 py-1 rounded-md border border-line bg-white hover:border-line-strong"
           >
             Reservations →
           </Link>
           <Link
             href={showArchived ? "/fleet" : "/fleet?archived=1"}
-            className="text-xs text-zinc-500 hover:text-zinc-900 px-2 py-1 rounded-md border border-zinc-200 bg-white hover:border-zinc-400"
+            className="text-xs text-ink-3 hover:text-ink px-2 py-1 rounded-md border border-line bg-white hover:border-line-strong"
           >
             {showArchived ? "← Active fleet" : "Show archived"}
           </Link>
@@ -77,7 +77,7 @@ export default async function FleetPage({
       </div>
 
       {error ? (
-        <div className="rounded-md border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-md border border-warn/30 bg-warn-tint p-4 text-sm text-warn">
           <p className="font-medium">No fleet data yet.</p>
           <p className="mt-1">
             The <code className="font-mono">assets</code> table hasn&apos;t been
@@ -88,13 +88,13 @@ export default async function FleetPage({
           <p className="mt-2 text-xs opacity-75">Details: {error.message}</p>
         </div>
       ) : !assets || assets.length === 0 ? (
-        <div className="rounded-md border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-600">
+        <div className="rounded-md border border-line bg-white p-8 text-center text-sm text-ink-2">
           No assets yet. Seed from Monday or add one.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white">
-          <table className="min-w-full divide-y divide-zinc-200 text-sm">
-            <thead className="bg-zinc-50">
+        <div className="overflow-hidden rounded-lg border border-line bg-white">
+          <table className="min-w-full divide-y divide-line text-sm">
+            <thead className="bg-hover">
               <tr>
                 <Th>Name</Th>
                 <Th>Type</Th>
@@ -102,11 +102,11 @@ export default async function FleetPage({
                 <Th>Ready</Th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200">
+            <tbody className="divide-y divide-line">
               {assets.map((a) => (
-                <tr key={a.id} className="hover:bg-zinc-50 cursor-pointer">
+                <tr key={a.id} className="hover:bg-hover cursor-pointer">
                   <Td>
-                    <Link href={`/fleet/${a.id}`} className="font-medium text-zinc-900 hover:underline">
+                    <Link href={`/fleet/${a.id}`} className="font-medium text-ink hover:underline">
                       {a.name}
                     </Link>
                   </Td>
@@ -135,7 +135,7 @@ export default async function FleetPage({
 
 function Th({ children }: { children: React.ReactNode }) {
   return (
-    <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-zinc-500">
+    <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-ink-3">
       {children}
     </th>
   );
@@ -149,6 +149,6 @@ function Td({
   className?: string;
 }) {
   return (
-    <td className={`px-4 py-3 text-zinc-700 ${className ?? ""}`}>{children}</td>
+    <td className={`px-4 py-3 text-ink-2 ${className ?? ""}`}>{children}</td>
   );
 }

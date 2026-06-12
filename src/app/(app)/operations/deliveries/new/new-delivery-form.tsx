@@ -17,8 +17,8 @@ type PullListOpt = {
 };
 
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
-const label = "block text-xs font-medium text-zinc-500 mb-1";
+  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const label = "block text-xs font-medium text-ink-3 mb-1";
 
 export function NewDeliveryForm({
   employees,
@@ -191,10 +191,10 @@ export function NewDeliveryForm({
 
       {/* ─── Materials ─────────────────────────────────────────────────── */}
       <Section title="Materials delivered">
-        <p className="text-xs text-zinc-500">Leave a section blank if it doesn&apos;t apply.</p>
+        <p className="text-xs text-ink-3">Leave a section blank if it doesn&apos;t apply.</p>
 
         <div>
-          <h3 className="text-xs font-semibold text-zinc-600 mt-2">Turf</h3>
+          <h3 className="text-xs font-semibold text-ink-2 mt-2">Turf</h3>
           <div className="mt-1 grid grid-cols-3 gap-3">
             <div>
               <label className={label}>Product</label>
@@ -212,12 +212,12 @@ export function NewDeliveryForm({
         </div>
 
         <div>
-          <h3 className="text-xs font-semibold text-zinc-600 mt-2">DG (cubic yards)</h3>
+          <h3 className="text-xs font-semibold text-ink-2 mt-2">DG (cubic yards)</h3>
           <input type="number" min="0" step="0.01" name="mat_dg_cubic_yards" className={field} />
         </div>
 
         <div>
-          <h3 className="text-xs font-semibold text-zinc-600 mt-2">Infill</h3>
+          <h3 className="text-xs font-semibold text-ink-2 mt-2">Infill</h3>
           <div className="mt-1 grid grid-cols-2 gap-3">
             <div>
               <label className={label}>Type</label>
@@ -231,7 +231,7 @@ export function NewDeliveryForm({
         </div>
 
         <div>
-          <h3 className="text-xs font-semibold text-zinc-600 mt-2">Fasteners (boxes)</h3>
+          <h3 className="text-xs font-semibold text-ink-2 mt-2">Fasteners (boxes)</h3>
           <div className="mt-1 grid grid-cols-2 gap-3">
             <div>
               <label className={label}>Nails</label>
@@ -258,12 +258,12 @@ export function NewDeliveryForm({
               width={1200}
               height={1600}
               unoptimized
-              className="max-h-64 w-auto rounded-lg border border-zinc-200"
+              className="max-h-64 w-auto rounded-lg border border-line"
             />
             <button
               type="button"
               onClick={clearPhoto}
-              className="text-xs text-zinc-500 hover:text-zinc-900"
+              className="text-xs text-ink-3 hover:text-ink"
             >
               Replace photo
             </button>
@@ -276,13 +276,13 @@ export function NewDeliveryForm({
               accept="image/*"
               onChange={onPhotoChange}
               disabled={photoUploading}
-              className="block w-full text-sm text-zinc-700 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white file:cursor-pointer hover:file:bg-zinc-700"
+              className="block w-full text-sm text-ink-2 file:mr-3 file:rounded-lg file:border-0 file:bg-ink file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white file:cursor-pointer hover:file:bg-ink"
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-ink-3">
               {photoUploading ? "Uploading…" : "JPG / PNG / HEIC. Embedded in the Slack post."}
             </p>
             {photoError && (
-              <p className="text-xs text-red-700">{photoError}</p>
+              <p className="text-xs text-danger">{photoError}</p>
             )}
           </div>
         )}
@@ -294,7 +294,7 @@ export function NewDeliveryForm({
       </Section>
 
       {submitError && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-danger/30 bg-danger-tint px-3 py-2 text-sm text-danger">
           {submitError}
         </p>
       )}
@@ -302,14 +302,14 @@ export function NewDeliveryForm({
       <div className="flex justify-end gap-2">
         <Link
           href="/operations/deliveries"
-          className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900"
+          className="px-4 py-2 text-sm text-ink-2 hover:text-ink"
         >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isPending || photoUploading}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink disabled:opacity-50"
         >
           {isPending ? "Saving…" : "Log delivery + post to Slack"}
         </button>
@@ -320,8 +320,8 @@ export function NewDeliveryForm({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
-      <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
+    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
+      <h2 className="text-sm font-semibold text-ink">{title}</h2>
       {children}
     </section>
   );

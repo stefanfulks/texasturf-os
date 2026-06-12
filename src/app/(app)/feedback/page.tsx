@@ -12,10 +12,10 @@ const STATUS_LABEL: Record<string, string> = {
   wont_fix:    "Won't fix",
 };
 const STATUS_BADGE: Record<string, string> = {
-  new:         "bg-blue-100 text-blue-700",
-  in_progress: "bg-amber-100 text-amber-700",
-  resolved:    "bg-green-100 text-green-700",
-  wont_fix:    "bg-zinc-100 text-zinc-500",
+  new:         "bg-info-tint text-info",
+  in_progress: "bg-warn-tint text-warn",
+  resolved:    "bg-brand-tint text-brand",
+  wont_fix:    "bg-sunken text-ink-3",
 };
 const CATEGORY_LABEL: Record<string, string> = {
   bug:             "Bug",
@@ -47,7 +47,7 @@ export default async function FeedbackPage() {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Feedback</h1>
-        <p className="mt-0.5 text-sm text-zinc-500">
+        <p className="mt-0.5 text-sm text-ink-3">
           Bug? Idea? Question? Drop it here and an admin will follow up.
         </p>
       </div>
@@ -55,17 +55,17 @@ export default async function FeedbackPage() {
       <FeedbackForm />
 
       {submissions.length > 0 && (
-        <section className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-          <div className="px-5 py-3 border-b border-zinc-100">
+        <section className="rounded-xl border border-line bg-white overflow-hidden">
+          <div className="px-5 py-3 border-b border-line">
             <h2 className="text-sm font-semibold">Your past submissions</h2>
           </div>
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-line">
             {submissions.map((s) => (
               <li key={s.id} className="px-5 py-4 space-y-1.5">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
-                  <p className="text-sm font-medium text-zinc-900">{s.subject}</p>
+                  <p className="text-sm font-medium text-ink">{s.subject}</p>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-ink-3">
                       {CATEGORY_LABEL[s.category] ?? s.category}
                     </span>
                     <span className={`text-xs px-2 py-0.5 rounded font-medium ${STATUS_BADGE[s.status] ?? ""}`}>
@@ -74,15 +74,15 @@ export default async function FeedbackPage() {
                   </div>
                 </div>
                 {s.body && (
-                  <p className="text-sm text-zinc-600 whitespace-pre-wrap">{s.body}</p>
+                  <p className="text-sm text-ink-2 whitespace-pre-wrap">{s.body}</p>
                 )}
                 {s.admin_notes && (
-                  <div className="rounded-md bg-zinc-50 border border-zinc-200 px-3 py-2 text-xs text-zinc-700 mt-1.5">
-                    <p className="font-medium text-zinc-500 mb-0.5">Admin reply</p>
+                  <div className="rounded-md bg-hover border border-line px-3 py-2 text-xs text-ink-2 mt-1.5">
+                    <p className="font-medium text-ink-3 mb-0.5">Admin reply</p>
                     {s.admin_notes}
                   </div>
                 )}
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-ink-4">
                   Submitted {format(parseISO(s.created_at), "MMM d, h:mm a")}
                   {s.resolved_at && ` · Resolved ${format(parseISO(s.resolved_at), "MMM d")}`}
                 </p>

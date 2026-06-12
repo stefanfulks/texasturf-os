@@ -74,7 +74,7 @@ export default async function AssignRollPage({
     <div className="max-w-4xl space-y-6">
       <Link
         href={`/inventory/jobs/${id}`}
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink"
       >
         ← {job.job_number ? `${job.job_number} · ` : ""}{job.job_name}
       </Link>
@@ -83,7 +83,7 @@ export default async function AssignRollPage({
         <h1 className="text-2xl font-semibold tracking-tight">
           {isSwap ? "Swap Roll" : "Assign Roll"}
         </h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
+        <p className="text-sm text-ink-3 mt-0.5">
           {alloc.product_name ?? "Unspecified product"}
           {alloc.width_ft != null && ` · ${alloc.width_ft} ft wide`}
           {alloc.requested_length_ft != null && ` · ${alloc.requested_length_ft} ft requested`}
@@ -92,12 +92,12 @@ export default async function AssignRollPage({
       </div>
 
       {isSwap && currentRoll && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-          <p className="text-xs font-medium text-amber-800 mb-1">Currently assigned roll</p>
-          <p className="font-mono text-sm font-semibold text-zinc-900">
+        <div className="rounded-xl border border-warn/30 bg-warn-tint px-4 py-3">
+          <p className="text-xs font-medium text-warn mb-1">Currently assigned roll</p>
+          <p className="font-mono text-sm font-semibold text-ink">
             {currentRoll.tt_sku_tag_number ?? currentRoll.id.slice(0, 8)}
           </p>
-          <p className="text-xs text-zinc-600 mt-0.5">
+          <p className="text-xs text-ink-2 mt-0.5">
             {currentRoll.width_ft != null ? `${currentRoll.width_ft} ft × ` : ""}
             {currentRoll.current_length_ft != null ? `${currentRoll.current_length_ft} ft` : ""}
             {currentRoll.dye_lot ? ` · dye lot ${currentRoll.dye_lot}` : ""}
@@ -105,28 +105,28 @@ export default async function AssignRollPage({
         </div>
       )}
 
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">
-            Candidate Rolls <span className="text-zinc-400 font-normal">({candidates.length})</span>
+            Candidate Rolls <span className="text-ink-4 font-normal">({candidates.length})</span>
           </h2>
         </div>
         {candidates.length === 0 ? (
-          <div className="py-10 text-center text-sm text-zinc-400">
+          <div className="py-10 text-center text-sm text-ink-4">
             No matching available rolls. Try adjusting the allocation specs or receiving more inventory.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">SKU Tag</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Product</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Width</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Length</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Dye Lot</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Status</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide"></th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">SKU Tag</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Product</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Width</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Length</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Dye Lot</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Status</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide"></th>
                 </tr>
               </thead>
               <tbody>
@@ -135,22 +135,22 @@ export default async function AssignRollPage({
                     ? swapRoll.bind(null, alloc.id, roll.id)
                     : assignRoll.bind(null, alloc.id, roll.id);
                   return (
-                    <tr key={roll.id} className="border-b border-zinc-50">
-                      <td className="px-4 py-3 font-mono text-xs text-zinc-800">
+                    <tr key={roll.id} className="border-b border-line">
+                      <td className="px-4 py-3 font-mono text-xs text-ink">
                         {roll.tt_sku_tag_number ?? roll.id.slice(0, 8)}
                       </td>
-                      <td className="px-4 py-3 text-zinc-700">{roll.product_name ?? <span className="text-zinc-300">—</span>}</td>
-                      <td className="px-4 py-3 text-right text-zinc-600">{roll.width_ft != null ? `${roll.width_ft} ft` : "—"}</td>
-                      <td className="px-4 py-3 text-right text-zinc-700 font-medium">
+                      <td className="px-4 py-3 text-ink-2">{roll.product_name ?? <span className="text-ink-4">—</span>}</td>
+                      <td className="px-4 py-3 text-right text-ink-2">{roll.width_ft != null ? `${roll.width_ft} ft` : "—"}</td>
+                      <td className="px-4 py-3 text-right text-ink-2 font-medium">
                         {roll.current_length_ft != null ? `${roll.current_length_ft.toLocaleString()} ft` : "—"}
                       </td>
-                      <td className="px-4 py-3 text-zinc-600">{roll.dye_lot ?? <span className="text-zinc-300">—</span>}</td>
+                      <td className="px-4 py-3 text-ink-2">{roll.dye_lot ?? <span className="text-ink-4">—</span>}</td>
                       <td className="px-4 py-3"><RollStatusBadge status={roll.status as RollStatus} /></td>
                       <td className="px-4 py-3 text-right">
                         <form action={action}>
                           <button
                             type="submit"
-                            className="text-xs px-3 py-1.5 rounded-md bg-zinc-900 text-white font-medium hover:bg-zinc-700"
+                            className="text-xs px-3 py-1.5 rounded-md bg-ink text-white font-medium hover:bg-ink"
                           >
                             {isSwap ? "Swap to this roll" : "Assign"}
                           </button>

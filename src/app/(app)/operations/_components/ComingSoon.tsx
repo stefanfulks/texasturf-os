@@ -10,19 +10,19 @@ export function ComingSoon({
   schemaNote?: string;
 }) {
   return (
-    <main className="min-h-dvh bg-zinc-50 px-8 py-12 dark:bg-zinc-950">
+    <main className="min-h-dvh bg-hover px-8 py-12 dark:bg-ink">
       <div className="mx-auto max-w-3xl">
         <div className="flex items-baseline justify-between">
           <h1 className="text-2xl font-semibold">{title}</h1>
-          <Link href="/operations" className="text-sm text-zinc-500 hover:underline">
+          <Link href="/operations" className="text-sm text-ink-3 hover:underline">
             ← Warehouse
           </Link>
         </div>
-        <div className="mt-8 rounded-lg border border-dashed border-zinc-300 p-10 text-center dark:border-zinc-700">
-          <div className="text-sm text-zinc-600 dark:text-zinc-400">{body}</div>
+        <div className="mt-8 rounded-lg border border-dashed border-line-strong p-10 text-center dark:border-line-strong">
+          <div className="text-sm text-ink-2 dark:text-ink-4">{body}</div>
           {schemaNote && (
-            <div className="mx-auto mt-3 max-w-md text-xs text-zinc-500">
-              Schema is ready in <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">{schemaNote}</code>.
+            <div className="mx-auto mt-3 max-w-md text-xs text-ink-3">
+              Schema is ready in <code className="rounded bg-sunken px-1 dark:bg-ink">{schemaNote}</code>.
               UI lands next.
             </div>
           )}

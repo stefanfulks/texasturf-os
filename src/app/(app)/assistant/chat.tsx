@@ -231,8 +231,8 @@ export function AssistantChat({
     <div
       className={
         compact
-          ? "rounded-2xl border border-zinc-200 bg-white overflow-hidden flex flex-col h-full"
-          : "rounded-2xl border border-zinc-200 bg-white overflow-hidden flex flex-col h-[calc(100vh-220px)] min-h-[480px]"
+          ? "rounded-2xl border border-line bg-white overflow-hidden flex flex-col h-full"
+          : "rounded-2xl border border-line bg-white overflow-hidden flex flex-col h-[calc(100vh-220px)] min-h-[480px]"
       }
     >
       {/* Scroll area */}
@@ -254,7 +254,7 @@ export function AssistantChat({
           ))
         )}
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          <div className="rounded-lg border border-danger/30 bg-danger-tint px-3 py-2 text-xs text-danger">
             {error}
           </div>
         )}
@@ -263,7 +263,7 @@ export function AssistantChat({
       {/* Input */}
       <form
         onSubmit={(e) => { e.preventDefault(); send(input); }}
-        className="flex items-end gap-2 border-t border-zinc-100 bg-zinc-50/50 px-4 py-3"
+        className="flex items-end gap-2 border-t border-line bg-hover/50 px-4 py-3"
       >
         <textarea
           value={input}
@@ -277,12 +277,12 @@ export function AssistantChat({
           rows={1}
           placeholder="Ask anything…"
           disabled={busy}
-          className="flex-1 resize-none rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50 max-h-40"
+          className="flex-1 resize-none rounded-lg border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-line-strong disabled:opacity-50 max-h-40"
         />
         <button
           type="submit"
           disabled={busy || input.trim().length === 0}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-2 text-sm font-semibold text-white hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-white hover:bg-ink disabled:opacity-50 transition-colors"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           {busy ? "Thinking" : "Send"}
@@ -309,7 +309,7 @@ function Bubble({
   return (
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
-        <div className="flex-shrink-0 h-7 w-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">
+        <div className="flex-shrink-0 h-7 w-7 rounded-full bg-info-tint flex items-center justify-center text-info">
           <Sparkles className="h-4 w-4" />
         </div>
       )}
@@ -320,7 +320,7 @@ function Bubble({
             {message.tools.map((t, i) => (
               <span
                 key={i}
-                className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600"
+                className="inline-flex items-center gap-1 rounded-full bg-sunken px-2 py-0.5 text-[10px] font-medium text-ink-2"
               >
                 <Search className="h-2.5 w-2.5" />
                 {t.name}
@@ -333,8 +333,8 @@ function Bubble({
         <div
           className={
             isUser
-              ? "rounded-2xl rounded-tr-sm bg-zinc-900 text-white px-4 py-2.5 text-sm"
-              : "rounded-2xl rounded-tl-sm bg-zinc-50 border border-zinc-200 text-zinc-900 px-4 py-2.5 text-sm whitespace-pre-wrap"
+              ? "rounded-2xl rounded-tr-sm bg-ink text-white px-4 py-2.5 text-sm"
+              : "rounded-2xl rounded-tl-sm bg-hover border border-line text-ink px-4 py-2.5 text-sm whitespace-pre-wrap"
           }
         >
           {message.text || (busy ? <ThinkingDots /> : null)}
@@ -380,13 +380,13 @@ function DraftCardView({
   // Settled states — replace the card with a compact status line.
   if (status === "committed") {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 flex items-center gap-2">
+      <div className="rounded-xl border border-brand/30 bg-brand-tint px-3 py-2 text-xs text-brand flex items-center gap-2">
         <Check className="h-3.5 w-3.5 flex-shrink-0" />
         <span className="flex-1 truncate">{card.result?.summary ?? "Done."}</span>
         {card.result?.view_url && (
           <Link
             href={card.result.view_url}
-            className="font-semibold underline decoration-emerald-300 hover:decoration-emerald-500"
+            className="font-semibold underline decoration-brand hover:decoration-brand"
           >
             View
           </Link>
@@ -396,7 +396,7 @@ function DraftCardView({
   }
   if (status === "cancelled") {
     return (
-      <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-500 flex items-center gap-2">
+      <div className="rounded-xl border border-line bg-hover px-3 py-2 text-xs text-ink-3 flex items-center gap-2">
         <X className="h-3.5 w-3.5 flex-shrink-0" />
         <span>Cancelled.</span>
       </div>
@@ -404,7 +404,7 @@ function DraftCardView({
   }
   if (status === "error") {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+      <div className="rounded-xl border border-danger/30 bg-danger-tint px-3 py-2 text-xs text-danger">
         <div className="flex items-center gap-2 mb-1.5">
           <X className="h-3.5 w-3.5 flex-shrink-0" />
           <span className="font-semibold">Couldn&apos;t create — {card.error ?? "unknown error"}.</span>
@@ -412,7 +412,7 @@ function DraftCardView({
         <button
           type="button"
           onClick={onConfirm}
-          className="text-xs font-semibold underline decoration-red-300 hover:decoration-red-500"
+          className="text-xs font-semibold underline decoration-danger hover:decoration-danger"
         >
           Retry
         </button>
@@ -428,20 +428,20 @@ function DraftCardView({
     card.draft.kind === "update_task_status" ? ArrowRightCircle :
     ListPlus;
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-xs space-y-2.5">
+    <div className="rounded-xl border border-line bg-white px-3.5 py-3 text-xs space-y-2.5">
       <div className="flex items-start gap-2">
-        <Icon className="h-4 w-4 flex-shrink-0 text-blue-600 mt-0.5" />
+        <Icon className="h-4 w-4 flex-shrink-0 text-info mt-0.5" />
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-zinc-900">{card.summary}</p>
+          <p className="font-semibold text-ink">{card.summary}</p>
           <DraftDetails card={card} />
         </div>
       </div>
-      <div className="flex justify-end gap-1.5 pt-1 border-t border-zinc-100">
+      <div className="flex justify-end gap-1.5 pt-1 border-t border-line">
         <button
           type="button"
           onClick={onCancel}
           disabled={isCommitting}
-          className="rounded-md px-2.5 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-50 transition-colors"
+          className="rounded-md px-2.5 py-1 text-xs font-medium text-ink-2 hover:bg-sunken disabled:opacity-50 transition-colors"
         >
           Cancel
         </button>
@@ -449,7 +449,7 @@ function DraftCardView({
           type="button"
           onClick={onConfirm}
           disabled={isCommitting}
-          className="inline-flex items-center gap-1 rounded-md bg-zinc-900 px-2.5 py-1 text-xs font-semibold text-white hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+          className="inline-flex items-center gap-1 rounded-md bg-ink px-2.5 py-1 text-xs font-semibold text-white hover:bg-ink disabled:opacity-50 transition-colors"
         >
           {isCommitting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
           {isCommitting ? "Creating" : "Confirm"}
@@ -469,11 +469,11 @@ function DraftDetails({ card }: { card: DraftCard }) {
     const priority  = typeof d.priority === "string" ? d.priority : "normal";
     const description = typeof d.description === "string" ? d.description : null;
     return (
-      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-zinc-600">
-        {due && (<><dt className="font-medium text-zinc-500">Due</dt><dd>{due}</dd></>)}
-        {assignee && (<><dt className="font-medium text-zinc-500">Assign</dt><dd>{assignee}</dd></>)}
-        {priority !== "normal" && (<><dt className="font-medium text-zinc-500">Priority</dt><dd className="capitalize">{priority}</dd></>)}
-        {description && (<><dt className="font-medium text-zinc-500">Notes</dt><dd className="whitespace-pre-wrap">{description}</dd></>)}
+      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-ink-2">
+        {due && (<><dt className="font-medium text-ink-3">Due</dt><dd>{due}</dd></>)}
+        {assignee && (<><dt className="font-medium text-ink-3">Assign</dt><dd>{assignee}</dd></>)}
+        {priority !== "normal" && (<><dt className="font-medium text-ink-3">Priority</dt><dd className="capitalize">{priority}</dd></>)}
+        {description && (<><dt className="font-medium text-ink-3">Notes</dt><dd className="whitespace-pre-wrap">{description}</dd></>)}
       </dl>
     );
   }
@@ -486,17 +486,17 @@ function DraftDetails({ card }: { card: DraftCard }) {
       ? (d.attendees as Array<{ email?: string; display?: string | null }>).filter((a) => typeof a.email === "string")
       : [];
     return (
-      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-zinc-600">
-        {start && (<><dt className="font-medium text-zinc-500">Start</dt><dd>{start} CT</dd></>)}
-        {end   && (<><dt className="font-medium text-zinc-500">End</dt><dd>{end} CT</dd></>)}
-        {location && (<><dt className="font-medium text-zinc-500">Where</dt><dd>{location}</dd></>)}
+      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-ink-2">
+        {start && (<><dt className="font-medium text-ink-3">Start</dt><dd>{start} CT</dd></>)}
+        {end   && (<><dt className="font-medium text-ink-3">End</dt><dd>{end} CT</dd></>)}
+        {location && (<><dt className="font-medium text-ink-3">Where</dt><dd>{location}</dd></>)}
         {attendees.length > 0 && (
           <>
-            <dt className="font-medium text-zinc-500">Invite</dt>
+            <dt className="font-medium text-ink-3">Invite</dt>
             <dd>{attendees.map((a) => a.display ?? a.email).join(", ")}</dd>
           </>
         )}
-        {description && (<><dt className="font-medium text-zinc-500">Notes</dt><dd className="whitespace-pre-wrap">{description}</dd></>)}
+        {description && (<><dt className="font-medium text-ink-3">Notes</dt><dd className="whitespace-pre-wrap">{description}</dd></>)}
       </dl>
     );
   }
@@ -505,12 +505,12 @@ function DraftDetails({ card }: { card: DraftCard }) {
     const recKind   = d.recipient_kind === "dm" ? "DM" : "Channel";
     const text      = typeof d.text === "string" ? d.text : null;
     return (
-      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-zinc-600">
-        {recipient && (<><dt className="font-medium text-zinc-500">{recKind}</dt><dd>{recipient}</dd></>)}
+      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-ink-2">
+        {recipient && (<><dt className="font-medium text-ink-3">{recKind}</dt><dd>{recipient}</dd></>)}
         {text && (
           <>
-            <dt className="font-medium text-zinc-500">Message</dt>
-            <dd className="whitespace-pre-wrap rounded-md bg-zinc-50 px-2 py-1.5 text-zinc-800 border border-zinc-100">{text}</dd>
+            <dt className="font-medium text-ink-3">Message</dt>
+            <dd className="whitespace-pre-wrap rounded-md bg-hover px-2 py-1.5 text-ink border border-line">{text}</dd>
           </>
         )}
       </dl>
@@ -522,19 +522,19 @@ function DraftDetails({ card }: { card: DraftCard }) {
     const next           = typeof d.new_status     === "string" ? d.new_status     : null;
     const blockedReason  = typeof d.blocked_reason === "string" ? d.blocked_reason : null;
     return (
-      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-zinc-600">
-        {title && (<><dt className="font-medium text-zinc-500">Task</dt><dd>{title}</dd></>)}
+      <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 text-[11px] text-ink-2">
+        {title && (<><dt className="font-medium text-ink-3">Task</dt><dd>{title}</dd></>)}
         {current && next && (
           <>
-            <dt className="font-medium text-zinc-500">Status</dt>
+            <dt className="font-medium text-ink-3">Status</dt>
             <dd className="flex items-center gap-1.5">
-              <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 capitalize">{current.replace("_", " ")}</span>
-              <span className="text-zinc-400">→</span>
-              <span className="rounded-md bg-blue-50 px-1.5 py-0.5 capitalize font-medium text-blue-700">{next.replace("_", " ")}</span>
+              <span className="rounded-md bg-sunken px-1.5 py-0.5 capitalize">{current.replace("_", " ")}</span>
+              <span className="text-ink-4">→</span>
+              <span className="rounded-md bg-info-tint px-1.5 py-0.5 capitalize font-medium text-info">{next.replace("_", " ")}</span>
             </dd>
           </>
         )}
-        {blockedReason && (<><dt className="font-medium text-zinc-500">Reason</dt><dd className="whitespace-pre-wrap">{blockedReason}</dd></>)}
+        {blockedReason && (<><dt className="font-medium text-ink-3">Reason</dt><dd className="whitespace-pre-wrap">{blockedReason}</dd></>)}
       </dl>
     );
   }
@@ -543,10 +543,10 @@ function DraftDetails({ card }: { card: DraftCard }) {
 
 function ThinkingDots() {
   return (
-    <span className="inline-flex items-center gap-1 text-zinc-400">
-      <span className="h-1.5 w-1.5 rounded-full bg-zinc-400 animate-pulse" />
-      <span className="h-1.5 w-1.5 rounded-full bg-zinc-400 animate-pulse [animation-delay:0.15s]" />
-      <span className="h-1.5 w-1.5 rounded-full bg-zinc-400 animate-pulse [animation-delay:0.3s]" />
+    <span className="inline-flex items-center gap-1 text-ink-4">
+      <span className="h-1.5 w-1.5 rounded-full bg-ink-4 animate-pulse" />
+      <span className="h-1.5 w-1.5 rounded-full bg-ink-4 animate-pulse [animation-delay:0.15s]" />
+      <span className="h-1.5 w-1.5 rounded-full bg-ink-4 animate-pulse [animation-delay:0.3s]" />
     </span>
   );
 }
@@ -562,13 +562,13 @@ function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-12">
-      <div className="h-12 w-12 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-700 mb-4">
+      <div className="h-12 w-12 rounded-2xl bg-info-tint flex items-center justify-center text-info mb-4">
         <Sparkles className="h-6 w-6" />
       </div>
-      <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+      <h2 className="text-lg font-semibold tracking-tight text-ink">
         Hi {greetingName} — what can I dig up?
       </h2>
-      <p className="mt-1 text-sm text-zinc-500 max-w-md">
+      <p className="mt-1 text-sm text-ink-3 max-w-md">
         I have read-only access to your tasks, invoices, inventory, and vendors.
         Try one of these to start:
       </p>
@@ -578,7 +578,7 @@ function EmptyState({
             key={s}
             type="button"
             onClick={() => onPick(s)}
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-left text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 transition-colors"
+            className="rounded-lg border border-line bg-white px-3 py-2 text-sm text-left text-ink-2 hover:border-line-strong hover:bg-hover transition-colors"
           >
             {s}
           </button>

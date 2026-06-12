@@ -76,21 +76,21 @@ export default async function TeamKpiEntryPage({
       {/* Back */}
       <Link
         href={`/reports/team/${id}?month=${month}&year=${year}`}
-        className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors font-medium"
+        className="text-sm text-ink-3 hover:text-ink transition-colors font-medium"
       >
         &larr; {member.full_name}
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900">Enter KPIs</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
+        <h1 className="text-2xl font-bold text-ink">Enter KPIs</h1>
+        <p className="text-sm text-ink-3 mt-0.5">
           {member.full_name} &mdash; {member.role_title} &mdash; {monthLabel}
         </p>
       </div>
 
       {definitions.length === 0 ? (
-        <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center">
-          <p className="text-sm text-zinc-400">
+        <div className="rounded-xl border border-line bg-white p-8 text-center">
+          <p className="text-sm text-ink-4">
             No KPI definitions found for this team member.
           </p>
         </div>

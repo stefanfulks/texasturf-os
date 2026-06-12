@@ -38,7 +38,7 @@ export function SyncButtons({ accountId }: { accountId: string }) {
   }
 
   const baseBtn =
-    "rounded-lg px-3 py-2 text-sm font-medium border border-zinc-200 bg-white hover:bg-zinc-50 disabled:opacity-50 disabled:cursor-not-allowed";
+    "rounded-lg px-3 py-2 text-sm font-medium border border-line bg-white hover:bg-hover disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
     <div className="mt-4 space-y-2">
@@ -68,8 +68,8 @@ export function SyncButtons({ accountId }: { accountId: string }) {
           {busy === "jobs" ? "Syncing jobs…" : "Sync all jobs"}
         </button>
       </div>
-      {msg && <p className="text-xs text-green-700">{msg}</p>}
-      {err && <p className="text-xs text-red-700">{err}</p>}
+      {msg && <p className="text-xs text-brand">{msg}</p>}
+      {err && <p className="text-xs text-danger">{err}</p>}
     </div>
   );
 }

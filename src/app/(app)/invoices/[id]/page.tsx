@@ -8,27 +8,27 @@ import { ArchiveButton } from "./archive-button";
 import type { Invoice, InvoiceStatus, InvoiceLineItem, InvoiceStatusHistory, InvoiceComment, Vendor } from "@/lib/db-helpers.types";
 
 const STATUS_CONFIG: Record<InvoiceStatus, { label: string; badge: string; dot: string }> = {
-  draft:              { label: "Draft",             badge: "bg-zinc-100 text-zinc-500",     dot: "bg-zinc-300"    },
-  submitted:          { label: "Submitted",         badge: "bg-blue-100 text-blue-700",     dot: "bg-blue-400"    },
-  ocr_processing:     { label: "Processing OCR",    badge: "bg-indigo-100 text-indigo-700", dot: "bg-indigo-400"  },
-  ocr_review_needed:  { label: "OCR Review Needed", badge: "bg-amber-100 text-amber-700",   dot: "bg-amber-400"   },
-  awaiting_review:    { label: "Awaiting Review",   badge: "bg-yellow-100 text-yellow-700", dot: "bg-yellow-400"  },
-  awaiting_approval:  { label: "Awaiting Approval", badge: "bg-orange-100 text-orange-700", dot: "bg-orange-400"  },
-  approved:           { label: "Approved",          badge: "bg-green-100 text-green-700",   dot: "bg-green-500"   },
-  request_change:     { label: "Needs Changes",     badge: "bg-red-100 text-red-700",       dot: "bg-red-500"     },
-  rejected:           { label: "Rejected",          badge: "bg-red-200 text-red-800",       dot: "bg-red-600"     },
-  on_hold:            { label: "On Hold",           badge: "bg-zinc-100 text-zinc-500",     dot: "bg-zinc-400"    },
-  paid:               { label: "Paid",              badge: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" },
-  archived:           { label: "Archived",          badge: "bg-zinc-50 text-zinc-400",      dot: "bg-zinc-200"    },
+  draft:              { label: "Draft",             badge: "bg-sunken text-ink-3",     dot: "bg-line-strong"    },
+  submitted:          { label: "Submitted",         badge: "bg-info-tint text-info",     dot: "bg-info"    },
+  ocr_processing:     { label: "Processing OCR",    badge: "bg-info-tint text-info", dot: "bg-info"  },
+  ocr_review_needed:  { label: "OCR Review Needed", badge: "bg-warn-tint text-warn",   dot: "bg-warn"   },
+  awaiting_review:    { label: "Awaiting Review",   badge: "bg-warn-tint text-warn", dot: "bg-warn"  },
+  awaiting_approval:  { label: "Awaiting Approval", badge: "bg-warn-tint text-warn", dot: "bg-warn"  },
+  approved:           { label: "Approved",          badge: "bg-brand-tint text-brand",   dot: "bg-brand"   },
+  request_change:     { label: "Needs Changes",     badge: "bg-danger-tint text-danger",       dot: "bg-danger"     },
+  rejected:           { label: "Rejected",          badge: "bg-danger-tint text-danger",       dot: "bg-danger"     },
+  on_hold:            { label: "On Hold",           badge: "bg-sunken text-ink-3",     dot: "bg-ink-4"    },
+  paid:               { label: "Paid",              badge: "bg-brand-tint text-brand", dot: "bg-brand" },
+  archived:           { label: "Archived",          badge: "bg-hover text-ink-4",      dot: "bg-line"    },
 };
 
 const VARIANCE_CONFIG: Record<string, { label: string; color: string }> = {
-  not_reviewed:     { label: "Not Reviewed", color: "text-zinc-400"  },
-  matches_expected: { label: "Matches",      color: "text-green-600" },
-  overcharged:      { label: "Overcharged",  color: "text-red-600"   },
-  undercharged:     { label: "Under",        color: "text-blue-600"  },
-  unclear:          { label: "Unclear",      color: "text-amber-600" },
-  needs_review:     { label: "Review",       color: "text-orange-600"},
+  not_reviewed:     { label: "Not Reviewed", color: "text-ink-4"  },
+  matches_expected: { label: "Matches",      color: "text-brand" },
+  overcharged:      { label: "Overcharged",  color: "text-danger"   },
+  undercharged:     { label: "Under",        color: "text-info"  },
+  unclear:          { label: "Unclear",      color: "text-warn" },
+  needs_review:     { label: "Review",       color: "text-warn"},
 };
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -88,12 +88,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="max-w-5xl space-y-6">
       {/* Back + Header */}
-      <Link href="/invoices" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">← Invoices</Link>
+      <Link href="/invoices" className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink">← Invoices</Link>
 
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{invoice.title}</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             {invoice.vendor?.name ?? "No vendor"}
             {invoice.submitted_by && ` · Submitted by ${invoice.submitted_by.full_name ?? invoice.submitted_by.email.split("@")[0]}`}
             {" · "}{format(parseISO(invoice.submitted_at), "MMM d, yyyy")}
@@ -101,7 +101,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {invoice.total_amount != null && (
-            <span className="text-2xl font-bold text-zinc-900">
+            <span className="text-2xl font-bold text-ink">
               ${invoice.total_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
             </span>
           )}
@@ -115,18 +115,18 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       {(canReview || canApprove || isOfficeOrAdmin) && (
         <div className="flex gap-3 flex-wrap items-center">
           {canReview && (
-            <Link href={`/invoices/${id}/review`} className="px-4 py-2 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-700 transition-colors">
+            <Link href={`/invoices/${id}/review`} className="px-4 py-2 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink transition-colors">
               Review Invoice
             </Link>
           )}
           {canApprove && (
-            <Link href={`/invoices/${id}/approval`} className="px-4 py-2 rounded-xl bg-green-700 text-white text-sm font-semibold hover:bg-green-800 transition-colors">
+            <Link href={`/invoices/${id}/approval`} className="px-4 py-2 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand transition-colors">
               Approve / Reject
             </Link>
           )}
           {isOfficeOrAdmin && (
             <>
-              <Link href={`/invoices/${id}/edit`} className="px-4 py-2 rounded-xl border border-zinc-300 bg-white text-sm font-semibold text-zinc-700 hover:border-zinc-500 transition-colors">
+              <Link href={`/invoices/${id}/edit`} className="px-4 py-2 rounded-xl border border-line-strong bg-white text-sm font-semibold text-ink-2 hover:border-line-strong transition-colors">
                 Edit
               </Link>
               <ArchiveButton invoiceId={id} archived={invoice.status === "archived"} />
@@ -137,9 +137,9 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
       {/* Change request banner */}
       {invoice.status === "request_change" && invoice.change_request_reason && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4">
-          <p className="text-sm font-semibold text-red-800 mb-1">Changes Requested</p>
-          <p className="text-sm text-red-700">{invoice.change_request_reason}</p>
+        <div className="rounded-xl border border-danger/30 bg-danger-tint px-5 py-4">
+          <p className="text-sm font-semibold text-danger mb-1">Changes Requested</p>
+          <p className="text-sm text-danger">{invoice.change_request_reason}</p>
         </div>
       )}
 
@@ -149,8 +149,8 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
           {/* Original file preview */}
           {signedUrl && (
-            <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-              <div className="px-5 py-3 border-b border-zinc-100">
+            <div className="rounded-xl border border-line bg-white overflow-hidden">
+              <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">Original Invoice</h2>
               </div>
               <div className="p-4">
@@ -168,12 +168,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                   />
                 ) : invoice.original_file_type === "application/pdf" ? (
                   <div className="flex flex-col items-center gap-3 py-6">
-                    <svg className="w-10 h-10 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                    <p className="text-sm text-zinc-600">{invoice.original_file_name ?? "Invoice PDF"}</p>
-                    <a href={signedUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:underline">Open PDF →</a>
+                    <svg className="w-10 h-10 text-ink-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                    <p className="text-sm text-ink-2">{invoice.original_file_name ?? "Invoice PDF"}</p>
+                    <a href={signedUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-info hover:underline">Open PDF →</a>
                   </div>
                 ) : (
-                  <a href={signedUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                  <a href={signedUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-info hover:underline">
                     {invoice.original_file_name ?? "Download file"}
                   </a>
                 )}
@@ -182,11 +182,11 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           )}
 
           {/* Extracted invoice data */}
-          <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
+          <div className="rounded-xl border border-line bg-white overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-line">
               <h2 className="text-sm font-semibold">Invoice Details</h2>
               {invoice.ocr_confidence != null && (
-                <span className={`text-xs px-2 py-0.5 rounded font-medium ${invoice.ocr_confidence >= 85 ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                <span className={`text-xs px-2 py-0.5 rounded font-medium ${invoice.ocr_confidence >= 85 ? "bg-brand-tint text-brand" : "bg-warn-tint text-warn"}`}>
                   {invoice.ocr_confidence.toFixed(0)}% confidence
                 </span>
               )}
@@ -206,8 +206,8 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                 { label: "Total",           value: invoice.total_amount != null ? `$${invoice.total_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : null },
               ].filter((f) => f.value).map((f) => (
                 <div key={f.label} className="flex gap-2">
-                  <span className="text-zinc-400 w-32 flex-shrink-0">{f.label}</span>
-                  <span className="text-zinc-900 font-medium">{f.value}</span>
+                  <span className="text-ink-4 w-32 flex-shrink-0">{f.label}</span>
+                  <span className="text-ink font-medium">{f.value}</span>
                 </div>
               ))}
             </div>
@@ -215,14 +215,14 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
           {/* Line items */}
           {lineItems.length > 0 && (
-            <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-              <div className="px-5 py-3 border-b border-zinc-100">
+            <div className="rounded-xl border border-line bg-white overflow-hidden">
+              <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">Line Items</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-zinc-50 text-zinc-500 text-xs">
+                    <tr className="bg-hover text-ink-3 text-xs">
                       <th className="text-left px-5 py-2 font-medium">Description</th>
                       <th className="text-right px-3 py-2 font-medium">Qty</th>
                       <th className="text-right px-3 py-2 font-medium">Unit Price</th>
@@ -230,25 +230,25 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                       {isOfficeOrAdmin && <th className="text-left px-3 py-2 font-medium">Variance</th>}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-100">
+                  <tbody className="divide-y divide-line">
                     {lineItems.map((item) => (
                       <tr key={item.id}>
                         <td className="px-5 py-2.5">
-                          <p className="font-medium text-zinc-900">{item.description}</p>
-                          {item.category && <p className="text-xs text-zinc-400">{item.category}</p>}
+                          <p className="font-medium text-ink">{item.description}</p>
+                          {item.category && <p className="text-xs text-ink-4">{item.category}</p>}
                         </td>
-                        <td className="px-3 py-2.5 text-right text-zinc-600">
+                        <td className="px-3 py-2.5 text-right text-ink-2">
                           {item.quantity != null ? `${item.quantity}${item.unit ? ` ${item.unit}` : ""}` : "—"}
                         </td>
-                        <td className="px-3 py-2.5 text-right text-zinc-600">
+                        <td className="px-3 py-2.5 text-right text-ink-2">
                           {item.unit_price != null ? `$${item.unit_price.toFixed(2)}` : "—"}
                         </td>
-                        <td className="px-5 py-2.5 text-right font-semibold text-zinc-900">
+                        <td className="px-5 py-2.5 text-right font-semibold text-ink">
                           ${item.line_total.toFixed(2)}
                         </td>
                         {isOfficeOrAdmin && (
                           <td className="px-3 py-2.5">
-                            <span className={`text-xs font-medium ${VARIANCE_CONFIG[item.variance_status]?.color ?? "text-zinc-400"}`}>
+                            <span className={`text-xs font-medium ${VARIANCE_CONFIG[item.variance_status]?.color ?? "text-ink-4"}`}>
                               {VARIANCE_CONFIG[item.variance_status]?.label ?? item.variance_status}
                             </span>
                           </td>
@@ -257,9 +257,9 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr className="bg-zinc-50">
-                      <td colSpan={isOfficeOrAdmin ? 3 : 2} className="px-5 py-2.5 text-sm font-semibold text-zinc-600">Total</td>
-                      <td className="px-5 py-2.5 text-right text-sm font-bold text-zinc-900">
+                    <tr className="bg-hover">
+                      <td colSpan={isOfficeOrAdmin ? 3 : 2} className="px-5 py-2.5 text-sm font-semibold text-ink-2">Total</td>
+                      <td className="px-5 py-2.5 text-right text-sm font-bold text-ink">
                         ${lineItems.reduce((s, i) => s + i.line_total, 0).toFixed(2)}
                       </td>
                       {isOfficeOrAdmin && <td />}
@@ -284,55 +284,55 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
           {/* Payment info */}
           {invoice.status === "paid" && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-2 text-sm">
-              <p className="font-semibold text-emerald-800">Paid</p>
-              {invoice.paid_at && <p className="text-emerald-700">{format(parseISO(invoice.paid_at), "MMM d, yyyy")}</p>}
-              {invoice.payment_method    && <p className="text-emerald-700">Method: {invoice.payment_method}</p>}
-              {invoice.payment_reference && <p className="text-emerald-700">Ref: {invoice.payment_reference}</p>}
-              {invoice.paid_by           && <p className="text-emerald-700">By: {invoice.paid_by.full_name ?? invoice.paid_by.email.split("@")[0]}</p>}
+            <div className="rounded-xl border border-brand/30 bg-brand-tint p-4 space-y-2 text-sm">
+              <p className="font-semibold text-brand">Paid</p>
+              {invoice.paid_at && <p className="text-brand">{format(parseISO(invoice.paid_at), "MMM d, yyyy")}</p>}
+              {invoice.payment_method    && <p className="text-brand">Method: {invoice.payment_method}</p>}
+              {invoice.payment_reference && <p className="text-brand">Ref: {invoice.payment_reference}</p>}
+              {invoice.paid_by           && <p className="text-brand">By: {invoice.paid_by.full_name ?? invoice.paid_by.email.split("@")[0]}</p>}
             </div>
           )}
 
           {/* Notes (office visible) */}
           {isOfficeOrAdmin && (invoice.admin_notes || invoice.variance_notes || invoice.ownership_notes || invoice.payment_notes) && (
-            <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-3 text-sm">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Notes</h3>
-              {invoice.admin_notes      && <div><p className="text-xs text-zinc-400 mb-0.5">Admin</p><p className="text-zinc-700">{invoice.admin_notes}</p></div>}
-              {invoice.variance_notes   && <div><p className="text-xs text-zinc-400 mb-0.5">Variance</p><p className="text-zinc-700">{invoice.variance_notes}</p></div>}
-              {invoice.ownership_notes  && <div><p className="text-xs text-zinc-400 mb-0.5">Ownership</p><p className="text-zinc-700">{invoice.ownership_notes}</p></div>}
-              {invoice.payment_notes    && <div><p className="text-xs text-zinc-400 mb-0.5">Payment</p><p className="text-zinc-700">{invoice.payment_notes}</p></div>}
+            <div className="rounded-xl border border-line bg-white p-4 space-y-3 text-sm">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-4">Notes</h3>
+              {invoice.admin_notes      && <div><p className="text-xs text-ink-4 mb-0.5">Admin</p><p className="text-ink-2">{invoice.admin_notes}</p></div>}
+              {invoice.variance_notes   && <div><p className="text-xs text-ink-4 mb-0.5">Variance</p><p className="text-ink-2">{invoice.variance_notes}</p></div>}
+              {invoice.ownership_notes  && <div><p className="text-xs text-ink-4 mb-0.5">Ownership</p><p className="text-ink-2">{invoice.ownership_notes}</p></div>}
+              {invoice.payment_notes    && <div><p className="text-xs text-ink-4 mb-0.5">Payment</p><p className="text-ink-2">{invoice.payment_notes}</p></div>}
             </div>
           )}
 
           {/* OCR text */}
           {isOfficeOrAdmin && invoice.ocr_text && (
-            <details className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+            <details className="rounded-xl border border-line bg-white overflow-hidden">
               <summary className="px-4 py-3 text-sm font-semibold cursor-pointer">Raw OCR Text</summary>
-              <pre className="px-4 pb-4 text-xs text-zinc-500 whitespace-pre-wrap overflow-x-auto">{invoice.ocr_text}</pre>
+              <pre className="px-4 pb-4 text-xs text-ink-3 whitespace-pre-wrap overflow-x-auto">{invoice.ocr_text}</pre>
             </details>
           )}
 
           {/* Status history */}
-          <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-            <div className="px-4 py-3 border-b border-zinc-100">
+          <div className="rounded-xl border border-line bg-white overflow-hidden">
+            <div className="px-4 py-3 border-b border-line">
               <h3 className="text-sm font-semibold">Status History</h3>
             </div>
             <div className="p-4 space-y-3">
               {history.map((entry, i) => (
                 <div key={entry.id} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <div className={`w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0 ${STATUS_CONFIG[entry.new_status as InvoiceStatus]?.dot ?? "bg-zinc-300"}`} />
-                    {i < history.length - 1 && <div className="w-px flex-1 bg-zinc-200 my-1" />}
+                    <div className={`w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0 ${STATUS_CONFIG[entry.new_status as InvoiceStatus]?.dot ?? "bg-line-strong"}`} />
+                    {i < history.length - 1 && <div className="w-px flex-1 bg-line my-1" />}
                   </div>
                   <div className="flex-1 pb-2">
-                    <p className="text-xs font-semibold text-zinc-700">
+                    <p className="text-xs font-semibold text-ink-2">
                       {STATUS_CONFIG[entry.new_status as InvoiceStatus]?.label ?? entry.new_status}
                     </p>
-                    <p className="text-xs text-zinc-400">
+                    <p className="text-xs text-ink-4">
                       {entry.changed_by?.full_name ?? entry.changed_by?.email?.split("@")[0] ?? "System"}
                       {" · "}{format(parseISO(entry.created_at), "MMM d, h:mm a")}
                     </p>
-                    {entry.notes && <p className="text-xs text-zinc-500 mt-0.5 italic">{entry.notes}</p>}
+                    {entry.notes && <p className="text-xs text-ink-3 mt-0.5 italic">{entry.notes}</p>}
                   </div>
                 </div>
               ))}
@@ -341,13 +341,13 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
           {/* Integration links */}
           {isOfficeOrAdmin && invoice.monday_item_id && (
-            <div className="rounded-xl border border-zinc-200 bg-white p-4 text-sm">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Integrations</h3>
+            <div className="rounded-xl border border-line bg-white p-4 text-sm">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-2">Integrations</h3>
               <a
                 href={`https://texasturfusa.monday.com/boards/`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-info hover:underline"
               >
                 Monday.com item #{invoice.monday_item_id}
               </a>

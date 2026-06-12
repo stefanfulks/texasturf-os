@@ -9,9 +9,9 @@ import type {
 
 function varianceColor(pct: number): string {
   const abs = Math.abs(pct);
-  if (abs <= 5) return "text-green-700";
-  if (abs <= 15) return "text-amber-700";
-  return "text-red-700";
+  if (abs <= 5) return "text-brand";
+  if (abs <= 15) return "text-warn";
+  return "text-danger";
 }
 
 export default async function TurfOverageReportPage({
@@ -104,20 +104,20 @@ export default async function TurfOverageReportPage({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Turf Overage Report</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             Requested vs dispatched feet per job
           </p>
         </div>
       </div>
 
       {/* Filters */}
-      <form method="GET" className="flex flex-wrap gap-3 items-end rounded-xl border border-zinc-200 bg-white p-4">
+      <form method="GET" className="flex flex-wrap gap-3 items-end rounded-xl border border-line bg-white p-4">
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">Status</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Status</label>
           <select
             name="status"
             defaultValue={effectiveStatus}
-            className="text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white"
+            className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
           >
             <option value="completed">Completed</option>
             <option value="in_progress">In Progress</option>
@@ -125,33 +125,33 @@ export default async function TurfOverageReportPage({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">From</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">From</label>
           <input
             type="date"
             name="date_from"
             defaultValue={date_from ?? ""}
-            className="text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white"
+            className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">To</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">To</label>
           <input
             type="date"
             name="date_to"
             defaultValue={date_to ?? ""}
-            className="text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white"
+            className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
           />
         </div>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700"
+          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink"
         >
           Filter
         </button>
         {(date_from || date_to || (status && status !== "completed")) && (
           <Link
             href="/inventory/reports/overage"
-            className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900"
+            className="px-4 py-2 text-sm font-medium text-ink-2 hover:text-ink"
           >
             Reset
           </Link>
@@ -160,20 +160,20 @@ export default async function TurfOverageReportPage({
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Jobs</p>
-          <p className="text-2xl font-semibold text-zinc-900">{withRequested.length}</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Jobs</p>
+          <p className="text-2xl font-semibold text-ink">{withRequested.length}</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Over</p>
-          <p className="text-2xl font-semibold text-red-700">{totalOver}</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Over</p>
+          <p className="text-2xl font-semibold text-danger">{totalOver}</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Under</p>
-          <p className="text-2xl font-semibold text-green-700">{totalUnder}</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Under</p>
+          <p className="text-2xl font-semibold text-brand">{totalUnder}</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Avg Variance</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Avg Variance</p>
           <p className={`text-2xl font-semibold ${varianceColor(avgVariancePct)}`}>
             {avgVariancePct > 0 ? "+" : ""}
             {avgVariancePct.toFixed(1)}%
@@ -182,47 +182,47 @@ export default async function TurfOverageReportPage({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-x-auto">
+      <div className="rounded-xl border border-line bg-white overflow-x-auto">
         {rows.length === 0 ? (
-          <div className="py-12 text-center text-sm text-zinc-400">
+          <div className="py-12 text-center text-sm text-ink-4">
             No jobs match the filters.
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-100 bg-zinc-50">
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">Job #</th>
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">Name</th>
-                <th className="text-left px-4 py-3 font-semibold text-zinc-600">Completion</th>
-                <th className="text-right px-4 py-3 font-semibold text-zinc-600">Requested</th>
-                <th className="text-right px-4 py-3 font-semibold text-zinc-600">Dispatched</th>
-                <th className="text-right px-4 py-3 font-semibold text-zinc-600">Variance (ft)</th>
-                <th className="text-right px-4 py-3 font-semibold text-zinc-600">Variance %</th>
+              <tr className="border-b border-line bg-hover">
+                <th className="text-left px-4 py-3 font-semibold text-ink-2">Job #</th>
+                <th className="text-left px-4 py-3 font-semibold text-ink-2">Name</th>
+                <th className="text-left px-4 py-3 font-semibold text-ink-2">Completion</th>
+                <th className="text-right px-4 py-3 font-semibold text-ink-2">Requested</th>
+                <th className="text-right px-4 py-3 font-semibold text-ink-2">Dispatched</th>
+                <th className="text-right px-4 py-3 font-semibold text-ink-2">Variance (ft)</th>
+                <th className="text-right px-4 py-3 font-semibold text-ink-2">Variance %</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-line">
               {rows.map(({ job, requested, dispatched, variance, variancePct }) => {
-                const color = requested > 0 ? varianceColor(variancePct) : "text-zinc-400";
+                const color = requested > 0 ? varianceColor(variancePct) : "text-ink-4";
                 return (
-                  <tr key={job.id} className="hover:bg-zinc-50">
+                  <tr key={job.id} className="hover:bg-hover">
                     <td className="px-4 py-3 font-mono text-xs">
                       <Link
                         href={`/inventory/jobs/${job.id}`}
-                        className="text-zinc-800 hover:underline"
+                        className="text-ink hover:underline"
                       >
                         {job.job_number ?? job.id.slice(0, 8)}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-zinc-700">{job.job_name}</td>
-                    <td className="px-4 py-3 text-xs text-zinc-500 whitespace-nowrap">
+                    <td className="px-4 py-3 text-ink-2">{job.job_name}</td>
+                    <td className="px-4 py-3 text-xs text-ink-3 whitespace-nowrap">
                       {job.completion_date
                         ? format(parseISO(job.completion_date), "MMM d, yyyy")
                         : "—"}
                     </td>
-                    <td className="px-4 py-3 text-right text-zinc-700">
+                    <td className="px-4 py-3 text-right text-ink-2">
                       {Math.round(requested).toLocaleString()} ft
                     </td>
-                    <td className="px-4 py-3 text-right text-zinc-700">
+                    <td className="px-4 py-3 text-right text-ink-2">
                       {Math.round(dispatched).toLocaleString()} ft
                     </td>
                     <td className={`px-4 py-3 text-right font-medium ${color}`}>

@@ -17,8 +17,8 @@ type ClientOpt = { id: string; name: string };
 type RollRow = { roll_number: string; lengths_needed: string };
 
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
-const label = "block text-xs font-medium text-zinc-500 mb-1";
+  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const label = "block text-xs font-medium text-ink-3 mb-1";
 
 export function NewPullListForm({
   employees,
@@ -192,7 +192,7 @@ export function NewPullListForm({
                 type="button"
                 onClick={() => removeRoll(i)}
                 disabled={rolls.length === 1}
-                className="text-zinc-400 hover:text-zinc-700 disabled:opacity-30 text-xs px-2"
+                className="text-ink-4 hover:text-ink-2 disabled:opacity-30 text-xs px-2"
                 aria-label="Remove roll"
               >
                 ✕
@@ -202,7 +202,7 @@ export function NewPullListForm({
           <button
             type="button"
             onClick={addRoll}
-            className="text-xs font-medium text-zinc-700 hover:text-zinc-900 px-2 py-1 rounded border border-dashed border-zinc-300 hover:border-zinc-500"
+            className="text-xs font-medium text-ink-2 hover:text-ink px-2 py-1 rounded border border-dashed border-line-strong hover:border-line-strong"
           >
             + Add roll
           </button>
@@ -228,7 +228,7 @@ export function NewPullListForm({
       {/* ─── Bagged products ─────────────────────────────────────────── */}
       <Section title="Bagged products">
         <label className="inline-flex items-center gap-2 text-sm">
-          <input type="checkbox" name="bagged_none" className="rounded border-zinc-300" />
+          <input type="checkbox" name="bagged_none" className="rounded border-line-strong" />
           <span>None on this job</span>
         </label>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -259,7 +259,7 @@ export function NewPullListForm({
       </Section>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-danger/30 bg-danger-tint px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -267,14 +267,14 @@ export function NewPullListForm({
       <div className="flex justify-end gap-2">
         <Link
           href="/operations/pull-lists"
-          className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900"
+          className="px-4 py-2 text-sm text-ink-2 hover:text-ink"
         >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink disabled:opacity-50"
         >
           {isPending ? "Creating…" : "Create pull list"}
         </button>
@@ -285,8 +285,8 @@ export function NewPullListForm({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
-      <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
+    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
+      <h2 className="text-sm font-semibold text-ink">{title}</h2>
       {children}
     </section>
   );

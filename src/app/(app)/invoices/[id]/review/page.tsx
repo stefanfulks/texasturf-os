@@ -51,14 +51,14 @@ export default async function InvoiceReviewPage({ params }: { params: Promise<{ 
 
   return (
     <div className="max-w-3xl space-y-6">
-      <Link href={`/invoices/${id}`} className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">← Invoice</Link>
+      <Link href={`/invoices/${id}`} className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink">← Invoice</Link>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Review Invoice</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">{invoice.title}</p>
+        <p className="text-sm text-ink-3 mt-0.5">{invoice.title}</p>
       </div>
 
       {invoice.ocr_confidence != null && (
-        <div className={`rounded-xl border px-5 py-3 text-sm ${invoice.ocr_confidence >= 85 ? "border-green-200 bg-green-50 text-green-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
+        <div className={`rounded-xl border px-5 py-3 text-sm ${invoice.ocr_confidence >= 85 ? "border-brand/30 bg-brand-tint text-brand" : "border-warn/30 bg-warn-tint text-warn"}`}>
           <strong>OCR Confidence: {invoice.ocr_confidence.toFixed(0)}%</strong>
           {invoice.ocr_confidence < 85 && " — Please verify extracted fields carefully."}
         </div>

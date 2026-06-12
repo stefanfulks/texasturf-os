@@ -65,15 +65,15 @@ export default async function MeetingsPage() {
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-5 pb-12">
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">Meetings</h1>
-          <p className="text-sm sm:text-base text-zinc-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Meetings</h1>
+          <p className="text-sm sm:text-base text-ink-2 mt-1">
             File items into your team&apos;s meetings — they show up in the agenda when it&apos;s time to run it.
           </p>
         </div>
         {isAdmin && (
           <Link
             href="/meetings/new"
-            className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-800 active:bg-zinc-700"
+            className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
           >
             <Plus className="h-4 w-4" />
             New meeting
@@ -82,7 +82,7 @@ export default async function MeetingsPage() {
       </div>
 
       {meetingsRes.error && (
-        <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-2xl border border-warn/30 bg-warn-tint p-4 text-sm text-warn">
           <p className="font-semibold">No meetings table yet.</p>
           <p className="mt-1">
             Apply migration{" "}
@@ -93,16 +93,16 @@ export default async function MeetingsPage() {
       )}
 
       {!meetingsRes.error && meetings.length === 0 && (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-10 text-center">
+        <div className="rounded-2xl border border-line bg-white p-10 text-center">
           <div className="text-4xl mb-3">📋</div>
-          <p className="text-base font-semibold text-zinc-900">No meetings yet</p>
-          <p className="text-sm text-zinc-500 mt-1">
+          <p className="text-base font-semibold text-ink">No meetings yet</p>
+          <p className="text-sm text-ink-3 mt-1">
             {isAdmin ? "Create the first meeting to start filing items." : "Ask an admin to set up a meeting for your team."}
           </p>
           {isAdmin && (
             <Link
               href="/meetings/new"
-              className="inline-flex items-center gap-1.5 mt-4 h-11 px-5 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-800 active:bg-zinc-700"
+              className="inline-flex items-center gap-1.5 mt-4 h-11 px-5 rounded-xl bg-ink text-white text-sm font-semibold hover:bg-ink active:bg-ink"
             >
               <Plus className="h-4 w-4" />
               New meeting
@@ -119,34 +119,34 @@ export default async function MeetingsPage() {
             <Link
               key={m.id}
               href={`/meetings/${m.slug}`}
-              className="block rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 hover:border-zinc-300 hover:shadow-sm transition-all group"
+              className="block rounded-2xl border border-line bg-white p-4 sm:p-5 hover:border-line-strong hover:shadow-sm transition-all group"
             >
               <div className="flex items-start gap-3">
-                <div className="h-11 w-11 shrink-0 rounded-xl bg-zinc-100 text-zinc-700 flex items-center justify-center">
+                <div className="h-11 w-11 shrink-0 rounded-xl bg-sunken text-ink-2 flex items-center justify-center">
                   <Calendar className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-base font-semibold text-zinc-900 group-hover:underline">{m.name}</p>
+                    <p className="text-base font-semibold text-ink group-hover:underline">{m.name}</p>
                     {m.meet_url && (
                       <span title="Has a Google Meet link" className="inline-flex">
-                        <Video className="h-3.5 w-3.5 text-emerald-600" />
+                        <Video className="h-3.5 w-3.5 text-brand" />
                       </span>
                     )}
                     {openCount > 0 && (
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                      <span className="rounded-full bg-warn-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-warn">
                         {openCount} open
                       </span>
                     )}
                   </div>
                   {m.description && (
-                    <p className="text-sm text-zinc-600 mt-0.5 line-clamp-1">{m.description}</p>
+                    <p className="text-sm text-ink-2 mt-0.5 line-clamp-1">{m.description}</p>
                   )}
-                  <p className="text-xs text-zinc-500 mt-1">
+                  <p className="text-xs text-ink-3 mt-1">
                     {formatCadence(m)} · Next: {formatOccurrence(next, m)}
                   </p>
                 </div>
-                <ChevronRight className="h-4 w-4 text-zinc-400 shrink-0 mt-1" />
+                <ChevronRight className="h-4 w-4 text-ink-4 shrink-0 mt-1" />
               </div>
             </Link>
           );

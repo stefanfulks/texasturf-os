@@ -18,7 +18,7 @@ import type {
 } from "@/lib/db-helpers.types";
 
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 
 const STATUS_OPTIONS: Array<[RollStatus, string]> = [
   ["available", "Available"],
@@ -69,7 +69,7 @@ export function RollForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">
+          <label className="block text-xs font-medium text-ink-3 mb-1">
             TT SKU Tag # *
           </label>
           <input
@@ -81,7 +81,7 @@ export function RollForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">
+          <label className="block text-xs font-medium text-ink-3 mb-1">
             Manufacturer Roll #
           </label>
           <input
@@ -95,7 +95,7 @@ export function RollForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">
+          <label className="block text-xs font-medium text-ink-3 mb-1">
             Vendor
           </label>
           <select
@@ -112,7 +112,7 @@ export function RollForm({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">
+          <label className="block text-xs font-medium text-ink-3 mb-1">
             Product
           </label>
           <select
@@ -132,7 +132,7 @@ export function RollForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">
+          <label className="block text-xs font-medium text-ink-3 mb-1">
             Dye Lot
           </label>
           <input
@@ -143,7 +143,7 @@ export function RollForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">
+          <label className="block text-xs font-medium text-ink-3 mb-1">
             Width (ft)
           </label>
           <input
@@ -156,7 +156,7 @@ export function RollForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-500 mb-1">
+          <label className="block text-xs font-medium text-ink-3 mb-1">
             Original Length (ft)
           </label>
           <input
@@ -174,7 +174,7 @@ export function RollForm({
       {mode === "edit" && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">
+            <label className="block text-xs font-medium text-ink-3 mb-1">
               Current Length (ft)
             </label>
             <input
@@ -187,7 +187,7 @@ export function RollForm({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">
+            <label className="block text-xs font-medium text-ink-3 mb-1">
               Status
             </label>
             <select
@@ -203,7 +203,7 @@ export function RollForm({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-500 mb-1">
+            <label className="block text-xs font-medium text-ink-3 mb-1">
               Roll Type
             </label>
             <select
@@ -229,7 +229,7 @@ export function RollForm({
       )}
 
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">
+        <label className="block text-xs font-medium text-ink-3 mb-1">
           Location
         </label>
         <select
@@ -247,7 +247,7 @@ export function RollForm({
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">
+        <label className="block text-xs font-medium text-ink-3 mb-1">
           Notes
         </label>
         <textarea
@@ -259,12 +259,12 @@ export function RollForm({
       </div>
 
       {state.error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <p className="text-sm text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">
           {state.error}
         </p>
       )}
       {state.success && mode === "edit" && (
-        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+        <p className="text-sm text-brand bg-brand-tint border border-brand/30 rounded-lg px-3 py-2">
           Saved.
         </p>
       )}
@@ -273,14 +273,14 @@ export function RollForm({
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-4 py-2 text-sm font-medium bg-white text-zinc-700 border border-zinc-200 rounded-lg hover:bg-zinc-50"
+          className="px-4 py-2 text-sm font-medium bg-white text-ink-2 border border-line rounded-lg hover:bg-hover"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
         >
           {isPending
             ? mode === "create"

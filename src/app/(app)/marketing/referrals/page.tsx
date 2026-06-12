@@ -48,7 +48,7 @@ export default async function ReferralsPage({
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold tracking-tight">Referral Program</h1>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">
+        <div className="rounded-xl border border-warn/30 bg-warn-tint p-6 text-sm text-warn">
           {campaignErr
             ? "Marketing tables aren't in the database yet. Apply supabase/migrations/20260610200000_marketing_core.sql, then reload."
             : "No referral campaign found. The marketing_core migration seeds “Referral Thank-You Blitz 2026” — apply it, then reload."}
@@ -100,7 +100,7 @@ export default async function ReferralsPage({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{campaign.name}</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             $250 Visa gift card or 1 year of the TexasTurf Care Plan — earned when the referred job is completed and paid.
             Referred friends get $100 off.
           </p>
@@ -109,7 +109,7 @@ export default async function ReferralsPage({
           <BuildRosterButton campaignId={campaign.id} />
           <a
             href={`/marketing/referrals/export?campaign=${campaign.id}`}
-            className="px-4 py-2 text-sm font-medium border border-zinc-300 rounded-lg hover:bg-zinc-50"
+            className="px-4 py-2 text-sm font-medium border border-line-strong rounded-lg hover:bg-hover"
           >
             Export Reevo CSV
           </a>
@@ -120,7 +120,7 @@ export default async function ReferralsPage({
       <div className="flex flex-wrap gap-2">
         <Link
           href="/marketing/referrals"
-          className={`text-xs px-2.5 py-1 rounded-full border ${!status ? "bg-zinc-900 text-white border-zinc-900" : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"}`}
+          className={`text-xs px-2.5 py-1 rounded-full border ${!status ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}
         >
           All {rosterTotal}
         </Link>
@@ -128,12 +128,12 @@ export default async function ReferralsPage({
           <Link
             key={s}
             href={`/marketing/referrals?status=${s}`}
-            className={`text-xs px-2.5 py-1 rounded-full border ${status === s ? "bg-zinc-900 text-white border-zinc-900" : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"}`}
+            className={`text-xs px-2.5 py-1 rounded-full border ${status === s ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}
           >
             {STATUS_LABEL[s]} {counts[s]}
           </Link>
         ))}
-        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${rewardsDue > 0 ? "bg-red-50 text-red-700" : "bg-zinc-100 text-zinc-500"}`}>
+        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${rewardsDue > 0 ? "bg-danger-tint text-danger" : "bg-sunken text-ink-3"}`}>
           Rewards due {rewardsDue}
         </span>
       </div>
@@ -145,18 +145,18 @@ export default async function ReferralsPage({
           name="q"
           defaultValue={q ?? ""}
           placeholder="Search clients…"
-          className="w-64 text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white"
+          className="w-64 text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
         />
-        <button type="submit" className="px-3 py-2 text-sm border border-zinc-200 rounded-lg hover:bg-zinc-50">
+        <button type="submit" className="px-3 py-2 text-sm border border-line rounded-lg hover:bg-hover">
           Search
         </button>
       </form>
 
       {/* Call roster */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100 bg-zinc-50 flex items-center justify-between">
-          <span className="text-xs font-semibold text-zinc-600">Call roster</span>
-          <span className="text-xs text-zinc-400">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line bg-hover flex items-center justify-between">
+          <span className="text-xs font-semibold text-ink-2">Call roster</span>
+          <span className="text-xs text-ink-4">
             showing {(roster ?? []).length} of {status ? counts[status as (typeof CALL_STATUSES)[number]] : rosterTotal}
           </span>
         </div>
@@ -164,16 +164,16 @@ export default async function ReferralsPage({
       </div>
 
       {/* Ledger */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100 bg-zinc-50 flex items-center justify-between">
-          <span className="text-xs font-semibold text-zinc-600">Referral ledger</span>
-          <span className="text-xs text-zinc-400">{(referrals ?? []).length} referrals</span>
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line bg-hover flex items-center justify-between">
+          <span className="text-xs font-semibold text-ink-2">Referral ledger</span>
+          <span className="text-xs text-ink-4">{(referrals ?? []).length} referrals</span>
         </div>
         <LedgerTable rows={(referrals ?? []) as ReferralRow[]} isAdmin={isAdmin} />
       </div>
 
       {/* Manual add */}
-      <details className="rounded-xl border border-zinc-200 bg-white p-6">
+      <details className="rounded-xl border border-line bg-white p-6">
         <summary className="text-sm font-semibold cursor-pointer select-none">
           Add a referral manually (walk-in, Jobber link, word of mouth)
         </summary>

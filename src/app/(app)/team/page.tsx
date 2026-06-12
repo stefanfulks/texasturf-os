@@ -46,13 +46,13 @@ export default async function AdminUsersPage() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Team</h1>
-            <p className="mt-0.5 text-sm text-zinc-500">
+            <p className="mt-0.5 text-sm text-ink-3">
               Invite new teammates and manage their access. Role gates what
               they can DO (admin / office / field). Departments drive what
               they SEE on the dashboard.
             </p>
           </div>
-          <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-600">
+          <span className="rounded-full bg-sunken px-3 py-1 text-xs font-semibold text-ink-2">
             {users.length} {users.length === 1 ? "user" : "users"}
           </span>
         </div>
@@ -60,11 +60,11 @@ export default async function AdminUsersPage() {
 
       <InviteUserForm />
 
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-100 bg-zinc-50 text-zinc-500">
+              <tr className="border-b border-line bg-hover text-ink-3">
                 <th className="text-left px-4 py-3 font-semibold">Name</th>
                 <th className="text-left px-4 py-3 font-semibold">Email</th>
                 <th className="text-left px-4 py-3 font-semibold w-40">Role</th>
@@ -72,7 +72,7 @@ export default async function AdminUsersPage() {
                 <th className="text-right px-4 py-3 font-semibold w-32">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-line">
               {users.map((u) => (
                 <UserRow key={u.id} user={u} currentUserId={user.id} />
               ))}
@@ -81,7 +81,7 @@ export default async function AdminUsersPage() {
         </div>
       </div>
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-ink-3">
         Tip: you can&apos;t demote yourself from admin — ask another admin to
         do it if needed.
       </p>

@@ -7,18 +7,18 @@ import { VendorArchiveButton } from "./archive-button";
 import type { Vendor, Invoice, InvoiceStatus } from "@/lib/db-helpers.types";
 
 const STATUS_BADGE: Record<InvoiceStatus, string> = {
-  draft:             "bg-zinc-100 text-zinc-500",
-  submitted:         "bg-blue-50 text-blue-700",
-  ocr_processing:    "bg-indigo-50 text-indigo-700",
-  ocr_review_needed: "bg-amber-50 text-amber-700",
-  awaiting_review:   "bg-yellow-50 text-yellow-700",
-  awaiting_approval: "bg-orange-50 text-orange-700",
-  approved:          "bg-green-50 text-green-700",
-  request_change:    "bg-red-50 text-red-700",
-  rejected:          "bg-red-100 text-red-800",
-  on_hold:           "bg-zinc-100 text-zinc-500",
-  paid:              "bg-emerald-50 text-emerald-700",
-  archived:          "bg-zinc-50 text-zinc-400",
+  draft:             "bg-sunken text-ink-3",
+  submitted:         "bg-info-tint text-info",
+  ocr_processing:    "bg-info-tint text-info",
+  ocr_review_needed: "bg-warn-tint text-warn",
+  awaiting_review:   "bg-warn-tint text-warn",
+  awaiting_approval: "bg-warn-tint text-warn",
+  approved:          "bg-brand-tint text-brand",
+  request_change:    "bg-danger-tint text-danger",
+  rejected:          "bg-danger-tint text-danger",
+  on_hold:           "bg-sunken text-ink-3",
+  paid:              "bg-brand-tint text-brand",
+  archived:          "bg-hover text-ink-4",
 };
 
 export default async function VendorDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -89,16 +89,16 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="max-w-3xl space-y-6">
-      <Link href="/vendors" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">← Vendors</Link>
+      <Link href="/vendors" className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink">← Vendors</Link>
 
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{vendor.name}</h1>
-          <p className="text-sm text-zinc-500">{vendor.contact_name}{vendor.email ? ` · ${vendor.email}` : ""}{vendor.phone ? ` · ${vendor.phone}` : ""}</p>
+          <p className="text-sm text-ink-3">{vendor.contact_name}{vendor.email ? ` · ${vendor.email}` : ""}{vendor.phone ? ` · ${vendor.phone}` : ""}</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {!vendor.active && (
-            <span className="px-3 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-500">Inactive</span>
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-sunken text-ink-3">Inactive</span>
           )}
           {isOfficeOrAdmin && (
             <VendorArchiveButton vendorId={vendor.id} archived={!vendor.active} />
@@ -108,68 +108,68 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
 
       {/* Scorecard */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Total Invoices</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Total Invoices</p>
           <p className="text-xl font-semibold">{activeInvoices.length}</p>
           {firstInvoiceDate && (
-            <p className="text-xs text-zinc-400 mt-1">since {format(parseISO(firstInvoiceDate), "MMM yyyy")}</p>
+            <p className="text-xs text-ink-4 mt-1">since {format(parseISO(firstInvoiceDate), "MMM yyyy")}</p>
           )}
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-emerald-50 px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Total Paid</p>
-          <p className="text-xl font-semibold text-emerald-700">${totalPaid.toLocaleString("en-US", { minimumFractionDigits: 2 })}</p>
-          <p className="text-xs text-zinc-400 mt-1">{paidInvoices.length} invoice{paidInvoices.length !== 1 ? "s" : ""}</p>
+        <div className="rounded-xl border border-line bg-brand-tint px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Total Paid</p>
+          <p className="text-xl font-semibold text-brand">${totalPaid.toLocaleString("en-US", { minimumFractionDigits: 2 })}</p>
+          <p className="text-xs text-ink-4 mt-1">{paidInvoices.length} invoice{paidInvoices.length !== 1 ? "s" : ""}</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Open Balance</p>
-          <p className={`text-xl font-semibold ${totalUnpaid > 0 ? "text-amber-600" : "text-zinc-400"}`}>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Open Balance</p>
+          <p className={`text-xl font-semibold ${totalUnpaid > 0 ? "text-warn" : "text-ink-4"}`}>
             ${totalUnpaid.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Avg Invoice</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Avg Invoice</p>
           <p className="text-xl font-semibold">
             {avgInvoiceAmount != null ? `$${avgInvoiceAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Avg Days to Approval</p>
-          <p className={`text-xl font-semibold ${avgDaysToApproval != null && avgDaysToApproval > 7 ? "text-amber-600" : "text-zinc-900"}`}>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Avg Days to Approval</p>
+          <p className={`text-xl font-semibold ${avgDaysToApproval != null && avgDaysToApproval > 7 ? "text-warn" : "text-ink"}`}>
             {avgDaysToApproval != null ? `${avgDaysToApproval.toFixed(1)}d` : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Avg Days to Payment</p>
-          <p className={`text-xl font-semibold ${avgDaysToPayment != null && avgDaysToPayment > 30 ? "text-red-600" : "text-zinc-900"}`}>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Avg Days to Payment</p>
+          <p className={`text-xl font-semibold ${avgDaysToPayment != null && avgDaysToPayment > 30 ? "text-danger" : "text-ink"}`}>
             {avgDaysToPayment != null ? `${avgDaysToPayment.toFixed(1)}d` : "—"}
           </p>
         </div>
       </div>
 
       {/* Monthly trend */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">6-Month Trend</h2>
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-100 bg-zinc-50">
-              <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Month</th>
-              <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Invoices</th>
-              <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Submitted</th>
-              <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Paid</th>
+            <tr className="border-b border-line bg-hover">
+              <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Month</th>
+              <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Invoices</th>
+              <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Submitted</th>
+              <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Paid</th>
             </tr>
           </thead>
           <tbody>
             {monthlyTrend.map((row) => (
-              <tr key={row.label} className="border-b border-zinc-50 hover:bg-zinc-50/50">
-                <td className="px-4 py-2.5 text-zinc-700 font-medium">{row.label}</td>
-                <td className="px-4 py-2.5 text-right text-zinc-500">{row.count > 0 ? row.count : <span className="text-zinc-300">—</span>}</td>
-                <td className="px-4 py-2.5 text-right font-medium text-zinc-800">
-                  {row.total > 0 ? `$${row.total.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : <span className="text-zinc-300">—</span>}
+              <tr key={row.label} className="border-b border-line hover:bg-hover/50">
+                <td className="px-4 py-2.5 text-ink-2 font-medium">{row.label}</td>
+                <td className="px-4 py-2.5 text-right text-ink-3">{row.count > 0 ? row.count : <span className="text-ink-4">—</span>}</td>
+                <td className="px-4 py-2.5 text-right font-medium text-ink">
+                  {row.total > 0 ? `$${row.total.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : <span className="text-ink-4">—</span>}
                 </td>
-                <td className="px-4 py-2.5 text-right text-emerald-700 font-medium">
-                  {row.paid > 0 ? `$${row.paid.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : <span className="text-zinc-300">—</span>}
+                <td className="px-4 py-2.5 text-right text-brand font-medium">
+                  {row.paid > 0 ? `$${row.paid.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : <span className="text-ink-4">—</span>}
                 </td>
               </tr>
             ))}
@@ -178,20 +178,20 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Invoice history */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Invoice History</h2>
-          <Link href={`/invoices/new`} className="text-xs text-zinc-500 hover:text-zinc-900">+ New Invoice</Link>
+          <Link href={`/invoices/new`} className="text-xs text-ink-3 hover:text-ink">+ New Invoice</Link>
         </div>
         {invoices.length === 0 ? (
-          <div className="py-8 text-center text-sm text-zinc-400">No invoices yet.</div>
+          <div className="py-8 text-center text-sm text-ink-4">No invoices yet.</div>
         ) : (
-          <div className="divide-y divide-zinc-100">
+          <div className="divide-y divide-line">
             {invoices.map((inv) => (
-              <Link key={inv.id} href={`/invoices/${inv.id}`} className="flex items-center gap-4 px-5 py-3 hover:bg-zinc-50 transition-colors group">
+              <Link key={inv.id} href={`/invoices/${inv.id}`} className="flex items-center gap-4 px-5 py-3 hover:bg-hover transition-colors group">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-zinc-900 group-hover:underline truncate">{inv.title}</p>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-sm font-medium text-ink group-hover:underline truncate">{inv.title}</p>
+                  <p className="text-xs text-ink-4">
                     {format(parseISO(inv.submitted_at), "MMM d, yyyy")}
                     {inv.service_period_start && ` · ${format(parseISO(inv.service_period_start), "MMM d")}${inv.service_period_end ? `–${format(parseISO(inv.service_period_end), "d")}` : ""}`}
                   </p>
@@ -212,7 +212,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
 
       {/* Edit form */}
       {isOfficeOrAdmin && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-6">
+        <div className="rounded-xl border border-line bg-white p-6">
           <h2 className="text-sm font-semibold mb-4">Edit Vendor</h2>
           <VendorForm mode="edit" vendor={vendor} />
         </div>

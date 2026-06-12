@@ -40,7 +40,7 @@ export function CommentSection({
 
   return (
     <div className="p-5">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-4">
         Comments {comments.length > 0 && `(${comments.length})`}
       </h3>
 
@@ -48,19 +48,19 @@ export function CommentSection({
         <div className="space-y-4 mb-5">
           {comments.map((c) => (
             <div key={c.id} className="flex gap-3">
-              <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-semibold text-zinc-600 flex-shrink-0">
+              <div className="w-7 h-7 rounded-full bg-line flex items-center justify-center text-xs font-semibold text-ink-2 flex-shrink-0">
                 {(c.author?.full_name ?? c.author?.email ?? "?")[0].toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-xs font-medium text-zinc-700">
+                  <span className="text-xs font-medium text-ink-2">
                     {c.author?.full_name ?? c.author?.email ?? "Unknown"}
                   </span>
-                  <span className="text-xs text-zinc-400">
+                  <span className="text-xs text-ink-4">
                     {format(parseISO(c.created_at), "MMM d, h:mm a")}
                   </span>
                 </div>
-                <p className="text-sm text-zinc-700 whitespace-pre-wrap">
+                <p className="text-sm text-ink-2 whitespace-pre-wrap">
                   <RefText
                     text={c.body}
                     renderText={(t, key) => <Fragment key={key}>{renderWithMentions(t)}</Fragment>}
@@ -87,17 +87,17 @@ export function CommentSection({
           required
           dropdownPosition="above"
           placeholder="Add a comment… @ to mention, # to link a task, job, invoice, or client."
-          className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 placeholder:text-zinc-400 resize-none"
+          className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong placeholder:text-ink-4 resize-none"
         />
-        {state.error && <p className="text-xs text-red-600">{state.error}</p>}
+        {state.error && <p className="text-xs text-danger">{state.error}</p>}
         <div className="flex justify-between items-center">
-          <p className="text-[10px] text-zinc-400">
+          <p className="text-[10px] text-ink-4">
             {mentions.length > 0 ? `${mentions.length} person mentioned` : "@ to mention · # to link"}
           </p>
           <button
             type="submit"
             disabled={isPending || draft.trim().length === 0}
-            className="px-3 py-1.5 text-xs font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+            className="px-3 py-1.5 text-xs font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
           >
             {isPending ? "Posting…" : "Post Comment"}
           </button>
@@ -116,7 +116,7 @@ function renderWithMentions(text: string): React.ReactNode {
       return (
         <span
           key={i}
-          className="rounded bg-blue-50 text-blue-700 font-medium px-0.5"
+          className="rounded bg-info-tint text-info font-medium px-0.5"
         >
           {part}
         </span>

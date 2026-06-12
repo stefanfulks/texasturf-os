@@ -51,9 +51,9 @@ export function AgendaActions({
       <button
         type="button"
         onClick={copyAsMarkdown}
-        className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg border border-zinc-200 bg-white text-xs font-semibold text-zinc-700 hover:border-zinc-400 active:bg-zinc-50"
+        className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg border border-line bg-white text-xs font-semibold text-ink-2 hover:border-line-strong active:bg-hover"
       >
-        {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+        {copied ? <Check className="h-3.5 w-3.5 text-brand" /> : <Copy className="h-3.5 w-3.5" />}
         {copied ? "Copied — paste into Google Docs" : "Copy as Markdown"}
       </button>
 
@@ -62,28 +62,28 @@ export function AgendaActions({
           type="button"
           onClick={() => setConfirming(true)}
           disabled={openCount === 0}
-          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg border border-zinc-200 bg-white text-xs font-semibold text-zinc-700 hover:border-zinc-400 active:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-lg border border-line bg-white text-xs font-semibold text-ink-2 hover:border-line-strong active:bg-hover disabled:opacity-40 disabled:cursor-not-allowed"
           title={openCount === 0 ? "Nothing open to carry forward" : ""}
         >
           <FastForward className="h-3.5 w-3.5" />
           Roll {openCount} open item{openCount === 1 ? "" : "s"} forward
         </button>
       ) : (
-        <div className="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-900 flex-wrap">
+        <div className="inline-flex items-center gap-2 rounded-lg border border-warn/30 bg-warn-tint px-3 py-1.5 text-xs text-warn flex-wrap">
           <AlertCircle className="h-3.5 w-3.5" />
           <span>Roll {openCount} open item{openCount === 1 ? "" : "s"} forward?</span>
           <button
             type="button"
             onClick={carry}
             disabled={carryPending}
-            className="h-7 px-2.5 rounded-md bg-amber-700 text-white text-xs font-semibold hover:bg-amber-800 disabled:opacity-50"
+            className="h-7 px-2.5 rounded-md bg-warn text-white text-xs font-semibold hover:bg-warn disabled:opacity-50"
           >
             {carryPending ? "Rolling…" : "Yes, roll forward"}
           </button>
           <button
             type="button"
             onClick={() => setConfirming(false)}
-            className="h-7 px-2 rounded-md text-xs font-medium text-amber-900 hover:bg-amber-100"
+            className="h-7 px-2 rounded-md text-xs font-medium text-warn hover:bg-warn-tint"
           >
             Cancel
           </button>

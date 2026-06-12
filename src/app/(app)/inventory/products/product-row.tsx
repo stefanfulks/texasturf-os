@@ -17,7 +17,7 @@ export function ProductRow({
 
   if (editing) {
     return (
-      <tr className="bg-zinc-50">
+      <tr className="bg-hover">
         <td colSpan={7} className="px-4 py-4">
           <ProductForm mode="edit" product={product} onDone={() => setEditing(false)} />
         </td>
@@ -26,22 +26,22 @@ export function ProductRow({
   }
 
   return (
-    <tr className={`hover:bg-zinc-50 transition-colors ${!product.active ? "opacity-60" : ""}`}>
-      <td className="px-4 py-3 font-medium text-zinc-800">{product.name}</td>
-      <td className="px-4 py-3 font-mono text-xs text-zinc-600">{product.sku ?? "—"}</td>
-      <td className="px-4 py-3 text-sm text-zinc-700">
+    <tr className={`hover:bg-hover transition-colors ${!product.active ? "opacity-60" : ""}`}>
+      <td className="px-4 py-3 font-medium text-ink">{product.name}</td>
+      <td className="px-4 py-3 font-mono text-xs text-ink-2">{product.sku ?? "—"}</td>
+      <td className="px-4 py-3 text-sm text-ink-2">
         {product.width_ft != null ? `${product.width_ft} ft` : "—"}
       </td>
-      <td className="px-4 py-3 text-sm text-zinc-500 max-w-xs truncate">
+      <td className="px-4 py-3 text-sm text-ink-3 max-w-xs truncate">
         {product.description ?? "—"}
       </td>
-      <td className="px-4 py-3 text-right text-sm text-zinc-700">{rollsInStock}</td>
+      <td className="px-4 py-3 text-right text-sm text-ink-2">{rollsInStock}</td>
       <td className="px-4 py-3 text-center">
         <span
           className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
             product.active
-              ? "bg-green-50 text-green-700"
-              : "bg-zinc-100 text-zinc-500"
+              ? "bg-brand-tint text-brand"
+              : "bg-sunken text-ink-3"
           }`}
         >
           {product.active ? "Active" : "Inactive"}
@@ -51,7 +51,7 @@ export function ProductRow({
         <div className="flex items-center justify-end gap-2">
           <button
             onClick={() => setEditing(true)}
-            className="text-xs font-medium text-zinc-600 hover:text-zinc-900"
+            className="text-xs font-medium text-ink-2 hover:text-ink"
           >
             Edit
           </button>
@@ -60,7 +60,7 @@ export function ProductRow({
               startTransition(() => toggleProductActive(product.id, !product.active))
             }
             disabled={isPending}
-            className="text-xs font-medium text-zinc-500 hover:text-zinc-900 disabled:opacity-50"
+            className="text-xs font-medium text-ink-3 hover:text-ink disabled:opacity-50"
           >
             {product.active ? "Deactivate" : "Activate"}
           </button>

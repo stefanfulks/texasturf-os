@@ -7,15 +7,15 @@ import type { OutreachRow } from "./page";
 
 const initial: ActionState = { error: null, success: false };
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 
 const STATUS_BADGE: Record<OutreachRow["call_status"], string> = {
-  queued: "bg-zinc-100 text-zinc-600",
-  no_answer: "bg-amber-50 text-amber-700",
-  declined: "bg-zinc-50 text-zinc-500",
-  referred: "bg-emerald-50 text-emerald-700",
-  do_not_call: "bg-red-50 text-red-700",
-  invalid_number: "bg-red-50 text-red-600",
+  queued: "bg-sunken text-ink-2",
+  no_answer: "bg-warn-tint text-warn",
+  declined: "bg-hover text-ink-3",
+  referred: "bg-brand-tint text-brand",
+  do_not_call: "bg-danger-tint text-danger",
+  invalid_number: "bg-danger-tint text-danger",
 };
 
 const STATUS_LABEL: Record<OutreachRow["call_status"], string> = {
@@ -36,17 +36,17 @@ export function BuildRosterButton({ campaignId }: { campaignId: string }) {
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
         >
           {isPending ? "Building…" : "Build roster from Jobber"}
         </button>
-        <label className="flex items-center gap-1.5 text-xs text-zinc-500">
-          <input type="checkbox" name="include_all" value="true" className="rounded border-zinc-300" />
+        <label className="flex items-center gap-1.5 text-xs text-ink-3">
+          <input type="checkbox" name="include_all" value="true" className="rounded border-line-strong" />
           all active clients (not just completed jobs)
         </label>
       </div>
-      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
-      {state.info && <span className="text-xs text-emerald-700">{state.info}</span>}
+      {state.error && <span className="text-xs text-danger">{state.error}</span>}
+      {state.info && <span className="text-xs text-brand">{state.info}</span>}
     </form>
   );
 }
@@ -99,30 +99,30 @@ function ReferredForm({
       <input type="hidden" name="referrer_name" value={row.client_name} />
       <input type="hidden" name="source" value="call" />
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Referred name *</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Referred name *</label>
         <input name="referred_name" required placeholder="Friend's name" className={field} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Phone</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Phone</label>
         <input name="referred_phone" placeholder="(512) 555-0100" className={field} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Interested in</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Interested in</label>
         <input name="service_interest" placeholder="turf, pickleball court…" className={field} />
       </div>
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={isPending}
-          className="px-3 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 disabled:opacity-50"
+          className="px-3 py-2 text-sm font-medium bg-brand text-white rounded-lg hover:bg-brand disabled:opacity-50"
         >
           {isPending ? "Saving…" : "Save referral"}
         </button>
-        <button type="button" onClick={onDone} className="px-3 py-2 text-sm border border-zinc-200 rounded-lg">
+        <button type="button" onClick={onDone} className="px-3 py-2 text-sm border border-line rounded-lg">
           Cancel
         </button>
       </div>
-      {state.error && <p className="text-xs text-red-600 sm:col-span-4">{state.error}</p>}
+      {state.error && <p className="text-xs text-danger sm:col-span-4">{state.error}</p>}
     </form>
   );
 }
@@ -134,8 +134,8 @@ function RosterRow({ row, campaignId }: { row: OutreachRow; campaignId: string }
     <div className="px-5 py-3">
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex-1 min-w-48">
-          <p className="text-sm font-semibold text-zinc-900">{row.client_name}</p>
-          <p className="text-xs text-zinc-400">
+          <p className="text-sm font-semibold text-ink">{row.client_name}</p>
+          <p className="text-xs text-ink-4">
             {row.client_phone ? (
               <a href={`tel:${row.client_phone}`} className="hover:underline">{row.client_phone}</a>
             ) : "no phone"}
@@ -143,7 +143,7 @@ function RosterRow({ row, campaignId }: { row: OutreachRow; campaignId: string }
           </p>
         </div>
         {row.segment === "b2b_partner" && (
-          <span className="text-xs px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-medium">B2B</span>
+          <span className="text-xs px-2 py-0.5 rounded bg-info-tint text-info font-medium">B2B</span>
         )}
         <span className={`text-xs px-2 py-0.5 rounded font-medium ${STATUS_BADGE[row.call_status]}`}>
           {STATUS_LABEL[row.call_status]}
@@ -151,17 +151,17 @@ function RosterRow({ row, campaignId }: { row: OutreachRow; campaignId: string }
         </span>
         {callable && (
           <div className="flex items-center gap-1.5">
-            <OutcomeButton outreachId={row.id} status="no_answer" label="No answer" className="border-amber-200 text-amber-700 hover:bg-amber-50" />
-            <OutcomeButton outreachId={row.id} status="declined" label="Declined" className="border-zinc-200 text-zinc-600 hover:bg-zinc-50" />
+            <OutcomeButton outreachId={row.id} status="no_answer" label="No answer" className="border-warn/30 text-warn hover:bg-warn-tint" />
+            <OutcomeButton outreachId={row.id} status="declined" label="Declined" className="border-line text-ink-2 hover:bg-hover" />
             <button
               type="button"
               onClick={() => setExpanded((v) => !v)}
-              className="text-xs px-2 py-1 rounded border border-emerald-300 text-emerald-700 font-medium hover:bg-emerald-50"
+              className="text-xs px-2 py-1 rounded border border-brand/30 text-brand font-medium hover:bg-brand-tint"
             >
               Referred ✓
             </button>
-            <OutcomeButton outreachId={row.id} status="do_not_call" label="DNC" className="border-red-200 text-red-600 hover:bg-red-50" />
-            <OutcomeButton outreachId={row.id} status="invalid_number" label="Bad #" className="border-red-100 text-red-500 hover:bg-red-50" />
+            <OutcomeButton outreachId={row.id} status="do_not_call" label="DNC" className="border-danger/30 text-danger hover:bg-danger-tint" />
+            <OutcomeButton outreachId={row.id} status="invalid_number" label="Bad #" className="border-danger/30 text-danger hover:bg-danger-tint" />
           </div>
         )}
       </div>
@@ -173,13 +173,13 @@ function RosterRow({ row, campaignId }: { row: OutreachRow; campaignId: string }
 export function RosterTable({ rows, campaignId }: { rows: OutreachRow[]; campaignId: string }) {
   if (rows.length === 0) {
     return (
-      <div className="py-10 text-center text-sm text-zinc-400">
+      <div className="py-10 text-center text-sm text-ink-4">
         Roster is empty — hit “Build roster from Jobber” to pull in every past client with a completed job and a phone number.
       </div>
     );
   }
   return (
-    <div className="divide-y divide-zinc-100">
+    <div className="divide-y divide-line">
       {rows.map((row) => (
         <RosterRow key={row.id} row={row} campaignId={campaignId} />
       ))}

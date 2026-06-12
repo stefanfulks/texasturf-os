@@ -54,29 +54,29 @@ function scoreColor(score: number | null): {
 } {
   if (score === null)
     return {
-      text: "text-zinc-400",
-      bg: "bg-zinc-50",
-      bar: "bg-zinc-300",
+      text: "text-ink-4",
+      bg: "bg-hover",
+      bar: "bg-line-strong",
       label: "No data",
     };
   if (score >= 90)
     return {
-      text: "text-green-700",
-      bg: "bg-green-50",
-      bar: "bg-green-500",
+      text: "text-brand",
+      bg: "bg-brand-tint",
+      bar: "bg-brand",
       label: "On Track",
     };
   if (score >= 70)
     return {
-      text: "text-amber-600",
-      bg: "bg-amber-50",
-      bar: "bg-amber-400",
+      text: "text-warn",
+      bg: "bg-warn-tint",
+      bar: "bg-warn",
       label: "Needs Attention",
     };
   return {
-    text: "text-red-600",
-    bg: "bg-red-50",
-    bar: "bg-red-500",
+    text: "text-danger",
+    bg: "bg-danger-tint",
+    bar: "bg-danger",
     label: "At Risk",
   };
 }
@@ -155,24 +155,24 @@ export default async function TeamPerformancePage({
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Team Performance</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-ink">Team Performance</h1>
+          <p className="text-sm text-ink-3 mt-0.5">
             Individual KPI tracking by team member
           </p>
         </div>
         <div className="flex items-center gap-3 text-sm">
           <Link
             href={`/reports/team?month=${prev.month}&year=${prev.year}`}
-            className="px-3 py-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 font-medium transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-line bg-white hover:bg-hover text-ink-2 font-medium transition-colors"
           >
             &larr; Prev
           </Link>
-          <span className="font-semibold text-zinc-900 min-w-[110px] text-center">
+          <span className="font-semibold text-ink min-w-[110px] text-center">
             {monthName(month, year)}
           </span>
           <Link
             href={`/reports/team?month=${next.month}&year=${next.year}`}
-            className="px-3 py-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 font-medium transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-line bg-white hover:bg-hover text-ink-2 font-medium transition-colors"
           >
             Next &rarr;
           </Link>
@@ -181,8 +181,8 @@ export default async function TeamPerformancePage({
 
       {/* Member Grid */}
       {members.length === 0 ? (
-        <div className="rounded-xl border border-zinc-200 bg-white p-12 text-center">
-          <p className="text-sm text-zinc-400">No active team members found.</p>
+        <div className="rounded-xl border border-line bg-white p-12 text-center">
+          <p className="text-sm text-ink-4">No active team members found.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -198,13 +198,13 @@ export default async function TeamPerformancePage({
             return (
               <div
                 key={member.id}
-                className="rounded-xl border border-zinc-200 bg-white p-5 flex flex-col gap-3"
+                className="rounded-xl border border-line bg-white p-5 flex flex-col gap-3"
               >
                 <div>
-                  <p className="font-semibold text-zinc-900 text-sm leading-tight">
+                  <p className="font-semibold text-ink text-sm leading-tight">
                     {member.full_name}
                   </p>
-                  <p className="text-xs text-zinc-500 mt-0.5">{member.role_title}</p>
+                  <p className="text-xs text-ink-3 mt-0.5">{member.role_title}</p>
                 </div>
 
                 {/* Score */}
@@ -220,7 +220,7 @@ export default async function TeamPerformancePage({
                     </span>
                   </div>
                   {/* Progress bar */}
-                  <div className="mt-2 h-1.5 rounded-full bg-zinc-200 overflow-hidden">
+                  <div className="mt-2 h-1.5 rounded-full bg-line overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${colors.bar}`}
                       style={{ width: `${score ?? 0}%` }}
@@ -228,7 +228,7 @@ export default async function TeamPerformancePage({
                   </div>
                 </div>
 
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-ink-4">
                   {enteredCount} of {memberDefs.length} KPIs entered
                 </p>
 
@@ -236,13 +236,13 @@ export default async function TeamPerformancePage({
                 <div className="flex flex-col gap-1.5 mt-auto">
                   <Link
                     href={`/reports/team/${member.id}?month=${month}&year=${year}`}
-                    className="text-center text-sm font-medium text-zinc-700 hover:text-zinc-900 border border-zinc-200 rounded-lg py-1.5 hover:bg-zinc-50 transition-colors"
+                    className="text-center text-sm font-medium text-ink-2 hover:text-ink border border-line rounded-lg py-1.5 hover:bg-hover transition-colors"
                   >
                     View Details &rarr;
                   </Link>
                   <Link
                     href={`/reports/team/${member.id}/entry?month=${month}&year=${year}`}
-                    className="text-center text-sm font-semibold bg-zinc-900 text-white rounded-xl px-4 py-2 hover:bg-zinc-800 transition-colors"
+                    className="text-center text-sm font-semibold bg-ink text-white rounded-xl px-4 py-2 hover:bg-ink transition-colors"
                   >
                     Enter KPIs &rarr;
                   </Link>

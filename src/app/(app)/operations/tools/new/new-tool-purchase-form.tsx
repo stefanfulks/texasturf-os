@@ -9,8 +9,8 @@ type AssetOpt = { id: string; name: string; unit_type: string };
 type EmployeeOpt = { id: string; display_name: string };
 
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
-const label = "block text-xs font-medium text-zinc-500 mb-1";
+  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
+const label = "block text-xs font-medium text-ink-3 mb-1";
 
 export function NewToolPurchaseForm({
   assets,
@@ -181,7 +181,7 @@ export function NewToolPurchaseForm({
               href={receiptUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-zinc-700 underline-offset-2 hover:underline"
+              className="text-sm text-ink-2 underline-offset-2 hover:underline"
             >
               Receipt uploaded ↗
             </a>
@@ -189,7 +189,7 @@ export function NewToolPurchaseForm({
               <button
                 type="button"
                 onClick={clearReceipt}
-                className="text-xs text-zinc-500 hover:text-zinc-900"
+                className="text-xs text-ink-3 hover:text-ink"
               >
                 Replace
               </button>
@@ -203,13 +203,13 @@ export function NewToolPurchaseForm({
               accept="image/*,application/pdf"
               onChange={onReceiptChange}
               disabled={receiptUploading}
-              className="block w-full text-sm text-zinc-700 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white file:cursor-pointer hover:file:bg-zinc-700"
+              className="block w-full text-sm text-ink-2 file:mr-3 file:rounded-lg file:border-0 file:bg-ink file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white file:cursor-pointer hover:file:bg-ink"
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-ink-3">
               {receiptUploading ? "Uploading…" : "Image or PDF. Stored in the warehouse bucket."}
             </p>
             {receiptError && (
-              <p className="text-xs text-red-700">{receiptError}</p>
+              <p className="text-xs text-danger">{receiptError}</p>
             )}
           </div>
         )}
@@ -224,26 +224,26 @@ export function NewToolPurchaseForm({
               <option key={e.id} value={e.id}>{e.display_name}</option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-ink-3">
             If left blank we attribute to the signed-in OS user.
           </p>
         </div>
       </Section>
 
       {submitError && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-danger/30 bg-danger-tint px-3 py-2 text-sm text-danger">
           {submitError}
         </p>
       )}
 
       <div className="flex justify-end gap-2">
-        <Link href="/operations/tools" className="px-4 py-2 text-sm text-zinc-600 hover:text-zinc-900">
+        <Link href="/operations/tools" className="px-4 py-2 text-sm text-ink-2 hover:text-ink">
           Cancel
         </Link>
         <button
           type="submit"
           disabled={isPending || receiptUploading}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink disabled:opacity-50"
         >
           {isPending ? "Logging…" : "Log purchase"}
         </button>
@@ -254,8 +254,8 @@ export function NewToolPurchaseForm({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
-      <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
+    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
+      <h2 className="text-sm font-semibold text-ink">{title}</h2>
       {children}
     </section>
   );

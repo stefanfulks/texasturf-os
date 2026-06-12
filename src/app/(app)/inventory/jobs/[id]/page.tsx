@@ -24,16 +24,16 @@ import type {
 // ─── Allocation status pill ───────────────────────────────────────────────────
 
 const ALLOC_STATUS_STYLES: Record<string, string> = {
-  requested:  "bg-zinc-50 text-zinc-700 border-zinc-200",
-  allocated:  "bg-blue-50 text-blue-700 border-blue-200",
-  staged:     "bg-sky-50 text-sky-700 border-sky-200",
-  dispatched: "bg-amber-50 text-amber-800 border-amber-200",
-  completed:  "bg-green-50 text-green-700 border-green-200",
-  cancelled:  "bg-red-50 text-red-700 border-red-200",
+  requested:  "bg-hover text-ink-2 border-line",
+  allocated:  "bg-info-tint text-info border-info/30",
+  staged:     "bg-info-tint text-info border-info/30",
+  dispatched: "bg-warn-tint text-warn border-warn/30",
+  completed:  "bg-brand-tint text-brand border-brand/30",
+  cancelled:  "bg-danger-tint text-danger border-danger/30",
 };
 
 function AllocStatusBadge({ status }: { status: string }) {
-  const classes = ALLOC_STATUS_STYLES[status] ?? "bg-zinc-50 text-zinc-600 border-zinc-200";
+  const classes = ALLOC_STATUS_STYLES[status] ?? "bg-hover text-ink-2 border-line";
   return (
     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border ${classes}`}>
       {status.replace(/_/g, " ")}
@@ -121,7 +121,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     <div className="max-w-6xl space-y-6">
       <Link
         href="/inventory/jobs"
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink"
       >
         ← Jobs
       </Link>
@@ -136,7 +136,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </h1>
             <JobStatusBadge status={job.status} />
           </div>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-ink-3">
             {job.site_address ?? "No site address"}
             {job.scheduled_date && ` · Scheduled ${format(parseISO(job.scheduled_date), "MMM d, yyyy")}`}
             {job.completion_date && ` · Completed ${format(parseISO(job.completion_date), "MMM d, yyyy")}`}
@@ -151,7 +151,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               <form action={inProgressAction}>
                 <button
                   type="submit"
-                  className="px-3 py-2 text-sm font-medium rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  className="px-3 py-2 text-sm font-medium rounded-lg border border-info/30 bg-info-tint text-info hover:bg-info-tint"
                 >
                   Mark In Progress
                 </button>
@@ -161,7 +161,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               <form action={stagedAction}>
                 <button
                   type="submit"
-                  className="px-3 py-2 text-sm font-medium rounded-lg border border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                  className="px-3 py-2 text-sm font-medium rounded-lg border border-info/30 bg-info-tint text-info hover:bg-info-tint"
                 >
                   Mark Staged
                 </button>
@@ -171,7 +171,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               <form action={completedAction}>
                 <button
                   type="submit"
-                  className="px-3 py-2 text-sm font-medium rounded-lg border border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
+                  className="px-3 py-2 text-sm font-medium rounded-lg border border-brand/30 bg-brand-tint text-brand hover:bg-brand-tint"
                 >
                   Mark Completed
                 </button>
@@ -180,7 +180,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <form action={archiveAction}>
               <button
                 type="submit"
-                className="px-3 py-2 text-sm font-medium rounded-lg border border-zinc-300 bg-white text-zinc-600 hover:bg-zinc-50"
+                className="px-3 py-2 text-sm font-medium rounded-lg border border-line-strong bg-white text-ink-2 hover:bg-hover"
               >
                 Archive
               </button>
@@ -191,51 +191,51 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Total Allocations</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Total Allocations</p>
           <p className="text-xl font-semibold">{totalAllocations}</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Allocated Rolls</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Allocated Rolls</p>
           <p className="text-xl font-semibold">{allocatedRolls}</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Total Requested</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Total Requested</p>
           <p className="text-xl font-semibold">{totalRequestedFt.toLocaleString()} ft</p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-          <p className="text-xs text-zinc-400 mb-1">Total Dispatched</p>
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <p className="text-xs text-ink-4 mb-1">Total Dispatched</p>
           <p className="text-xl font-semibold">{totalDispatchedFt.toLocaleString()} ft</p>
         </div>
       </div>
 
       {/* Allocations table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-100">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Allocations</h2>
           {!isArchived && (
             <Link
               href={`/inventory/jobs/${id}/allocations/new`}
-              className="text-xs text-zinc-500 hover:text-zinc-900"
+              className="text-xs text-ink-3 hover:text-ink"
             >
               + Add Allocation
             </Link>
           )}
         </div>
         {allocations.length === 0 ? (
-          <div className="py-8 text-center text-sm text-zinc-400">No allocations yet.</div>
+          <div className="py-8 text-center text-sm text-ink-4">No allocations yet.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Product</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Width</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Requested (ft)</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Dye Lot Pref</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Roll</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Status</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Actions</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Product</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Width</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Requested (ft)</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Dye Lot Pref</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Roll</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Status</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -245,27 +245,27 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   const unassignAction  = unassignRoll.bind(null, a.id);
 
                   return (
-                    <tr key={a.id} className="border-b border-zinc-50">
-                      <td className="px-4 py-3 text-zinc-700 font-medium">
-                        {a.product_name ?? <span className="text-zinc-300">—</span>}
+                    <tr key={a.id} className="border-b border-line">
+                      <td className="px-4 py-3 text-ink-2 font-medium">
+                        {a.product_name ?? <span className="text-ink-4">—</span>}
                       </td>
-                      <td className="px-4 py-3 text-right text-zinc-600">
-                        {a.width_ft != null ? `${a.width_ft} ft` : <span className="text-zinc-300">—</span>}
+                      <td className="px-4 py-3 text-right text-ink-2">
+                        {a.width_ft != null ? `${a.width_ft} ft` : <span className="text-ink-4">—</span>}
                       </td>
-                      <td className="px-4 py-3 text-right text-zinc-700">
-                        {a.requested_length_ft != null ? a.requested_length_ft.toLocaleString() : <span className="text-zinc-300">—</span>}
+                      <td className="px-4 py-3 text-right text-ink-2">
+                        {a.requested_length_ft != null ? a.requested_length_ft.toLocaleString() : <span className="text-ink-4">—</span>}
                       </td>
-                      <td className="px-4 py-3 text-zinc-600">
-                        {a.dye_lot_preference ?? <span className="text-zinc-300">—</span>}
+                      <td className="px-4 py-3 text-ink-2">
+                        {a.dye_lot_preference ?? <span className="text-ink-4">—</span>}
                       </td>
                       <td className="px-4 py-3">
                         {roll ? (
                           <div className="flex flex-col gap-1">
-                            <span className="font-mono text-xs text-zinc-800">{roll.tt_sku_tag_number ?? roll.id.slice(0, 8)}</span>
+                            <span className="font-mono text-xs text-ink">{roll.tt_sku_tag_number ?? roll.id.slice(0, 8)}</span>
                             <RollStatusBadge status={roll.status as RollStatus} />
                           </div>
                         ) : (
-                          <span className="text-zinc-300 text-xs">Not assigned</span>
+                          <span className="text-ink-4 text-xs">Not assigned</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -277,7 +277,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                             {!a.roll_id ? (
                               <Link
                                 href={`/inventory/jobs/${id}/allocations/${a.id}/assign`}
-                                className="text-xs px-2.5 py-1 rounded-md border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-500"
+                                className="text-xs px-2.5 py-1 rounded-md border border-line-strong bg-white text-ink-2 hover:border-line-strong"
                               >
                                 Assign Roll
                               </Link>
@@ -285,14 +285,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                               <>
                                 <Link
                                   href={`/inventory/jobs/${id}/allocations/${a.id}/assign?swap=1`}
-                                  className="text-xs px-2.5 py-1 rounded-md border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-500"
+                                  className="text-xs px-2.5 py-1 rounded-md border border-line-strong bg-white text-ink-2 hover:border-line-strong"
                                 >
                                   Swap Roll
                                 </Link>
                                 <form action={unassignAction}>
                                   <button
                                     type="submit"
-                                    className="text-xs px-2.5 py-1 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:text-zinc-900 hover:border-zinc-400"
+                                    className="text-xs px-2.5 py-1 rounded-md border border-line bg-white text-ink-3 hover:text-ink hover:border-line-strong"
                                   >
                                     Unassign
                                   </button>
@@ -302,7 +302,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                             <form action={deleteAction}>
                               <button
                                 type="submit"
-                                className="text-xs px-2.5 py-1 rounded-md text-red-600 hover:text-red-800"
+                                className="text-xs px-2.5 py-1 rounded-md text-danger hover:text-danger"
                               >
                                 Delete
                               </button>
@@ -320,33 +320,33 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       </div>
 
       {/* Rolls assigned table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Rolls Assigned to Job</h2>
         </div>
         {rolls.length === 0 ? (
-          <div className="py-8 text-center text-sm text-zinc-400">No rolls currently assigned to this job.</div>
+          <div className="py-8 text-center text-sm text-ink-4">No rolls currently assigned to this job.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">SKU Tag</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Product</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Width</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Length</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Dye Lot</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Status</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">SKU Tag</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Product</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Width</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Length</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Dye Lot</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {rolls.map((r) => (
-                  <tr key={r.id} className="border-b border-zinc-50">
-                    <td className="px-4 py-3 font-mono text-xs text-zinc-800">{r.tt_sku_tag_number ?? r.id.slice(0, 8)}</td>
-                    <td className="px-4 py-3 text-zinc-700">{r.product_name ?? <span className="text-zinc-300">—</span>}</td>
-                    <td className="px-4 py-3 text-right text-zinc-600">{r.width_ft != null ? `${r.width_ft} ft` : "—"}</td>
-                    <td className="px-4 py-3 text-right text-zinc-600">{r.current_length_ft != null ? `${r.current_length_ft.toLocaleString()} ft` : "—"}</td>
-                    <td className="px-4 py-3 text-zinc-600">{r.dye_lot ?? <span className="text-zinc-300">—</span>}</td>
+                  <tr key={r.id} className="border-b border-line">
+                    <td className="px-4 py-3 font-mono text-xs text-ink">{r.tt_sku_tag_number ?? r.id.slice(0, 8)}</td>
+                    <td className="px-4 py-3 text-ink-2">{r.product_name ?? <span className="text-ink-4">—</span>}</td>
+                    <td className="px-4 py-3 text-right text-ink-2">{r.width_ft != null ? `${r.width_ft} ft` : "—"}</td>
+                    <td className="px-4 py-3 text-right text-ink-2">{r.current_length_ft != null ? `${r.current_length_ft.toLocaleString()} ft` : "—"}</td>
+                    <td className="px-4 py-3 text-ink-2">{r.dye_lot ?? <span className="text-ink-4">—</span>}</td>
                     <td className="px-4 py-3"><RollStatusBadge status={r.status as RollStatus} /></td>
                   </tr>
                 ))}
@@ -357,45 +357,45 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       </div>
 
       {/* Transaction history */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Transaction History</h2>
         </div>
         {transactions.length === 0 ? (
-          <div className="py-8 text-center text-sm text-zinc-400">No transactions recorded.</div>
+          <div className="py-8 text-center text-sm text-ink-4">No transactions recorded.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">When</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Type</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Roll</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">From → To</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Qty (ft)</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Notes</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">When</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Type</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Roll</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">From → To</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Qty (ft)</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Notes</th>
                 </tr>
               </thead>
               <tbody>
                 {transactions.map((t) => {
                   const roll = t.roll_id ? rollById.get(t.roll_id) : null;
                   return (
-                    <tr key={t.id} className="border-b border-zinc-50">
-                      <td className="px-4 py-3 text-zinc-500 text-xs whitespace-nowrap">
+                    <tr key={t.id} className="border-b border-line">
+                      <td className="px-4 py-3 text-ink-3 text-xs whitespace-nowrap">
                         {format(parseISO(t.created_at), "MMM d, h:mma")}
                       </td>
-                      <td className="px-4 py-3 text-zinc-700 font-medium">{t.transaction_type}</td>
-                      <td className="px-4 py-3 font-mono text-xs text-zinc-700">
-                        {roll?.tt_sku_tag_number ?? (t.roll_id ? t.roll_id.slice(0, 8) : <span className="text-zinc-300">—</span>)}
+                      <td className="px-4 py-3 text-ink-2 font-medium">{t.transaction_type}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-ink-2">
+                        {roll?.tt_sku_tag_number ?? (t.roll_id ? t.roll_id.slice(0, 8) : <span className="text-ink-4">—</span>)}
                       </td>
-                      <td className="px-4 py-3 text-zinc-500 text-xs">
+                      <td className="px-4 py-3 text-ink-3 text-xs">
                         {t.from_status ?? "—"} → {t.to_status ?? "—"}
                       </td>
-                      <td className="px-4 py-3 text-right text-zinc-700">
-                        {t.quantity_ft != null ? t.quantity_ft.toLocaleString() : <span className="text-zinc-300">—</span>}
+                      <td className="px-4 py-3 text-right text-ink-2">
+                        {t.quantity_ft != null ? t.quantity_ft.toLocaleString() : <span className="text-ink-4">—</span>}
                       </td>
-                      <td className="px-4 py-3 text-zinc-500 text-xs">
-                        {t.notes ?? <span className="text-zinc-300">—</span>}
+                      <td className="px-4 py-3 text-ink-3 text-xs">
+                        {t.notes ?? <span className="text-ink-4">—</span>}
                       </td>
                     </tr>
                   );
@@ -408,7 +408,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       {/* Edit form */}
       {!isArchived && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-6">
+        <div className="rounded-xl border border-line bg-white p-6">
           <h2 className="text-sm font-semibold mb-4">Edit Job</h2>
           <JobForm mode="edit" job={job} />
         </div>

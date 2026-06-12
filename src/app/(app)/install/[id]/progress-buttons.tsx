@@ -63,7 +63,7 @@ export function ProgressButtons({
           type="button"
           onClick={() => trigger(primary)}
           disabled={busy !== null || isPending}
-          className="w-full rounded-2xl bg-zinc-900 px-6 py-5 text-base font-semibold text-white hover:bg-zinc-700 active:bg-zinc-950 disabled:opacity-50 transition-colors"
+          className="w-full rounded-2xl bg-ink px-6 py-5 text-base font-semibold text-white hover:bg-ink active:bg-ink disabled:opacity-50 transition-colors"
         >
           {busy === primary ? "Saving…" : `Mark: ${JOB_PROGRESS_LABELS[primary]}`}
         </button>
@@ -80,8 +80,8 @@ export function ProgressButtons({
               className={
                 "rounded-full border px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 " +
                 (s === "on_hold"
-                  ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
-                  : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50")
+                  ? "border-warn/30 bg-warn-tint text-warn hover:bg-warn-tint"
+                  : "border-line bg-white text-ink-2 hover:bg-hover")
               }
             >
               {busy === s ? "Saving…" : JOB_PROGRESS_LABELS[s]}
@@ -98,12 +98,12 @@ export function ProgressButtons({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Optional note (attached to the next event you tap)"
-              className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white resize-none"
+              className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white resize-none"
             />
             <button
               type="button"
               onClick={() => { setShowNotes(false); setNotes(""); }}
-              className="text-xs text-zinc-500 hover:text-zinc-900"
+              className="text-xs text-ink-3 hover:text-ink"
             >
               Discard note
             </button>
@@ -112,7 +112,7 @@ export function ProgressButtons({
           <button
             type="button"
             onClick={() => setShowNotes(true)}
-            className="text-xs text-zinc-500 hover:text-zinc-900"
+            className="text-xs text-ink-3 hover:text-ink"
           >
             + Add a note to the next event
           </button>
@@ -120,12 +120,12 @@ export function ProgressButtons({
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-danger/30 bg-danger-tint px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
 
-      <p className="text-[11px] text-zinc-400">
+      <p className="text-[11px] text-ink-4">
         Current: {JOB_PROGRESS_LABELS[currentState]}
       </p>
     </div>

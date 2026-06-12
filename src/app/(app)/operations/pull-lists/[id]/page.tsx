@@ -10,11 +10,11 @@ type Params = Promise<{ id: string }>;
 const FLOW = ["draft", "pulled", "staged", "dispatched", "delivered"] as const;
 
 const STATUS_TONE: Record<string, string> = {
-  draft:      "bg-zinc-100 text-zinc-700",
-  pulled:     "bg-amber-100 text-amber-800",
-  staged:     "bg-blue-100 text-blue-800",
-  dispatched: "bg-violet-100 text-violet-800",
-  delivered:  "bg-green-100 text-green-800",
+  draft:      "bg-sunken text-ink-2",
+  pulled:     "bg-warn-tint text-warn",
+  staged:     "bg-info-tint text-info",
+  dispatched: "bg-info-tint text-info",
+  delivered:  "bg-brand-tint text-brand",
 };
 
 export default async function PullListDetailPage({ params }: { params: Params }) {
@@ -30,25 +30,25 @@ export default async function PullListDetailPage({ params }: { params: Params })
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <Link href="/operations/pull-lists" className="text-xs text-zinc-500 hover:text-zinc-900">
+          <Link href="/operations/pull-lists" className="text-xs text-ink-3 hover:text-ink">
             ← All pull lists
           </Link>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">
             {pl.client_name ?? "(no client)"}
-            {pl.job_number && <span className="ml-2 text-zinc-400">#{pl.job_number}</span>}
+            {pl.job_number && <span className="ml-2 text-ink-4">#{pl.job_number}</span>}
           </h1>
-          <p className="mt-0.5 text-sm text-zinc-500 tabular-nums">{pl.job_date}</p>
+          <p className="mt-0.5 text-sm text-ink-3 tabular-nums">{pl.job_date}</p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={"inline-block rounded-full px-2.5 py-1 text-xs font-medium capitalize " + (STATUS_TONE[pl.status] ?? "bg-zinc-100 text-zinc-700")}>
+          <span className={"inline-block rounded-full px-2.5 py-1 text-xs font-medium capitalize " + (STATUS_TONE[pl.status] ?? "bg-sunken text-ink-2")}>
             {pl.status}
           </span>
           {prev && (
             <form action={updatePullListStatus}>
               <input type="hidden" name="id" value={pl.id} />
               <input type="hidden" name="status" value={prev} />
-              <button className="rounded-lg border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50">
+              <button className="rounded-lg border border-line bg-white px-3 py-1 text-xs font-medium text-ink-2 hover:bg-hover">
                 ← {cap(prev)}
               </button>
             </form>
@@ -57,7 +57,7 @@ export default async function PullListDetailPage({ params }: { params: Params })
             <form action={updatePullListStatus}>
               <input type="hidden" name="id" value={pl.id} />
               <input type="hidden" name="status" value={next} />
-              <button className="rounded-lg bg-zinc-900 px-3 py-1 text-xs font-medium text-white hover:bg-zinc-700">
+              <button className="rounded-lg bg-ink px-3 py-1 text-xs font-medium text-white hover:bg-ink">
                 Mark {cap(next)} →
               </button>
             </form>
@@ -65,7 +65,7 @@ export default async function PullListDetailPage({ params }: { params: Params })
           {(pl.status === "dispatched" || pl.status === "delivered") && (
             <Link
               href={`/operations/deliveries/new?pull_list_id=${pl.id}`}
-              className="rounded-lg border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50"
+              className="rounded-lg border border-line bg-white px-3 py-1 text-xs font-medium text-ink-2 hover:bg-hover"
             >
               + Log delivery
             </Link>
@@ -98,17 +98,17 @@ export default async function PullListDetailPage({ params }: { params: Params })
       {/* ─── Rolls ──────────────────────────────────────────────────── */}
       <Card title={`Rolls (${rolls.length})`}>
         {rolls.length === 0 ? (
-          <p className="text-sm text-zinc-500">No rolls listed.</p>
+          <p className="text-sm text-ink-3">No rolls listed.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-xs uppercase tracking-wide text-zinc-500">
+            <thead className="text-xs uppercase tracking-wide text-ink-3">
               <tr><th className="text-left pb-2">Roll #</th><th className="text-left pb-2">Lengths</th></tr>
             </thead>
             <tbody>
               {rolls.map((r) => (
-                <tr key={r.id} className="border-t border-zinc-100">
+                <tr key={r.id} className="border-t border-line">
                   <td className="py-1.5 font-medium">{r.roll_number}</td>
-                  <td className="py-1.5 text-zinc-600">{r.lengths_needed ?? "—"}</td>
+                  <td className="py-1.5 text-ink-2">{r.lengths_needed ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -126,7 +126,7 @@ export default async function PullListDetailPage({ params }: { params: Params })
       {/* ─── Bagged ─────────────────────────────────────────────────── */}
       <Card title="Bagged products">
         {pl.bagged_none ? (
-          <p className="text-sm text-zinc-500">None on this job.</p>
+          <p className="text-sm text-ink-3">None on this job.</p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat name="Standard sand" value={pl.bagged_standard_sand} />
@@ -152,7 +152,7 @@ export default async function PullListDetailPage({ params }: { params: Params })
 
       {pl.notes && (
         <Card title="Notes">
-          <p className="whitespace-pre-wrap text-sm text-zinc-700">{pl.notes}</p>
+          <p className="whitespace-pre-wrap text-sm text-ink-2">{pl.notes}</p>
         </Card>
       )}
     </div>
@@ -161,7 +161,7 @@ export default async function PullListDetailPage({ params }: { params: Params })
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3">
+    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
       <h2 className="text-sm font-semibold">{title}</h2>
       {children}
     </section>
@@ -171,8 +171,8 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 function Stat({ name, value }: { name: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3 text-sm">
-      <span className="text-zinc-500">{name}</span>
-      <span className="font-medium text-zinc-900 text-right">{value}</span>
+      <span className="text-ink-3">{name}</span>
+      <span className="font-medium text-ink text-right">{value}</span>
     </div>
   );
 }
@@ -192,21 +192,21 @@ function SignOffRow({
   return (
     <div className="flex items-center justify-between gap-3 text-sm">
       <div>
-        <div className="text-xs text-zinc-500 capitalize">{role}</div>
+        <div className="text-xs text-ink-3 capitalize">{role}</div>
         {signed ? (
-          <div className="font-medium text-zinc-900">
+          <div className="font-medium text-ink">
             ✓ {signedBy ?? "Signed"}
-            {signedAt && <span className="ml-1 text-xs text-zinc-500">· {fmtDateTime(signedAt)}</span>}
+            {signedAt && <span className="ml-1 text-xs text-ink-3">· {fmtDateTime(signedAt)}</span>}
           </div>
         ) : (
-          <div className="text-zinc-500">Not yet signed</div>
+          <div className="text-ink-3">Not yet signed</div>
         )}
       </div>
       {!signed && (
         <form action={signOffPullList}>
           <input type="hidden" name="id"   value={id} />
           <input type="hidden" name="role" value={role} />
-          <button className="rounded-lg border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50">
+          <button className="rounded-lg border border-line bg-white px-3 py-1 text-xs font-medium text-ink-2 hover:bg-hover">
             I&apos;m the {role} — sign off
           </button>
         </form>

@@ -20,13 +20,13 @@ export default async function InventorySettingsPage() {
 
   return (
     <div className="space-y-6">
-      <Link href="/inventory" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">
+      <Link href="/inventory" className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink">
         ← Inventory
       </Link>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Inventory Settings</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
-          Module-wide settings stored in the <code className="text-xs px-1.5 py-0.5 bg-zinc-100 rounded">inv_settings</code> table.
+        <p className="text-sm text-ink-3 mt-0.5">
+          Module-wide settings stored in the <code className="text-xs px-1.5 py-0.5 bg-sunken rounded">inv_settings</code> table.
         </p>
       </div>
 

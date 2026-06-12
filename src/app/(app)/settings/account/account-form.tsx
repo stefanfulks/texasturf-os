@@ -7,7 +7,7 @@ import { updateAccount, type UpdateAccountState } from "./actions";
 const initial: UpdateAccountState = { error: null, success: false };
 
 const fieldCls =
-  "w-full h-12 text-base border border-zinc-300 rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 bg-white";
+  "w-full h-12 text-base border border-line-strong rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white";
 
 const DEPARTMENTS = [
   { key: "sales",     label: "Sales",     emoji: "💼" },
@@ -55,7 +55,7 @@ export function AccountForm({
               type="email"
               value={email}
               disabled
-              className={`${fieldCls} bg-zinc-50 text-zinc-500 cursor-not-allowed`}
+              className={`${fieldCls} bg-hover text-ink-3 cursor-not-allowed`}
             />
           </Field>
         </div>
@@ -64,7 +64,7 @@ export function AccountForm({
             type="text"
             value={role ?? "—"}
             disabled
-            className={`${fieldCls} bg-zinc-50 text-zinc-500 cursor-not-allowed capitalize`}
+            className={`${fieldCls} bg-hover text-ink-3 cursor-not-allowed capitalize`}
           />
         </Field>
       </Section>
@@ -81,8 +81,8 @@ export function AccountForm({
                 className={
                   "flex items-center gap-2 h-12 rounded-xl border px-3 text-sm font-medium text-left transition-colors " +
                   (on
-                    ? "border-zinc-900 bg-zinc-900 text-white"
-                    : "border-zinc-200 bg-white text-zinc-700 active:bg-zinc-50")
+                    ? "border-ink bg-ink text-white"
+                    : "border-line bg-white text-ink-2 active:bg-hover")
                 }
               >
                 <span className="text-base leading-none">{d.emoji}</span>
@@ -98,13 +98,13 @@ export function AccountForm({
       </Section>
 
       {state.error && (
-        <div className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <div className="flex gap-2 rounded-xl border border-danger/30 bg-danger-tint p-3 text-sm text-danger">
           <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
           <p>{state.error}</p>
         </div>
       )}
       {state.success && (
-        <div className="flex gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+        <div className="flex gap-2 rounded-xl border border-brand/30 bg-brand-tint p-3 text-sm text-brand">
           <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
           <p>Saved.</p>
         </div>
@@ -114,7 +114,7 @@ export function AccountForm({
         <button
           type="submit"
           disabled={pending}
-          className="h-11 px-5 text-sm font-semibold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 active:bg-zinc-700 disabled:opacity-50"
+          className="h-11 px-5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink active:bg-ink disabled:opacity-50"
         >
           {pending ? "Saving…" : "Save changes"}
         </button>
@@ -125,10 +125,10 @@ export function AccountForm({
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 space-y-3">
+    <section className="rounded-2xl border border-line bg-white p-4 sm:p-5 space-y-3">
       <div>
-        <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
-        {hint && <p className="text-xs text-zinc-500 mt-0.5">{hint}</p>}
+        <h2 className="text-sm font-semibold text-ink">{title}</h2>
+        {hint && <p className="text-xs text-ink-3 mt-0.5">{hint}</p>}
       </div>
       {children}
     </section>
@@ -148,12 +148,12 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="flex items-baseline justify-between text-xs font-semibold text-zinc-700 mb-1.5">
+      <span className="flex items-baseline justify-between text-xs font-semibold text-ink-2 mb-1.5">
         <span>
           {label}
-          {required && <span className="text-red-500 ml-0.5">*</span>}
+          {required && <span className="text-danger ml-0.5">*</span>}
         </span>
-        {hint && <span className="font-normal text-zinc-400">{hint}</span>}
+        {hint && <span className="font-normal text-ink-4">{hint}</span>}
       </span>
       {children}
     </label>

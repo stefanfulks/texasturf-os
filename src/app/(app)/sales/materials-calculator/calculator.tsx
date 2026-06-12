@@ -128,7 +128,7 @@ export function MaterialsCalculator() {
     <div className="space-y-5 pb-32 lg:pb-6">
       {/* ─── Quick presets ─────────────────────────────────────────── */}
       <section>
-        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2 px-1">
+        <p className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2 px-1">
           Quick start
         </p>
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:flex-wrap snap-x">
@@ -137,7 +137,7 @@ export function MaterialsCalculator() {
               key={p.label}
               type="button"
               onClick={() => applyPreset(p)}
-              className="shrink-0 snap-start flex items-center gap-2 rounded-full bg-white border border-zinc-200 px-4 h-11 text-sm font-medium text-zinc-700 hover:border-zinc-400 active:bg-zinc-50"
+              className="shrink-0 snap-start flex items-center gap-2 rounded-full bg-white border border-line px-4 h-11 text-sm font-medium text-ink-2 hover:border-line-strong active:bg-hover"
             >
               <span className="text-base leading-none">{p.emoji}</span>
               {p.label}
@@ -156,7 +156,7 @@ export function MaterialsCalculator() {
               <select
                 value={materialKey}
                 onChange={(e) => pickMaterial(e.target.value)}
-                className="w-full h-12 rounded-xl border border-zinc-300 bg-white px-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                className="w-full h-12 rounded-xl border border-line-strong bg-white px-3 text-base text-ink focus:outline-none focus:ring-2 focus:ring-ink"
               >
                 {Array.from(groups.entries()).map(([cat, items]) => (
                   <optgroup key={cat} label={`${CATEGORY_EMOJI[cat]}  ${CATEGORY_LABELS[cat]}`}>
@@ -168,13 +168,13 @@ export function MaterialsCalculator() {
               </select>
 
               {material && (
-                <div className="rounded-xl bg-zinc-50 border border-zinc-100 p-3 space-y-1.5">
+                <div className="rounded-xl bg-hover border border-line p-3 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="text-xl leading-none">{CATEGORY_EMOJI[material.category]}</span>
-                    <p className="text-sm font-semibold text-zinc-900">{material.name}</p>
+                    <p className="text-sm font-semibold text-ink">{material.name}</p>
                   </div>
                   {material.note && (
-                    <p className="text-xs text-zinc-600 leading-relaxed">{material.note}</p>
+                    <p className="text-xs text-ink-2 leading-relaxed">{material.note}</p>
                   )}
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     <Pill>{fmt(material.lbsPerYard)} lb/yd³</Pill>
@@ -202,8 +202,8 @@ export function MaterialsCalculator() {
                     className={
                       "flex flex-col items-center justify-center gap-1 h-16 rounded-xl border text-[11px] font-medium transition-colors " +
                       (active
-                        ? "border-zinc-900 bg-zinc-900 text-white"
-                        : "border-zinc-200 bg-white text-zinc-700 active:bg-zinc-50")
+                        ? "border-ink bg-ink text-white"
+                        : "border-line bg-white text-ink-2 active:bg-hover")
                     }
                   >
                     <Icon className="h-4 w-4" />
@@ -276,27 +276,27 @@ export function MaterialsCalculator() {
       </div>
 
       {/* ─── Sticky result (mobile only) ──────────────────────────── */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-zinc-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
         <details className="group" open={hasResult}>
           <summary className="list-none cursor-pointer">
             <div className="px-4 py-3 flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-wider text-zinc-500">You&apos;ll need</p>
-                <p className="text-base font-semibold text-zinc-900 tabular-nums truncate">
+                <p className="text-[10px] uppercase tracking-wider text-ink-3">You&apos;ll need</p>
+                <p className="text-base font-semibold text-ink tabular-nums truncate">
                   {result.orderTons} tons · {result.orderCubicYards} yd³
                 </p>
               </div>
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); copySummary(); }}
-                className="inline-flex items-center gap-1.5 h-10 px-3 rounded-lg bg-zinc-900 text-white text-xs font-semibold active:bg-zinc-700"
+                className="inline-flex items-center gap-1.5 h-10 px-3 rounded-lg bg-ink text-white text-xs font-semibold active:bg-ink"
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? "Copied" : "Copy"}
               </button>
             </div>
           </summary>
-          <div className="px-4 pb-4 border-t border-zinc-100 max-h-[60vh] overflow-y-auto">
+          <div className="px-4 pb-4 border-t border-line max-h-[60vh] overflow-y-auto">
             <ResultDetails result={result} material={material} wastePct={wastePct} depthIn={depthIn} compact />
           </div>
         </details>
@@ -319,13 +319,13 @@ function ResultCard({
 }) {
   return (
     <div className="lg:sticky lg:top-4 space-y-4">
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+      <div className="rounded-2xl border border-line bg-white p-5">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">You&apos;ll need to order</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">You&apos;ll need to order</p>
           <button
             type="button"
             onClick={onCopy}
-            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-zinc-200 bg-white text-xs font-semibold text-zinc-700 hover:border-zinc-400"
+            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-line bg-white text-xs font-semibold text-ink-2 hover:border-line-strong"
           >
             {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
             {copied ? "Copied" : "Copy summary"}
@@ -338,19 +338,19 @@ function ResultCard({
           <BigStat label="Pounds" value={fmt(result.orderPounds)} />
         </div>
 
-        <div className="mt-4 pt-4 border-t border-zinc-100">
+        <div className="mt-4 pt-4 border-t border-line">
           <ResultDetails result={result} material={material} wastePct={wastePct} depthIn={depthIn} />
         </div>
       </div>
 
       {result.warnings.length > 0 && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 space-y-1.5">
+        <div className="rounded-2xl border border-warn/30 bg-warn-tint p-4 text-sm text-warn space-y-1.5">
           {result.warnings.map((w, i) => <p key={i}>• {w}</p>)}
         </div>
       )}
 
-      <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-4 text-xs text-zinc-500 leading-relaxed">
-        <p className="font-medium text-zinc-700 mb-1">How this is calculated</p>
+      <div className="rounded-2xl border border-dashed border-line bg-hover p-4 text-xs text-ink-3 leading-relaxed">
+        <p className="font-medium text-ink-2 mb-1">How this is calculated</p>
         <p>
           Volume = area × depth. Loose order volume = finished × compaction × (1 + waste).
           Weight = loose volume × density. Wet material can run 10–20% heavier.
@@ -389,13 +389,13 @@ function ResultDetails({
           <Stat label="Pine straw bales" value={fmt(result.bales)} />
         )}
       </div>
-      <p className="text-[11px] text-zinc-500">
+      <p className="text-[11px] text-ink-3">
         {material && material.compactionFactor > 1
           ? `Includes ${Math.round((material.compactionFactor - 1) * 100)}% compaction + ${wastePct}% waste.`
           : `Includes ${wastePct}% waste.`}
       </p>
       {compact && result.warnings.length > 0 && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 space-y-1">
+        <div className="rounded-xl border border-warn/30 bg-warn-tint p-3 text-xs text-warn space-y-1">
           {result.warnings.map((w, i) => <p key={i}>• {w}</p>)}
         </div>
       )}
@@ -407,7 +407,7 @@ function ResultDetails({
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 space-y-3">
+    <section className="rounded-2xl border border-line bg-white p-4 sm:p-5 space-y-3">
       {children}
     </section>
   );
@@ -416,17 +416,17 @@ function Card({ children }: { children: React.ReactNode }) {
 function CardHeader({ title, hint }: { title: string; hint?: string }) {
   return (
     <div className="flex items-end justify-between gap-2">
-      <h2 className="text-base font-semibold text-zinc-900">{title}</h2>
-      {hint && <span className="text-[11px] text-zinc-400">{hint}</span>}
+      <h2 className="text-base font-semibold text-ink">{title}</h2>
+      {hint && <span className="text-[11px] text-ink-4">{hint}</span>}
     </div>
   );
 }
 
 function Pill({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "blue" | "amber" }) {
   const map = {
-    neutral: "bg-white text-zinc-600 border-zinc-200",
-    blue: "bg-blue-50 text-blue-700 border-blue-100",
-    amber: "bg-amber-50 text-amber-800 border-amber-200",
+    neutral: "bg-white text-ink-2 border-line",
+    blue: "bg-info-tint text-info border-info/30",
+    amber: "bg-warn-tint text-warn border-warn/30",
   } as const;
   return (
     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${map[tone]}`}>
@@ -448,13 +448,13 @@ function StepperField({
   const inc = () => onChange(round(value + step));
   return (
     <label className="block">
-      <span className="text-xs font-medium text-zinc-600 mb-1.5 block">{label}</span>
-      <div className="flex items-stretch rounded-xl border border-zinc-300 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-zinc-900 focus-within:border-zinc-900">
+      <span className="text-xs font-medium text-ink-2 mb-1.5 block">{label}</span>
+      <div className="flex items-stretch rounded-xl border border-line-strong bg-white overflow-hidden focus-within:ring-2 focus-within:ring-ink focus-within:border-ink">
         <button
           type="button"
           onClick={dec}
           aria-label={`Decrease ${label}`}
-          className="w-11 h-12 flex items-center justify-center text-zinc-500 hover:text-zinc-900 active:bg-zinc-100"
+          className="w-11 h-12 flex items-center justify-center text-ink-3 hover:text-ink active:bg-sunken"
         >
           <Minus className="h-4 w-4" />
         </button>
@@ -466,18 +466,18 @@ function StepperField({
           value={Number.isFinite(value) ? value : 0}
           onChange={(e) => onChange(Number(e.target.value))}
           onFocus={(e) => e.currentTarget.select()}
-          className="flex-1 min-w-0 h-12 px-1 text-center text-base font-semibold tabular-nums text-zinc-900 bg-white focus:outline-none"
+          className="flex-1 min-w-0 h-12 px-1 text-center text-base font-semibold tabular-nums text-ink bg-white focus:outline-none"
         />
         <button
           type="button"
           onClick={inc}
           aria-label={`Increase ${label}`}
-          className="w-11 h-12 flex items-center justify-center text-zinc-500 hover:text-zinc-900 active:bg-zinc-100"
+          className="w-11 h-12 flex items-center justify-center text-ink-3 hover:text-ink active:bg-sunken"
         >
           <Plus className="h-4 w-4" />
         </button>
       </div>
-      {hint && <span className="block text-[11px] text-zinc-400 mt-1.5">{hint}</span>}
+      {hint && <span className="block text-[11px] text-ink-4 mt-1.5">{hint}</span>}
     </label>
   );
 }
@@ -486,9 +486,9 @@ function BigStat({ label, value, primary }: { label: string; value: string; prim
   return (
     <div className={
       "rounded-xl border p-3 " +
-      (primary ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 bg-zinc-50 text-zinc-900")
+      (primary ? "border-ink bg-ink text-white" : "border-line bg-hover text-ink")
     }>
-      <p className={"text-[10px] uppercase tracking-wider " + (primary ? "text-zinc-300" : "text-zinc-500")}>
+      <p className={"text-[10px] uppercase tracking-wider " + (primary ? "text-ink-4" : "text-ink-3")}>
         {label}
       </p>
       <p className="text-2xl font-bold tabular-nums leading-tight mt-0.5">{value}</p>
@@ -499,9 +499,9 @@ function BigStat({ label, value, primary }: { label: string; value: string; prim
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</p>
-      <p className="text-sm font-semibold text-zinc-900 tabular-nums">{value}</p>
-      {hint && <p className="text-[10px] text-zinc-400">{hint}</p>}
+      <p className="text-[10px] uppercase tracking-wider text-ink-3">{label}</p>
+      <p className="text-sm font-semibold text-ink tabular-nums">{value}</p>
+      {hint && <p className="text-[10px] text-ink-4">{hint}</p>}
     </div>
   );
 }

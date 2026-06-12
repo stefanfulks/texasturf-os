@@ -4,11 +4,11 @@
 // Anything else falls back to a neutral zinc badge.
 
 const STATUS_STYLES: Record<string, string> = {
-  planning:    "bg-zinc-50 text-zinc-700 border-zinc-200",
-  in_progress: "bg-blue-50 text-blue-700 border-blue-200",
-  staged:      "bg-sky-50 text-sky-700 border-sky-200",
-  completed:   "bg-green-50 text-green-700 border-green-200",
-  archived:    "bg-zinc-100 text-zinc-500 border-zinc-200",
+  planning:    "bg-hover text-ink-2 border-line",
+  in_progress: "bg-info-tint text-info border-info/30",
+  staged:      "bg-info-tint text-info border-info/30",
+  completed:   "bg-brand-tint text-brand border-brand/30",
+  archived:    "bg-sunken text-ink-3 border-line",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -20,7 +20,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export function JobStatusBadge({ status }: { status: string }) {
-  const classes = STATUS_STYLES[status] ?? "bg-zinc-50 text-zinc-600 border-zinc-200";
+  const classes = STATUS_STYLES[status] ?? "bg-hover text-ink-2 border-line";
   const label   = STATUS_LABELS[status] ?? status.replace(/_/g, " ");
   return (
     <span

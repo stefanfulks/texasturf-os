@@ -7,18 +7,18 @@ import type { Invoice, InvoiceStatus } from "@/lib/db-helpers.types";
 // ─── Status config ─────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<InvoiceStatus, { label: string; badge: string; dot: string }> = {
-  draft:              { label: "Draft",              badge: "bg-zinc-100 text-zinc-500",    dot: "bg-zinc-300"   },
-  submitted:          { label: "Submitted",          badge: "bg-blue-50 text-blue-700",     dot: "bg-blue-400"   },
-  ocr_processing:     { label: "Processing",         badge: "bg-indigo-50 text-indigo-700", dot: "bg-indigo-400" },
-  ocr_review_needed:  { label: "OCR Review",         badge: "bg-amber-50 text-amber-700",   dot: "bg-amber-400"  },
-  awaiting_review:    { label: "Awaiting Review",    badge: "bg-yellow-50 text-yellow-700", dot: "bg-yellow-400" },
-  awaiting_approval:  { label: "Awaiting Approval",  badge: "bg-orange-50 text-orange-700", dot: "bg-orange-400" },
-  approved:           { label: "Approved",           badge: "bg-green-50 text-green-700",   dot: "bg-green-500"  },
-  request_change:     { label: "Needs Changes",      badge: "bg-red-50 text-red-700",       dot: "bg-red-500"    },
-  rejected:           { label: "Rejected",           badge: "bg-red-100 text-red-800",      dot: "bg-red-600"    },
-  on_hold:            { label: "On Hold",            badge: "bg-zinc-100 text-zinc-500",    dot: "bg-zinc-400"   },
-  paid:               { label: "Paid",               badge: "bg-emerald-50 text-emerald-700", dot: "bg-emerald-500" },
-  archived:           { label: "Archived",           badge: "bg-zinc-50 text-zinc-400",     dot: "bg-zinc-200"   },
+  draft:              { label: "Draft",              badge: "bg-sunken text-ink-3",    dot: "bg-line-strong"   },
+  submitted:          { label: "Submitted",          badge: "bg-info-tint text-info",     dot: "bg-info"   },
+  ocr_processing:     { label: "Processing",         badge: "bg-info-tint text-info", dot: "bg-info" },
+  ocr_review_needed:  { label: "OCR Review",         badge: "bg-warn-tint text-warn",   dot: "bg-warn"  },
+  awaiting_review:    { label: "Awaiting Review",    badge: "bg-warn-tint text-warn", dot: "bg-warn" },
+  awaiting_approval:  { label: "Awaiting Approval",  badge: "bg-warn-tint text-warn", dot: "bg-warn" },
+  approved:           { label: "Approved",           badge: "bg-brand-tint text-brand",   dot: "bg-brand"  },
+  request_change:     { label: "Needs Changes",      badge: "bg-danger-tint text-danger",       dot: "bg-danger"    },
+  rejected:           { label: "Rejected",           badge: "bg-danger-tint text-danger",      dot: "bg-danger"    },
+  on_hold:            { label: "On Hold",            badge: "bg-sunken text-ink-3",    dot: "bg-ink-4"   },
+  paid:               { label: "Paid",               badge: "bg-brand-tint text-brand", dot: "bg-brand" },
+  archived:           { label: "Archived",           badge: "bg-hover text-ink-4",     dot: "bg-line"   },
 };
 
 const FILTER_GROUPS = [
@@ -112,20 +112,20 @@ export default async function InvoicesPage({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">{filtered.length} invoice{filtered.length !== 1 ? "s" : ""}</p>
+          <p className="text-sm text-ink-3 mt-0.5">{filtered.length} invoice{filtered.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
           {isOfficeOrAdmin && (
             <Link
               href={`/api/invoices/export?month=${currentMonth}&year=${currentYear}`}
-              className="flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 hover:border-zinc-500 hover:text-zinc-900 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-line-strong bg-white px-4 py-2.5 text-sm font-semibold text-ink-2 hover:border-line-strong hover:text-ink transition-colors"
             >
               Export CSV
             </Link>
           )}
           <Link
             href="/invoices/new"
-            className="flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink transition-colors"
           >
             <span className="text-lg leading-none">+</span> Submit Invoice
           </Link>
@@ -136,13 +136,13 @@ export default async function InvoicesPage({
       {isOfficeOrAdmin && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Needs Action", value: needsAction,            color: needsAction > 0 ? "text-orange-600 font-semibold" : "text-zinc-400" },
-            { label: "Awaiting Approval", value: stats["awaiting_approval"] ?? 0, color: "text-zinc-900" },
-            { label: "Approved (unpaid)", value: stats["approved"]  ?? 0, color: "text-green-700" },
-            { label: "Paid (this run)",   value: stats["paid"]      ?? 0, color: "text-emerald-700" },
+            { label: "Needs Action", value: needsAction,            color: needsAction > 0 ? "text-warn font-semibold" : "text-ink-4" },
+            { label: "Awaiting Approval", value: stats["awaiting_approval"] ?? 0, color: "text-ink" },
+            { label: "Approved (unpaid)", value: stats["approved"]  ?? 0, color: "text-brand" },
+            { label: "Paid (this run)",   value: stats["paid"]      ?? 0, color: "text-brand" },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-              <p className="text-xs text-zinc-400 mb-1">{s.label}</p>
+            <div key={s.label} className="rounded-xl border border-line bg-white px-4 py-3">
+              <p className="text-xs text-ink-4 mb-1">{s.label}</p>
               <p className={`text-2xl font-semibold ${s.color}`}>{s.value}</p>
             </div>
           ))}
@@ -161,8 +161,8 @@ export default async function InvoicesPage({
                 href={group.label === "All" ? "/invoices" : `/invoices?status=${encodeURIComponent(group.label)}`}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                   active
-                    ? "bg-zinc-900 text-white border-zinc-900"
-                    : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
+                    ? "bg-ink text-white border-ink"
+                    : "bg-white text-ink-2 border-line hover:border-line-strong"
                 }`}
               >
                 {group.label}
@@ -177,34 +177,34 @@ export default async function InvoicesPage({
             name="q"
             defaultValue={q}
             placeholder="Search invoices…"
-            className="w-full text-sm border border-zinc-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white"
+            className="w-full text-sm border border-line rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
           />
         </form>
       </div>
 
       {/* Invoice list */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-sm text-zinc-400">
+          <div className="py-16 text-center text-sm text-ink-4">
             No invoices found.
           </div>
         ) : (
-          <div className="divide-y divide-zinc-100">
+          <div className="divide-y divide-line">
             {filtered.map((inv) => {
               const statusCfg = STATUS_CONFIG[inv.status as InvoiceStatus];
               return (
                 <Link
                   key={inv.id}
                   href={`/invoices/${inv.id}`}
-                  className="flex items-center gap-4 px-5 py-4 hover:bg-zinc-50 transition-colors group"
+                  className="flex items-center gap-4 px-5 py-4 hover:bg-hover transition-colors group"
                 >
                   {/* Status dot */}
                   <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${statusCfg.dot}`} />
 
                   {/* Main info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-zinc-900 group-hover:underline truncate">{inv.title}</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">
+                    <p className="text-sm font-semibold text-ink group-hover:underline truncate">{inv.title}</p>
+                    <p className="text-xs text-ink-4 mt-0.5">
                       {inv.vendor?.name ?? "No vendor"}
                       {inv.customer_name && ` · ${inv.customer_name}`}
                       {inv.service_period_start && ` · ${format(parseISO(inv.service_period_start), "MMM d")}${inv.service_period_end ? `–${format(parseISO(inv.service_period_end), "d")}` : ""}`}
@@ -214,14 +214,14 @@ export default async function InvoicesPage({
                   {/* Right side */}
                   <div className="flex items-center gap-3 flex-shrink-0 text-right">
                     {inv.total_amount != null && (
-                      <span className="text-sm font-semibold text-zinc-900">
+                      <span className="text-sm font-semibold text-ink">
                         ${inv.total_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </span>
                     )}
                     <span className={`hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusCfg.badge}`}>
                       {statusCfg.label}
                     </span>
-                    <span className="text-xs text-zinc-400">
+                    <span className="text-xs text-ink-4">
                       {format(parseISO(inv.submitted_at), "MMM d")}
                     </span>
                   </div>

@@ -60,9 +60,9 @@ export function TurfyLauncher({ greetingName }: { greetingName: string }) {
           // bottom offsets add env(safe-area-inset-bottom) so the FAB clears
           // the iPhone home indicator in the installed app (0 in browsers)
           "fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-5 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full " +
-          "bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 " +
-          "hover:bg-zinc-700 hover:scale-105 active:scale-95 transition-all " +
-          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-400 " +
+          "bg-ink text-white shadow-lg shadow-ink/20 " +
+          "hover:bg-ink hover:scale-105 active:scale-95 transition-all " +
+          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-line-strong " +
           "sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] sm:right-6"
         }
       >
@@ -79,7 +79,7 @@ export function TurfyLauncher({ greetingName }: { greetingName: string }) {
           aria-label="Turfy"
           aria-hidden={!isOpen}
           className={
-            "fixed z-40 flex flex-col rounded-2xl border border-zinc-200 bg-white shadow-2xl shadow-zinc-900/10 " +
+            "fixed z-40 flex flex-col rounded-2xl border border-line bg-white shadow-2xl shadow-ink/10 " +
             // Desktop: anchor bottom-right above the FAB
             "sm:bottom-[calc(6rem+env(safe-area-inset-bottom))] sm:right-6 sm:w-[400px] sm:h-[600px] sm:max-h-[calc(100vh-8rem)] " +
             // Mobile: near-fullscreen with margin (cleared above the home
@@ -89,18 +89,18 @@ export function TurfyLauncher({ greetingName }: { greetingName: string }) {
           }
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-2.5">
+          <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-info-tint text-info">
                 <Sparkles className="h-3.5 w-3.5" />
               </span>
-              <span className="text-sm font-semibold text-zinc-900">Turfy</span>
+              <span className="text-sm font-semibold text-ink">Turfy</span>
             </div>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               aria-label="Close"
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-ink-3 hover:bg-sunken hover:text-ink transition-colors"
             >
               <X className="h-4 w-4" />
             </button>

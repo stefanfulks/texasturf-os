@@ -18,7 +18,7 @@ export default async function BudgetsPage() {
     <div className="space-y-8 max-w-4xl">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Spend budgets</h1>
-        <p className="mt-0.5 text-sm text-zinc-500">
+        <p className="mt-0.5 text-sm text-ink-3">
           Period spend targets that drive the vs-budget cards on{" "}
           <Link href="/operations/vehicles" className="underline">Vehicle Maintenance</Link>{" "}
           and{" "}
@@ -55,18 +55,18 @@ function BudgetSection({
   return (
     <section className="space-y-3">
       <div className="flex items-baseline justify-between">
-        <h2 className="text-base font-semibold text-zinc-900">{title}</h2>
-        <span className="text-xs text-zinc-500 tabular-nums">{rows.length} budget{rows.length === 1 ? "" : "s"}</span>
+        <h2 className="text-base font-semibold text-ink">{title}</h2>
+        <span className="text-xs text-ink-3 tabular-nums">{rows.length} budget{rows.length === 1 ? "" : "s"}</span>
       </div>
 
       {rows.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-zinc-200 bg-white p-6 text-center text-sm text-zinc-500">
+        <p className="rounded-xl border border-dashed border-line bg-white p-6 text-center text-sm text-ink-3">
           No budgets set for this category yet.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-line bg-white">
           <table className="w-full text-sm">
-            <thead className="bg-zinc-50 text-left text-xs uppercase tracking-wide text-zinc-500">
+            <thead className="bg-hover text-left text-xs uppercase tracking-wide text-ink-3">
               <tr>
                 <th className="px-3 py-2 font-medium">Period</th>
                 <th className="px-3 py-2 font-medium text-right">Budget</th>

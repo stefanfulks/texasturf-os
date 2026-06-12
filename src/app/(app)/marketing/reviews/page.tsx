@@ -33,7 +33,7 @@ export default async function ReviewsPage({
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold tracking-tight">Reviews</h1>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">
+        <div className="rounded-xl border border-warn/30 bg-warn-tint p-6 text-sm text-warn">
           Reviews table isn&rsquo;t in the database yet. Apply the marketing_reviews migration, then reload.
         </div>
       </div>
@@ -66,10 +66,10 @@ export default async function ReviewsPage({
   const { data: rows } = await query;
 
   const tiles = [
-    { label: "To ask", value: counts.pending, accent: counts.pending > 0 ? "text-amber-600" : "text-zinc-900" },
-    { label: "Requested", value: counts.requested, accent: "text-zinc-900" },
-    { label: "Received this month", value: receivedThisMonth, accent: "text-emerald-600" },
-    { label: "Response rate", value: `${responseRate}%`, accent: "text-zinc-900" },
+    { label: "To ask", value: counts.pending, accent: counts.pending > 0 ? "text-warn" : "text-ink" },
+    { label: "Requested", value: counts.requested, accent: "text-ink" },
+    { label: "Received this month", value: receivedThisMonth, accent: "text-brand" },
+    { label: "Response rate", value: `${responseRate}%`, accent: "text-ink" },
   ];
 
   return (
@@ -77,7 +77,7 @@ export default async function ReviewsPage({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Reviews</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             Ask completed-job clients for a review — the local-SEO lever. Build the list, send via Jobber/text, track where it lands.
           </p>
         </div>
@@ -86,25 +86,25 @@ export default async function ReviewsPage({
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {tiles.map((t) => (
-          <div key={t.label} className="rounded-xl border border-zinc-200 bg-white p-4">
-            <p className="text-xs text-zinc-500">{t.label}</p>
+          <div key={t.label} className="rounded-xl border border-line bg-white p-4">
+            <p className="text-xs text-ink-3">{t.label}</p>
             <p className={`text-2xl font-semibold mt-1 ${t.accent}`}>{t.value}</p>
           </div>
         ))}
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <a href="/marketing/reviews" className={`text-xs px-2.5 py-1 rounded-full border ${!status ? "bg-zinc-900 text-white border-zinc-900" : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"}`}>
+        <a href="/marketing/reviews" className={`text-xs px-2.5 py-1 rounded-full border ${!status ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
           All
         </a>
         {STATUSES.map((s) => (
-          <a key={s} href={`/marketing/reviews?status=${s}`} className={`text-xs px-2.5 py-1 rounded-full border ${status === s ? "bg-zinc-900 text-white border-zinc-900" : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"}`}>
+          <a key={s} href={`/marketing/reviews?status=${s}`} className={`text-xs px-2.5 py-1 rounded-full border ${status === s ? "bg-ink text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}>
             {STATUS_LABEL[s]} {counts[s]}
           </a>
         ))}
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
         <ReviewTable rows={(rows ?? []) as ReviewRow[]} />
       </div>
     </div>

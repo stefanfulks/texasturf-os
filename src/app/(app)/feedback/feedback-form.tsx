@@ -7,10 +7,10 @@ import { submitFeedback, type SubmitFeedbackState } from "./actions";
 const initial: SubmitFeedbackState = { error: null, success: false };
 
 const CATEGORIES = [
-  { value: "bug",             label: "Bug",             icon: Bug,             color: "bg-red-50 text-red-700 border-red-200" },
-  { value: "feature_request", label: "Feature request", icon: Lightbulb,       color: "bg-amber-50 text-amber-700 border-amber-200" },
-  { value: "question",        label: "Question",        icon: HelpCircle,      color: "bg-blue-50 text-blue-700 border-blue-200" },
-  { value: "other",           label: "Other",           icon: MoreHorizontal,  color: "bg-zinc-50 text-zinc-700 border-zinc-200" },
+  { value: "bug",             label: "Bug",             icon: Bug,             color: "bg-danger-tint text-danger border-danger/30" },
+  { value: "feature_request", label: "Feature request", icon: Lightbulb,       color: "bg-warn-tint text-warn border-warn/30" },
+  { value: "question",        label: "Question",        icon: HelpCircle,      color: "bg-info-tint text-info border-info/30" },
+  { value: "other",           label: "Other",           icon: MoreHorizontal,  color: "bg-hover text-ink-2 border-line" },
 ] as const;
 
 export function FeedbackForm() {
@@ -22,13 +22,13 @@ export function FeedbackForm() {
 
   if (state.success) {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-sm text-emerald-900">
+      <div className="rounded-xl border border-brand/30 bg-brand-tint p-6 text-sm text-brand">
         <p className="font-semibold mb-1">Thanks — we got it.</p>
         <p>Your feedback was submitted. Admin will triage it from the Team page.</p>
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="mt-3 inline-flex items-center text-xs font-medium text-emerald-700 hover:text-emerald-900 underline"
+          className="mt-3 inline-flex items-center text-xs font-medium text-brand hover:text-brand underline"
         >
           Send another
         </button>
@@ -37,12 +37,12 @@ export function FeedbackForm() {
   }
 
   return (
-    <form action={formAction} className="rounded-xl border border-zinc-200 bg-white p-6 space-y-5">
+    <form action={formAction} className="rounded-xl border border-line bg-white p-6 space-y-5">
       <input type="hidden" name="category" value={category} />
       <input type="hidden" name="page_url" value={pageUrl} />
 
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-2">What kind of feedback?</label>
+        <label className="block text-xs font-medium text-ink-3 mb-2">What kind of feedback?</label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {CATEGORIES.map(({ value, label, icon: Icon, color }) => {
             const on = category === value;
@@ -55,7 +55,7 @@ export function FeedbackForm() {
                   "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors " +
                   (on
                     ? color + " ring-2 ring-offset-1 ring-offset-white"
-                    : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400")
+                    : "border-line bg-white text-ink-2 hover:border-line-strong")
                 }
                 aria-pressed={on}
               >
@@ -68,7 +68,7 @@ export function FeedbackForm() {
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">
+        <label className="block text-xs font-medium text-ink-3 mb-1">
           Subject *
         </label>
         <input
@@ -81,12 +81,12 @@ export function FeedbackForm() {
             category === "question"        ? "What's your question? — e.g. 'How do I assign a roll to a job?'" :
                                              "What's on your mind?"
           }
-          className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+          className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">
+        <label className="block text-xs font-medium text-ink-3 mb-1">
           Details
         </label>
         <textarea
@@ -97,12 +97,12 @@ export function FeedbackForm() {
               ? "Steps to reproduce, what you expected vs what happened, anything that helps us track it down."
               : "More context — the more specific, the faster we can act on it."
           }
-          className="w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 resize-y"
+          className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong resize-y"
         />
       </div>
 
       {state.error && (
-        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <p className="text-xs text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">
           {state.error}
         </p>
       )}
@@ -111,7 +111,7 @@ export function FeedbackForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-semibold bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+          className="px-4 py-2 text-sm font-semibold bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
         >
           {isPending ? "Sending…" : "Send feedback"}
         </button>

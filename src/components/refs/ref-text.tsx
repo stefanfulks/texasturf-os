@@ -34,7 +34,7 @@ export function RefText({
           <Link
             key={i}
             href={refHref(seg.ref)}
-            className="inline-flex items-center gap-1 rounded-md bg-indigo-50 border border-indigo-100 text-indigo-700 px-1.5 py-px font-medium hover:bg-indigo-100 hover:border-indigo-200 align-baseline max-w-full"
+            className="inline-flex items-center gap-1 rounded-md bg-info-tint border border-info/30 text-info px-1.5 py-px font-medium hover:bg-info-tint hover:border-info/30 align-baseline max-w-full"
             title={seg.ref.label}
           >
             <Icon className="h-3 w-3 shrink-0" />

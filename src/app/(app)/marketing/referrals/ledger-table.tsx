@@ -6,9 +6,9 @@ import type { ReferralRow } from "./page";
 
 const initial: ActionState = { error: null, success: false };
 const field =
-  "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+  "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 const select =
-  "text-xs border border-zinc-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-400";
+  "text-xs border border-line rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-line-strong";
 
 const STAGES = [
   ["lead", "Lead"],
@@ -26,9 +26,9 @@ const REWARD_TYPES = [
 ] as const;
 
 const REWARD_BADGE: Record<ReferralRow["reward_status"], string> = {
-  not_earned: "bg-zinc-100 text-zinc-500",
-  due: "bg-red-50 text-red-700",
-  sent: "bg-emerald-50 text-emerald-700",
+  not_earned: "bg-sunken text-ink-3",
+  due: "bg-danger-tint text-danger",
+  sent: "bg-brand-tint text-brand",
 };
 
 function StageSelect({ row }: { row: ReferralRow }) {
@@ -46,8 +46,8 @@ function StageSelect({ row }: { row: ReferralRow }) {
           <option key={val} value={val}>{label}</option>
         ))}
       </select>
-      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
-      {state.info && <span className="text-xs text-emerald-700">{state.info}</span>}
+      {state.error && <span className="text-xs text-danger">{state.error}</span>}
+      {state.info && <span className="text-xs text-brand">{state.info}</span>}
     </form>
   );
 }
@@ -71,7 +71,7 @@ function RewardControls({ row, isAdmin }: { row: ReferralRow; isAdmin: boolean }
             <option key={val} value={val}>{label}</option>
           ))}
         </select>
-        {typeState.error && <span className="text-xs text-red-600">{typeState.error}</span>}
+        {typeState.error && <span className="text-xs text-danger">{typeState.error}</span>}
       </form>
 
       <span className={`text-xs px-2 py-0.5 rounded font-medium ${REWARD_BADGE[row.reward_status]}`}>
@@ -85,17 +85,17 @@ function RewardControls({ row, isAdmin }: { row: ReferralRow; isAdmin: boolean }
           <button
             type="submit"
             disabled={sentPending}
-            className="text-xs px-2 py-1 rounded bg-emerald-600 text-white font-medium hover:bg-emerald-500 disabled:opacity-50"
+            className="text-xs px-2 py-1 rounded bg-brand text-white font-medium hover:bg-brand disabled:opacity-50"
           >
             {sentPending ? "…" : "Mark sent"}
           </button>
-          {sentState.error && <span className="text-xs text-red-600 ml-1">{sentState.error}</span>}
+          {sentState.error && <span className="text-xs text-danger ml-1">{sentState.error}</span>}
         </form>
       )}
 
       {isAdmin && (
         <details className="inline-block">
-          <summary className="text-xs text-zinc-400 cursor-pointer select-none">override</summary>
+          <summary className="text-xs text-ink-4 cursor-pointer select-none">override</summary>
           <form action={overrideAction} className="mt-2 flex items-center gap-2 flex-wrap">
             <input type="hidden" name="referral_id" value={row.id} />
             <select name="override_status" className={select} defaultValue={row.reward_status}>
@@ -107,11 +107,11 @@ function RewardControls({ row, isAdmin }: { row: ReferralRow; isAdmin: boolean }
             <button
               type="submit"
               disabled={overridePending}
-              className="text-xs px-2 py-1 rounded border border-zinc-300 hover:bg-zinc-50 disabled:opacity-50"
+              className="text-xs px-2 py-1 rounded border border-line-strong hover:bg-hover disabled:opacity-50"
             >
               Apply
             </button>
-            {overrideState.error && <span className="text-xs text-red-600">{overrideState.error}</span>}
+            {overrideState.error && <span className="text-xs text-danger">{overrideState.error}</span>}
           </form>
         </details>
       )}
@@ -122,22 +122,22 @@ function RewardControls({ row, isAdmin }: { row: ReferralRow; isAdmin: boolean }
 export function LedgerTable({ rows, isAdmin }: { rows: ReferralRow[]; isAdmin: boolean }) {
   if (rows.length === 0) {
     return (
-      <div className="py-10 text-center text-sm text-zinc-400">
+      <div className="py-10 text-center text-sm text-ink-4">
         No referrals yet. They&rsquo;ll land here as calls produce names — first one&rsquo;s coming.
       </div>
     );
   }
   return (
-    <div className="divide-y divide-zinc-100">
+    <div className="divide-y divide-line">
       {rows.map((row) => (
         <div key={row.id} className="px-5 py-3.5 space-y-2">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex-1 min-w-48">
-              <p className="text-sm font-semibold text-zinc-900">
+              <p className="text-sm font-semibold text-ink">
                 {row.referred_name}
-                <span className="font-normal text-zinc-400"> ← referred by {row.referrer_name}</span>
+                <span className="font-normal text-ink-4"> ← referred by {row.referrer_name}</span>
               </p>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-ink-4">
                 {row.referred_phone ?? "no phone"}
                 {row.service_interest ? ` · wants: ${row.service_interest}` : ""}
                 {row.notes ? ` · ${row.notes}` : ""}
@@ -158,23 +158,23 @@ export function AddReferralForm({ campaignId }: { campaignId: string }) {
     <form action={formAction} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <input type="hidden" name="campaign_id" value={campaignId} />
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Referrer (existing client) *</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Referrer (existing client) *</label>
         <input name="referrer_name" required placeholder="Who sent them" className={field} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Referred name *</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Referred name *</label>
         <input name="referred_name" required placeholder="New prospect" className={field} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Referred phone</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Referred phone</label>
         <input name="referred_phone" placeholder="(512) 555-0100" className={field} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Interested in</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Interested in</label>
         <input name="service_interest" placeholder="turf, fencing, court…" className={field} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-zinc-500 mb-1">Source</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Source</label>
         <select name="source" defaultValue="word_of_mouth" className={field}>
           <option value="call">Call campaign</option>
           <option value="jobber_link">Jobber referral link</option>
@@ -186,13 +186,13 @@ export function AddReferralForm({ campaignId }: { campaignId: string }) {
         <button
           type="submit"
           disabled={isPending}
-          className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+          className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
         >
           {isPending ? "Adding…" : "Add referral"}
         </button>
       </div>
-      {state.error && <p className="text-xs text-red-600 sm:col-span-3">{state.error}</p>}
-      {state.info && <p className="text-xs text-emerald-700 sm:col-span-3">{state.info}</p>}
+      {state.error && <p className="text-xs text-danger sm:col-span-3">{state.error}</p>}
+      {state.info && <p className="text-xs text-brand sm:col-span-3">{state.info}</p>}
     </form>
   );
 }

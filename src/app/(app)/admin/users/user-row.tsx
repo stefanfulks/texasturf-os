@@ -21,9 +21,9 @@ type Row = {
 };
 
 const ROLE_BADGE: Record<string, string> = {
-  admin:  "bg-purple-100 text-purple-700",
-  office: "bg-blue-100 text-blue-700",
-  field:  "bg-green-100 text-green-700",
+  admin:  "bg-info-tint text-info",
+  office: "bg-info-tint text-info",
+  field:  "bg-brand-tint text-brand",
 };
 
 export function UserRow({ user, currentUserId }: { user: Row; currentUserId: string }) {
@@ -42,24 +42,24 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
 
   if (!editing) {
     return (
-      <tr className="hover:bg-zinc-50">
-        <td className="px-4 py-3 font-medium text-zinc-900">
+      <tr className="hover:bg-hover">
+        <td className="px-4 py-3 font-medium text-ink">
           {user.full_name ?? "—"}
-          {isSelf && <span className="ml-2 text-xs text-zinc-400 font-normal">(you)</span>}
+          {isSelf && <span className="ml-2 text-xs text-ink-4 font-normal">(you)</span>}
         </td>
-        <td className="px-4 py-3 text-zinc-600">{user.email}</td>
+        <td className="px-4 py-3 text-ink-2">{user.email}</td>
         <td className="px-4 py-3">
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${ROLE_BADGE[user.role] ?? "bg-zinc-100 text-zinc-600"}`}>
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${ROLE_BADGE[user.role] ?? "bg-sunken text-ink-2"}`}>
             {user.role}
           </span>
         </td>
         <td className="px-4 py-3">
           <div className="flex flex-wrap gap-1">
             {user.departments.length === 0 ? (
-              <span className="text-xs text-zinc-400">— None</span>
+              <span className="text-xs text-ink-4">— None</span>
             ) : (
               user.departments.map((d) => (
-                <span key={d} className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-700">
+                <span key={d} className="inline-flex items-center gap-1 rounded-md bg-sunken px-1.5 py-0.5 text-xs text-ink-2">
                   <span>{DEPARTMENT_EMOJI[d]}</span>
                   {DEPARTMENT_LABEL[d]}
                 </span>
@@ -72,7 +72,7 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="px-2.5 py-1 text-xs font-medium border border-zinc-200 rounded-md text-zinc-700 hover:border-zinc-400 transition-colors"
+              className="px-2.5 py-1 text-xs font-medium border border-line rounded-md text-ink-2 hover:border-line-strong transition-colors"
             >
               Edit
             </button>
@@ -89,18 +89,18 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
   }
 
   return (
-    <tr className="bg-blue-50/30">
-      <td className="px-4 py-3 font-medium text-zinc-900 align-top">
+    <tr className="bg-info-tint/30">
+      <td className="px-4 py-3 font-medium text-ink align-top">
         {user.full_name ?? "—"}
-        {isSelf && <span className="ml-2 text-xs text-zinc-400 font-normal">(you)</span>}
+        {isSelf && <span className="ml-2 text-xs text-ink-4 font-normal">(you)</span>}
       </td>
-      <td className="px-4 py-3 text-zinc-600 align-top">{user.email}</td>
+      <td className="px-4 py-3 text-ink-2 align-top">{user.email}</td>
       <td className="px-4 py-3 align-top">
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
           disabled={isSelf}
-          className="w-full text-sm border border-zinc-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-60"
+          className="w-full text-sm border border-line rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-line-strong disabled:opacity-60"
         >
           <option value="admin">Admin</option>
           <option value="office">Office</option>
@@ -119,14 +119,14 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
                 className={
                   "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs transition-colors " +
                   (on
-                    ? "border-blue-400 bg-blue-100 text-blue-800"
-                    : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400")
+                    ? "border-info/30 bg-info-tint text-info"
+                    : "border-line bg-white text-ink-2 hover:border-line-strong")
                 }
                 aria-pressed={on}
               >
                 <span>{DEPARTMENT_EMOJI[d]}</span>
                 {DEPARTMENT_LABEL[d]}
-                {on && <span className="text-blue-600">✓</span>}
+                {on && <span className="text-info">✓</span>}
               </button>
             );
           })}
@@ -141,20 +141,20 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
             <button
               type="button"
               onClick={() => { setEditing(false); setRole(user.role); setDepartments(user.departments); }}
-              className="px-2.5 py-1 text-xs text-zinc-600 hover:text-zinc-900"
+              className="px-2.5 py-1 text-xs text-ink-2 hover:text-ink"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="px-3 py-1 text-xs font-semibold bg-zinc-900 text-white rounded-md hover:bg-zinc-700 disabled:opacity-50"
+              className="px-3 py-1 text-xs font-semibold bg-ink text-white rounded-md hover:bg-ink disabled:opacity-50"
             >
               {isPending ? "Saving…" : "Save"}
             </button>
           </div>
           {state.error && (
-            <p className="text-xs text-red-600 max-w-xs text-right">{state.error}</p>
+            <p className="text-xs text-danger max-w-xs text-right">{state.error}</p>
           )}
         </form>
       </td>

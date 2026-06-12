@@ -6,9 +6,9 @@ export const metadata = { title: "Marketing Playbook · TexasTurf OS" };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-6 space-y-3">
-      <h2 className="text-sm font-semibold text-zinc-900">{title}</h2>
-      <div className="text-sm text-zinc-600 space-y-2">{children}</div>
+    <section className="rounded-xl border border-line bg-white p-6 space-y-3">
+      <h2 className="text-sm font-semibold text-ink">{title}</h2>
+      <div className="text-sm text-ink-2 space-y-2">{children}</div>
     </section>
   );
 }
@@ -52,7 +52,7 @@ export default async function PlaybookPage() {
     <div className="space-y-6 max-w-4xl">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Marketing Playbook</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">
+        <p className="text-sm text-ink-3 mt-0.5">
           The plan everyone follows. Calls run in Reevo, sends go out via Jobber, the record lives here.
         </p>
       </div>
@@ -73,24 +73,24 @@ export default async function PlaybookPage() {
           <li><strong>Uncapped, never expires.</strong> B2B partners (pool builders, designers) get reciprocal terms, not gift cards.</li>
           <li><strong>Care Plan</strong> = annual deep-clean + groom, seam/edge inspection w/ minor repairs, drainage check, pet-odor treatment, priority scheduling, 10% off other work. Never call it &ldquo;insurance.&rdquo;</li>
         </ul>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-ink-3">
           Run it from <Link href="/marketing/referrals" className="underline">Referrals</Link>: Build roster → Export Reevo CSV → dial → log outcomes → track to reward.
         </p>
       </Section>
 
       <Section title="Content cadence — the accountability loop">
-        <p className="font-medium text-zinc-800">Troy — 1 long YouTube video / week (publishes Friday)</p>
+        <p className="font-medium text-ink">Troy — 1 long YouTube video / week (publishes Friday)</p>
         <ul className="list-disc pl-5 space-y-1">
           <li><strong>Mon</strong> — pick topic + outline/script</li>
           <li><strong>Wed</strong> — film (piggyback on an active job site)</li>
           <li><strong>Thu</strong> — hand to editor</li>
           <li><strong>Fri</strong> — publish + log it in <Link href="/marketing/content" className="underline">Content</Link></li>
         </ul>
-        <p className="font-medium text-zinc-800 mt-2">Max — 2–3 POV clips / week (Meta glasses)</p>
+        <p className="font-medium text-ink mt-2">Max — 2–3 POV clips / week (Meta glasses)</p>
         <p>Excavator cab, loading trucks, seam work, timelapses. The raw views engine. Drop into the Content library.</p>
-        <p className="font-medium text-zinc-800 mt-2">Every crew — per job</p>
+        <p className="font-medium text-ink mt-2">Every crew — per job</p>
         <p>1 before walkthrough, 1 process clip, 1 after reveal. Foreman checklist item; lands in the library.</p>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-ink-3">
           The <Link href="/marketing/content" className="underline">Content scoreboard</Link> tracks published-this-week counts live — that&rsquo;s the accountability number.
           (When Troy &amp; Max get app logins, these become auto-recurring tasks.)
         </p>
@@ -99,38 +99,38 @@ export default async function PlaybookPage() {
       <Section title="Troy — 12-week starter calendar">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead><tr className="text-left text-zinc-400"><th className="py-1 pr-3">Wk</th><th className="py-1 pr-3">Video</th><th className="py-1">Tie-in</th></tr></thead>
+            <thead><tr className="text-left text-ink-4"><th className="py-1 pr-3">Wk</th><th className="py-1 pr-3">Video</th><th className="py-1">Tie-in</th></tr></thead>
             <tbody>
               {TROY_WEEKS.map(([wk, title, tie]) => (
-                <tr key={wk} className="border-t border-zinc-100">
-                  <td className="py-1.5 pr-3 text-zinc-400">{wk}</td>
-                  <td className="py-1.5 pr-3 text-zinc-800">{title}</td>
-                  <td className="py-1.5 text-zinc-500">{tie}</td>
+                <tr key={wk} className="border-t border-line">
+                  <td className="py-1.5 pr-3 text-ink-4">{wk}</td>
+                  <td className="py-1.5 pr-3 text-ink">{title}</td>
+                  <td className="py-1.5 text-ink-3">{tie}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-zinc-500">All 12 are seeded as ideas in the <Link href="/marketing/content" className="underline">Content pipeline</Link>.</p>
+        <p className="text-xs text-ink-3">All 12 are seeded as ideas in the <Link href="/marketing/content" className="underline">Content pipeline</Link>.</p>
       </Section>
 
       <Section title="12-month service spotlight calendar">
         <p>One service line per month. Each ships the same kit: Jobber email + Troy long video + 4–6 shorts + before/after set + SEO post + yard-sign/social CTA swap.</p>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead><tr className="text-left text-zinc-400"><th className="py-1 pr-3">Month</th><th className="py-1 pr-3">Spotlight</th><th className="py-1">Angle</th></tr></thead>
+            <thead><tr className="text-left text-ink-4"><th className="py-1 pr-3">Month</th><th className="py-1 pr-3">Spotlight</th><th className="py-1">Angle</th></tr></thead>
             <tbody>
               {SPOTLIGHTS.map(([m, s, a]) => (
-                <tr key={m} className="border-t border-zinc-100">
-                  <td className="py-1.5 pr-3 text-zinc-400">{m}</td>
-                  <td className="py-1.5 pr-3 text-zinc-800">{s}</td>
-                  <td className="py-1.5 text-zinc-500">{a}</td>
+                <tr key={m} className="border-t border-line">
+                  <td className="py-1.5 pr-3 text-ink-4">{m}</td>
+                  <td className="py-1.5 pr-3 text-ink">{s}</td>
+                  <td className="py-1.5 text-ink-3">{a}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-zinc-500">Jul–Sep are seeded in <Link href="/marketing/campaigns" className="underline">Campaigns</Link> as drafts.</p>
+        <p className="text-xs text-ink-3">Jul–Sep are seeded in <Link href="/marketing/campaigns" className="underline">Campaigns</Link> as drafts.</p>
       </Section>
 
       <Section title="Where things live">

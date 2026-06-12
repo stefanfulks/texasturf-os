@@ -63,20 +63,20 @@ export default async function InventoryJobsPage({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Jobs</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             {filtered.length} job{filtered.length !== 1 ? "s" : ""}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href="/inventory/jobs/archived"
-            className="flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 hover:border-zinc-500 hover:text-zinc-900 transition-colors"
+            className="flex items-center gap-2 rounded-xl border border-line-strong bg-white px-4 py-2.5 text-sm font-semibold text-ink-2 hover:border-line-strong hover:text-ink transition-colors"
           >
             View Archived
           </Link>
           <Link
             href="/inventory/jobs/new"
-            className="flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink transition-colors"
           >
             <span className="text-lg leading-none">+</span> New Job
           </Link>
@@ -98,8 +98,8 @@ export default async function InventoryJobsPage({
                 href={href}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                   active
-                    ? "bg-zinc-900 text-white border-zinc-900"
-                    : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
+                    ? "bg-ink text-white border-ink"
+                    : "bg-white text-ink-2 border-line hover:border-line-strong"
                 }`}
               >
                 {f.label}
@@ -114,58 +114,58 @@ export default async function InventoryJobsPage({
             name="q"
             defaultValue={q}
             placeholder="Search job # or name…"
-            className="w-full text-sm border border-zinc-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white"
+            className="w-full text-sm border border-line rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
           />
         </form>
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-sm text-zinc-400">No jobs found.</div>
+          <div className="py-16 text-center text-sm text-ink-4">No jobs found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 bg-zinc-50">
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Job #</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Job Name</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Site Address</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Status</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Scheduled</th>
-                  <th className="text-right px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Allocations</th>
-                  <th className="text-left px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">Created</th>
+                <tr className="border-b border-line bg-hover">
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Job #</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Job Name</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Site Address</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Status</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Scheduled</th>
+                  <th className="text-right px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Allocations</th>
+                  <th className="text-left px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">Created</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((job) => (
                   <tr
                     key={job.id}
-                    className="border-b border-zinc-50 hover:bg-zinc-50/50 transition-colors"
+                    className="border-b border-line hover:bg-hover/50 transition-colors"
                   >
-                    <td className="px-4 py-3 font-medium text-zinc-900">
+                    <td className="px-4 py-3 font-medium text-ink">
                       <Link href={`/inventory/jobs/${job.id}`} className="hover:underline">
                         {job.job_number ?? "—"}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-zinc-700">
+                    <td className="px-4 py-3 text-ink-2">
                       <Link href={`/inventory/jobs/${job.id}`} className="hover:underline">
                         {job.job_name}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-zinc-500 truncate max-w-[260px]">
-                      {job.site_address ?? <span className="text-zinc-300">—</span>}
+                    <td className="px-4 py-3 text-ink-3 truncate max-w-[260px]">
+                      {job.site_address ?? <span className="text-ink-4">—</span>}
                     </td>
                     <td className="px-4 py-3">
                       <JobStatusBadge status={job.status} />
                     </td>
-                    <td className="px-4 py-3 text-zinc-500">
-                      {job.scheduled_date ? format(parseISO(job.scheduled_date), "MMM d, yyyy") : <span className="text-zinc-300">—</span>}
+                    <td className="px-4 py-3 text-ink-3">
+                      {job.scheduled_date ? format(parseISO(job.scheduled_date), "MMM d, yyyy") : <span className="text-ink-4">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-right text-zinc-700 font-medium">
+                    <td className="px-4 py-3 text-right text-ink-2 font-medium">
                       {allocCountByJob.get(job.id) ?? 0}
                     </td>
-                    <td className="px-4 py-3 text-zinc-400 text-xs">
+                    <td className="px-4 py-3 text-ink-4 text-xs">
                       {format(parseISO(job.created_at), "MMM d")}
                     </td>
                   </tr>

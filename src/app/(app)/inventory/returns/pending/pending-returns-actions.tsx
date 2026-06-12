@@ -26,7 +26,7 @@ export function PendingReturnActions({ rollId }: { rollId: string }) {
         type="button"
         onClick={() => run(restockReturnedRoll)}
         disabled={isPending}
-        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold bg-brand text-white rounded-lg hover:bg-brand disabled:opacity-50"
       >
         <Check className="w-3.5 h-3.5" aria-hidden="true" /> Restock
       </button>
@@ -34,11 +34,11 @@ export function PendingReturnActions({ rollId }: { rollId: string }) {
         type="button"
         onClick={() => run(markReturnedDamaged)}
         disabled={isPending}
-        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-50"
+        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-danger bg-danger-tint border border-danger/30 rounded-lg hover:bg-danger-tint disabled:opacity-50"
       >
         <X className="w-3.5 h-3.5" aria-hidden="true" /> Damaged
       </button>
-      {error && <span className="text-xs text-red-700 ml-2">{error}</span>}
+      {error && <span className="text-xs text-danger ml-2">{error}</span>}
     </div>
   );
 }

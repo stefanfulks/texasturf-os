@@ -75,19 +75,19 @@ export default async function InventoryReturnsPage({
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Process Returns</h1>
-          <p className="text-sm text-zinc-500 mt-1">
+          <p className="text-sm text-ink-3 mt-1">
             Receive rolls back from a job, or log an unmarked return when the job source is
             unknown.
           </p>
         </div>
         <Link
           href="/inventory/returns/pending"
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-line text-sm font-medium text-ink-2 hover:bg-hover"
         >
           <ClipboardList className="w-4 h-4" aria-hidden="true" />
           Pending review
           {pendingCount > 0 && (
-            <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-orange-100 text-orange-800 text-xs font-semibold">
+            <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-warn-tint text-warn text-xs font-semibold">
               {pendingCount}
             </span>
           )}

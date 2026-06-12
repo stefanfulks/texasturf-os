@@ -6,9 +6,9 @@ import type { Project } from "@/lib/db-helpers.types";
 
 const initial: JobFormState = { error: null, success: false };
 const field =
-  "w-full h-12 text-base border border-zinc-300 rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 bg-white";
+  "w-full h-12 text-base border border-line-strong rounded-xl px-3 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white";
 const textareaCls =
-  "w-full text-base border border-zinc-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 bg-white resize-none";
+  "w-full text-base border border-line-strong rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink bg-white resize-none";
 
 const JOB_TYPES = [
   ["customer_install",  "Customer Installation"],
@@ -45,19 +45,19 @@ export function JobForm({ mode, job }: { mode: "create" | "edit"; job?: Project 
       {mode === "edit" && job && <input type="hidden" name="id" value={job.id} />}
 
       <div>
-        <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Job Name <span className="text-red-500">*</span></label>
+        <label className="block text-xs font-semibold text-ink-2 mb-1.5">Job Name <span className="text-danger">*</span></label>
         <input name="name" defaultValue={job?.name ?? ""} required placeholder="Smith Residential Install" className={field} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Type <span className="text-red-500">*</span></label>
+          <label className="block text-xs font-semibold text-ink-2 mb-1.5">Type <span className="text-danger">*</span></label>
           <select name="type" defaultValue={job?.type ?? "customer_install"} className={field}>
             {JOB_TYPES.map(([val, label]) => <option key={val} value={val}>{label}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Status</label>
+          <label className="block text-xs font-semibold text-ink-2 mb-1.5">Status</label>
           <select name="status" defaultValue={job?.status ?? "intake"} className={field}>
             {JOB_STATUSES.map(([val, label]) => <option key={val} value={val}>{label}</option>)}
           </select>
@@ -66,7 +66,7 @@ export function JobForm({ mode, job }: { mode: "create" | "edit"; job?: Project 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Priority</label>
+          <label className="block text-xs font-semibold text-ink-2 mb-1.5">Priority</label>
           <select name="priority" defaultValue={job?.priority ?? "normal"} className={field}>
             <option value="low">Low</option>
             <option value="normal">Normal</option>
@@ -75,29 +75,29 @@ export function JobForm({ mode, job }: { mode: "create" | "edit"; job?: Project 
           </select>
         </div>
         <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Due Date</label>
+          <label className="block text-xs font-semibold text-ink-2 mb-1.5">Due Date</label>
           <input type="date" name="due_date" defaultValue={job?.due_date ?? ""} className={field} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Customer / Company</label>
+          <label className="block text-xs font-semibold text-ink-2 mb-1.5">Customer / Company</label>
           <input name="customer_name" defaultValue={job?.customer_name ?? ""} placeholder="Smith Family" className={field} />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Target Install Date</label>
+          <label className="block text-xs font-semibold text-ink-2 mb-1.5">Target Install Date</label>
           <input type="date" name="target_install_date" defaultValue={job?.target_install_date ?? ""} className={field} />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Address / Location</label>
+        <label className="block text-xs font-semibold text-ink-2 mb-1.5">Address / Location</label>
         <input name="address" defaultValue={job?.address ?? ""} placeholder="123 Main St, Austin TX" className={field} />
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Description / Scope</label>
+        <label className="block text-xs font-semibold text-ink-2 mb-1.5">Description / Scope</label>
         <textarea name="description" defaultValue={job?.description ?? ""} rows={3} placeholder="Brief description of the job scope…" className={textareaCls} />
       </div>
 
@@ -105,7 +105,7 @@ export function JobForm({ mode, job }: { mode: "create" | "edit"; job?: Project 
           form needs to stay editable for both create and edit, so we keep
           the input here too. */}
       <div>
-        <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Jobber URL <span className="font-normal text-zinc-400">(optional)</span></label>
+        <label className="block text-xs font-semibold text-ink-2 mb-1.5">Jobber URL <span className="font-normal text-ink-4">(optional)</span></label>
         <input
           name="jobber_url"
           type="url"
@@ -113,18 +113,18 @@ export function JobForm({ mode, job }: { mode: "create" | "edit"; job?: Project 
           placeholder="https://app.getjobber.com/work_orders/…"
           className={field}
         />
-        <p className="mt-1 text-[11px] text-zinc-500">Paste the deep link from Jobber so the crew can jump straight to the work order.</p>
+        <p className="mt-1 text-[11px] text-ink-3">Paste the deep link from Jobber so the crew can jump straight to the work order.</p>
       </div>
 
       {state.success && mode === "edit" && (
-        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-3 py-2">Saved.</p>
+        <p className="text-sm text-brand bg-brand-tint border border-brand/30 rounded-xl px-3 py-2">Saved.</p>
       )}
       {state.error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{state.error}</p>
+        <p className="text-sm text-danger bg-danger-tint border border-danger/30 rounded-xl px-3 py-2">{state.error}</p>
       )}
 
       <div className="flex justify-end">
-        <button type="submit" disabled={isPending} className="h-11 px-5 text-sm font-semibold bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 active:bg-zinc-700 disabled:opacity-50">
+        <button type="submit" disabled={isPending} className="h-11 px-5 text-sm font-semibold bg-ink text-white rounded-xl hover:bg-ink active:bg-ink disabled:opacity-50">
           {isPending ? (mode === "create" ? "Creating…" : "Saving…") : (mode === "create" ? "Create Job" : "Save Changes")}
         </button>
       </div>

@@ -16,11 +16,11 @@ import { parseJobDescription } from "@/lib/pricing/parser";
 
 // ─── Styling helpers ──────────────────────────────────────────────────────────
 
-const field        = "w-full text-sm border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+const field        = "w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 const fieldNarrow  = field + " py-1.5";
-const labelCls     = "text-xs font-medium text-zinc-500 mb-1 block";
-const sectionTitle = "text-sm font-semibold text-zinc-900 mb-3";
-const sectionBox   = "rounded-xl border border-zinc-200 bg-white p-5 space-y-3";
+const labelCls     = "text-xs font-medium text-ink-3 mb-1 block";
+const sectionTitle = "text-sm font-semibold text-ink mb-3";
+const sectionBox   = "rounded-xl border border-line bg-white p-5 space-y-3";
 
 // ─── Default job ──────────────────────────────────────────────────────────────
 
@@ -165,10 +165,10 @@ export function PricingCalculator() {
   )?.label ?? "Manager review";
 
   const tierColor =
-    job.targetMargin < 40 ? "bg-red-100 text-red-700"     :
-    job.targetMargin < 50 ? "bg-amber-100 text-amber-700" :
-    job.targetMargin < 60 ? "bg-blue-100 text-blue-700"   :
-                            "bg-emerald-100 text-emerald-700";
+    job.targetMargin < 40 ? "bg-danger-tint text-danger"     :
+    job.targetMargin < 50 ? "bg-warn-tint text-warn" :
+    job.targetMargin < 60 ? "bg-info-tint text-info"   :
+                            "bg-brand-tint text-brand";
 
   const rawHint = turf
     ? `Raw cost $${turf.cost.toFixed(2)}/sqft · roll ${turf.rollSize}` +
@@ -201,7 +201,7 @@ export function PricingCalculator() {
             type="button"
             onClick={applyParsed}
             disabled={!nlText.trim()}
-            className="px-3 py-1.5 rounded-lg border border-zinc-300 bg-white text-sm font-medium text-zinc-700 hover:border-zinc-500 disabled:opacity-50 transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-line-strong bg-white text-sm font-medium text-ink-2 hover:border-line-strong disabled:opacity-50 transition-colors"
           >
             ↓ Parse into form
           </button>
@@ -251,7 +251,7 @@ export function PricingCalculator() {
               </select>
             </div>
           </div>
-          {rawHint && <p className="text-xs text-zinc-500">{rawHint}</p>}
+          {rawHint && <p className="text-xs text-ink-3">{rawHint}</p>}
         </div>
 
         {/* Application */}
@@ -293,7 +293,7 @@ export function PricingCalculator() {
                 { value: "difficult", label: "Difficult" },
               ]}
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-ink-3">
               Difficult = stairs, steep driveway, long carry, restricted gates. Routes to manager review.
             </p>
           </div>
@@ -314,13 +314,13 @@ export function PricingCalculator() {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-zinc-500">{C.INFILL_LBS_PER_SQFT} lbs per sq ft</p>
+            <p className="text-xs text-ink-3">{C.INFILL_LBS_PER_SQFT} lbs per sq ft</p>
           </div>
         )}
         {isPuttingGreen && (
           <div className={sectionBox}>
             <h2 className={sectionTitle}>Infill</h2>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-ink-3">
               Putting greens always use Sand infill — included automatically.
             </p>
           </div>
@@ -330,7 +330,7 @@ export function PricingCalculator() {
         <div className={sectionBox}>
           <h2 className={sectionTitle}>Edging & nailer board</h2>
           {job.edgings.length === 0 && (
-            <p className="text-xs text-zinc-500">No edging runs added.</p>
+            <p className="text-xs text-ink-3">No edging runs added.</p>
           )}
           {job.edgings.map((e, i) => (
             <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_auto] gap-2 items-end">
@@ -360,7 +360,7 @@ export function PricingCalculator() {
                 onClick={() => removeEdging(i)}
                 aria-label={`Remove edging row ${i + 1}`}
                 title="Remove this edging run"
-                className="self-end h-8 w-8 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:text-red-600 hover:border-red-300 transition-colors flex items-center justify-center"
+                className="self-end h-8 w-8 rounded-md border border-line bg-white text-ink-3 hover:text-danger hover:border-danger/30 transition-colors flex items-center justify-center"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -371,12 +371,12 @@ export function PricingCalculator() {
           <button
             type="button"
             onClick={addEdging}
-            className="px-3 py-1.5 rounded-lg border border-zinc-300 bg-white text-xs font-medium text-zinc-700 hover:border-zinc-500 transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-line-strong bg-white text-xs font-medium text-ink-2 hover:border-line-strong transition-colors"
           >
             + Add edging run
           </button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-zinc-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-line">
             <div>
               <label className={labelCls}>Nailer board LF</label>
               <input
@@ -435,7 +435,7 @@ export function PricingCalculator() {
               </div>
             </div>
             {job.glueMode === "full" && (
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-ink-3">
                 Full glue-down uses 1 gallon per {C.GLUE_SQFT_PER_GAL} sqft — auto-calculated.
               </p>
             )}
@@ -455,7 +455,7 @@ export function PricingCalculator() {
                 className={field}
               />
             </div>
-            <p className="text-xs text-zinc-500 sm:self-end sm:pb-2">{laborHint}</p>
+            <p className="text-xs text-ink-3 sm:self-end sm:pb-2">{laborHint}</p>
           </div>
         </div>
 
@@ -463,7 +463,7 @@ export function PricingCalculator() {
         <div className={sectionBox}>
           <h2 className={sectionTitle}>Other line items</h2>
           {job.extras.length === 0 && (
-            <p className="text-xs text-zinc-500">No extras added.</p>
+            <p className="text-xs text-ink-3">No extras added.</p>
           )}
           {job.extras.map((ex, i) => (
             <div key={i} className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_auto] gap-2 items-end">
@@ -490,7 +490,7 @@ export function PricingCalculator() {
                 onClick={() => removeExtra(i)}
                 aria-label={`Remove line item ${i + 1}`}
                 title="Remove this line item"
-                className="self-end h-8 w-8 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:text-red-600 hover:border-red-300 transition-colors flex items-center justify-center"
+                className="self-end h-8 w-8 rounded-md border border-line bg-white text-ink-3 hover:text-danger hover:border-danger/30 transition-colors flex items-center justify-center"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -501,7 +501,7 @@ export function PricingCalculator() {
           <button
             type="button"
             onClick={addExtra}
-            className="px-3 py-1.5 rounded-lg border border-zinc-300 bg-white text-xs font-medium text-zinc-700 hover:border-zinc-500 transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-line-strong bg-white text-xs font-medium text-ink-2 hover:border-line-strong transition-colors"
           >
             + Add line
           </button>
@@ -526,14 +526,14 @@ export function PricingCalculator() {
             <span className={`px-2 py-1 rounded-md text-xs font-semibold ${tierColor}`}>{tierLabel}</span>
           </div>
           {result.nextTier && (
-            <p className="text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+            <p className="text-xs text-info bg-info-tint border border-info/30 rounded-lg px-3 py-2">
               Raise to <strong>{result.nextTier.marginTarget}%</strong> →
               price +${money(result.nextTier.priceDelta)},
               commission +${money(result.nextTier.commissionDelta)}
               ({Math.round(result.nextTier.newRate * 100)}% rate)
             </p>
           )}
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-ink-3">
             40–49% → 4% of GP · 50–59% → 6% · 60%+ → 8% · under 40% → manager review
           </p>
         </div>
@@ -541,14 +541,14 @@ export function PricingCalculator() {
 
       {/* RIGHT — sticky output */}
       <div className="lg:sticky lg:top-6 self-start">
-        <div className="rounded-xl border border-zinc-900 bg-zinc-900 text-zinc-100 p-5 space-y-4">
+        <div className="rounded-xl border border-ink bg-ink text-ink-4 p-5 space-y-4">
           <div>
-            <p className="text-xs uppercase tracking-wider text-zinc-400">Quote price</p>
+            <p className="text-xs uppercase tracking-wider text-ink-4">Quote price</p>
             <p className="text-4xl font-bold tabular-nums mt-1">
               {result.price != null ? `$${money(result.price)}` : "—"}
             </p>
             {result.pricePerSqft != null && (
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-ink-4 mt-1">
                 ${result.pricePerSqft.toFixed(2)}/sqft
                 {turf?.historicalRange &&
                   ` · historical $${turf.historicalRange[0]}–$${turf.historicalRange[2]}/sqft`}
@@ -565,8 +565,8 @@ export function PricingCalculator() {
           </div>
 
           {result.reviewFlags.length > 0 && (
-            <div className="rounded-lg bg-red-950/40 border border-red-700 px-3 py-2 text-xs text-red-200 space-y-0.5">
-              <p className="font-semibold text-red-100">Manager review required</p>
+            <div className="rounded-lg bg-danger/40 border border-danger/30 px-3 py-2 text-xs text-danger space-y-0.5">
+              <p className="font-semibold text-danger">Manager review required</p>
               <ul className="list-disc list-inside">
                 {result.reviewFlags.map((f, i) => <li key={i}>{f}</li>)}
               </ul>
@@ -574,30 +574,30 @@ export function PricingCalculator() {
           )}
 
           {result.lines.length > 0 && (
-            <div className="border-t border-zinc-700 pt-3 space-y-1.5">
-              <p className="text-xs uppercase tracking-wider text-zinc-400">COGS breakdown</p>
+            <div className="border-t border-line-strong pt-3 space-y-1.5">
+              <p className="text-xs uppercase tracking-wider text-ink-4">COGS breakdown</p>
               {result.lines.map((l, i) => (
                 <div key={i} className="flex justify-between text-xs gap-3">
-                  <span className="text-zinc-300 truncate">{l.label}</span>
-                  <span className="text-zinc-100 tabular-nums">${money(l.cost)}</span>
+                  <span className="text-ink-4 truncate">{l.label}</span>
+                  <span className="text-ink-4 tabular-nums">${money(l.cost)}</span>
                 </div>
               ))}
             </div>
           )}
 
-          <div className="flex gap-2 pt-2 border-t border-zinc-700">
+          <div className="flex gap-2 pt-2 border-t border-line-strong">
             <button
               type="button"
               onClick={copyQuote}
               disabled={result.price == null && result.cogs === 0}
-              className="flex-1 px-3 py-2 rounded-lg bg-white text-zinc-900 text-sm font-semibold hover:bg-zinc-200 disabled:opacity-50 transition-colors"
+              className="flex-1 px-3 py-2 rounded-lg bg-white text-ink text-sm font-semibold hover:bg-line disabled:opacity-50 transition-colors"
             >
               {copyState === "copied" ? "Copied ✓" : "Copy quote"}
             </button>
             <button
               type="button"
               onClick={resetAll}
-              className="px-3 py-2 rounded-lg border border-zinc-600 bg-transparent text-zinc-100 text-sm font-medium hover:bg-zinc-800 transition-colors"
+              className="px-3 py-2 rounded-lg border border-line-strong bg-transparent text-ink-4 text-sm font-medium hover:bg-ink transition-colors"
             >
               Reset
             </button>
@@ -618,7 +618,7 @@ function PillGroup({
   options: Array<{ value: string; label: string }>;
 }) {
   return (
-    <div className="inline-flex rounded-lg border border-zinc-200 bg-white p-0.5">
+    <div className="inline-flex rounded-lg border border-line bg-white p-0.5">
       {options.map((opt) => {
         const active = value === opt.value;
         return (
@@ -628,7 +628,7 @@ function PillGroup({
             onClick={() => onChange(opt.value)}
             className={
               "px-3 py-1.5 rounded-md text-sm font-medium transition-colors " +
-              (active ? "bg-zinc-900 text-white" : "text-zinc-600 hover:text-zinc-900")
+              (active ? "bg-ink text-white" : "text-ink-2 hover:text-ink")
             }
             aria-pressed={active}
           >
@@ -643,7 +643,7 @@ function PillGroup({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wider text-zinc-400">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-ink-4">{label}</p>
       <p className="text-base font-semibold tabular-nums mt-0.5">{value}</p>
     </div>
   );

@@ -40,28 +40,28 @@ export default async function RecurringTasksPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <Link href="/tasks" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">← Tasks</Link>
+      <Link href="/tasks" className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink">← Tasks</Link>
 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Recurring Tasks</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">Rules that automatically create tasks on a schedule</p>
+          <p className="text-sm text-ink-3 mt-0.5">Rules that automatically create tasks on a schedule</p>
         </div>
         <RecurringRuleForm profiles={profiles} projects={projects} currentUserId={user.id} />
       </div>
 
       {/* Active rules */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100 bg-zinc-50">
-          <span className="text-xs font-semibold text-zinc-600">Active</span>
-          <span className="ml-2 text-xs text-zinc-400">{activeRules.length}</span>
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line bg-hover">
+          <span className="text-xs font-semibold text-ink-2">Active</span>
+          <span className="ml-2 text-xs text-ink-4">{activeRules.length}</span>
         </div>
         {activeRules.length === 0 ? (
-          <div className="py-10 text-center text-sm text-zinc-400">
+          <div className="py-10 text-center text-sm text-ink-4">
             No active recurring rules. Create one above.
           </div>
         ) : (
-          <div className="divide-y divide-zinc-100">
+          <div className="divide-y divide-line">
             {activeRules.map((rule) => (
               <RuleRow
                 key={rule.id}
@@ -75,12 +75,12 @@ export default async function RecurringTasksPage() {
 
       {/* Paused rules */}
       {pausedRules.length > 0 && (
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-          <div className="px-5 py-3 border-b border-zinc-100 bg-zinc-50">
-            <span className="text-xs font-semibold text-zinc-600">Paused</span>
-            <span className="ml-2 text-xs text-zinc-400">{pausedRules.length}</span>
+        <div className="rounded-xl border border-line bg-white overflow-hidden">
+          <div className="px-5 py-3 border-b border-line bg-hover">
+            <span className="text-xs font-semibold text-ink-2">Paused</span>
+            <span className="ml-2 text-xs text-ink-4">{pausedRules.length}</span>
           </div>
-          <div className="divide-y divide-zinc-100">
+          <div className="divide-y divide-line">
             {pausedRules.map((rule) => (
               <RuleRow
                 key={rule.id}
@@ -93,16 +93,16 @@ export default async function RecurringTasksPage() {
       )}
 
       {/* How it works */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5 text-sm text-zinc-600 space-y-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">How it works</h3>
-        <ul className="space-y-1.5 text-sm text-zinc-600 list-disc list-inside">
+      <div className="rounded-xl border border-line bg-white p-5 text-sm text-ink-2 space-y-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-3">How it works</h3>
+        <ul className="space-y-1.5 text-sm text-ink-2 list-disc list-inside">
           <li>Each active rule generates a task automatically when its <strong>next due date</strong> arrives</li>
           <li><strong>Lead days</strong> creates the task N days before the due date (e.g. 1 = a day early)</li>
           <li>Pausing a rule stops new tasks from being created but keeps existing ones</li>
           <li>Tasks generated from a rule are linked — you can see them in the task board filtered by project</li>
         </ul>
-        <p className="text-xs text-zinc-400 mt-3 pt-3 border-t border-zinc-100">
-          Generation runs daily via <code className="bg-zinc-100 px-1 rounded">/api/cron/recurring</code>
+        <p className="text-xs text-ink-4 mt-3 pt-3 border-t border-line">
+          Generation runs daily via <code className="bg-sunken px-1 rounded">/api/cron/recurring</code>
         </p>
       </div>
     </div>

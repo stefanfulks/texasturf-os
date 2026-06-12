@@ -92,20 +92,20 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-5 pb-32 sm:pb-6">
       <Link
         href="/meetings"
-        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-zinc-500 hover:text-zinc-900 active:text-zinc-700"
+        className="inline-flex items-center gap-1 -ml-1 h-10 text-sm text-ink-3 hover:text-ink active:text-ink-2"
       >
         <ChevronLeft className="h-4 w-4" />
         Meetings
       </Link>
 
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">{meeting.name}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{meeting.name}</h1>
         {meeting.description && (
-          <p className="text-sm sm:text-base text-zinc-600 mt-1">{meeting.description}</p>
+          <p className="text-sm sm:text-base text-ink-2 mt-1">{meeting.description}</p>
         )}
-        <p className="text-xs text-zinc-500 mt-1">{formatCadence(meeting)}</p>
+        <p className="text-xs text-ink-3 mt-1">{formatCadence(meeting)}</p>
         {meeting.invited_user_ids.length > 0 && (
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-ink-3 mt-1">
             Invited:{" "}
             {meeting.invited_user_ids
               .map((id) => {
@@ -120,11 +120,11 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
 
       {/* Occurrence navigation — a one-time meeting has exactly one occurrence,
           so the prev/next steppers only render for recurring cadences. */}
-      <div className="flex items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white p-3">
+      <div className="flex items-center justify-between gap-2 rounded-2xl border border-line bg-white p-3">
         {meeting.cadence !== "once" ? (
           <Link
             href={`/meetings/${meeting.slug}?date=${prevOn}`}
-            className="inline-flex items-center justify-center h-10 w-10 rounded-lg text-zinc-600 hover:bg-zinc-100 active:bg-zinc-200"
+            className="inline-flex items-center justify-center h-10 w-10 rounded-lg text-ink-2 hover:bg-sunken active:bg-line"
             aria-label="Previous occurrence"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -133,20 +133,20 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
           <span className="h-10 w-10" />
         )}
         <div className="min-w-0 text-center">
-          <p className="text-xs uppercase tracking-wider text-zinc-500">
+          <p className="text-xs uppercase tracking-wider text-ink-3">
             {meeting.cadence === "once" ? "One-time meeting" : "Meeting"}
           </p>
-          <p className="text-sm sm:text-base font-semibold text-zinc-900 truncate">
+          <p className="text-sm sm:text-base font-semibold text-ink truncate">
             {formatOccurrence(occursOn, meeting)}
           </p>
-          <p className="text-[11px] text-zinc-500 tabular-nums">
+          <p className="text-[11px] text-ink-3 tabular-nums">
             {openCount} open · {doneCount} done · {items.length} total
           </p>
         </div>
         {meeting.cadence !== "once" ? (
           <Link
             href={`/meetings/${meeting.slug}?date=${nextOn}`}
-            className="inline-flex items-center justify-center h-10 w-10 rounded-lg text-zinc-600 hover:bg-zinc-100 active:bg-zinc-200"
+            className="inline-flex items-center justify-center h-10 w-10 rounded-lg text-ink-2 hover:bg-sunken active:bg-line"
             aria-label="Next occurrence"
           >
             <ChevronRight className="h-5 w-5" />
@@ -182,17 +182,17 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
           const sectionItems = bySection[section.key] ?? [];
           const accent = (section.accent ?? "zinc") as SectionAccent;
           return (
-            <section key={section.key} className="rounded-2xl border border-zinc-200 bg-white overflow-hidden">
-              <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-zinc-100 bg-zinc-50/60">
+            <section key={section.key} className="rounded-2xl border border-line bg-white overflow-hidden">
+              <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-line bg-hover/60">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span className="text-xl leading-none">{section.emoji}</span>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-zinc-900">
-                      <span className="text-zinc-400 mr-1.5 tabular-nums">{idx + 1}.</span>
+                    <p className="text-sm font-semibold text-ink">
+                      <span className="text-ink-4 mr-1.5 tabular-nums">{idx + 1}.</span>
                       {section.label}
                     </p>
                     {(section.time_min || section.owner) && (
-                      <p className="text-[11px] text-zinc-500">
+                      <p className="text-[11px] text-ink-3">
                         {section.time_min ? `${section.time_min} min` : ""}
                         {section.time_min && section.owner ? " · " : ""}
                         {section.owner ?? ""}
@@ -210,11 +210,11 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
               </header>
 
               {sectionItems.length === 0 ? (
-                <p className="px-5 py-6 text-sm text-zinc-400 italic">
+                <p className="px-5 py-6 text-sm text-ink-4 italic">
                   No items filed yet for this section.
                 </p>
               ) : (
-                <ul className="divide-y divide-zinc-100">
+                <ul className="divide-y divide-line">
                   {sectionItems.map((item) => (
                     <ItemRow
                       key={item.id}

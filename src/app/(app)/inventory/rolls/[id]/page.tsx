@@ -176,7 +176,7 @@ export default async function RollDetailPage({
     <div className="max-w-5xl space-y-6">
       <Link
         href="/inventory/rolls"
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink"
       >
         ← Rolls
       </Link>
@@ -189,11 +189,11 @@ export default async function RollDetailPage({
               {roll.tt_sku_tag_number ?? "—"}
             </h1>
             <RollStatusBadge status={roll.status} />
-            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border bg-zinc-50 text-zinc-700 border-zinc-200 capitalize">
+            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border bg-hover text-ink-2 border-line capitalize">
               {roll.roll_type}
             </span>
           </div>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-ink-3">
             {roll.product_name ?? "No product"}
             {roll.dye_lot && ` · Dye lot ${roll.dye_lot}`}
             {roll.manufacturer_roll_number && ` · Mfg ${roll.manufacturer_roll_number}`}
@@ -203,7 +203,7 @@ export default async function RollDetailPage({
           {canCut && (
             <Link
               href={`/inventory/cut?roll_id=${roll.id}`}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink transition-colors"
             >
               <Scissors className="h-4 w-4" />
               Cut Roll
@@ -211,7 +211,7 @@ export default async function RollDetailPage({
           )}
           <Link
             href={`/inventory/rolls/${roll.id}/edit`}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-zinc-500 hover:text-zinc-900 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-line-strong bg-white px-4 py-2 text-sm font-semibold text-ink-2 hover:border-line-strong hover:text-ink transition-colors"
           >
             <Edit className="h-4 w-4" />
             Edit
@@ -222,70 +222,70 @@ export default async function RollDetailPage({
       {/* Two column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Metadata */}
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-          <div className="px-5 py-3 border-b border-zinc-100">
+        <div className="rounded-xl border border-line bg-white overflow-hidden">
+          <div className="px-5 py-3 border-b border-line">
             <h2 className="text-sm font-semibold">Roll Information</h2>
           </div>
           <dl className="grid grid-cols-2 gap-4 p-5 text-sm">
             <div>
-              <dt className="text-xs text-zinc-400 mb-1">Vendor</dt>
-              <dd className="text-zinc-800 font-medium">
+              <dt className="text-xs text-ink-4 mb-1">Vendor</dt>
+              <dd className="text-ink font-medium">
                 {vendor?.name ?? "—"}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400 mb-1">Product</dt>
-              <dd className="text-zinc-800 font-medium">
+              <dt className="text-xs text-ink-4 mb-1">Product</dt>
+              <dd className="text-ink font-medium">
                 {product?.name ?? roll.product_name ?? "—"}
                 {product?.sku && (
-                  <span className="block text-xs text-zinc-400 font-normal">
+                  <span className="block text-xs text-ink-4 font-normal">
                     SKU: {product.sku}
                   </span>
                 )}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400 mb-1">Width</dt>
-              <dd className="text-zinc-800 font-medium">{fmtFt(roll.width_ft)}</dd>
+              <dt className="text-xs text-ink-4 mb-1">Width</dt>
+              <dd className="text-ink font-medium">{fmtFt(roll.width_ft)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400 mb-1">Current Length</dt>
-              <dd className="text-zinc-800 font-medium">
+              <dt className="text-xs text-ink-4 mb-1">Current Length</dt>
+              <dd className="text-ink font-medium">
                 {fmtFt(roll.current_length_ft)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400 mb-1">Original Length</dt>
-              <dd className="text-zinc-800 font-medium">
+              <dt className="text-xs text-ink-4 mb-1">Original Length</dt>
+              <dd className="text-ink font-medium">
                 {fmtFt(roll.original_length_ft)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400 mb-1">Current Sq Ft</dt>
-              <dd className="text-zinc-800 font-medium">
+              <dt className="text-xs text-ink-4 mb-1">Current Sq Ft</dt>
+              <dd className="text-ink font-medium">
                 {fmtSqFt(roll.width_ft, roll.current_length_ft)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400 mb-1">Dye Lot</dt>
-              <dd className="text-zinc-800 font-medium">{roll.dye_lot ?? "—"}</dd>
+              <dt className="text-xs text-ink-4 mb-1">Dye Lot</dt>
+              <dd className="text-ink font-medium">{roll.dye_lot ?? "—"}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400 mb-1">Location</dt>
-              <dd className="text-zinc-800 font-medium">
+              <dt className="text-xs text-ink-4 mb-1">Location</dt>
+              <dd className="text-ink font-medium">
                 {location?.name ?? "—"}
               </dd>
             </div>
             <div className="col-span-2">
-              <dt className="text-xs text-zinc-400 mb-1">Created</dt>
-              <dd className="text-zinc-700">
+              <dt className="text-xs text-ink-4 mb-1">Created</dt>
+              <dd className="text-ink-2">
                 {format(parseISO(roll.created_at), "MMM d, yyyy 'at' h:mm a")}
               </dd>
             </div>
             {roll.notes && (
               <div className="col-span-2">
-                <dt className="text-xs text-zinc-400 mb-1">Notes</dt>
-                <dd className="text-zinc-700 whitespace-pre-wrap">
+                <dt className="text-xs text-ink-4 mb-1">Notes</dt>
+                <dd className="text-ink-2 whitespace-pre-wrap">
                   {roll.notes}
                 </dd>
               </div>
@@ -297,8 +297,8 @@ export default async function RollDetailPage({
         <div className="space-y-6">
           {/* Allocated job */}
           {job && (
-            <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-              <div className="px-5 py-3 border-b border-zinc-100">
+            <div className="rounded-xl border border-line bg-white overflow-hidden">
+              <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">Allocated Job</h2>
               </div>
               <div className="p-5">
@@ -306,13 +306,13 @@ export default async function RollDetailPage({
                   href={`/inventory/jobs/${job.id}`}
                   className="block hover:underline"
                 >
-                  <p className="font-medium text-zinc-900">
+                  <p className="font-medium text-ink">
                     {job.job_name}
                     {job.job_number && (
-                      <span className="text-zinc-400 ml-2">#{job.job_number}</span>
+                      <span className="text-ink-4 ml-2">#{job.job_number}</span>
                     )}
                   </p>
-                  <p className="text-xs text-zinc-400 mt-0.5 capitalize">
+                  <p className="text-xs text-ink-4 mt-0.5 capitalize">
                     {job.status}
                   </p>
                 </Link>
@@ -322,8 +322,8 @@ export default async function RollDetailPage({
 
           {/* Parent roll */}
           {parentRoll && (
-            <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-              <div className="px-5 py-3 border-b border-zinc-100">
+            <div className="rounded-xl border border-line bg-white overflow-hidden">
+              <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">Parent Roll</h2>
               </div>
               <div className="p-5">
@@ -331,10 +331,10 @@ export default async function RollDetailPage({
                   href={`/inventory/rolls/${parentRoll.id}`}
                   className="block hover:underline"
                 >
-                  <p className="font-mono font-medium text-zinc-900">
+                  <p className="font-mono font-medium text-ink">
                     {parentRoll.tt_sku_tag_number ?? "—"}
                   </p>
-                  <p className="text-xs text-zinc-500 mt-0.5">
+                  <p className="text-xs text-ink-3 mt-0.5">
                     {parentRoll.product_name}
                     {parentRoll.dye_lot && ` · ${parentRoll.dye_lot}`}
                     {" · "}
@@ -350,25 +350,25 @@ export default async function RollDetailPage({
 
           {/* Child rolls */}
           {roll.roll_type === "parent" && childRolls.length > 0 && (
-            <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-              <div className="px-5 py-3 border-b border-zinc-100">
+            <div className="rounded-xl border border-line bg-white overflow-hidden">
+              <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">
                   Child Rolls ({childRolls.length})
                 </h2>
               </div>
-              <ul className="divide-y divide-zinc-100">
+              <ul className="divide-y divide-line">
                 {childRolls.map((c) => (
                   <li key={c.id}>
                     <Link
                       href={`/inventory/rolls/${c.id}`}
-                      className="block px-5 py-3 hover:bg-zinc-50 transition-colors"
+                      className="block px-5 py-3 hover:bg-hover transition-colors"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="font-mono font-medium text-zinc-900 text-sm">
+                          <p className="font-mono font-medium text-ink text-sm">
                             {c.tt_sku_tag_number ?? "—"}
                           </p>
-                          <p className="text-xs text-zinc-500 mt-0.5">
+                          <p className="text-xs text-ink-3 mt-0.5">
                             {fmtFt(c.width_ft)} × {fmtFt(c.current_length_ft)}
                             {c.dye_lot && ` · ${c.dye_lot}`}
                           </p>
@@ -384,13 +384,13 @@ export default async function RollDetailPage({
 
           {/* Allocations */}
           {allocations.length > 0 && (
-            <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-              <div className="px-5 py-3 border-b border-zinc-100">
+            <div className="rounded-xl border border-line bg-white overflow-hidden">
+              <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">
                   Allocations ({allocations.length})
                 </h2>
               </div>
-              <ul className="divide-y divide-zinc-100">
+              <ul className="divide-y divide-line">
                 {allocations.map((a) => {
                   const j = allocJobMap.get(a.job_id);
                   return (
@@ -400,22 +400,22 @@ export default async function RollDetailPage({
                           href={`/inventory/jobs/${a.job_id}`}
                           className="min-w-0 hover:underline"
                         >
-                          <p className="text-sm font-medium text-zinc-900 truncate">
+                          <p className="text-sm font-medium text-ink truncate">
                             {j?.job_name ?? `Job ${a.job_id.slice(0, 8)}`}
                             {j?.job_number && (
-                              <span className="text-zinc-400 ml-1">
+                              <span className="text-ink-4 ml-1">
                                 #{j.job_number}
                               </span>
                             )}
                           </p>
-                          <p className="text-xs text-zinc-400 mt-0.5">
+                          <p className="text-xs text-ink-4 mt-0.5">
                             {a.requested_length_ft != null
                               ? fmtFt(a.requested_length_ft)
                               : "—"}{" "}
                             requested · {format(parseISO(a.created_at), "MMM d")}
                           </p>
                         </Link>
-                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-zinc-100 text-zinc-700 capitalize">
+                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-sunken text-ink-2 capitalize">
                           {a.status}
                         </span>
                       </div>
@@ -429,76 +429,76 @@ export default async function RollDetailPage({
       </div>
 
       {/* Transaction History */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-zinc-100 flex items-center justify-between">
+      <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="px-5 py-3 border-b border-line flex items-center justify-between">
           <h2 className="text-sm font-semibold">Transaction History</h2>
-          <span className="text-xs text-zinc-400">
+          <span className="text-xs text-ink-4">
             {transactions.length} event{transactions.length === 1 ? "" : "s"}
           </span>
         </div>
         {transactions.length === 0 ? (
-          <div className="py-8 text-center text-sm text-zinc-400">
+          <div className="py-8 text-center text-sm text-ink-4">
             No transactions yet.
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-100 bg-zinc-50 text-left">
-                <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+              <tr className="border-b border-line bg-hover text-left">
+                <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                   Type
                 </th>
-                <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                   Status
                 </th>
-                <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide text-right">
+                <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide text-right">
                   Quantity
                 </th>
-                <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                   Notes
                 </th>
-                <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                   By
                 </th>
-                <th className="px-4 py-2.5 font-semibold text-zinc-500 text-xs uppercase tracking-wide">
+                <th className="px-4 py-2.5 font-semibold text-ink-3 text-xs uppercase tracking-wide">
                   When
                 </th>
               </tr>
             </thead>
             <tbody>
               {transactions.map((tx) => (
-                <tr key={tx.id} className="border-b border-zinc-50">
+                <tr key={tx.id} className="border-b border-line">
                   <td className="px-4 py-2.5">
-                    <span className="inline-flex items-center rounded-md bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-700 capitalize">
+                    <span className="inline-flex items-center rounded-md bg-sunken px-2 py-0.5 text-xs font-semibold text-ink-2 capitalize">
                       {tx.transaction_type.replace(/_/g, " ")}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 text-zinc-600 text-xs">
+                  <td className="px-4 py-2.5 text-ink-2 text-xs">
                     {tx.from_status && tx.to_status ? (
                       <>
                         <span className="capitalize">{tx.from_status}</span>{" "}
-                        <span className="text-zinc-400">→</span>{" "}
+                        <span className="text-ink-4">→</span>{" "}
                         <span className="capitalize">{tx.to_status}</span>
                       </>
                     ) : tx.to_status ? (
                       <span className="capitalize">{tx.to_status}</span>
                     ) : (
-                      <span className="text-zinc-300">—</span>
+                      <span className="text-ink-4">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-right text-zinc-700">
+                  <td className="px-4 py-2.5 text-right text-ink-2">
                     {tx.quantity_ft != null ? fmtFt(tx.quantity_ft) : "—"}
                   </td>
-                  <td className="px-4 py-2.5 text-zinc-600 max-w-xs truncate">
-                    {tx.notes ?? <span className="text-zinc-300">—</span>}
+                  <td className="px-4 py-2.5 text-ink-2 max-w-xs truncate">
+                    {tx.notes ?? <span className="text-ink-4">—</span>}
                   </td>
-                  <td className="px-4 py-2.5 text-zinc-600 text-xs">
+                  <td className="px-4 py-2.5 text-ink-2 text-xs">
                     {tx.created_by ? (
                       actorMap.get(tx.created_by) ?? "—"
                     ) : (
-                      <span className="text-zinc-300">—</span>
+                      <span className="text-ink-4">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-zinc-500 text-xs whitespace-nowrap">
+                  <td className="px-4 py-2.5 text-ink-3 text-xs whitespace-nowrap">
                     {format(parseISO(tx.created_at), "MMM d, h:mm a")}
                   </td>
                 </tr>

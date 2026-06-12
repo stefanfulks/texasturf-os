@@ -7,10 +7,10 @@ import type { ReviewRow } from "./page";
 const initial: ActionState = { error: null, success: false };
 
 const STATUS_BADGE: Record<ReviewRow["status"], string> = {
-  pending: "bg-amber-50 text-amber-700",
-  requested: "bg-blue-50 text-blue-700",
-  received: "bg-emerald-50 text-emerald-700",
-  declined: "bg-zinc-100 text-zinc-500",
+  pending: "bg-warn-tint text-warn",
+  requested: "bg-info-tint text-info",
+  received: "bg-brand-tint text-brand",
+  declined: "bg-sunken text-ink-3",
 };
 
 export function BuildReviewListButton() {
@@ -21,12 +21,12 @@ export function BuildReviewListButton() {
       <button
         type="submit"
         disabled={isPending}
-        className="px-4 py-2 text-sm font-medium bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 disabled:opacity-50"
+        className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink disabled:opacity-50"
       >
         {isPending ? "Building…" : "Build list from completed jobs"}
       </button>
-      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
-      {state.info && <span className="text-xs text-emerald-700">{state.info}</span>}
+      {state.error && <span className="text-xs text-danger">{state.error}</span>}
+      {state.info && <span className="text-xs text-brand">{state.info}</span>}
     </form>
   );
 }
@@ -54,7 +54,7 @@ function PlatformSelect({ id, platform }: { id: string; platform: ReviewRow["pla
         name="platform"
         defaultValue={platform ?? ""}
         onChange={(e) => e.currentTarget.form?.requestSubmit()}
-        className="text-xs border border-zinc-200 rounded px-1.5 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+        className="text-xs border border-line rounded px-1.5 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-line-strong"
       >
         <option value="" disabled>where?</option>
         <option value="google">Google</option>
@@ -69,18 +69,18 @@ function PlatformSelect({ id, platform }: { id: string; platform: ReviewRow["pla
 export function ReviewTable({ rows }: { rows: ReviewRow[] }) {
   if (rows.length === 0) {
     return (
-      <div className="py-10 text-center text-sm text-zinc-400">
+      <div className="py-10 text-center text-sm text-ink-4">
         No jobs in the list yet — hit “Build list from completed jobs” to pull recent completed installs.
       </div>
     );
   }
   return (
-    <div className="divide-y divide-zinc-100">
+    <div className="divide-y divide-line">
       {rows.map((r) => (
         <div key={r.id} className="px-5 py-3 flex items-center gap-4 flex-wrap">
           <div className="flex-1 min-w-48">
-            <p className="text-sm font-semibold text-zinc-900">{r.client_name}</p>
-            <p className="text-xs text-zinc-400">
+            <p className="text-sm font-semibold text-ink">{r.client_name}</p>
+            <p className="text-xs text-ink-4">
               {r.job_title ?? "Job"}
               {r.completed_on ? ` · done ${r.completed_on}` : ""}
               {r.client_phone ? ` · ${r.client_phone}` : ""}
@@ -91,14 +91,14 @@ export function ReviewTable({ rows }: { rows: ReviewRow[] }) {
           </span>
           <div className="flex items-center gap-1.5">
             {(r.status === "pending" || r.status === "declined") && (
-              <StatusButton id={r.id} status="requested" label="Mark asked" className="border-blue-200 text-blue-700 hover:bg-blue-50" />
+              <StatusButton id={r.id} status="requested" label="Mark asked" className="border-info/30 text-info hover:bg-info-tint" />
             )}
             {r.status !== "received" && (
-              <StatusButton id={r.id} status="received" label="Got it ✓" className="border-emerald-300 text-emerald-700 hover:bg-emerald-50" />
+              <StatusButton id={r.id} status="received" label="Got it ✓" className="border-brand/30 text-brand hover:bg-brand-tint" />
             )}
             {r.status === "received" && <PlatformSelect id={r.id} platform={r.platform} />}
             {r.status !== "declined" && r.status !== "received" && (
-              <StatusButton id={r.id} status="declined" label="No" className="border-zinc-200 text-zinc-500 hover:bg-zinc-50" />
+              <StatusButton id={r.id} status="declined" label="No" className="border-line text-ink-3 hover:bg-hover" />
             )}
           </div>
         </div>

@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { submitInvoice, type SubmitInvoiceState } from "../actions";
 import type { Vendor } from "@/lib/db-helpers.types";
 
-const field = "w-full text-sm border border-zinc-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white";
+const field = "w-full text-sm border border-line rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white";
 const initial: SubmitInvoiceState = { error: null, invoiceId: null };
 
 const VENDOR_TYPE_LABELS: Record<string, string> = {
@@ -90,11 +90,11 @@ export function InvoiceUploadForm({ vendors }: Props) {
 
       {/* File upload zone */}
       <div>
-        <label className="block text-sm font-medium text-zinc-700 mb-2">Invoice Image / PDF</label>
+        <label className="block text-sm font-medium text-ink-2 mb-2">Invoice Image / PDF</label>
         <div
           onClick={() => fileRef.current?.click()}
           className={`relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-8 cursor-pointer transition-colors ${
-            uploadedUrl ? "border-green-400 bg-green-50" : "border-zinc-300 bg-zinc-50 hover:border-zinc-400 hover:bg-zinc-100"
+            uploadedUrl ? "border-brand/30 bg-brand-tint" : "border-line-strong bg-hover hover:border-line-strong hover:bg-sunken"
           }`}
         >
           {preview ? (
@@ -108,22 +108,22 @@ export function InvoiceUploadForm({ vendors }: Props) {
               className="max-h-48 w-auto rounded-lg object-contain"
             />
           ) : uploadedUrl && !preview ? (
-            <div className="flex flex-col items-center gap-2 text-green-700">
+            <div className="flex flex-col items-center gap-2 text-brand">
               <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               <span className="text-sm font-medium">{uploadedName}</span>
             </div>
           ) : (
             <>
-              <svg className="w-10 h-10 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              <svg className="w-10 h-10 text-ink-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
               <div className="text-center">
-                <p className="text-sm font-medium text-zinc-700">Tap to upload photo or PDF</p>
-                <p className="text-xs text-zinc-400 mt-0.5">or drag and drop · Max 20 MB</p>
+                <p className="text-sm font-medium text-ink-2">Tap to upload photo or PDF</p>
+                <p className="text-xs text-ink-4 mt-0.5">or drag and drop · Max 20 MB</p>
               </div>
             </>
           )}
           {uploading && (
             <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-white/70">
-              <div className="flex items-center gap-2 text-sm text-zinc-600">
+              <div className="flex items-center gap-2 text-sm text-ink-2">
                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
                 Uploading…
               </div>
@@ -138,13 +138,13 @@ export function InvoiceUploadForm({ vendors }: Props) {
           className="hidden"
           onChange={handleFileChange}
         />
-        {uploadError && <p className="text-xs text-red-600 mt-1">{uploadError}</p>}
-        <p className="text-xs text-zinc-400 mt-1">After upload, AI will extract invoice details automatically</p>
+        {uploadError && <p className="text-xs text-danger mt-1">{uploadError}</p>}
+        <p className="text-xs text-ink-4 mt-1">After upload, AI will extract invoice details automatically</p>
       </div>
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-medium text-zinc-700 mb-1.5">Invoice Name *</label>
+        <label className="block text-sm font-medium text-ink-2 mb-1.5">Invoice Name *</label>
         <input
           name="title"
           required
@@ -155,7 +155,7 @@ export function InvoiceUploadForm({ vendors }: Props) {
 
       {/* Vendor */}
       <div>
-        <label className="block text-sm font-medium text-zinc-700 mb-1.5">Vendor / Contractor</label>
+        <label className="block text-sm font-medium text-ink-2 mb-1.5">Vendor / Contractor</label>
         <select name="vendor_id" defaultValue="" className={field}>
           <option value="">Select vendor…</option>
           {vendors.map((v) => (
@@ -169,7 +169,7 @@ export function InvoiceUploadForm({ vendors }: Props) {
       {/* Invoice number + Amount */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Invoice # <span className="text-zinc-400 font-normal">(optional)</span></label>
+          <label className="block text-sm font-medium text-ink-2 mb-1.5">Invoice # <span className="text-ink-4 font-normal">(optional)</span></label>
           <input
             name="invoice_number"
             placeholder="INV-2024-001"
@@ -177,9 +177,9 @@ export function InvoiceUploadForm({ vendors }: Props) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Amount</label>
+          <label className="block text-sm font-medium text-ink-2 mb-1.5">Amount</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">$</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-4 text-sm">$</span>
             <input
               name="total_amount"
               type="number"
@@ -195,35 +195,35 @@ export function InvoiceUploadForm({ vendors }: Props) {
       {/* Service period */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Service Period Start</label>
+          <label className="block text-sm font-medium text-ink-2 mb-1.5">Service Period Start</label>
           <input type="date" name="service_period_start" className={field} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1.5">Service Period End</label>
+          <label className="block text-sm font-medium text-ink-2 mb-1.5">Service Period End</label>
           <input type="date" name="service_period_end" className={field} />
         </div>
       </div>
 
       {/* Job #(s) */}
       <div>
-        <label className="block text-sm font-medium text-zinc-700 mb-1.5">Job #(s) <span className="text-zinc-400 font-normal">(optional)</span></label>
+        <label className="block text-sm font-medium text-ink-2 mb-1.5">Job #(s) <span className="text-ink-4 font-normal">(optional)</span></label>
         <input name="job_name" placeholder="e.g. 4821, 4822" className={field} />
       </div>
 
       {/* Notes */}
       <div>
-        <label className="block text-sm font-medium text-zinc-700 mb-1.5">Notes</label>
+        <label className="block text-sm font-medium text-ink-2 mb-1.5">Notes</label>
         <textarea name="notes" rows={3} placeholder="Any notes about this invoice…" className={`${field} resize-none`} />
       </div>
 
       {state.error && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{state.error}</p>
+        <p className="text-sm text-danger bg-danger-tint border border-danger/30 rounded-xl px-4 py-3">{state.error}</p>
       )}
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full py-4 text-base font-semibold bg-zinc-900 text-white rounded-2xl hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+        className="w-full py-4 text-base font-semibold bg-ink text-white rounded-2xl hover:bg-ink disabled:opacity-50 transition-colors"
       >
         {isSubmitting ? (uploading ? "Uploading file…" : "Submitting invoice…") : "Submit Invoice"}
       </button>

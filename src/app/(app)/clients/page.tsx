@@ -29,7 +29,7 @@ export default async function ClientsPage({
         <h1 className="text-2xl font-semibold">Clients</h1>
         <Link
           href="/settings/jobber"
-          className="text-sm text-zinc-500 hover:underline"
+          className="text-sm text-ink-3 hover:underline"
         >
           Sync settings →
         </Link>
@@ -39,20 +39,20 @@ export default async function ClientsPage({
           name="q"
           defaultValue={q ?? ""}
           placeholder="Search by company or name…"
-          className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm"
+          className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm"
         />
       </form>
 
       {error && (
-        <p className="mt-6 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <p className="mt-6 rounded-md border border-danger/30 bg-danger-tint p-3 text-sm text-danger">
           {error.message}
         </p>
       )}
 
       {/* Desktop table (md+) */}
-      <div className="mt-6 hidden md:block overflow-hidden rounded-lg border border-zinc-200">
+      <div className="mt-6 hidden md:block overflow-hidden rounded-lg border border-line">
         <table className="w-full text-sm">
-          <thead className="bg-zinc-100 text-left">
+          <thead className="bg-sunken text-left">
             <tr>
               <th className="px-3 py-2 font-medium">Name</th>
               <th className="px-3 py-2 font-medium">Email</th>
@@ -62,16 +62,16 @@ export default async function ClientsPage({
           </thead>
           <tbody>
             {(data ?? []).map((c) => (
-              <tr key={c.id} className="border-t border-zinc-200">
+              <tr key={c.id} className="border-t border-line">
                 <td className="px-3 py-2">
                   {c.company_name ??
                     [c.first_name, c.last_name].filter(Boolean).join(" ") ??
                     "—"}
                 </td>
-                <td className="px-3 py-2 text-zinc-600">
+                <td className="px-3 py-2 text-ink-2">
                   {(c.emails as { address: string }[])?.[0]?.address ?? ""}
                 </td>
-                <td className="px-3 py-2 text-zinc-600">
+                <td className="px-3 py-2 text-ink-2">
                   {(c.phones as { number: string }[])?.[0]?.number ?? ""}
                 </td>
                 <td className="px-3 py-2 text-right tabular-nums">
@@ -83,7 +83,7 @@ export default async function ClientsPage({
             ))}
             {(!data || data.length === 0) && !error && (
               <tr>
-                <td colSpan={4} className="px-3 py-8 text-center text-zinc-500">
+                <td colSpan={4} className="px-3 py-8 text-center text-ink-3">
                   No clients synced yet. Connect Jobber and run a sync.
                 </td>
               </tr>
@@ -104,18 +104,18 @@ export default async function ClientsPage({
           return (
             <div
               key={c.id}
-              className="rounded-lg border border-zinc-200 bg-white p-3"
+              className="rounded-lg border border-line bg-white p-3"
             >
               <div className="flex items-baseline justify-between gap-2">
-                <p className="text-sm font-medium text-zinc-900 truncate">{name}</p>
+                <p className="text-sm font-medium text-ink truncate">{name}</p>
                 {c.balance_cents != null && (
-                  <p className="text-sm tabular-nums text-zinc-700">
+                  <p className="text-sm tabular-nums text-ink-2">
                     ${(c.balance_cents / 100).toFixed(2)}
                   </p>
                 )}
               </div>
               {(email || phone) && (
-                <p className="mt-1 text-xs text-zinc-500 truncate">
+                <p className="mt-1 text-xs text-ink-3 truncate">
                   {[email, phone].filter(Boolean).join(" · ")}
                 </p>
               )}
@@ -123,7 +123,7 @@ export default async function ClientsPage({
           );
         })}
         {(!data || data.length === 0) && !error && (
-          <div className="rounded-lg border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500">
+          <div className="rounded-lg border border-dashed border-line-strong p-6 text-center text-sm text-ink-3">
             No clients synced yet. Connect Jobber and run a sync.
           </div>
         )}
