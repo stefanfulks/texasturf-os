@@ -17,9 +17,10 @@ const VENDOR_TYPE_LABELS: Record<string, string> = {
 
 type Props = {
   vendors: Vendor[];
+  linkedProject?: { id: string; name: string } | null;
 };
 
-export function InvoiceUploadForm({ vendors }: Props) {
+export function InvoiceUploadForm({ vendors, linkedProject }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -87,6 +88,17 @@ export function InvoiceUploadForm({ vendors }: Props) {
       {uploadedUrl  && <input type="hidden" name="original_file_url"  value={uploadedUrl}  />}
       {uploadedType && <input type="hidden" name="original_file_type" value={uploadedType} />}
       {uploadedName && <input type="hidden" name="original_file_name" value={uploadedName} />}
+
+      {/* Pre-linked job (arrived from a job's "Upload →") */}
+      {linkedProject && (
+        <>
+          <input type="hidden" name="project_id" value={linkedProject.id} />
+          <div className="flex items-center gap-2 rounded-lg border border-brand-line bg-brand-tint px-3 py-2 text-sm text-brand">
+            <span className="font-medium">Linking to job:</span>
+            <span className="truncate">{linkedProject.name}</span>
+          </div>
+        </>
+      )}
 
       {/* File upload zone */}
       <div>

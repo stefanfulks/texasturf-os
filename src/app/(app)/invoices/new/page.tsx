@@ -4,16 +4,27 @@ import { createClient } from "@/lib/supabase/server";
 import { InvoiceUploadForm } from "./invoice-upload-form";
 import type { Vendor } from "@/lib/db-helpers.types";
 
-export default async function NewInvoicePage() {
+export default async function NewInvoicePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ project?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: vendorsData } = await supabase
-    .from("vendors")
-    .select("*")
-    .eq("active", true)
-    .order("name");
+  const params = (await searchParams) ?? {};
+
+  const [vendorsRes, projectRes] = await Promise.all([
+    supabase.from("vendors").select("*").eq("active", true).order("name"),
+    // Pre-link to a job when arriving from a job's "Upload →" action. RLS
+    // scopes this, so an inaccessible id just yields no link (no banner).
+    params.project
+      ? supabase.from("projects").select("id, name").eq("id", params.project).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+
+  const linkedProject = (projectRes.data ?? null) as { id: string; name: string } | null;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -25,7 +36,7 @@ export default async function NewInvoicePage() {
       </div>
 
       <div className="rounded-2xl border border-line bg-white p-6">
-        <InvoiceUploadForm vendors={(vendorsData ?? []) as Vendor[]} />
+        <InvoiceUploadForm vendors={(vendorsRes.data ?? []) as Vendor[]} linkedProject={linkedProject} />
       </div>
     </div>
   );
