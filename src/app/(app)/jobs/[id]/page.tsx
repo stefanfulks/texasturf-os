@@ -5,7 +5,12 @@ import { ChevronLeft, ExternalLink, MapPin, Calendar, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/server";
 import { JobForm } from "../job-form";
 import { JobArchiveButton } from "./archive-button";
-import type { Project, Task, TaskStatus, TaskPriority, ProjectStatus } from "@/lib/db-helpers.types";
+import { INVOICE_STATUS_CONFIG } from "@/lib/invoices/status";
+import type { Project, Task, TaskStatus, TaskPriority, ProjectStatus, InvoiceStatus } from "@/lib/db-helpers.types";
+
+function fmtMoney(n: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD" }).format(n);
+}
 
 const STATUS_LABEL: Record<ProjectStatus, string> = {
   intake: "Intake", planning: "Planning", waiting_customer: "Waiting (Customer)",
@@ -39,10 +44,15 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [jobRes, tasksRes, profileRes] = await Promise.all([
+  const [jobRes, tasksRes, profileRes, invoicesRes] = await Promise.all([
     supabase.from("projects").select("*, owner:owner_id(id, full_name, email), created_by:created_by_id(id, full_name, email)").eq("id", id).single(),
     supabase.from("tasks").select("*, assignee:assignee_id(id, full_name, email)").eq("project_id", id).neq("status", "archived").order("created_at", { ascending: false }),
     supabase.from("profiles").select("role").eq("id", user.id).single(),
+    supabase.from("invoices")
+      .select("id, invoice_number, status, total_amount, currency, invoice_date, submitted_at")
+      .eq("project_id", id)
+      .neq("status", "archived")
+      .order("submitted_at", { ascending: false }),
   ]);
   const isOfficeOrAdmin = ["admin", "office"].includes((profileRes.data as { role?: string } | null)?.role ?? "");
 
@@ -58,6 +68,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   const openTasks = tasks.filter((t) => t.status !== "done");
   const blockedTasks = tasks.filter((t) => t.status === "blocked");
+
+  const invoices = (invoicesRes.data ?? []) as Array<{
+    id: string; invoice_number: string | null; status: InvoiceStatus;
+    total_amount: number | null; currency: string; invoice_date: string | null; submitted_at: string;
+  }>;
+  const invoicesTotal = invoices.reduce((sum, inv) => sum + (inv.total_amount ?? 0), 0);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6 space-y-5 pb-12">
@@ -159,6 +175,56 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     ))}
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Invoices for this job */}
+      <div className="rounded-2xl border border-line bg-white overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+          <h2 className="text-sm font-semibold text-ink">Invoices</h2>
+          {invoices.length > 0 ? (
+            <span className="text-xs font-medium text-ink-3 tabular-nums">
+              {invoices.length} · {fmtMoney(invoicesTotal, invoices[0]?.currency ?? "USD")}
+            </span>
+          ) : (
+            <Link href={`/invoices/new?project=${id}`} className="text-xs font-medium text-ink-3 hover:text-ink">
+              Upload →
+            </Link>
+          )}
+        </div>
+
+        {invoices.length === 0 ? (
+          <div className="py-10 text-center text-sm text-ink-4">
+            No invoices linked to this job yet.
+          </div>
+        ) : (
+          <div className="divide-y divide-line">
+            {invoices.map((inv) => {
+              const cfg = INVOICE_STATUS_CONFIG[inv.status];
+              const when = inv.invoice_date ?? inv.submitted_at;
+              return (
+                <Link
+                  key={inv.id}
+                  href={`/invoices/${inv.id}`}
+                  className="flex items-center gap-3 px-5 py-3 hover:bg-hover transition-colors"
+                >
+                  <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${cfg.dot}`} />
+                  <span className="flex-1 min-w-0 truncate text-sm text-ink">
+                    {inv.invoice_number ?? "Invoice"}
+                  </span>
+                  <span className={`hidden sm:inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${cfg.badge}`}>
+                    {cfg.label}
+                  </span>
+                  <span className="w-24 text-right text-sm tabular-nums text-ink-2">
+                    {fmtMoney(inv.total_amount ?? 0, inv.currency)}
+                  </span>
+                  <span className="hidden w-14 text-right text-xs tabular-nums text-ink-4 sm:block">
+                    {format(parseISO(when), "MMM d")}
+                  </span>
+                </Link>
               );
             })}
           </div>
