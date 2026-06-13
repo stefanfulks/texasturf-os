@@ -86,7 +86,7 @@ export function NewPullListForm({
       <Section title="Job info">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Job date *</label>
+            <label className={label}>Job date <span className="text-danger">*</span></label>
             <input
               type="date"
               name="job_date"

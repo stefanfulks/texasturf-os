@@ -49,7 +49,7 @@ export function InviteUserForm() {
         <input type="hidden" name="departments" value={departments.join(",")} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-ink-3 mb-1">Email *</label>
+            <label className="block text-xs font-medium text-ink-3 mb-1">Email <span className="text-danger">*</span></label>
             <input
               name="email"
               type="email"

@@ -38,7 +38,7 @@ export function JobForm({ mode, job }: { mode: "create" | "edit"; job?: InvJob }
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-ink-3 mb-1">Job Name *</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Job Name <span className="text-danger">*</span></label>
         <input
           name="job_name"
           required

@@ -33,7 +33,7 @@ export function ProductForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div className="sm:col-span-2">
-          <label className="block text-xs font-medium text-ink-3 mb-1">Name *</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Name <span className="text-danger">*</span></label>
           <input
             name="name"
             defaultValue={product?.name ?? ""}

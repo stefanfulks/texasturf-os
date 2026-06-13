@@ -158,11 +158,11 @@ export function AddReferralForm({ campaignId }: { campaignId: string }) {
     <form action={formAction} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <input type="hidden" name="campaign_id" value={campaignId} />
       <div>
-        <label className="block text-xs font-medium text-ink-3 mb-1">Referrer (existing client) *</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Referrer (existing client) <span className="text-danger">*</span></label>
         <input name="referrer_name" required placeholder="Who sent them" className={field} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-ink-3 mb-1">Referred name *</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Referred name <span className="text-danger">*</span></label>
         <input name="referred_name" required placeholder="New prospect" className={field} />
       </div>
       <div>

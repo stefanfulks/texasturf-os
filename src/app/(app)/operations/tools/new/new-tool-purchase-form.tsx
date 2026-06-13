@@ -95,7 +95,7 @@ export function NewToolPurchaseForm({
     <form action={handleSubmit} className="space-y-6">
       <Section title="Item">
         <div>
-          <label className={label}>Item name *</label>
+          <label className={label}>Item name <span className="text-danger">*</span></label>
           <input
             name="item_name"
             required
@@ -105,7 +105,7 @@ export function NewToolPurchaseForm({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Category *</label>
+            <label className={label}>Category <span className="text-danger">*</span></label>
             <select name="category" defaultValue="tool" required className={field}>
               <option value="tool">Tool</option>
               <option value="small_equipment">Small equipment</option>
@@ -129,7 +129,7 @@ export function NewToolPurchaseForm({
       <Section title="Purchase">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Purchase date *</label>
+            <label className={label}>Purchase date <span className="text-danger">*</span></label>
             <input
               type="date"
               name="purchase_date"

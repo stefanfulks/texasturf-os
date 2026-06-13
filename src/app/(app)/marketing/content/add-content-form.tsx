@@ -64,7 +64,7 @@ export function AddContentForm() {
   return (
     <form ref={formRef} action={formAction} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div className="sm:col-span-2">
-        <label className="block text-xs font-medium text-ink-3 mb-1">Title *</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Title <span className="text-danger">*</span></label>
         <input name="title" required placeholder="What is it?" className={field} />
       </div>
       <div>

@@ -99,7 +99,7 @@ function ReferredForm({
       <input type="hidden" name="referrer_name" value={row.client_name} />
       <input type="hidden" name="source" value="call" />
       <div>
-        <label className="block text-xs font-medium text-ink-3 mb-1">Referred name *</label>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Referred name <span className="text-danger">*</span></label>
         <input name="referred_name" required placeholder="Friend's name" className={field} />
       </div>
       <div>

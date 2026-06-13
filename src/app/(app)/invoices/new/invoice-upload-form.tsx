@@ -144,7 +144,7 @@ export function InvoiceUploadForm({ vendors }: Props) {
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-medium text-ink-2 mb-1.5">Invoice Name *</label>
+        <label className="block text-sm font-medium text-ink-2 mb-1.5">Invoice Name <span className="text-danger">*</span></label>
         <input
           name="title"
           required

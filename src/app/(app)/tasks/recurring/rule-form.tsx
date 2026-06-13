@@ -53,7 +53,7 @@ export function RecurringRuleForm({
 
       <form action={formAction} className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-ink-3 mb-1">Task Title *</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Task Title <span className="text-danger">*</span></label>
           <input name="title" required placeholder="Weekly truck inspection" className={field} />
         </div>
 

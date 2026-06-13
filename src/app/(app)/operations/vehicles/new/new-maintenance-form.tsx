@@ -70,7 +70,7 @@ export function NewMaintenanceForm({
     <form action={handleSubmit} className="space-y-6">
       <Section title="Vehicle">
         <div>
-          <label className={label}>Vehicle *</label>
+          <label className={label}>Vehicle <span className="text-danger">*</span></label>
           <select
             name="asset_id"
             required
@@ -119,7 +119,7 @@ export function NewMaintenanceForm({
       <Section title="Service">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Service date *</label>
+            <label className={label}>Service date <span className="text-danger">*</span></label>
             <input
               type="date"
               name="performed_at"
@@ -141,7 +141,7 @@ export function NewMaintenanceForm({
           </div>
         </div>
         <div>
-          <label className={label}>Description *</label>
+          <label className={label}>Description <span className="text-danger">*</span></label>
           <input
             name="description"
             required

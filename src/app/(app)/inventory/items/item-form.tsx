@@ -35,7 +35,7 @@ export function ItemForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <label className="block text-xs font-medium text-ink-3 mb-1">Name *</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Name <span className="text-danger">*</span></label>
           <input
             name="name"
             defaultValue={item?.name ?? ""}
@@ -54,7 +54,7 @@ export function ItemForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-ink-3 mb-1">Unit *</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Unit <span className="text-danger">*</span></label>
           <input
             name="unit"
             defaultValue={item?.unit ?? "each"}

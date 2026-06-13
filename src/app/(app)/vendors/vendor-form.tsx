@@ -25,11 +25,11 @@ export function VendorForm({ mode, vendor }: { mode: "create" | "edit"; vendor?:
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-ink-3 mb-1">Name *</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Name <span className="text-danger">*</span></label>
           <input name="name" defaultValue={vendor?.name ?? ""} required placeholder="Hillcast LLC" className={field} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-ink-3 mb-1">Type *</label>
+          <label className="block text-xs font-medium text-ink-3 mb-1">Type <span className="text-danger">*</span></label>
           <select name="type" defaultValue={vendor?.type ?? "contractor_1099"} className={field}>
             {VENDOR_TYPES.map(([val, label]) => <option key={val} value={val}>{label}</option>)}
           </select>
