@@ -54,7 +54,7 @@ export default async function EmployeesPage() {
               </select>
             </label>
             <Input name="email" label="Email" type="email" />
-            <Input name="phone" label="Phone" />
+            <Input name="phone" label="Phone" type="tel" inputMode="tel" />
             <div className="sm:col-span-2 flex justify-end">
               <button
                 type="submit"
@@ -108,11 +108,13 @@ function Input({
   name,
   label,
   type,
+  inputMode,
   required,
 }: {
   name: string;
   label: string;
   type?: string;
+  inputMode?: "text" | "numeric" | "decimal" | "tel" | "email" | "url" | "search";
   required?: boolean;
 }) {
   return (
@@ -121,6 +123,7 @@ function Input({
       <input
         name={name}
         type={type ?? "text"}
+        inputMode={inputMode}
         required={required}
         className="mt-1 field-input"
       />

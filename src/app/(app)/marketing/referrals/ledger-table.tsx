@@ -167,7 +167,7 @@ export function AddReferralForm({ campaignId }: { campaignId: string }) {
       </div>
       <div>
         <label className="block text-xs font-medium text-ink-3 mb-1">Referred phone</label>
-        <input name="referred_phone" placeholder="(512) 555-0100" className={field} />
+        <input name="referred_phone" type="tel" inputMode="tel" placeholder="(512) 555-0100" className={field} />
       </div>
       <div>
         <label className="block text-xs font-medium text-ink-3 mb-1">Interested in</label>

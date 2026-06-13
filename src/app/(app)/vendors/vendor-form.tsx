@@ -50,7 +50,7 @@ export function VendorForm({ mode, vendor }: { mode: "create" | "edit"; vendor?:
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-medium text-ink-3 mb-1">Phone</label>
-          <input name="phone" defaultValue={vendor?.phone ?? ""} placeholder="(512) 555-0100" className={field} />
+          <input name="phone" type="tel" inputMode="tel" defaultValue={vendor?.phone ?? ""} placeholder="(512) 555-0100" className={field} />
         </div>
         <div>
           <label className="block text-xs font-medium text-ink-3 mb-1">Payment Terms</label>
