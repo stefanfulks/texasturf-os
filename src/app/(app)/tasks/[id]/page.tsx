@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Repeat } from "lucide-react";
 import { format, parseISO, isPast, isToday } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { TaskEditForm } from "./task-edit-form";
@@ -37,7 +38,7 @@ export default async function TaskDetailPage({
   const { data: { user } } = await supabase.auth.getUser();
 
   const [taskRes, commentsRes, activityRes, profileRes, allProfilesRes, subtasksRes, assigneesRes] = await Promise.all([
-    supabase.from("tasks").select("*, assignee:assignee_id(id, full_name, email), created_by:created_by_id(id, full_name, email)").eq("id", id).single(),
+    supabase.from("tasks").select("*, assignee:assignee_id(id, full_name, email), created_by:created_by_id(id, full_name, email), recurring_rule:recurring_rule_id(id, title)").eq("id", id).single(),
     supabase.from("task_comments").select("*, author:user_id(id, full_name, email)").eq("task_id", id).order("created_at", { ascending: true }),
     supabase.from("task_activity").select("*, actor:actor_id(id, full_name, email)").eq("task_id", id).order("created_at", { ascending: false }).limit(20),
     user ? supabase.from("profiles").select("role").eq("id", user.id).single() : Promise.resolve({ data: null }),
@@ -74,6 +75,7 @@ export default async function TaskDetailPage({
   const task = taskRes.data as unknown as Task & {
     assignee: { id: string; full_name: string | null; email: string } | null;
     created_by: { id: string; full_name: string | null; email: string } | null;
+    recurring_rule: { id: string; title: string } | null;
   };
 
   const isOverdue = task.due_date && task.status !== "done" && isPast(parseISO(task.due_date)) && !isToday(parseISO(task.due_date));
@@ -134,6 +136,18 @@ export default async function TaskDetailPage({
           <div className="flex gap-2">
             <span className="text-ink-4 w-24 flex-shrink-0">Created by</span>
             <span>{task.created_by.full_name ?? task.created_by.email}</span>
+          </div>
+        )}
+        {task.recurring_rule && (
+          <div className="flex gap-2">
+            <span className="text-ink-4 w-24 flex-shrink-0">Recurring</span>
+            <Link
+              href={`/tasks/recurring#${task.recurring_rule.id}`}
+              className="inline-flex items-center gap-1.5 text-brand hover:underline"
+            >
+              <Repeat className="h-3.5 w-3.5 flex-shrink-0" />
+              {task.recurring_rule.title}
+            </Link>
           </div>
         )}
         <div className="flex gap-2">

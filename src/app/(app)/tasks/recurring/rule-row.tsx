@@ -42,7 +42,10 @@ export function RuleRow({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className={`flex items-center gap-4 px-5 py-3 ${!rule.active ? "opacity-50" : ""}`}>
+    <div
+      id={rule.id}
+      className={`flex items-center gap-4 px-5 py-3 scroll-mt-24 rounded-lg target:bg-brand-tint target:ring-1 target:ring-brand-line ${!rule.active ? "opacity-50" : ""}`}
+    >
       {/* Priority dot */}
       <span className={`w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_DOT[rule.priority]}`} />
 
