@@ -331,6 +331,28 @@ export async function changeInvoiceStatus(
     }
 
     await notifyAll(supabase, enriched, event, submitterEmail);
+
+    // Loop in the linked job's owner when the money side moves, so whoever
+    // runs the job learns the invoice cleared without watching the invoice
+    // list. Only on approve/paid, and never self-notify.
+    const inv = updatedInvoice as unknown as Invoice;
+    if (inv.project_id && (d.new_status === "approved" || d.new_status === "paid")) {
+      const { data: projectRow } = await supabase
+        .from("projects").select("owner_id, name").eq("id", inv.project_id).single();
+      const project = projectRow as { owner_id: string; name: string } | null;
+      if (project?.owner_id && project.owner_id !== user.id) {
+        const paid = d.new_status === "paid";
+        await supabase.from("notifications").insert({
+          user_id:       project.owner_id,
+          actor_id:      user.id,
+          type:          "invoice_update",
+          title:         paid ? "Invoice paid for your job" : "Invoice approved for your job",
+          body:          `${inv.invoice_number ?? "An invoice"} on ${project.name} → ${paid ? "Paid" : "Approved"}`,
+          resource_type: "invoice",
+          resource_id:   inv.id,
+        } as never);
+      }
+    }
   }
 
   revalidatePath("/invoices");
