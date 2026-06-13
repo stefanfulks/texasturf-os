@@ -1,10 +1,30 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { DEPARTMENTS } from "@/lib/departments";
+
+/**
+ * Best-effort rollback of a half-provisioned invite. If the delete itself
+ * fails we now have an orphaned auth.users row with no usable profile — that
+ * needs a human, so capture it to Sentry instead of swallowing the error.
+ */
+async function rollbackAuthUser(
+  service: ReturnType<typeof createServiceClient>,
+  userId: string,
+  reason: string,
+): Promise<void> {
+  const { error } = await service.auth.admin.deleteUser(userId);
+  if (error) {
+    Sentry.captureException(
+      new Error(`Invite rollback failed — orphaned auth user ${userId}: ${error.message}`),
+      { tags: { area: "admin-invite" }, extra: { userId, reason } },
+    );
+  }
+}
 
 async function requireAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
@@ -158,7 +178,7 @@ export async function inviteUser(
   } as never, { onConflict: "id" });
   if (profileErr) {
     // Roll back the auth user so the admin can retry cleanly
-    await service.auth.admin.deleteUser(newUserId).catch(() => {});
+    await rollbackAuthUser(service, newUserId, `profile upsert failed: ${profileErr.message}`);
     return {
       error: `Couldn't set role/departments for new user: ${profileErr.message}. Rolled back.`,
       success: false,
@@ -173,7 +193,7 @@ export async function inviteUser(
     options:     { redirectTo: `${appUrl}/onboarding/department` },
   });
   if (linkErr || !linkData?.properties?.action_link) {
-    await service.auth.admin.deleteUser(newUserId).catch(() => {});
+    await rollbackAuthUser(service, newUserId, `generateLink failed: ${linkErr?.message ?? "unknown"}`);
     return {
       error: `Couldn't generate sign-in link: ${linkErr?.message ?? "unknown"}. Rolled back.`,
       success: false,
