@@ -4,6 +4,7 @@ import { format, parseISO, isToday, isPast } from "date-fns";
 import { Calendar, ListTodo, AlertTriangle, BarChart3, ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getMyTaskIds, NO_TASK_UUID } from "@/lib/tasks/scope";
+import { upcomingOccurrence } from "@/lib/meetings/cadence";
 import { PickDepartmentPrompt } from "./pick-department";
 import { DashboardQuickSearch } from "./quick-search";
 import {
@@ -65,7 +66,7 @@ export default async function DashboardPage({
   const myIds = await getMyTaskIds(supabase, user.id);
   const scopeIds = myIds.length === 0 ? [NO_TASK_UUID] : myIds;
   const today = new Date().toISOString().slice(0, 10);
-  const [myTasksRes, todayTasksRes, overdueTasksRes, attentionInvoicesRes] = await Promise.all([
+  const [myTasksRes, todayTasksRes, overdueTasksRes, attentionInvoicesRes, meetingsRes] = await Promise.all([
     supabase.from("tasks").select("id, title, status, priority, due_date")
       .in("id", scopeIds)
       .not("status", "in", "(done,archived)")
@@ -81,9 +82,20 @@ export default async function DashboardPage({
       .lt("due_date", today),
     supabase.from("invoices").select("id", { count: "exact", head: true })
       .in("status", ["awaiting_review", "awaiting_approval", "request_change"]),
+    // Meetings the user can see (RLS-scoped) — we resolve "today" client-side
+    // because occurrence depends on cadence + day-of-week/month.
+    supabase.from("meetings").select("cadence, day_of_week, day_of_month, scheduled_on").eq("archived", false),
   ]);
 
   const tasks = myTasksRes.data ?? [];
+
+  // Count meetings whose next occurrence lands today. Derive the "today" key
+  // through the same helper so the date representation always matches; skip
+  // adhoc (unscheduled) meetings so they don't count every day.
+  const meetingTodayKey = upcomingOccurrence({ cadence: "daily", day_of_week: null, day_of_month: null });
+  const meetingsToday = (meetingsRes.data ?? []).filter(
+    (m) => m.cadence !== "adhoc" && upcomingOccurrence(m) === meetingTodayKey,
+  ).length;
 
   // Department-specific "what's hot" stats — for the primary department.
   const deptStats = await loadDepartmentStats(supabase, primaryDepartment);
@@ -162,11 +174,11 @@ export default async function DashboardPage({
           href="/invoices?status=Needs+Action"
         />
         <StatTile
-          label="Calendar"
-          value="View"
-          tone="neutral"
+          label="Meetings today"
+          value={meetingsToday}
+          tone={meetingsToday > 0 ? "blue" : "neutral"}
           icon={<Calendar className="h-4 w-4" />}
-          href="/calendar"
+          href="/meetings"
         />
       </div>
 
