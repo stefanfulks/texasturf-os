@@ -178,6 +178,7 @@ export function UserMenu({
   isAdmin: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [openWs, setOpenWs] = useState<string | null>(null);
   const [signOutPending, startSignOut] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -207,6 +208,18 @@ export function UserMenu({
   }
 
   const workspaces = WORKSPACES.filter((w) => !w.adminOnly || isAdmin);
+  const activeWsLabel =
+    workspaces.find((w) =>
+      w.prefixes.some((p) => pathname === p || pathname.startsWith(p + "/")),
+    )?.label ?? null;
+
+  // Each time the menu opens, expand only the workspace matching the current
+  // page — its tools are one glance away, everything else stays tucked.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (open) setOpenWs(activeWsLabel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <div ref={ref} className="relative">
@@ -248,44 +261,53 @@ export function UserMenu({
             </div>
           </div>
 
-          {/* Workspaces + their tools */}
+          {/* Workspaces — collapsed general buttons that expand to their tools */}
           <div className="px-2 py-2 border-b border-line">
-            <p className="px-2 mb-1 eyebrow">
-              Jump to anything
-            </p>
-            <ul className="divide-y divide-line">
-              {workspaces.map((ws) => (
-                <li key={ws.label} className="py-1.5">
-                  <Link
-                    href={ws.primaryHref}
-                    className="flex items-center gap-2 px-2 py-1 hover:bg-hover rounded-lg"
-                  >
-                    <span className="text-base leading-none">{ws.emoji}</span>
-                    <span className="text-xs font-semibold text-ink">{ws.label}</span>
-                  </Link>
-                  {ws.tools.length > 0 && (
-                    <div className="pl-7 pr-1 mt-1 flex flex-wrap gap-1">
-                      {ws.tools.map((tool) => {
-                        const active = isActiveHref(pathname, tool.href);
-                        return (
-                          <Link
-                            key={tool.href}
-                            href={tool.href}
-                            className={
-                              "rounded-lg px-2 py-1 text-[11px] font-medium transition-colors " +
-                              (active
-                                ? "bg-brand text-white"
-                                : "text-ink-2 hover:bg-hover hover:text-ink")
-                            }
-                          >
-                            {tool.label}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </li>
-              ))}
+            <p className="px-2 mb-1 eyebrow">Go to</p>
+            <ul className="space-y-0.5">
+              {workspaces.map((ws) => {
+                const isOpen = openWs === ws.label;
+                return (
+                  <li key={ws.label}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenWs(isOpen ? null : ws.label)}
+                      aria-expanded={isOpen}
+                      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-hover transition-colors"
+                    >
+                      <span className="text-base leading-none">{ws.emoji}</span>
+                      <span className="flex-1 text-left text-sm font-semibold text-ink">{ws.label}</span>
+                      {isOpen && ws.label === activeWsLabel && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />
+                      )}
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 text-ink-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    {isOpen && ws.tools.length > 0 && (
+                      <div className="pl-7 pr-1 pb-1.5 pt-0.5 flex flex-wrap gap-1">
+                        {ws.tools.map((tool) => {
+                          const active = isActiveHref(pathname, tool.href);
+                          return (
+                            <Link
+                              key={tool.href}
+                              href={tool.href}
+                              className={
+                                "rounded-lg px-2 py-1 text-[11px] font-medium transition-colors " +
+                                (active
+                                  ? "bg-brand text-white"
+                                  : "text-ink-2 hover:bg-hover hover:text-ink")
+                              }
+                            >
+                              {tool.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
