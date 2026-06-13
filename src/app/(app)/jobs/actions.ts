@@ -125,3 +125,30 @@ export async function archiveJob(_prev: ArchiveJobState, formData: FormData): Pr
 export async function unarchiveJob(_prev: ArchiveJobState, formData: FormData): Promise<ArchiveJobState> {
   return setJobArchived(formData.get("job_id") as string, false);
 }
+
+// ─── Link to a Jobber job ─────────────────────────────────────────────────────
+
+export type LinkJobberJobState = { error: string | null; success: boolean };
+
+/**
+ * Connect (or disconnect) an OS job to its Jobber job. Office/admin only.
+ * `jobberJobId` is jobber_jobs.id, or null to unlink.
+ */
+export async function linkJobberJob(
+  projectId: string,
+  jobberJobId: string | null,
+): Promise<LinkJobberJobState> {
+  const supabase = await createClient();
+  const { user, error: authErr } = await requireOfficeOrAdmin(supabase);
+  if (authErr || !user) return { error: authErr ?? "Not authenticated", success: false };
+  if (!projectId) return { error: "Job ID required", success: false };
+
+  const { error } = await supabase
+    .from("projects")
+    .update({ jobber_job_id: jobberJobId, updated_at: new Date().toISOString() })
+    .eq("id", projectId);
+  if (error) return { error: error.message, success: false };
+
+  revalidatePath(`/jobs/${projectId}`, "page");
+  return { error: null, success: true };
+}

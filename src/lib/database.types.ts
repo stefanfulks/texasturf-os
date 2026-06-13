@@ -1998,6 +1998,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          jobber_job_id: string | null
           jobber_url: string | null
           monday_item_id: string | null
           name: string
@@ -2020,6 +2021,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          jobber_job_id?: string | null
           jobber_url?: string | null
           monday_item_id?: string | null
           name: string
@@ -2042,6 +2044,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          jobber_job_id?: string | null
           jobber_url?: string | null
           monday_item_id?: string | null
           name?: string

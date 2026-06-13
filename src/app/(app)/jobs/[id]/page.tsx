@@ -5,6 +5,7 @@ import { ChevronLeft, ExternalLink, MapPin, Calendar, User } from "lucide-react"
 import { createClient } from "@/lib/supabase/server";
 import { JobForm } from "../job-form";
 import { JobArchiveButton } from "./archive-button";
+import { JobberJobPicker, type JobberJobOption } from "./jobber-job-picker";
 import { INVOICE_STATUS_CONFIG } from "@/lib/invoices/status";
 import type { Project, Task, TaskStatus, TaskPriority, ProjectStatus, InvoiceStatus } from "@/lib/db-helpers.types";
 
@@ -44,7 +45,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [jobRes, tasksRes, profileRes, invoicesRes] = await Promise.all([
+  const [jobRes, tasksRes, profileRes, invoicesRes, jobberJobsRes] = await Promise.all([
     supabase.from("projects").select("*, owner:owner_id(id, full_name, email), created_by:created_by_id(id, full_name, email)").eq("id", id).single(),
     supabase.from("tasks").select("*, assignee:assignee_id(id, full_name, email)").eq("project_id", id).neq("status", "archived").order("created_at", { ascending: false }),
     supabase.from("profiles").select("role").eq("id", user.id).single(),
@@ -53,6 +54,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       .eq("project_id", id)
       .neq("status", "archived")
       .order("submitted_at", { ascending: false }),
+    // Recent Jobber jobs for the link picker (RLS-scoped, capped).
+    supabase.from("jobber_jobs")
+      .select("id, job_number, title, status")
+      .order("jobber_created_at", { ascending: false, nullsFirst: false })
+      .limit(300),
   ]);
   const isOfficeOrAdmin = ["admin", "office"].includes((profileRes.data as { role?: string } | null)?.role ?? "");
 
@@ -74,6 +80,17 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     total_amount: number | null; currency: string; invoice_date: string | null; submitted_at: string;
   }>;
   const invoicesTotal = invoices.reduce((sum, inv) => sum + (inv.total_amount ?? 0), 0);
+
+  // Jobber-job link picker data. The current link is matched from the recent
+  // set; if it's older than the cap, we still show its id so it's not lost.
+  const jobberOptions = (jobberJobsRes.data ?? []) as JobberJobOption[];
+  const linkedJobberId = (job as { jobber_job_id?: string | null }).jobber_job_id ?? null;
+  const currentJobberJob: JobberJobOption | null =
+    (linkedJobberId
+      ? jobberOptions.find((o) => o.id === linkedJobberId) ?? {
+          id: linkedJobberId, job_number: null, title: null, status: null,
+        }
+      : null);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6 space-y-5 pb-12">
@@ -111,6 +128,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       {/* Jobber panel — prominent at the top so anyone can jump straight into Jobber for this job. */}
       <JobberPanel jobId={job.id} jobberUrl={job.jobber_url ?? null} customerName={job.customer_name ?? null} />
+
+      {/* Structured Jobber-job link (office/admin) — connects this OS job to its
+          synced Jobber job for cross-module visibility. */}
+      {isOfficeOrAdmin && (
+        <JobberJobPicker projectId={job.id} current={currentJobberJob} options={jobberOptions} />
+      )}
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
