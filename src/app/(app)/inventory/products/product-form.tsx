@@ -54,7 +54,7 @@ export function ProductForm({
         <div>
           <label className="block text-xs font-medium text-ink-3 mb-1">Width (ft)</label>
           <input
-            type="number"
+            type="number" inputMode="decimal"
             step="0.25"
             min="0"
             name="width_ft"

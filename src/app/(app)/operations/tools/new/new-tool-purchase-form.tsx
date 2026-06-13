@@ -147,7 +147,7 @@ export function NewToolPurchaseForm({
           <div>
             <label className={label}>Quantity</label>
             <input
-              type="number"
+              type="number" inputMode="decimal"
               min="1"
               step="1"
               name="quantity"
@@ -158,7 +158,7 @@ export function NewToolPurchaseForm({
           <div>
             <label className={label}>Cost per item (USD)</label>
             <input
-              type="number"
+              type="number" inputMode="decimal"
               min="0"
               step="0.01"
               name="cost"

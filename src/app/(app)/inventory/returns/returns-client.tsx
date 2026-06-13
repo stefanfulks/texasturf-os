@@ -280,7 +280,7 @@ function ReturnFromJob({
                                 Returned length (ft)
                               </label>
                               <input
-                                type="number"
+                                type="number" inputMode="decimal"
                                 min="0"
                                 step="0.01"
                                 max={roll.current_length_ft ?? undefined}
@@ -431,7 +431,7 @@ function UnmarkedReturnForm({ products }: { products: ProductLite[] }) {
             Returned length (ft) <span className="text-danger">*</span>
           </label>
           <input
-            type="number"
+            type="number" inputMode="decimal"
             step="0.01"
             min="0"
             required
@@ -467,7 +467,7 @@ function UnmarkedReturnForm({ products }: { products: ProductLite[] }) {
           </label>
           <input
             ref={widthRef}
-            type="number"
+            type="number" inputMode="decimal"
             step="0.01"
             min="0"
             name="width_ft"

@@ -44,7 +44,7 @@ export function ItemAdjustButton({ itemId, itemName }: { itemId: string; itemNam
     <div className="absolute right-4 top-full mt-1 w-72 z-10 rounded-lg border border-line bg-white shadow-lg p-3 space-y-2">
       <p className="text-xs font-semibold text-ink-2">Adjust quantity — {itemName}</p>
       <input
-        type="number"
+        type="number" inputMode="decimal"
         step="0.25"
         value={delta}
         onChange={(e) => setDelta(e.target.value)}

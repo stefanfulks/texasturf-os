@@ -83,7 +83,7 @@ export function TeamKpiEntryForm({ member, definitions, entries, month, year }: 
                   <input
                     id={`actual_${def.kpi_key}`}
                     name={`actual_${def.kpi_key}`}
-                    type="number"
+                    type="number" inputMode="decimal"
                     step="any"
                     defaultValue={existing?.actual_value ?? ""}
                     placeholder="Enter value"

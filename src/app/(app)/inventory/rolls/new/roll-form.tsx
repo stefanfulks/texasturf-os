@@ -148,7 +148,7 @@ export function RollForm({
           </label>
           <input
             name="width_ft"
-            type="number"
+            type="number" inputMode="decimal"
             step="0.01"
             defaultValue={roll?.width_ft ?? ""}
             placeholder="15"
@@ -161,7 +161,7 @@ export function RollForm({
           </label>
           <input
             name="original_length_ft"
-            type="number"
+            type="number" inputMode="decimal"
             step="0.01"
             value={origLen}
             onChange={(e) => setOrigLen(e.target.value)}
@@ -179,7 +179,7 @@ export function RollForm({
             </label>
             <input
               name="current_length_ft"
-              type="number"
+              type="number" inputMode="decimal"
               step="0.01"
               defaultValue={roll?.current_length_ft ?? ""}
               placeholder="100"

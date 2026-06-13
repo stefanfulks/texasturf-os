@@ -230,7 +230,7 @@ export function PricingCalculator() {
             <div>
               <label className={labelCls}>Installed sq ft</label>
               <input
-                type="number" min={0} step={1}
+                type="number" inputMode="decimal" min={0} step={1}
                 value={job.installedSqft || ""}
                 onChange={(e) => setField("installedSqft", Math.max(0, Number(e.target.value) || 0))}
                 placeholder="1500"
@@ -349,7 +349,7 @@ export function PricingCalculator() {
               <div>
                 <label className={labelCls}>LF</label>
                 <input
-                  type="number" min={0} step={1}
+                  type="number" inputMode="decimal" min={0} step={1}
                   value={e.lf || ""}
                   onChange={(ev) => updateEdging(i, { lf: Math.max(0, Number(ev.target.value) || 0) })}
                   className={fieldNarrow}
@@ -380,7 +380,7 @@ export function PricingCalculator() {
             <div>
               <label className={labelCls}>Nailer board LF</label>
               <input
-                type="number" min={0} step={1}
+                type="number" inputMode="decimal" min={0} step={1}
                 value={job.nailerLF || ""}
                 onChange={(e) => setField("nailerLF", Math.max(0, Number(e.target.value) || 0))}
                 className={field}
@@ -417,7 +417,7 @@ export function PricingCalculator() {
                 <div>
                   <label className={labelCls}>Perimeter + seam LF (1 gal / 100 LF)</label>
                   <input
-                    type="number" min={0} step={1}
+                    type="number" inputMode="decimal" min={0} step={1}
                     value={job.glueLF || ""}
                     onChange={(e) => setField("glueLF", Math.max(0, Number(e.target.value) || 0))}
                     className={field}
@@ -427,7 +427,7 @@ export function PricingCalculator() {
               <div>
                 <label className={labelCls}>Seam tape LF (optional)</label>
                 <input
-                  type="number" min={0} step={1}
+                  type="number" inputMode="decimal" min={0} step={1}
                   value={job.seamTapeLF || ""}
                   onChange={(e) => setField("seamTapeLF", Math.max(0, Number(e.target.value) || 0))}
                   className={field}
@@ -449,7 +449,7 @@ export function PricingCalculator() {
             <div>
               <label className={labelCls}>$/sq ft paid to installer</label>
               <input
-                type="number" step={0.05} min={0}
+                type="number" inputMode="decimal" step={0.05} min={0}
                 value={effectiveLabor}
                 onChange={(e) => { setField("laborRate", Number(e.target.value) || 0); setLaborTouched(true); }}
                 className={field}
@@ -479,7 +479,7 @@ export function PricingCalculator() {
               <div>
                 <label className={labelCls}>Cost</label>
                 <input
-                  type="number" min={0} step={0.01}
+                  type="number" inputMode="decimal" min={0} step={0.01}
                   value={ex.cost || ""}
                   onChange={(e) => updateExtra(i, { cost: Math.max(0, Number(e.target.value) || 0) })}
                   className={fieldNarrow}

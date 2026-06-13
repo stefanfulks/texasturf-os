@@ -248,7 +248,7 @@ export function MeetingForm({ profiles }: { profiles: Profile[] }) {
         {cadence === "monthly" && (
           <Field label="Day of month" required>
             <input
-              type="number"
+              type="number" inputMode="decimal"
               name="day_of_month"
               min={1}
               max={31}
@@ -265,7 +265,7 @@ export function MeetingForm({ profiles }: { profiles: Profile[] }) {
               <input type="time" name="start_time" defaultValue="07:00" className={fieldCls} />
             </Field>
             <Field label="Duration (min)" optional>
-              <input type="number" name="duration_min" min={5} max={480} defaultValue={60} className={fieldCls} />
+              <input type="number" inputMode="decimal" name="duration_min" min={5} max={480} defaultValue={60} className={fieldCls} />
             </Field>
           </div>
         )}
@@ -402,7 +402,7 @@ export function MeetingForm({ profiles }: { profiles: Profile[] }) {
                 <label className="block">
                   <span className="text-[10px] uppercase tracking-wider text-ink-3">Time (min)</span>
                   <input
-                    type="number"
+                    type="number" inputMode="decimal"
                     min={0}
                     value={s.time_min ?? ""}
                     onChange={(e) => updateSection(idx, { time_min: e.target.value ? parseInt(e.target.value, 10) : undefined })}

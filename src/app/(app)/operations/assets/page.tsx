@@ -50,7 +50,7 @@ export default async function AssetsPage() {
             <Input name="identifier" label="Identifier" placeholder="Plate / VIN / Serial" />
             <Input name="make" label="Make" />
             <Input name="model" label="Model" />
-            <Input name="year" label="Year" type="number" />
+            <Input name="year" label="Year" type="number" inputMode="numeric" />
             <div className="sm:col-span-2 flex justify-end">
               <button
                 type="submit"
@@ -105,12 +105,14 @@ function Input({
   label,
   placeholder,
   type,
+  inputMode,
   required,
 }: {
   name: string;
   label: string;
   placeholder?: string;
   type?: string;
+  inputMode?: "text" | "numeric" | "decimal" | "tel" | "email" | "url" | "search";
   required?: boolean;
 }) {
   return (
@@ -119,6 +121,7 @@ function Input({
       <input
         name={name}
         type={type ?? "text"}
+        inputMode={inputMode}
         placeholder={placeholder}
         required={required}
         className="mt-1 field-input"

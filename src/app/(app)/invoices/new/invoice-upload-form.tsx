@@ -182,7 +182,7 @@ export function InvoiceUploadForm({ vendors }: Props) {
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-4 text-sm">$</span>
             <input
               name="total_amount"
-              type="number"
+              type="number" inputMode="decimal"
               step="0.01"
               min="0"
               placeholder="8,580.00"

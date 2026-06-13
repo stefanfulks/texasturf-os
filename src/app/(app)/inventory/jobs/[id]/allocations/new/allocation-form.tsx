@@ -49,7 +49,7 @@ export function AllocationForm({
         <div>
           <label className="block text-xs font-medium text-ink-3 mb-1">Width (ft)</label>
           <input
-            type="number"
+            type="number" inputMode="decimal"
             step="0.01"
             name="width_ft"
             placeholder="15"
@@ -59,7 +59,7 @@ export function AllocationForm({
         <div>
           <label className="block text-xs font-medium text-ink-3 mb-1">Requested Length (ft)</label>
           <input
-            type="number"
+            type="number" inputMode="decimal"
             step="0.01"
             name="requested_length_ft"
             placeholder="120"

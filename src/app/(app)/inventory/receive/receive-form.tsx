@@ -198,7 +198,7 @@ function QuickAddForm({
             <label className="block text-sm font-medium text-ink-2 mb-1.5">Width (ft)</label>
             <input
               ref={widthRef}
-              type="number"
+              type="number" inputMode="decimal"
               step="0.01"
               min="0"
               name="width_ft"
@@ -212,7 +212,7 @@ function QuickAddForm({
             </label>
             <input
               ref={lengthRef}
-              type="number"
+              type="number" inputMode="decimal"
               step="0.01"
               min="0"
               required

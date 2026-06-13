@@ -125,7 +125,7 @@ export function CutRollForm({
         </h2>
         <input
           name="cut_length_ft"
-          type="number"
+          type="number" inputMode="decimal"
           step="0.01"
           min="0.01"
           value={cutLength}

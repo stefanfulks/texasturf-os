@@ -76,7 +76,7 @@ export function NewBudgetForm({
       <div>
         <label className="block text-[10px] uppercase tracking-wide text-ink-3">Amount (USD)</label>
         <input
-          type="number"
+          type="number" inputMode="decimal"
           step="0.01"
           min="0.01"
           name="amount"

@@ -105,7 +105,7 @@ export function RecurringRuleForm({
           </div>
           <div>
             <label className="block text-xs font-medium text-ink-3 mb-1">Lead days</label>
-            <input type="number" name="lead_days" defaultValue={0} min={0} max={30} className={field} />
+            <input type="number" inputMode="decimal" name="lead_days" defaultValue={0} min={0} max={30} className={field} />
             <p className="text-[11px] text-ink-4 mt-1">Create task N days before due</p>
           </div>
         </div>

@@ -109,15 +109,15 @@ export function EditInvoiceForm({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <p className={label}>Subtotal</p>
-            <input name="subtotal" type="number" step="0.01" defaultValue={v(invoice.subtotal)} className={field} />
+            <input name="subtotal" type="number" inputMode="decimal" step="0.01" defaultValue={v(invoice.subtotal)} className={field} />
           </div>
           <div>
             <p className={label}>Tax</p>
-            <input name="tax" type="number" step="0.01" defaultValue={v(invoice.tax)} className={field} />
+            <input name="tax" type="number" inputMode="decimal" step="0.01" defaultValue={v(invoice.tax)} className={field} />
           </div>
           <div>
             <p className={label}>Total</p>
-            <input name="total_amount" type="number" step="0.01" defaultValue={v(invoice.total_amount)} className={field} />
+            <input name="total_amount" type="number" inputMode="decimal" step="0.01" defaultValue={v(invoice.total_amount)} className={field} />
           </div>
         </div>
       </div>

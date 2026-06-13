@@ -69,7 +69,7 @@ export function ItemForm({
         <div>
           <label className="block text-xs font-medium text-ink-3 mb-1">Quantity</label>
           <input
-            type="number"
+            type="number" inputMode="decimal"
             step="0.25"
             min="0"
             name="quantity"
@@ -80,7 +80,7 @@ export function ItemForm({
         <div>
           <label className="block text-xs font-medium text-ink-3 mb-1">Min Quantity</label>
           <input
-            type="number"
+            type="number" inputMode="decimal"
             step="0.25"
             min="0"
             name="min_quantity"

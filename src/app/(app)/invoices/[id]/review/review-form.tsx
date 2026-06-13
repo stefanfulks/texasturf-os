@@ -140,15 +140,15 @@ export function ReviewForm({
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-medium text-ink-3 mb-1">Subtotal</label>
-            <input type="number" step="0.01" name="subtotal" defaultValue={invoice.subtotal ?? ""} className={field} />
+            <input type="number" inputMode="decimal" step="0.01" name="subtotal" defaultValue={invoice.subtotal ?? ""} className={field} />
           </div>
           <div>
             <label className="block text-xs font-medium text-ink-3 mb-1">Tax</label>
-            <input type="number" step="0.01" name="tax" defaultValue={invoice.tax ?? ""} className={field} />
+            <input type="number" inputMode="decimal" step="0.01" name="tax" defaultValue={invoice.tax ?? ""} className={field} />
           </div>
           <div>
             <label className="block text-xs font-medium text-ink-3 mb-1">Total Amount</label>
-            <input type="number" step="0.01" name="total_amount" defaultValue={invoice.total_amount ?? ""} className={field} />
+            <input type="number" inputMode="decimal" step="0.01" name="total_amount" defaultValue={invoice.total_amount ?? ""} className={field} />
           </div>
         </div>
 
@@ -229,10 +229,10 @@ export function ReviewForm({
                 </select>
               </div>
               <div className="grid grid-cols-4 gap-2">
-                <input type="number" step="0.001" value={item.quantity ?? ""} onChange={(e) => updateLine(idx, "quantity", e.target.value ? Number(e.target.value) : null)} placeholder="Qty" className={field} />
+                <input type="number" inputMode="decimal" step="0.001" value={item.quantity ?? ""} onChange={(e) => updateLine(idx, "quantity", e.target.value ? Number(e.target.value) : null)} placeholder="Qty" className={field} />
                 <input value={item.unit ?? ""} onChange={(e) => updateLine(idx, "unit", e.target.value || null)} placeholder="Unit" className={field} />
-                <input type="number" step="0.01" value={item.unit_price ?? ""} onChange={(e) => updateLine(idx, "unit_price", e.target.value ? Number(e.target.value) : null)} placeholder="Unit Price" className={field} />
-                <input type="number" step="0.01" value={item.line_total} onChange={(e) => updateLine(idx, "line_total", Number(e.target.value))} placeholder="Total" className={field} />
+                <input type="number" inputMode="decimal" step="0.01" value={item.unit_price ?? ""} onChange={(e) => updateLine(idx, "unit_price", e.target.value ? Number(e.target.value) : null)} placeholder="Unit Price" className={field} />
+                <input type="number" inputMode="decimal" step="0.01" value={item.line_total} onChange={(e) => updateLine(idx, "line_total", Number(e.target.value))} placeholder="Total" className={field} />
               </div>
               <div className="flex items-center gap-2">
                 <select value={item.variance_status} onChange={(e) => updateLine(idx, "variance_status", e.target.value)} className={`flex-1 ${field}`}>

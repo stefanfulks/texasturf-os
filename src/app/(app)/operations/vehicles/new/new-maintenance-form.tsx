@@ -131,7 +131,7 @@ export function NewMaintenanceForm({
           <div>
             <label className={label}>Odometer / hours</label>
             <input
-              type="number"
+              type="number" inputMode="decimal"
               min="0"
               step="0.01"
               name="meter_value"
@@ -167,7 +167,7 @@ export function NewMaintenanceForm({
           <div>
             <label className={label}>Cost (USD)</label>
             <input
-              type="number"
+              type="number" inputMode="decimal"
               min="0"
               step="0.01"
               name="cost"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { updateTask, type UpdateTaskState } from "./actions";
 import { updateTaskAssignees } from "../actions";
 import type { Task, Profile } from "@/lib/db-helpers.types";
@@ -24,6 +24,16 @@ function colorFor(id: string): string {
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 }
 
+// The title field is a textarea (not a single-line input) so long task titles
+// wrap and stay fully on screen instead of scrolling off the right edge. Grow
+// it to fit its content; Enter still saves rather than inserting a newline, so
+// titles stay logically single-line.
+function autoGrow(el: HTMLTextAreaElement | null) {
+  if (!el) return;
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
+}
+
 export function TaskEditForm({
   task,
   allProfiles,
@@ -37,6 +47,12 @@ export function TaskEditForm({
   const [assigneeIds, setAssigneeIds] = useState<string[]>(initialAssigneeIds);
   const [savingAssignees, startAssigneesTransition] = useTransition();
   const [assigneeMsg, setAssigneeMsg] = useState<string | null>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+
+  // Size the title to fit its initial value once mounted.
+  useEffect(() => {
+    autoGrow(titleRef.current);
+  }, []);
 
   const profileById = new Map(allProfiles.map((p) => [p.id, p]));
   const taggedProfiles = assigneeIds.map((id) => profileById.get(id)).filter(Boolean) as Array<Pick<Profile, "id" | "full_name" | "email">>;
@@ -166,11 +182,21 @@ export function TaskEditForm({
       <form action={formAction} className="space-y-4">
         <input type="hidden" name="id" value={task.id} />
 
-        <input
+        <textarea
+          ref={titleRef}
           name="title"
           defaultValue={task.title}
           required
-          className="w-full text-lg font-semibold border-0 border-b border-line pb-2 focus:outline-none focus:border-line-strong bg-transparent text-ink placeholder:text-ink-4"
+          rows={1}
+          onInput={(e) => autoGrow(e.currentTarget)}
+          onKeyDown={(e) => {
+            // Keep titles single-line: Enter saves instead of adding a newline.
+            if (e.key === "Enter") {
+              e.preventDefault();
+              e.currentTarget.form?.requestSubmit();
+            }
+          }}
+          className="w-full resize-none overflow-hidden text-lg font-semibold leading-snug border-0 border-b border-line pb-2 focus:outline-none focus:border-line-strong bg-transparent text-ink placeholder:text-ink-4"
           placeholder="Task title"
         />
 

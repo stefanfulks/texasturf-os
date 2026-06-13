@@ -67,7 +67,7 @@ export function BudgetRow({ budget }: { budget: BudgetWithSpend }) {
             <div>
               <label className="block text-[10px] uppercase tracking-wide text-ink-3">Amount (USD)</label>
               <input
-                type="number" step="0.01" min="0.01"
+                type="number" inputMode="decimal" step="0.01" min="0.01"
                 name="amount"
                 defaultValue={(budget.amount_cents / 100).toFixed(2)}
                 required

@@ -56,7 +56,7 @@ export function KpiForm({ entries, month, year }: Props) {
                   <input
                     id={`target_${key}`}
                     name={`target_${key}`}
-                    type="number"
+                    type="number" inputMode="decimal"
                     step="any"
                     defaultValue={existing?.target_value ?? ""}
                     placeholder="—"
@@ -73,7 +73,7 @@ export function KpiForm({ entries, month, year }: Props) {
                   <input
                     id={`actual_${key}`}
                     name={`actual_${key}`}
-                    type="number"
+                    type="number" inputMode="decimal"
                     step="any"
                     defaultValue={existing?.actual_value ?? ""}
                     placeholder="—"

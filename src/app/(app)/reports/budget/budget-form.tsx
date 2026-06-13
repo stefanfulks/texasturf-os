@@ -52,7 +52,7 @@ export function BudgetForm({ budgets, month, year }: Props) {
                   <input
                     id={`amount_${key}`}
                     name={`amount_${key}`}
-                    type="number"
+                    type="number" inputMode="decimal"
                     min="0"
                     step="0.01"
                     defaultValue={existing?.budgeted_amount ?? ""}

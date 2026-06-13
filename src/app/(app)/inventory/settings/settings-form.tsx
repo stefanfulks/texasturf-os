@@ -52,7 +52,7 @@ export function SettingsForm({
             E.g. 1.5 = flag items when their quantity drops to 1.5× their minimum.
           </p>
           <input
-            type="number"
+            type="number" inputMode="decimal"
             step="0.1"
             min="0.1"
             name="low_stock_threshold_factor"
@@ -76,7 +76,7 @@ export function SettingsForm({
           </p>
           <div className="mt-2 flex items-center gap-2">
             <input
-              type="number"
+              type="number" inputMode="decimal"
               step="1"
               min="0"
               name="auto_archive_completed_jobs_after_days"

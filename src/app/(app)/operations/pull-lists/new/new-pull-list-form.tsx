@@ -164,7 +164,7 @@ export function NewPullListForm({
           </div>
           <div>
             <label className={label}>Total sqft</label>
-            <input name="turf_total_sqft" type="number" step="0.01" min="0" className={field} />
+            <input name="turf_total_sqft" type="number" inputMode="decimal" step="0.01" min="0" className={field} />
           </div>
         </div>
       </Section>
@@ -326,7 +326,7 @@ function BagInput({ name, label: l }: { name: string; label: string }) {
   return (
     <div>
       <label className={label}>{l}</label>
-      <input type="number" min="0" name={name} defaultValue={0} className={field} />
+      <input type="number" inputMode="decimal" min="0" name={name} defaultValue={0} className={field} />
     </div>
   );
 }

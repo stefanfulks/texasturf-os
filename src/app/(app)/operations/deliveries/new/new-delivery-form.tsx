@@ -202,7 +202,7 @@ export function NewDeliveryForm({
             </div>
             <div>
               <label className={label}>Sqft</label>
-              <input type="number" min="0" step="0.01" name="mat_turf_sqft" className={field} />
+              <input type="number" inputMode="decimal" min="0" step="0.01" name="mat_turf_sqft" className={field} />
             </div>
             <div>
               <label className={label}>Batch</label>
@@ -213,7 +213,7 @@ export function NewDeliveryForm({
 
         <div>
           <h3 className="text-xs font-semibold text-ink-2 mt-2">DG (cubic yards)</h3>
-          <input type="number" min="0" step="0.01" name="mat_dg_cubic_yards" className={field} />
+          <input type="number" inputMode="decimal" min="0" step="0.01" name="mat_dg_cubic_yards" className={field} />
         </div>
 
         <div>
@@ -225,7 +225,7 @@ export function NewDeliveryForm({
             </div>
             <div>
               <label className={label}>Bags</label>
-              <input type="number" min="0" name="mat_infill_bags" className={field} />
+              <input type="number" inputMode="decimal" min="0" name="mat_infill_bags" className={field} />
             </div>
           </div>
         </div>
@@ -235,11 +235,11 @@ export function NewDeliveryForm({
           <div className="mt-1 grid grid-cols-2 gap-3">
             <div>
               <label className={label}>Nails</label>
-              <input type="number" min="0" name="mat_nails_boxes" className={field} />
+              <input type="number" inputMode="decimal" min="0" name="mat_nails_boxes" className={field} />
             </div>
             <div>
               <label className={label}>Staples</label>
-              <input type="number" min="0" name="mat_staples_boxes" className={field} />
+              <input type="number" inputMode="decimal" min="0" name="mat_staples_boxes" className={field} />
             </div>
           </div>
         </div>
