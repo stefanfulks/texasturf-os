@@ -75,6 +75,19 @@ export async function triageFeedback(
   });
   if (!parsed.success) return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
 
+  // Grab the submitter + prior status so we can close the loop with a
+  // notification when the status actually changes.
+  const { data: before } = await supabase
+    .from("app_feedback")
+    .select("user_id, subject, status")
+    .eq("id", parsed.data.id)
+    .single();
+  const prior = before as unknown as {
+    user_id: string | null;
+    subject: string | null;
+    status: string;
+  } | null;
+
   const patch: Record<string, unknown> = {
     status:      parsed.data.status,
     admin_notes: parsed.data.admin_notes ?? null,
@@ -90,6 +103,31 @@ export async function triageFeedback(
 
   const { error } = await supabase.from("app_feedback").update(patch as never).eq("id", parsed.data.id);
   if (error) return { error: error.message, success: false };
+
+  // Notify the submitter that their feedback moved — so the team learns
+  // that reporting friction actually goes somewhere. Only on a real status
+  // change, and never notify the admin about their own action.
+  if (
+    prior?.user_id &&
+    prior.user_id !== user.id &&
+    prior.status !== parsed.data.status
+  ) {
+    const STATUS_LABEL: Record<string, string> = {
+      new: "New",
+      in_progress: "In progress",
+      resolved: "Resolved",
+      wont_fix: "Won't fix",
+    };
+    await supabase.from("notifications").insert({
+      user_id:       prior.user_id,
+      actor_id:      user.id,
+      type:          "feedback_update",
+      title:         "Your feedback was updated",
+      body:          `${prior.subject ?? "Feedback"} → ${STATUS_LABEL[parsed.data.status] ?? parsed.data.status}`,
+      resource_type: "feedback",
+      resource_id:   parsed.data.id,
+    } as never);
+  }
 
   revalidatePath("/admin/feedback");
   revalidatePath("/feedback");
