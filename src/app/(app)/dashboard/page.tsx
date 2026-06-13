@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format, parseISO, isToday, isPast } from "date-fns";
-import { Calendar, ListTodo, AlertTriangle, BarChart3 } from "lucide-react";
+import { Calendar, ListTodo, AlertTriangle, BarChart3, ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getMyTaskIds, NO_TASK_UUID } from "@/lib/tasks/scope";
 import { PickDepartmentPrompt } from "./pick-department";
@@ -92,6 +92,10 @@ export default async function DashboardPage({
   // them), then the rest in canonical order.
   const orderedDepartments = orderForUserMulti(departments);
   const ownSet = new Set<Department>(departments);
+  // Lead with the user's own departments; everything else tucks behind a
+  // disclosure so the dashboard isn't a wall of eight tiles.
+  const ownDepartments = orderedDepartments.filter((d) => ownSet.has(d));
+  const otherDepartments = orderedDepartments.filter((d) => !ownSet.has(d));
 
   return (
     <div className="mx-auto max-w-6xl space-y-7">
@@ -254,10 +258,12 @@ export default async function DashboardPage({
         )}
       </section>
 
-      {/* Departments — user's own first */}
+      {/* Departments — your own up front, the rest tucked behind a disclosure */}
       <section className="reveal" style={{ animationDelay: "300ms" }}>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="eyebrow">Jump into a department</h2>
+          <h2 className="eyebrow">
+            {ownDepartments.length > 0 ? "Your departments" : "Jump into a department"}
+          </h2>
           {departments.length > 0 && (
             <Link href="/dashboard?change=1" className="text-xs text-ink-4 hover:text-ink-2 transition-colors">
               Change my departments
@@ -265,7 +271,7 @@ export default async function DashboardPage({
           )}
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {orderedDepartments.map((d) => (
+          {(ownDepartments.length > 0 ? ownDepartments : orderedDepartments).map((d) => (
             <DepartmentTile
               key={d}
               href={DEPARTMENT_HREF[d]}
@@ -276,6 +282,27 @@ export default async function DashboardPage({
             />
           ))}
         </div>
+
+        {ownDepartments.length > 0 && otherDepartments.length > 0 && (
+          <details className="group mt-3">
+            <summary className="flex items-center gap-1.5 cursor-pointer select-none list-none text-xs font-medium text-ink-3 hover:text-ink-2 transition-colors [&::-webkit-details-marker]:hidden">
+              <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+              Explore other departments
+            </summary>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 mt-3">
+              {otherDepartments.map((d) => (
+                <DepartmentTile
+                  key={d}
+                  href={DEPARTMENT_HREF[d]}
+                  label={DEPARTMENT_LABEL[d]}
+                  emoji={DEPARTMENT_EMOJI[d]}
+                  description={DEPARTMENT_DESCRIPTION[d]}
+                  highlight={false}
+                />
+              ))}
+            </div>
+          </details>
+        )}
       </section>
     </div>
   );
