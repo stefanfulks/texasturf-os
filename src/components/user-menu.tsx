@@ -36,6 +36,7 @@ const WORKSPACES: readonly Workspace[] = [
     primaryHref: "/dashboard",
     tools: [
       { label: "Home",      href: "/dashboard" },
+      { label: "Agenda",    href: "/agenda" },
       { label: "Tasks",     href: "/tasks" },
       { label: "Recurring", href: "/tasks/recurring" },
       { label: "Calendar",  href: "/calendar" },
@@ -43,7 +44,7 @@ const WORKSPACES: readonly Workspace[] = [
       { label: "Attention", href: "/attention" },
       { label: "Turfy", href: "/assistant" },
     ],
-    prefixes: ["/dashboard", "/tasks", "/calendar", "/meetings", "/attention", "/assistant"],
+    prefixes: ["/dashboard", "/agenda", "/tasks", "/calendar", "/meetings", "/attention", "/assistant"],
   },
   {
     label: "Sales",
