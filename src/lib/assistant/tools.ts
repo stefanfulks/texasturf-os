@@ -11,6 +11,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { createClient } from "@/lib/supabase/server";
 import { getMyTaskIds, NO_TASK_UUID } from "@/lib/tasks/scope";
+import { upcomingOccurrence } from "@/lib/meetings/cadence";
 import {
   DraftTaskSchema,
   DraftCalendarEventSchema,
@@ -140,6 +141,40 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
     },
   },
   {
+    name: "search_clients",
+    description:
+      "Look up clients/customers synced from Jobber by name or company. Use for 'what's the Hendersons' phone number?', 'do we have a client called Sage Creek HOA?', 'what's John Smith's balance?'. Returns up to 20 with name, company, emails, phones, and outstanding balance.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Match against first name, last name, or company name." },
+      },
+    },
+  },
+  {
+    name: "search_meetings",
+    description:
+      "Find recurring/standing meetings by name. Use for 'when is the sales sync?', 'what meetings do we have?'. Returns up to 20 with cadence, start time, and the next occurrence date.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Match against meeting name or description." },
+      },
+    },
+  },
+  {
+    name: "get_today_schedule",
+    description:
+      "Get everything happening today for the current user: scheduled Jobber visits, meetings occurring today, and the user's own tasks due today. Use for 'what's on today?', 'what's my schedule?', 'anything due today?'. Takes no arguments.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
+    name: "get_fleet_availability",
+    description:
+      "Show which fleet vehicles/equipment are free right now vs. reserved, based on active vehicle reservations. Use for 'which trucks are available?', 'is the dump trailer free this afternoon?', 'what's reserved?'. Returns each non-archived asset with available_now, its current reservation (if any), and upcoming reservations. Takes no arguments.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
     // Write tool — name starts with `propose_` so the route layer routes the
     // result through the confirm-card flow instead of feeding it straight
     // back to the model as a normal tool_result. Nothing is written to the
@@ -265,6 +300,10 @@ async function dispatch(name: string, input: ToolInput, supabase: Supabase, user
     case "search_assets":              return searchAssets(input, supabase);
     case "list_upcoming_maintenance":  return listUpcomingMaintenance(input, supabase);
     case "search_projects":            return searchProjects(input, supabase);
+    case "search_clients":             return searchClients(input, supabase);
+    case "search_meetings":            return searchMeetings(input, supabase);
+    case "get_today_schedule":         return getTodaySchedule(supabase, userId);
+    case "get_fleet_availability":     return getFleetAvailability(supabase);
     case "get_dashboard_stats":        return getDashboardStats(supabase, userId);
     case "get_inventory_stats":        return getInventoryStats(supabase);
     case "search_notion_sops":         return searchNotionSops(input);
@@ -525,6 +564,163 @@ async function searchProjects(input: ToolInput, supabase: Supabase) {
   const { data, error } = await q;
   if (error) throw new Error(error.message);
   return { count: data?.length ?? 0, projects: data ?? [] };
+}
+
+async function searchClients(input: ToolInput, supabase: Supabase) {
+  let q = supabase
+    .from("jobber_clients")
+    .select("id, first_name, last_name, company_name, emails, phones, balance_cents")
+    .eq("is_archived", false)
+    .order("jobber_updated_at", { ascending: false, nullsFirst: false })
+    .limit(20);
+
+  if (typeof input.query === "string" && input.query.trim()) {
+    const term = input.query.trim().replace(/[%_]/g, "");
+    q = q.or(`first_name.ilike.%${term}%,last_name.ilike.%${term}%,company_name.ilike.%${term}%`);
+  }
+
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  const clients = (data ?? []).map((c) => ({
+    id:      c.id,
+    name:    [c.first_name, c.last_name].filter(Boolean).join(" ") || c.company_name || "Unnamed",
+    company: c.company_name,
+    emails:  c.emails,
+    phones:  c.phones,
+    balance: typeof c.balance_cents === "number" ? c.balance_cents / 100 : null,
+  }));
+  return { count: clients.length, clients };
+}
+
+async function searchMeetings(input: ToolInput, supabase: Supabase) {
+  let q = supabase
+    .from("meetings")
+    .select("id, name, slug, cadence, day_of_week, day_of_month, scheduled_on, start_time, description")
+    .eq("archived", false)
+    .order("name", { ascending: true })
+    .limit(20);
+
+  if (typeof input.query === "string" && input.query.trim()) {
+    const term = input.query.trim().replace(/[%_]/g, "");
+    q = q.or(`name.ilike.%${term}%,description.ilike.%${term}%`);
+  }
+
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  const meetings = (data ?? []).map((m) => ({
+    id:              m.id,
+    name:            m.name,
+    slug:            m.slug,
+    cadence:         m.cadence,
+    start_time:      m.start_time,
+    next_occurrence: upcomingOccurrence(m),
+  }));
+  return { count: meetings.length, meetings };
+}
+
+async function getTodaySchedule(supabase: Supabase, userId: string) {
+  // Use the cadence helper's own representation of "today" so meeting
+  // occurrence comparison and the visit window agree.
+  const todayKey = upcomingOccurrence({ cadence: "daily", day_of_week: null, day_of_month: null });
+
+  const [visitsRes, meetingsRes, myTaskIds] = await Promise.all([
+    supabase
+      .from("jobber_visits")
+      .select("id, title, starts_at, ends_at, is_complete, client_id, job_id")
+      .gte("starts_at", `${todayKey}T00:00:00Z`)
+      .lte("starts_at", `${todayKey}T23:59:59Z`)
+      .order("starts_at", { ascending: true })
+      .limit(50),
+    supabase
+      .from("meetings")
+      .select("id, name, slug, cadence, day_of_week, day_of_month, scheduled_on, start_time")
+      .eq("archived", false),
+    getMyTaskIds(supabase, userId),
+  ]);
+
+  const visits = visitsRes.data ?? [];
+  const meetingsToday = (meetingsRes.data ?? [])
+    .filter((m) => m.cadence !== "adhoc" && upcomingOccurrence(m) === todayKey)
+    .map((m) => ({ id: m.id, name: m.name, slug: m.slug, start_time: m.start_time }));
+
+  let tasksDue: Array<{ id: string; title: string; priority: string; status: string }> = [];
+  if (myTaskIds.length > 0) {
+    const { data: t } = await supabase
+      .from("tasks")
+      .select("id, title, priority, status")
+      .in("id", myTaskIds)
+      .not("status", "in", "(done,archived)")
+      .eq("due_date", todayKey)
+      .limit(50);
+    tasksDue = (t ?? []) as typeof tasksDue;
+  }
+
+  return {
+    date:      todayKey,
+    visits:    { count: visits.length, items: visits },
+    meetings:  { count: meetingsToday.length, items: meetingsToday },
+    tasks_due: { count: tasksDue.length, items: tasksDue },
+  };
+}
+
+async function getFleetAvailability(supabase: Supabase) {
+  const nowIso = new Date().toISOString();
+
+  const [assetsRes, resRes] = await Promise.all([
+    supabase
+      .from("assets")
+      .select("id, name, identifier, unit_type, status, ready_status")
+      .eq("archived", false)
+      .order("name", { ascending: true })
+      .limit(50),
+    supabase
+      .from("vehicle_reservations")
+      .select("asset_id, starts_at, ends_at, purpose, destination")
+      .eq("status", "active")
+      .gte("ends_at", nowIso)
+      .order("starts_at", { ascending: true })
+      .limit(200),
+  ]);
+
+  const reservations = resRes.data ?? [];
+  type Res = (typeof reservations)[number];
+  const nowMs = Date.now();
+  const currentByAsset = new Map<string, Res>();
+  const upcomingByAsset = new Map<string, Res[]>();
+  for (const r of reservations) {
+    // Parse to epoch so Postgres "+00:00" vs JS "Z" formatting can't skew the
+    // comparison (lexicographic string compare would be unreliable here).
+    const startMs = new Date(r.starts_at).getTime();
+    const endMs = new Date(r.ends_at).getTime();
+    if (startMs <= nowMs && endMs >= nowMs) {
+      if (!currentByAsset.has(r.asset_id)) currentByAsset.set(r.asset_id, r);
+    } else if (startMs > nowMs) {
+      const arr = upcomingByAsset.get(r.asset_id) ?? [];
+      arr.push(r);
+      upcomingByAsset.set(r.asset_id, arr);
+    }
+  }
+
+  const assets = (assetsRes.data ?? []).map((a) => {
+    const current = currentByAsset.get(a.id) ?? null;
+    return {
+      id:            a.id,
+      name:          a.name,
+      identifier:    a.identifier,
+      unit_type:     a.unit_type,
+      status:        a.status,
+      ready_status:  a.ready_status,
+      available_now: !current,
+      current_reservation: current
+        ? { until: current.ends_at, purpose: current.purpose, destination: current.destination }
+        : null,
+      upcoming_reservations: (upcomingByAsset.get(a.id) ?? [])
+        .slice(0, 3)
+        .map((r) => ({ from: r.starts_at, to: r.ends_at, purpose: r.purpose })),
+    };
+  });
+
+  return { now: nowIso, count: assets.length, assets };
 }
 
 // ─── Write tools (propose_* — return drafts, never mutate) ──────────────────
