@@ -110,7 +110,7 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
       type: "object",
       properties: {
         query:        { type: "string", description: "Free-text match against asset name." },
-        status:       { type: "string", enum: ["active","retired","sold","stolen","other"], description: "Filter by status (default: active only)." },
+        status:       { type: "string", enum: ["available","assigned_to_job","in_use_today","maintenance_needed","out_of_service"], description: "Filter by asset_status. Omit to list all non-archived assets." },
         unit_type:    { type: "string", description: "Filter by unit_type (e.g. 'truck', 'trailer', 'equipment')." },
         ready_status: { type: "string", description: "Filter by ready_status (e.g. 'ready', 'not_ready', 'in_service')." },
       },
@@ -486,13 +486,17 @@ async function searchAssets(input: ToolInput, supabase: Supabase) {
   let q = supabase
     .from("assets")
     .select("id, name, unit_type, status, ready_status, load_status, next_action, notes, attached_to_id")
+    .eq("archived", false)
     .order("name", { ascending: true })
     .limit(20);
 
-  // Default to active only — most "what trucks do we have?" questions don't
-  // want retired/sold assets in the response.
-  const status = typeof input.status === "string" ? input.status : "active";
-  q = q.eq("status", status as never);
+  // No status default: return all non-archived assets (matching
+  // get_fleet_availability). Only filter when the caller passes a real
+  // asset_status value — available / assigned_to_job / in_use_today /
+  // maintenance_needed / out_of_service. (There's no "active"/"all" member in
+  // the enum, so defaulting to one made Postgres reject every status-less call
+  // — e.g. "what trucks do we have?" — and hid the whole fleet.)
+  if (typeof input.status === "string") q = q.eq("status", input.status as never);
 
   if (typeof input.unit_type === "string")    q = q.eq("unit_type", input.unit_type as never);
   if (typeof input.ready_status === "string") q = q.eq("ready_status", input.ready_status as never);
