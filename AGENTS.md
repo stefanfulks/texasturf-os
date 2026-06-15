@@ -4,6 +4,8 @@ This file is the operating contract for every Claude Code session in this repo. 
 
 `CLAUDE.md` includes this file via `@AGENTS.md` at the top, then adds repo-specific notes (verified commands, integrations wired). Rules belong here; per-repo notes belong there.
 
+> **Authorization here ≠ a permission grant.** This file tells the agent what it *may* do; the Claude Code permission classifier does **not** read markdown — it only honors `allow` rules in `.claude/settings.local.json`. A command runs prompt-free only when BOTH exist: the standing authorization below (push §7, additive migrations §5) **and** a matching `Bash(...)` rule in that settings file. If something authorized here is still blocked, the cause is the settings file — a missing rule or invalid JSON — not the wording here. An agent cannot edit that file to grant itself these rules (the classifier blocks it as self-modification); only the human can.
+
 ---
 
 ## 1. Next.js 16 — read the docs before writing
@@ -12,14 +14,15 @@ This is **Next.js 16** with **React 19** (App Router, Server Actions, route grou
 
 ## 2. Verification — no claim without a real exit code
 
-Never claim build/typecheck/lint/migration/deploy is "clean", "passing", or "ready" without running the command and showing its actual exit code or success line:
+Never claim build/typecheck/lint/migration is "clean", "passing", or "ready" without running the command and showing its actual exit code or success line:
 
 - **Typecheck:** `pnpm typecheck` must exit `0`.
 - **Lint:** `pnpm lint` must exit `0`.
 - **Build:** `pnpm build` must complete with no error.
 - **Migration applied:** `supabase migration list` shows the new file under the **Remote** column.
 - **Types regenerated:** `git diff src/lib/database.types.ts --stat` shows the change.
-- **Deploy:** check Vercel — don't claim "deploy succeeded" from a `git push` alone.
+
+Deploys are handled by Vercel auto-deploying `main` — a successful `git push` to `main` is the deploy. No separate Vercel-confirmation gate is required before reporting the change shipped.
 
 "Mostly works" = "doesn't work yet." If you didn't run the command this turn, say so explicitly.
 
