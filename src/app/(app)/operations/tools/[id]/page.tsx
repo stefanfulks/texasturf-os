@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +47,7 @@ function fmtDate(iso: string): string {
 export default async function ToolPurchaseDetailPage({ params }: { params: Params }) {
   const { id } = await params;
 
-  const sb = supabaseAdmin();
+  const sb = await createClient();
   const { data, error } = await sb
     .from("warehouse_tool_purchases")
     .select(
