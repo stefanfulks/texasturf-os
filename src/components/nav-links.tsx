@@ -64,8 +64,9 @@ const DEPT_TABS: Partial<Record<Department, NavTab[]>> = {
   ],
   sales: [
     { href: "/dashboard", label: "Home",     prefixes: ["/dashboard", "/"] },
-    { href: "/pricing",   label: "Pricing",  prefixes: ["/pricing", "/sales"] },
+    { href: "/pricing",   label: "Pricing",  prefixes: ["/pricing"] },
     { href: "/clients",   label: "Clients",  prefixes: ["/clients"] },
+    { href: "/sales",     label: "Sales",    prefixes: ["/sales"] },
     { href: "/jobs",      label: "Jobs",     prefixes: ["/jobs"] },
     { href: "/tasks",     label: "Tasks",    prefixes: ["/tasks"] },
     { href: "/calendar",  label: "Calendar", prefixes: ["/calendar"] },

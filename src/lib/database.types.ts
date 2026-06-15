@@ -336,6 +336,128 @@ export type Database = {
           },
         ]
       }
+      deal_activities: {
+        Row: {
+          body: string | null
+          created_by: string | null
+          deal_id: string
+          direction: string | null
+          id: string
+          kind: string
+          metadata: Json
+          occurred_at: string
+        }
+        Insert: {
+          body?: string | null
+          created_by?: string | null
+          deal_id: string
+          direction?: string | null
+          id?: string
+          kind: string
+          metadata?: Json
+          occurred_at?: string
+        }
+        Update: {
+          body?: string | null
+          created_by?: string | null
+          deal_id?: string
+          direction?: string | null
+          id?: string
+          kind?: string
+          metadata?: Json
+          occurred_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_activities_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deals: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          expected_close_date: string | null
+          id: string
+          jobber_client_id: string | null
+          lost_reason: string | null
+          name: string
+          next_step: string | null
+          next_step_date: string | null
+          notes: string | null
+          owner_id: string | null
+          sales_contact_id: string | null
+          service_line: string | null
+          sqft: number | null
+          stage: string
+          stage_entered_at: string
+          stage_tasks: Json
+          updated_at: string
+          value_usd: number | null
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          expected_close_date?: string | null
+          id?: string
+          jobber_client_id?: string | null
+          lost_reason?: string | null
+          name: string
+          next_step?: string | null
+          next_step_date?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          sales_contact_id?: string | null
+          service_line?: string | null
+          sqft?: number | null
+          stage?: string
+          stage_entered_at?: string
+          stage_tasks?: Json
+          updated_at?: string
+          value_usd?: number | null
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          expected_close_date?: string | null
+          id?: string
+          jobber_client_id?: string | null
+          lost_reason?: string | null
+          name?: string
+          next_step?: string | null
+          next_step_date?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          sales_contact_id?: string | null
+          service_line?: string | null
+          sqft?: number | null
+          stage?: string
+          stage_entered_at?: string
+          stage_tasks?: Json
+          updated_at?: string
+          value_usd?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_jobber_client_id_fkey"
+            columns: ["jobber_client_id"]
+            isOneToOne: false
+            referencedRelation: "jobber_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_sales_contact_id_fkey"
+            columns: ["sales_contact_id"]
+            isOneToOne: false
+            referencedRelation: "sales_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           created_at: string
@@ -2383,6 +2505,62 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_contacts: {
+        Row: {
+          city: string | null
+          company: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          jobber_client_id: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          segment: string | null
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          jobber_client_id?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          segment?: string | null
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          jobber_client_id?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          segment?: string | null
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_contacts_jobber_client_id_fkey"
+            columns: ["jobber_client_id"]
+            isOneToOne: false
+            referencedRelation: "jobber_clients"
             referencedColumns: ["id"]
           },
         ]

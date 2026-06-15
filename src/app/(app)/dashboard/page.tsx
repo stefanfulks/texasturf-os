@@ -5,6 +5,13 @@ import { Calendar, ListTodo, AlertTriangle, BarChart3, ChevronDown } from "lucid
 import { createClient } from "@/lib/supabase/server";
 import { getMyTaskIds, NO_TASK_UUID } from "@/lib/tasks/scope";
 import { upcomingOccurrence } from "@/lib/meetings/cadence";
+import { getAllDeals, getLastActivityMap } from "@/lib/sales/queries";
+import { openPipelineValue, weightedPipeline, winRate, closingThisMonth } from "@/lib/sales/rollups";
+import { assessDeal } from "@/lib/sales/risk";
+import { today as salesToday } from "@/lib/sales/dates";
+import { usd } from "@/lib/sales/format";
+import { STAGE_LABELS } from "@/lib/sales/labels";
+import type { DealActivity, Health } from "@/lib/sales/types";
 import { PickDepartmentPrompt } from "./pick-department";
 import { DashboardQuickSearch } from "./quick-search";
 import {
@@ -99,6 +106,11 @@ export default async function DashboardPage({
 
   // Department-specific "what's hot" stats — for the primary department.
   const deptStats = await loadDepartmentStats(supabase, primaryDepartment);
+
+  // Pipeline strip — sales rollups + the deals most at risk. Sales tables may
+  // not exist yet (migration gated), in which case the queries return [] and
+  // this renders zeros / an empty list rather than throwing.
+  const pipeline = await loadPipelineStrip();
 
   // Tile ordering — user's departments first (in the order they picked
   // them), then the rest in canonical order.
@@ -226,6 +238,41 @@ export default async function DashboardPage({
           </div>
         </section>
       )}
+
+      {/* Pipeline strip — KPI tiles + deals needing attention */}
+      <section className="reveal panel" style={{ animationDelay: "210ms" }}>
+        <div className="panel-head">
+          <h2 className="text-sm font-semibold text-ink">Pipeline</h2>
+          <Link href="/sales" className="text-xs font-medium text-ink-3 hover:text-brand transition-colors">
+            Open Sales →
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
+          <PipelineTile label="Open pipeline"   value={usd(pipeline.open)} />
+          <PipelineTile label="Weighted"        value={usd(pipeline.weighted)} />
+          <PipelineTile label="Win rate (90d)"  value={`${Math.round(pipeline.winRate * 100)}%`} />
+          <PipelineTile label="Closing this mo." value={usd(pipeline.closing)} tone="brand" />
+        </div>
+        {pipeline.attention.length > 0 && (
+          <ul className="divide-y divide-line border-t border-line">
+            {pipeline.attention.map((d) => (
+              <li key={d.id}>
+                <Link
+                  href={`/sales/deals/${d.id}`}
+                  className="row-link flex items-center gap-3 px-5 py-3"
+                >
+                  <span className={`h-2 w-2 rounded-full flex-shrink-0 ${d.health === "red" ? "bg-danger" : "bg-warn"}`} />
+                  <span className="flex-1 min-w-0 truncate text-sm text-ink">{d.name}</span>
+                  <span className="hidden sm:block flex-shrink-0 truncate text-xs text-ink-4 max-w-[40%]">
+                    {d.reason}
+                  </span>
+                  <span className="flex-shrink-0 text-xs tabular-nums text-ink-3">{d.value}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {/* My tasks */}
       <section className="reveal panel" style={{ animationDelay: "240ms" }}>
@@ -480,7 +527,88 @@ async function loadDepartmentStats(
   }
 }
 
+// ─── Pipeline strip data ──────────────────────────────────────────────────────
+
+type AttentionDeal = { id: string; name: string; value: string; reason: string; health: Health };
+
+async function loadPipelineStrip(): Promise<{
+  open: number;
+  weighted: number;
+  winRate: number;
+  closing: number;
+  attention: AttentionDeal[];
+}> {
+  // getAllDeals() is RLS-scoped via the sales query layer; returns [] if the
+  // sales tables don't exist yet, so the whole strip degrades to zeros.
+  const deals = await getAllDeals();
+  const now = salesToday();
+
+  // Last-activity timestamp per deal so assessDeal's "gone quiet" rule reads a
+  // real last touch. Passing [] would flag every deal as "No activity logged";
+  // we synthesize one stand-in activity carrying the true occurred_at instead.
+  const lastActivity = await getLastActivityMap(deals.map((d) => d.id));
+
+  const attention = deals
+    .filter((d) => d.stage !== "closed_won" && d.stage !== "closed_lost")
+    .map((deal) => {
+      const lastAt = lastActivity[deal.id];
+      const activities: DealActivity[] = lastAt
+        ? [{
+            id: `last-${deal.id}`,
+            deal_id: deal.id,
+            kind: "note",
+            body: null,
+            direction: null,
+            metadata: {},
+            occurred_at: lastAt,
+            created_by: null,
+          }]
+        : [];
+      const { flags, health } = assessDeal(deal, activities, now);
+      return { deal, flags, health };
+    })
+    .filter((d) => d.health !== "green")
+    .sort((a, b) =>
+      a.health === b.health
+        ? (b.deal.value_usd ?? 0) - (a.deal.value_usd ?? 0)
+        : a.health === "red" ? -1 : 1,
+    )
+    .slice(0, 5)
+    .map(({ deal, flags, health }) => ({
+      id:     deal.id,
+      name:   deal.name,
+      value:  usd(deal.value_usd),
+      reason: flags[0]?.label ?? STAGE_LABELS[deal.stage],
+      health,
+    }));
+
+  return {
+    open:     openPipelineValue(deals),
+    weighted: weightedPipeline(deals),
+    winRate:  winRate(deals, 90, now),
+    closing:  closingThisMonth(deals, now),
+    attention,
+  };
+}
+
 // ─── Small presentational components ──────────────────────────────────────────
+
+function PipelineTile({
+  label, value, tone = "ink",
+}: {
+  label: string;
+  value: string;
+  tone?: "ink" | "brand";
+}) {
+  return (
+    <div className="bg-surface px-4 py-3.5">
+      <p className="eyebrow">{label}</p>
+      <p className={`mt-1.5 display text-2xl tabular-nums ${tone === "brand" ? "text-brand" : "text-ink"}`}>
+        {value}
+      </p>
+    </div>
+  );
+}
 
 function StatTile({
   label, value, tone, icon, href,

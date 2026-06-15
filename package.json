@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "typegen": "supabase gen types typescript --project-id ybedvthhofoutbqgwnvm > src/lib/database.types.ts",
     "import:inventory": "node scripts/import-inventory.mjs",
-    "import:inventory:dry": "node scripts/import-inventory.mjs --dry-run"
+    "import:inventory:dry": "node scripts/import-inventory.mjs --dry-run",
+    "test": "vitest run"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
@@ -37,7 +38,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.8"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

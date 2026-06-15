@@ -24,6 +24,18 @@ import {
   type ProposeResult,
 } from "@/lib/assistant/drafts";
 import { lookupUserByEmail, openDM } from "@/lib/integrations/slack";
+import { getAllDeals, getOpenDeals, getLastActivityMap } from "@/lib/sales/queries";
+import {
+  openPipelineValue,
+  weightedPipeline,
+  winRate,
+  closingThisMonth,
+} from "@/lib/sales/rollups";
+import { assessDeal } from "@/lib/sales/risk";
+import { today } from "@/lib/sales/dates";
+import { usd } from "@/lib/sales/format";
+import { STAGE_LABELS } from "@/lib/sales/labels";
+import type { DealActivity, Stage } from "@/lib/sales/types";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
@@ -175,6 +187,30 @@ export const TOOL_DEFS: Anthropic.Tool[] = [
     input_schema: { type: "object", properties: {} },
   },
   {
+    name: "pipeline_summary",
+    description:
+      "Sales pipeline rollups: open pipeline value, weighted (probability-adjusted) value, win rate over the last 90 days, and value expected to close this month. Use for 'how's the pipeline?', 'what's our forecast?', 'how much is closing this month?'. Takes no arguments.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
+    name: "deals_needing_attention",
+    description:
+      "Open sales deals carrying risk flags — stalling in a stage, no next step set, expected close date passed, or gone quiet (no recent activity) — with the reason for each. Use for 'what's slipping?', 'which deals need attention?', 'what's at risk?'. Returns up to 15 amber/red deals. Takes no arguments.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
+    name: "search_deals",
+    description:
+      "Search open sales deals by name/account (case-insensitive), optionally filtered by stage. Use for 'do we have a deal with the Hendersons?', 'what's in negotiation?', 'show me quote_sent deals'. Returns up to 20 with name, stage, value, and next step.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Free-text match against deal name/account." },
+        stage: { type: "string", enum: ["lead","qualified","site_visit","quote_sent","negotiation","closed_won","closed_lost"], description: "Optional stage filter. Omit to search all open deals." },
+      },
+    },
+  },
+  {
     // Write tool — name starts with `propose_` so the route layer routes the
     // result through the confirm-card flow instead of feeding it straight
     // back to the model as a normal tool_result. Nothing is written to the
@@ -304,6 +340,9 @@ async function dispatch(name: string, input: ToolInput, supabase: Supabase, user
     case "search_meetings":            return searchMeetings(input, supabase);
     case "get_today_schedule":         return getTodaySchedule(supabase, userId);
     case "get_fleet_availability":     return getFleetAvailability(supabase);
+    case "pipeline_summary":           return pipelineSummary();
+    case "deals_needing_attention":    return dealsNeedingAttention();
+    case "search_deals":               return searchDeals(input);
     case "get_dashboard_stats":        return getDashboardStats(supabase, userId);
     case "get_inventory_stats":        return getInventoryStats(supabase);
     case "search_notion_sops":         return searchNotionSops(input);
@@ -725,6 +764,111 @@ async function getFleetAvailability(supabase: Supabase) {
   });
 
   return { now: nowIso, count: assets.length, assets };
+}
+
+// ─── Sales pipeline (read-only; RLS via the sales query layer) ───────────────
+
+/**
+ * Pipeline rollups for Turfy: open value, weighted value, win rate (90d), and
+ * value closing this month. Money is pre-formatted with usd() so the model
+ * doesn't have to; raw numbers ride alongside for any follow-up math.
+ */
+async function pipelineSummary() {
+  const deals = await getAllDeals();
+  const now = today();
+  const open = openPipelineValue(deals);
+  const weighted = weightedPipeline(deals);
+  const closing = closingThisMonth(deals, now);
+  const rate = winRate(deals, 90, now);
+  return {
+    open_pipeline:      usd(open),
+    weighted_pipeline:  usd(weighted),
+    win_rate_90d:       `${Math.round(rate * 100)}%`,
+    closing_this_month: usd(closing),
+    open_deal_count:    deals.filter((d) => d.stage !== "closed_won" && d.stage !== "closed_lost").length,
+  };
+}
+
+/**
+ * Open deals carrying risk flags. To assess "gone quiet" accurately we fetch a
+ * last-activity timestamp per deal (getLastActivityMap) and synthesize a single
+ * activity carrying that occurred_at — passing [] would make assessDeal report
+ * "No activity logged" for every deal, since it can't tell a quiet deal from
+ * one whose activity simply wasn't loaded. Returns amber/red deals only.
+ */
+async function dealsNeedingAttention() {
+  const deals = await getOpenDeals();
+  const now = today();
+  const lastActivity = await getLastActivityMap(deals.map((d) => d.id));
+
+  const flagged = deals
+    .map((deal) => {
+      const lastAt = lastActivity[deal.id];
+      // Synthesize one stand-in activity per deal so assessDeal's gone-quiet
+      // rule reads a real last-touch date. Deals with no logged activity get
+      // an empty list → correctly flagged "No activity logged".
+      const activities: DealActivity[] = lastAt
+        ? [{
+            id: `last-${deal.id}`,
+            deal_id: deal.id,
+            kind: "note",
+            body: null,
+            direction: null,
+            metadata: {},
+            occurred_at: lastAt,
+            created_by: null,
+          }]
+        : [];
+      const { flags, health } = assessDeal(deal, activities, now);
+      return { deal, flags, health };
+    })
+    .filter((d) => d.health !== "green")
+    // Red (2+ flags) before amber, then by deal value.
+    .sort((a, b) =>
+      a.health === b.health
+        ? (b.deal.value_usd ?? 0) - (a.deal.value_usd ?? 0)
+        : a.health === "red" ? -1 : 1,
+    )
+    .slice(0, 15);
+
+  return {
+    count: flagged.length,
+    deals: flagged.map(({ deal, flags, health }) => ({
+      id:     deal.id,
+      name:   deal.name,
+      stage:  STAGE_LABELS[deal.stage],
+      value:  usd(deal.value_usd),
+      health,
+      flags:  flags.map((f) => f.label),
+    })),
+  };
+}
+
+/**
+ * Search open deals by name (case-insensitive contains), optionally filtered by
+ * stage. Filtering is done in JS over the open-deals set so the tool stays a
+ * single query and respects the same RLS path as the rest of the sales reads.
+ */
+async function searchDeals(input: ToolInput) {
+  const deals = await getOpenDeals();
+  const query = typeof input.query === "string" ? input.query.trim().toLowerCase() : "";
+  const stage = typeof input.stage === "string" ? (input.stage as Stage) : null;
+
+  const matches = deals
+    .filter((d) => (stage ? d.stage === stage : true))
+    .filter((d) => (query ? d.name.toLowerCase().includes(query) : true))
+    .slice(0, 20);
+
+  return {
+    count: matches.length,
+    deals: matches.map((d) => ({
+      id:        d.id,
+      name:      d.name,
+      stage:     STAGE_LABELS[d.stage],
+      value:     usd(d.value_usd),
+      next_step: d.next_step,
+    })),
+  };
 }
 
 // ─── Write tools (propose_* — return drafts, never mutate) ──────────────────
