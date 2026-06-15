@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Bug, Lightbulb, HelpCircle, MoreHorizontal } from "lucide-react";
 import { submitFeedback, type SubmitFeedbackState } from "./actions";
+import { FeedbackImageDropzone } from "@/components/feedback-image-dropzone";
 
 const initial: SubmitFeedbackState = { error: null, success: false };
 
@@ -13,9 +14,10 @@ const CATEGORIES = [
   { value: "other",           label: "Other",           icon: MoreHorizontal,  color: "bg-hover text-ink-2 border-line" },
 ] as const;
 
-export function FeedbackForm() {
+export function FeedbackForm({ userId }: { userId: string }) {
   const [state, formAction, isPending] = useActionState(submitFeedback, initial);
   const [category, setCategory] = useState<typeof CATEGORIES[number]["value"]>("bug");
+  const [attachmentsUploading, setAttachmentsUploading] = useState(false);
 
   // Page URL the user was on before clicking Feedback (helps triage)
   const pageUrl = typeof window !== "undefined" ? document.referrer || window.location.href : "";
@@ -101,6 +103,8 @@ export function FeedbackForm() {
         />
       </div>
 
+      <FeedbackImageDropzone userId={userId} onUploadingChange={setAttachmentsUploading} />
+
       {state.error && (
         <p className="text-xs text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">
           {state.error}
@@ -110,10 +114,10 @@ export function FeedbackForm() {
       <div className="flex justify-end">
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || attachmentsUploading}
           className="px-4 py-2 text-sm font-semibold bg-brand text-white rounded-lg hover:bg-brand-strong disabled:opacity-50"
         >
-          {isPending ? "Sending…" : "Send feedback"}
+          {attachmentsUploading ? "Uploading…" : isPending ? "Sending…" : "Send feedback"}
         </button>
       </div>
     </form>

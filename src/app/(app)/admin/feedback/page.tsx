@@ -2,6 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
+import { signFeedbackPaths } from "@/lib/feedback-images";
+import type { FeedbackAttachment } from "@/lib/db-helpers.types";
+import type { LightboxImage } from "@/components/image-lightbox";
 import { TriageRow } from "./triage-row";
 
 export const metadata = { title: "Feedback Triage · TexasTurf OS" };
@@ -12,11 +15,12 @@ export default async function AdminFeedbackPage() {
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin") redirect("/dashboard");
+  if ((profile as { role?: string } | null)?.role !== "admin") redirect("/dashboard");
 
   const { data: feedbackRaw } = await supabase
     .from("app_feedback")
     .select("*, user:user_id(id, full_name, email)")
+    .is("deleted_at", null)
     .order("created_at", { ascending: false })
     .limit(200);
 
@@ -28,10 +32,28 @@ export default async function AdminFeedbackPage() {
     status: string;
     admin_notes: string | null;
     page_url: string | null;
+    attachments: FeedbackAttachment[] | null;
     resolved_at: string | null;
     created_at: string;
     user: { id: string; full_name: string | null; email: string } | null;
   }>;
+
+  // Sign every screenshot path in one storage round-trip, keyed by feedback id.
+  const signed = await signFeedbackPaths(
+    supabase,
+    feedback.flatMap((f) => (f.attachments ?? []).map((a) => a.path)),
+  );
+  const imagesById = new Map<string, LightboxImage[]>(
+    feedback.map((f) => [
+      f.id,
+      (f.attachments ?? [])
+        .map((a): LightboxImage | null => {
+          const url = signed.get(a.path);
+          return url ? { url, name: a.name } : null;
+        })
+        .filter((x): x is LightboxImage => x !== null),
+    ]),
+  );
 
   const open  = feedback.filter((f) => f.status === "new" || f.status === "in_progress");
   const done  = feedback.filter((f) => f.status === "resolved" || f.status === "wont_fix");
@@ -43,9 +65,9 @@ export default async function AdminFeedbackPage() {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Feedback</h1>
             <p className="mt-0.5 text-sm text-ink-3">
-              Bugs, feature requests, and questions from the team. Triage
-              by setting a status and (optionally) replying with admin
-              notes — submitters see your reply on their feedback page.
+              Bugs, feature requests, and questions from the team. Mark items
+              complete, reply with admin notes, or delete — submitters see your
+              reply on their feedback page.
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -73,7 +95,7 @@ export default async function AdminFeedbackPage() {
           </div>
         ) : (
           <ul className="space-y-3">
-            {open.map((f) => <TriageRow key={f.id} item={f} />)}
+            {open.map((f) => <TriageRow key={f.id} item={f} images={imagesById.get(f.id) ?? []} />)}
           </ul>
         )}
       </section>
@@ -82,7 +104,7 @@ export default async function AdminFeedbackPage() {
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-3">Closed</h2>
           <ul className="space-y-3">
-            {done.map((f) => <TriageRow key={f.id} item={f} />)}
+            {done.map((f) => <TriageRow key={f.id} item={f} images={imagesById.get(f.id) ?? []} />)}
           </ul>
         </section>
       )}

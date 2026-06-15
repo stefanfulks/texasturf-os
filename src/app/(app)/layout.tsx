@@ -43,6 +43,18 @@ export default async function AppLayout({
     .select("id", { count: "exact", head: true })
     .eq("read", false);
 
+  // Open feedback awaiting triage — drives the count badge on the admin
+  // Feedback nav tab. Only admins triage, so only they need the number.
+  let feedbackOpen = 0;
+  if (isAdmin) {
+    const { count } = await supabase
+      .from("app_feedback")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["new", "in_progress"])
+      .is("deleted_at", null);
+    feedbackOpen = count ?? 0;
+  }
+
   // First name (or email handle) for Turfy's empty-state greeting. Matches
   // the derivation used by /assistant/page.tsx.
   const greetingName =
@@ -71,7 +83,7 @@ export default async function AppLayout({
               isAdmin={isAdmin}
             />
             <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
-            <NavLinks isAdmin={isAdmin} department={primaryDepartment} />
+            <NavLinks isAdmin={isAdmin} department={primaryDepartment} feedbackCount={feedbackOpen} />
           </div>
 
           {/* RIGHT — notifications + settings gear */}

@@ -21,7 +21,7 @@ import type { Department } from "@/lib/departments";
  * The (app) layout fetches role + departments server-side and passes
  * `isAdmin` / `department` here.
  */
-type NavTab = { href: string; label: string; prefixes?: string[] };
+type NavTab = { href: string; label: string; prefixes?: string[]; badge?: number };
 
 const PERSONAL_TABS_BASE: NavTab[] = [
   { href: "/dashboard",          label: "Home",      prefixes: ["/dashboard", "/"] },
@@ -64,12 +64,12 @@ const DEPT_TABS: Partial<Record<Department, NavTab[]>> = {
   ],
   sales: [
     { href: "/dashboard", label: "Home",     prefixes: ["/dashboard", "/"] },
+    { href: "/pitch",     label: "Pitch",    prefixes: ["/pitch", "/present"] },
     { href: "/pricing",   label: "Pricing",  prefixes: ["/pricing"] },
     { href: "/clients",   label: "Clients",  prefixes: ["/clients"] },
     { href: "/sales",     label: "Sales",    prefixes: ["/sales"] },
     { href: "/jobs",      label: "Jobs",     prefixes: ["/jobs"] },
     { href: "/tasks",     label: "Tasks",    prefixes: ["/tasks"] },
-    { href: "/calendar",  label: "Calendar", prefixes: ["/calendar"] },
     { href: "/assistant", label: "Turfy",    prefixes: ["/assistant"] },
   ],
   financial: [
@@ -110,9 +110,11 @@ function isActive(pathname: string, tab: NavTab): boolean {
 export function NavLinks({
   isAdmin = false,
   department = null,
+  feedbackCount = 0,
 }: {
   isAdmin?: boolean;
   department?: Department | null;
+  feedbackCount?: number;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -122,6 +124,7 @@ export function NavLinks({
     href:     isAdmin ? "/admin/feedback" : "/feedback",
     label:    "Feedback",
     prefixes: FEEDBACK_PREFIXES,
+    badge:    feedbackCount > 0 ? feedbackCount : undefined,
   };
   // Department-ordered base (daily pages first), falling back to the
   // generalist set. Every base ends with Turfy — slot Feedback just before
@@ -162,6 +165,11 @@ export function NavLinks({
               }
             >
               {tab.label}
+              {tab.badge ? (
+                <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 align-middle text-[10px] font-bold leading-none text-white">
+                  {tab.badge > 9 ? "9+" : tab.badge}
+                </span>
+              ) : null}
             </Link>
           );
         })}
@@ -188,13 +196,18 @@ export function NavLinks({
                   key={tab.href}
                   href={tab.href}
                   className={
-                    "block px-4 py-2.5 text-sm transition-colors " +
+                    "flex items-center justify-between px-4 py-2.5 text-sm transition-colors " +
                     (active
                       ? "font-semibold text-ink bg-sunken"
                       : "text-ink-2 hover:bg-hover")
                   }
                 >
-                  {tab.label}
+                  <span>{tab.label}</span>
+                  {tab.badge ? (
+                    <span className="ml-2 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold leading-none text-white">
+                      {tab.badge > 9 ? "9+" : tab.badge}
+                    </span>
+                  ) : null}
                 </Link>
               );
             })}

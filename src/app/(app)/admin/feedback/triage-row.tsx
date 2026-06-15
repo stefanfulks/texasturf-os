@@ -2,7 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { format, parseISO } from "date-fns";
-import { triageFeedback, type TriageFeedbackState } from "../../feedback/actions";
+import {
+  triageFeedback,
+  markFeedbackComplete,
+  deleteFeedback,
+  type TriageFeedbackState,
+} from "../../feedback/actions";
+import { ImageLightbox, type LightboxImage } from "@/components/image-lightbox";
 
 const initial: TriageFeedbackState = { error: null, success: false };
 
@@ -34,6 +40,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export function TriageRow({
   item,
+  images = [],
 }: {
   item: {
     id: string;
@@ -47,15 +54,22 @@ export function TriageRow({
     created_at: string;
     user: { id: string; full_name: string | null; email: string } | null;
   };
+  images?: LightboxImage[];
 }) {
   const [editing, setEditing] = useState(false);
   const [status, setStatus] = useState(item.status);
   const [adminNotes, setAdminNotes] = useState(item.admin_notes ?? "");
   const [state, formAction, isPending] = useActionState(triageFeedback, initial);
 
+  // Quick one-click admin actions (separate from the full triage form).
+  const [completeState, completeAction, completePending] = useActionState(markFeedbackComplete, initial);
+  const [deleteState, deleteAction, deletePending] = useActionState(deleteFeedback, initial);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
   if (state.success && editing) setEditing(false);
 
   const submitter = item.user?.full_name ?? item.user?.email ?? "Unknown";
+  const isOpen = item.status === "new" || item.status === "in_progress";
 
   return (
     <li className="rounded-xl border border-line bg-white overflow-hidden">
@@ -89,6 +103,8 @@ export function TriageRow({
           <p className="text-sm text-ink-2 whitespace-pre-wrap">{item.body}</p>
         )}
 
+        {images.length > 0 && <ImageLightbox images={images} size="sm" />}
+
         {item.admin_notes && !editing && (
           <div className="rounded-md bg-brand-tint border border-brand/30 px-3 py-2 text-xs text-brand">
             <p className="font-medium mb-0.5">Admin reply</p>
@@ -99,11 +115,50 @@ export function TriageRow({
 
       <div className="border-t border-line bg-hover/50 px-5 py-3">
         {!editing ? (
-          <div className="flex justify-end">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {(completeState.error || deleteState.error) && (
+              <span className="mr-auto text-xs text-danger">{completeState.error || deleteState.error}</span>
+            )}
+
+            {isOpen && (
+              <form action={completeAction}>
+                <input type="hidden" name="id" value={item.id} />
+                <button
+                  type="submit"
+                  disabled={completePending}
+                  className="inline-flex items-center gap-1 rounded-md border border-brand/30 bg-brand-tint px-2.5 py-1 text-xs font-medium text-brand transition-colors hover:bg-brand/10 disabled:opacity-50"
+                >
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  {completePending ? "Saving…" : "Mark complete"}
+                </button>
+              </form>
+            )}
+
+            {!confirmingDelete ? (
+              <button
+                type="button"
+                onClick={() => setConfirmingDelete(true)}
+                className="rounded-md border border-line bg-white px-2.5 py-1 text-xs font-medium text-ink-3 transition-colors hover:border-danger/40 hover:text-danger"
+              >
+                Delete
+              </button>
+            ) : (
+              <form action={deleteAction} className="inline-flex items-center gap-1.5">
+                <input type="hidden" name="id" value={item.id} />
+                <span className="text-xs text-ink-3">Delete?</span>
+                <button type="submit" disabled={deletePending} className="text-xs font-semibold text-danger hover:underline disabled:opacity-50">
+                  {deletePending ? "…" : "Yes"}
+                </button>
+                <button type="button" onClick={() => setConfirmingDelete(false)} className="text-xs text-ink-4 hover:text-ink-2">
+                  No
+                </button>
+              </form>
+            )}
+
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="px-2.5 py-1 text-xs font-medium border border-line rounded-md text-ink-2 hover:border-line-strong transition-colors bg-white"
+              className="rounded-md border border-line bg-white px-2.5 py-1 text-xs font-medium text-ink-2 transition-colors hover:border-line-strong"
             >
               Triage
             </button>

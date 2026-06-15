@@ -17,9 +17,12 @@ export type Database = {
       app_feedback: {
         Row: {
           admin_notes: string | null
+          attachments: Json
           body: string | null
           category: Database["public"]["Enums"]["feedback_category"]
           created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
           id: string
           page_url: string | null
           resolved_at: string | null
@@ -31,9 +34,12 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          attachments?: Json
           body?: string | null
           category?: Database["public"]["Enums"]["feedback_category"]
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           id?: string
           page_url?: string | null
           resolved_at?: string | null
@@ -45,9 +51,12 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          attachments?: Json
           body?: string | null
           category?: Database["public"]["Enums"]["feedback_category"]
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           id?: string
           page_url?: string | null
           resolved_at?: string | null
@@ -58,6 +67,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "app_feedback_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "app_feedback_resolved_by_fkey"
             columns: ["resolved_by"]
@@ -748,6 +764,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          pricing_key: string | null
           sku: string | null
           width_ft: number | null
         }
@@ -757,6 +774,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          pricing_key?: string | null
           sku?: string | null
           width_ft?: number | null
         }
@@ -766,6 +784,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          pricing_key?: string | null
           sku?: string | null
           width_ft?: number | null
         }
@@ -2007,6 +2026,134 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pitch_sessions: {
+        Row: {
+          address: string | null
+          base_job: Json
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          deal_id: string | null
+          decided_at: string | null
+          id: string
+          presented_at: string | null
+          prospect_name: string | null
+          quote_snapshot: Json
+          selected_tier: string | null
+          status: string
+          tier_snapshot: Json
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          base_job: Json
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deal_id?: string | null
+          decided_at?: string | null
+          id?: string
+          presented_at?: string | null
+          prospect_name?: string | null
+          quote_snapshot?: Json
+          selected_tier?: string | null
+          status?: string
+          tier_snapshot?: Json
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          base_job?: Json
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deal_id?: string | null
+          decided_at?: string | null
+          id?: string
+          presented_at?: string | null
+          prospect_name?: string | null
+          quote_snapshot?: Json
+          selected_tier?: string | null
+          status?: string
+          tier_snapshot?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pitch_sessions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "jobber_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pitch_sessions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pitch_tiers: {
+        Row: {
+          id: string
+          inclusions: Json
+          infill_mode: string
+          inv_product_id: string | null
+          is_active: boolean
+          key: string
+          name: string
+          pricing_key: string
+          product_label: string
+          sort: number
+          target_margin: number
+          updated_at: string
+          updated_by: string | null
+          warranty: Json
+        }
+        Insert: {
+          id?: string
+          inclusions?: Json
+          infill_mode?: string
+          inv_product_id?: string | null
+          is_active?: boolean
+          key: string
+          name: string
+          pricing_key: string
+          product_label: string
+          sort?: number
+          target_margin?: number
+          updated_at?: string
+          updated_by?: string | null
+          warranty?: Json
+        }
+        Update: {
+          id?: string
+          inclusions?: Json
+          infill_mode?: string
+          inv_product_id?: string | null
+          is_active?: boolean
+          key?: string
+          name?: string
+          pricing_key?: string
+          product_label?: string
+          sort?: number
+          target_margin?: number
+          updated_at?: string
+          updated_by?: string | null
+          warranty?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pitch_tiers_inv_product_id_fkey"
+            columns: ["inv_product_id"]
+            isOneToOne: false
+            referencedRelation: "inv_products"
             referencedColumns: ["id"]
           },
         ]

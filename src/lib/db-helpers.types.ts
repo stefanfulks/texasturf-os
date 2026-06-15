@@ -94,3 +94,20 @@ export type InvSetting = Database["public"]["Tables"]["inv_settings"]["Row"]
 export type InvSettingInsert = Database["public"]["Tables"]["inv_settings"]["Insert"]
 export type RollStatus = Database["public"]["Enums"]["roll_status"]
 export type RollType = Database["public"]["Enums"]["roll_type"]
+
+// Pitch (in-app sales deck) types
+export type PitchTier = Database["public"]["Tables"]["pitch_tiers"]["Row"]
+export type PitchSession = Database["public"]["Tables"]["pitch_sessions"]["Row"]
+
+// App feedback (bugs / ideas / questions about the app itself)
+export type AppFeedback = Database["public"]["Tables"]["app_feedback"]["Row"]
+export type AppFeedbackInsert = Database["public"]["Tables"]["app_feedback"]["Insert"]
+
+// Shape of each entry in app_feedback.attachments — a small JSON manifest of
+// screenshots uploaded to the private `feedback` storage bucket.
+export type FeedbackAttachment = {
+  path: string  // object path within the `feedback` bucket
+  name: string  // original filename (shown in the lightbox)
+  type: string  // mime type
+  size: number  // bytes
+}
