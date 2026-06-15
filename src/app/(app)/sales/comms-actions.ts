@@ -40,12 +40,33 @@ async function currentUserId(): Promise<string | null> {
 }
 
 /**
+ * The number Twilio bridges the call through: the signed-in rep's own mobile
+ * (profiles.mobile, set on Settings → Account), falling back to the shared env
+ * number when the rep hasn't set one.
+ */
+async function currentRepNumber(): Promise<string> {
+  const envFallback = process.env.TWILIO_FALLBACK_REP_NUMBER ?? "";
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return envFallback;
+  const { data } = await supabase
+    .from("profiles")
+    .select("mobile")
+    .eq("id", user.id)
+    .maybeSingle();
+  const mobile = (data as { mobile: string | null } | null)?.mobile?.trim();
+  return mobile || envFallback;
+}
+
+/**
  * Start a bridge-style call: Twilio rings the rep's phone first, then on answer
  * dials the lead and bridges them, so the lead sees the TexasTurf caller ID.
  *
- * The rep number comes from env `TWILIO_FALLBACK_REP_NUMBER`. Per-rep
- * `profiles.mobile` is a future enhancement (kept out of phase 2a to avoid any
- * prod DDL — see the design spec's simplification note).
+ * The bridge target is the signed-in rep's own mobile (profiles.mobile, set on
+ * Settings → Account), falling back to the shared env `TWILIO_FALLBACK_REP_NUMBER`
+ * when the rep hasn't set one.
  */
 export async function startCall(
   dealId: string,
@@ -57,14 +78,14 @@ export async function startCall(
 
   const client = twilioClient();
   const fromNumber = twilioPhoneNumber();
-  const repNumber = process.env.TWILIO_FALLBACK_REP_NUMBER ?? "";
   if (!client || !fromNumber) {
     return { ok: false, reason: "Twilio isn't set up yet." };
   }
+  const repNumber = await currentRepNumber();
   if (!repNumber) {
     return {
       ok: false,
-      reason: "No rep phone number is configured to bridge the call.",
+      reason: "Add your mobile on Settings → Account so calls can ring your phone.",
     };
   }
 

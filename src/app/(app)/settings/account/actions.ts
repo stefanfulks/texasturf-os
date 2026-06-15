@@ -9,6 +9,7 @@ const DEPARTMENTS = ["sales", "warehouse", "office", "field", "marketing", "fina
 
 const schema = z.object({
   full_name: z.string().min(1, "Name is required").max(120).optional(),
+  mobile: z.string().max(40, "That number looks too long").optional(),
 });
 
 export type UpdateAccountState = { error: string | null; success: boolean };
@@ -21,8 +22,10 @@ export async function updateAccount(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const mobileRaw = (formData.get("mobile") as string | null)?.trim() ?? "";
   const parsed = schema.safeParse({
     full_name: (formData.get("full_name") as string | null)?.trim() || undefined,
+    mobile: mobileRaw || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
@@ -32,10 +35,12 @@ export async function updateAccount(
     .getAll("departments")
     .filter((v): v is string => typeof v === "string" && (DEPARTMENTS as readonly string[]).includes(v));
 
-  type UpdatePayload = { full_name?: string; departments?: string[] };
+  type UpdatePayload = { full_name?: string; departments?: string[]; mobile?: string | null };
   const payload: UpdatePayload = {};
   if (parsed.data.full_name) payload.full_name = parsed.data.full_name;
   payload.departments = departments;
+  // Empty input clears the stored mobile.
+  payload.mobile = mobileRaw || null;
 
   // `departments` (array) isn't in the generated profile types yet — cast
   // through unknown so this builds before types are regenerated.

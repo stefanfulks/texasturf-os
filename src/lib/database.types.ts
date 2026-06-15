@@ -2024,6 +2024,7 @@ export type Database = {
           google_refresh_token: string | null
           google_token_expires_at: string | null
           id: string
+          mobile: string | null
           role: Database["public"]["Enums"]["user_role"]
           title: string | null
           updated_at: string
@@ -2040,6 +2041,7 @@ export type Database = {
           google_refresh_token?: string | null
           google_token_expires_at?: string | null
           id: string
+          mobile?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           title?: string | null
           updated_at?: string
@@ -2056,6 +2058,7 @@ export type Database = {
           google_refresh_token?: string | null
           google_token_expires_at?: string | null
           id?: string
+          mobile?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           title?: string | null
           updated_at?: string

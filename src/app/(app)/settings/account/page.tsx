@@ -13,12 +13,13 @@ export default async function AccountSettingsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, email, role, departments")
+    .select("full_name, email, mobile, role, departments")
     .eq("id", user.id)
     .single() as unknown as {
       data: {
         full_name: string | null;
         email: string;
+        mobile: string | null;
         role: string | null;
         departments: string[] | null;
       } | null;
@@ -43,6 +44,7 @@ export default async function AccountSettingsPage() {
       <AccountForm
         fullName={profile?.full_name ?? ""}
         email={profile?.email ?? user.email ?? ""}
+        mobile={profile?.mobile ?? ""}
         role={profile?.role ?? null}
         departments={profile?.departments ?? []}
       />

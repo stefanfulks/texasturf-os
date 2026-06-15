@@ -21,11 +21,13 @@ const DEPARTMENTS = [
 export function AccountForm({
   fullName,
   email,
+  mobile,
   role,
   departments,
 }: {
   fullName: string;
   email: string;
+  mobile: string;
   role: string | null;
   departments: string[];
 }) {
@@ -59,6 +61,16 @@ export function AccountForm({
             />
           </Field>
         </div>
+        <Field label="Mobile" hint="Used for click-to-call from Sales — rings this phone.">
+          <input
+            name="mobile"
+            type="tel"
+            inputMode="tel"
+            defaultValue={mobile}
+            className={fieldCls}
+            placeholder="+1 512 555 0142"
+          />
+        </Field>
         <Field label="Role" hint="Set by an admin in /team.">
           <input
             type="text"
