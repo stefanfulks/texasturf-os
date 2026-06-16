@@ -111,6 +111,7 @@ export async function signInWithGoogle(): Promise<{ url: string } | { error: str
       queryParams: {
         access_type: "offline",
         prompt: "consent",
+        hd: "texasturfusa.com",
       },
     },
   });

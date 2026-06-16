@@ -114,7 +114,7 @@ export function InviteUserForm() {
         )}
         {state.success && state.sentTo && (
           <p className="text-xs text-brand bg-brand-tint border border-brand/30 rounded-lg px-3 py-2">
-            ✓ Invite sent to <strong>{state.sentTo}</strong>. They&apos;ll get a magic-link email.
+            ✓ <strong>{state.sentTo}</strong> added — they sign in with their @texasturfusa.com Google account. No email needed.
           </p>
         )}
 
@@ -131,7 +131,7 @@ export function InviteUserForm() {
             disabled={isPending}
             className="px-4 py-1.5 text-sm font-semibold bg-brand text-white rounded-lg hover:bg-brand-strong disabled:opacity-50"
           >
-            {isPending ? "Sending…" : "Send invite"}
+            {isPending ? "Adding…" : "Add to team"}
           </button>
         </div>
       </form>

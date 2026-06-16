@@ -64,6 +64,11 @@ export async function updateUser(
 }
 
 // ─── Invite a new user ────────────────────────────────────────────────────────
+//
+// Internal team app: everyone has an @texasturfusa.com Google account, so we
+// don't email an invite link. We create the account with a confirmed email and
+// set their role; Supabase auto-links their Google identity on first sign-in
+// (confirmed email = safe to link), landing them on the role assigned here.
 
 export type InviteUserState = { error: string | null; success: boolean; sentTo: string | null };
 
@@ -98,8 +103,6 @@ export async function inviteUser(
     return { error: "Email must be @texasturfusa.com", success: false, sentTo: null };
   }
 
-  // Use the service-role admin API to invite. This creates the auth.users
-  // row (if it doesn't already exist) and sends a magic-link invite email.
   let service;
   try {
     service = createServiceClient();
@@ -113,66 +116,64 @@ export async function inviteUser(
     };
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://os.texasturfusa.com";
-
-  // Detect "already exists" up front so we return a clear message instead
-  // of letting the invite API surface a generic 500.
+  // Already in the system? Just (re)assign their role + departments.
   const { data: existing } = await service.from("profiles")
-    .select("id, email, role")
+    .select("id")
     .eq("email", parsed.data.email)
     .maybeSingle();
   if (existing) {
+    const { error: updErr } = await service.from("profiles").update({
+      role:        parsed.data.role,
+      department:  parsed.data.departments[0] ?? null,
+      departments: parsed.data.departments,
+      ...(parsed.data.full_name ? { full_name: parsed.data.full_name } : {}),
+      updated_at:  new Date().toISOString(),
+    } as never).eq("id", (existing as { id: string }).id);
+    if (updErr) return { error: updErr.message, success: false, sentTo: null };
+    revalidatePath("/team");
+    revalidatePath("/admin/users");
+    return { error: null, success: true, sentTo: parsed.data.email };
+  }
+
+  // New teammate: create a confirmed account (no password). They sign in with
+  // their @texasturfusa.com Google account — no email needed.
+  const { data: created, error: createErr } = await service.auth.admin.createUser({
+    email:         parsed.data.email,
+    email_confirm: true,
+    user_metadata: {
+      full_name:  parsed.data.full_name ?? null,
+      invited_by: auth.user.id,
+    },
+  });
+  if (createErr || !created?.user) {
     return {
-      error: `${parsed.data.email} is already in the system as ${(existing as { role?: string }).role ?? "a user"}. Edit them directly from the table below instead of re-inviting.`,
+      error: createErr?.message ?? "Failed to create the account.",
       success: false,
       sentTo: null,
     };
   }
+  const newUserId = created.user.id;
 
-  const { data: invited, error: inviteErr } = await service.auth.admin.inviteUserByEmail(
-    parsed.data.email,
-    {
-      data: {
-        full_name: parsed.data.full_name ?? null,
-        invited_by: auth.user.id,
-      },
-      redirectTo: `${appUrl}/onboarding/department`,
-    },
-  );
-  if (inviteErr || !invited?.user) {
-    const raw = inviteErr?.message ?? "Failed to send invite";
-    // Make common Supabase errors actionable
-    let friendly = raw;
-    if (/already (registered|been )?(invited|exists)/i.test(raw)) {
-      friendly = `${parsed.data.email} already has an account. Edit them in the table below.`;
-    } else if (/SMTP/i.test(raw) || /email|smtp/i.test(raw)) {
-      friendly = `Supabase couldn't send the invite email — check Project Settings → Auth → SMTP. Original: ${raw}`;
-    } else if (/redirect/i.test(raw)) {
-      friendly = `Redirect URL not allowed. Add ${appUrl}/onboarding/department under Supabase → Auth → URL Configuration → Redirect URLs. Original: ${raw}`;
-    }
-    return { error: friendly, success: false, sentTo: null };
-  }
-
-  // Upsert the profile row with the desired role + departments. The signup
-  // trigger may have created an empty profile already; this fills it in.
+  // Set their role + departments so they land ready on first sign-in.
   const { error: profileErr } = await service.from("profiles").upsert({
-    id:          invited.user.id,
+    id:          newUserId,
     email:       parsed.data.email,
     full_name:   parsed.data.full_name ?? null,
     role:        parsed.data.role,
     department:  parsed.data.departments[0] ?? null,
     departments: parsed.data.departments,
   } as never, { onConflict: "id" });
-
   if (profileErr) {
+    await service.auth.admin.deleteUser(newUserId).catch(() => {});
     return {
-      error: `Invite sent to ${parsed.data.email} but failed to set role/departments: ${profileErr.message}. Edit the row in the table once they've signed in.`,
+      error: `Couldn't set role/departments: ${profileErr.message}. Rolled back — try again.`,
       success: false,
-      sentTo: parsed.data.email,
+      sentTo: null,
     };
   }
 
   revalidatePath("/team");
+  revalidatePath("/admin/users");
   return { error: null, success: true, sentTo: parsed.data.email };
 }
 

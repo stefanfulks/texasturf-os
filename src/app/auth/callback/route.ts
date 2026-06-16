@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { saveGoogleTokens } from "@/lib/google/tokens";
 
 export async function GET(request: NextRequest) {
@@ -19,6 +20,22 @@ export async function GET(request: NextRequest) {
     console.error("[auth/callback] exchangeCodeForSession failed:", error?.message);
     return NextResponse.redirect(
       `${origin}/login?error=${encodeURIComponent(error?.message ?? "no_session")}`,
+    );
+  }
+
+  // Internal app: only @texasturfusa.com Google accounts may sign in. The
+  // OAuth flow itself accepts any Google account, so enforce the workspace
+  // here — sign out + remove the just-created account for anyone else.
+  const userEmail = data.session.user.email?.toLowerCase() ?? "";
+  if (!userEmail.endsWith("@texasturfusa.com")) {
+    await supabase.auth.signOut();
+    try {
+      await createServiceClient().auth.admin.deleteUser(data.session.user.id);
+    } catch (e) {
+      console.error("[auth/callback] failed to remove non-workspace user:", e);
+    }
+    return NextResponse.redirect(
+      `${origin}/login?error=${encodeURIComponent("Only @texasturfusa.com accounts can sign in.")}`,
     );
   }
 

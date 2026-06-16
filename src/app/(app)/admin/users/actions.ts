@@ -1,30 +1,10 @@
 "use server";
 
-import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { DEPARTMENTS } from "@/lib/departments";
-
-/**
- * Best-effort rollback of a half-provisioned invite. If the delete itself
- * fails we now have an orphaned auth.users row with no usable profile — that
- * needs a human, so capture it to Sentry instead of swallowing the error.
- */
-async function rollbackAuthUser(
-  service: ReturnType<typeof createServiceClient>,
-  userId: string,
-  reason: string,
-): Promise<void> {
-  const { error } = await service.auth.admin.deleteUser(userId);
-  if (error) {
-    Sentry.captureException(
-      new Error(`Invite rollback failed — orphaned auth user ${userId}: ${error.message}`),
-      { tags: { area: "admin-invite" }, extra: { userId, reason } },
-    );
-  }
-}
 
 async function requireAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
@@ -84,6 +64,11 @@ export async function updateUser(
 }
 
 // ─── Invite a new user ────────────────────────────────────────────────────────
+//
+// Internal team app: everyone has an @texasturfusa.com Google account, so we
+// don't email an invite link. We create the account with a confirmed email and
+// set their role; Supabase auto-links their Google identity on first sign-in
+// (confirmed email = safe to link), landing them on the role assigned here.
 
 export type InviteUserState = { error: string | null; success: boolean; sentTo: string | null };
 
@@ -131,27 +116,30 @@ export async function inviteUser(
     };
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://os.texasturfusa.com";
-
-  // Up-front dup check on profiles so we return a clear message instead of
-  // letting the auth API surface a generic 500.
+  // Already in the system? Just (re)assign their role + departments.
   const { data: existing } = await service.from("profiles")
-    .select("id, email, role")
+    .select("id")
     .eq("email", parsed.data.email)
     .maybeSingle();
   if (existing) {
-    return {
-      error: `${parsed.data.email} is already in the system as ${(existing as { role?: string }).role ?? "a user"}. Edit them directly from the table below instead of re-inviting.`,
-      success: false,
-      sentTo: null,
-    };
+    const { error: updErr } = await service.from("profiles").update({
+      role:        parsed.data.role,
+      department:  parsed.data.departments[0] ?? null,
+      departments: parsed.data.departments,
+      ...(parsed.data.full_name ? { full_name: parsed.data.full_name } : {}),
+      updated_at:  new Date().toISOString(),
+    } as never).eq("id", (existing as { id: string }).id);
+    if (updErr) return { error: updErr.message, success: false, sentTo: null };
+    revalidatePath("/admin/users");
+    revalidatePath("/team");
+    return { error: null, success: true, sentTo: parsed.data.email };
   }
 
-  // Step 1: create the auth.users row WITHOUT triggering Supabase's
-  // (rate-limited) built-in invite email. Just an empty unconfirmed user.
+  // New teammate: create a confirmed account (no password). They sign in with
+  // their @texasturfusa.com Google account — no email needed.
   const { data: created, error: createErr } = await service.auth.admin.createUser({
     email:         parsed.data.email,
-    email_confirm: false,
+    email_confirm: true,
     user_metadata: {
       full_name:  parsed.data.full_name ?? null,
       invited_by: auth.user.id,
@@ -159,15 +147,14 @@ export async function inviteUser(
   });
   if (createErr || !created?.user) {
     return {
-      error: createErr?.message ?? "Failed to create user record",
+      error: createErr?.message ?? "Failed to create the account.",
       success: false,
       sentTo: null,
     };
   }
   const newUserId = created.user.id;
 
-  // Step 2: upsert the profile with the chosen role + departments BEFORE
-  // sending the invite link, so the row is ready when they sign in.
+  // Set their role + departments so they land ready on first sign-in.
   const { error: profileErr } = await service.from("profiles").upsert({
     id:          newUserId,
     email:       parsed.data.email,
@@ -177,115 +164,18 @@ export async function inviteUser(
     departments: parsed.data.departments,
   } as never, { onConflict: "id" });
   if (profileErr) {
-    // Roll back the auth user so the admin can retry cleanly
-    await rollbackAuthUser(service, newUserId, `profile upsert failed: ${profileErr.message}`);
+    // Roll back the auth user so the admin can retry cleanly.
+    await service.auth.admin.deleteUser(newUserId).catch(() => {});
     return {
-      error: `Couldn't set role/departments for new user: ${profileErr.message}. Rolled back.`,
+      error: `Couldn't set role/departments: ${profileErr.message}. Rolled back — try again.`,
       success: false,
       sentTo: null,
-    };
-  }
-
-  // Step 3: generate a magic-link the user can click to set up their account.
-  const { data: linkData, error: linkErr } = await service.auth.admin.generateLink({
-    type:        "magiclink",
-    email:       parsed.data.email,
-    options:     { redirectTo: `${appUrl}/onboarding/department` },
-  });
-  if (linkErr || !linkData?.properties?.action_link) {
-    await rollbackAuthUser(service, newUserId, `generateLink failed: ${linkErr?.message ?? "unknown"}`);
-    return {
-      error: `Couldn't generate sign-in link: ${linkErr?.message ?? "unknown"}. Rolled back.`,
-      success: false,
-      sentTo: null,
-    };
-  }
-  const inviteLink = linkData.properties.action_link;
-
-  // Step 4: send the invite via Resend (we control the deliverability,
-  // not Supabase's free-tier email throttle).
-  const sendResult = await sendInviteEmail({
-    to:           parsed.data.email,
-    name:         parsed.data.full_name ?? parsed.data.email.split("@")[0],
-    inviterName:  auth.user.id, // we'll resolve to a real name below
-    inviteLink,
-  }, service);
-  if (!sendResult.ok) {
-    return {
-      error: `User created but invite email failed: ${sendResult.detail}. The link is: ${inviteLink}`,
-      success: true,
-      sentTo: parsed.data.email,
     };
   }
 
   revalidatePath("/admin/users");
   revalidatePath("/team");
   return { error: null, success: true, sentTo: parsed.data.email };
-}
-
-// ─── Invite email via Resend ─────────────────────────────────────────────────
-
-async function sendInviteEmail(
-  args: { to: string; name: string; inviterName: string; inviteLink: string },
-  service: ReturnType<typeof createServiceClient>,
-): Promise<{ ok: true } | { ok: false; detail: string }> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    return { ok: false, detail: "RESEND_API_KEY not set in Vercel env" };
-  }
-  const from = process.env.EMAIL_FROM ?? `TexasTurf OS <noreply@${process.env.RESEND_FROM_DOMAIN ?? "texasturfusa.com"}>`;
-
-  // Look up the inviter's full name for a nicer email
-  const { data: inviter } = await service.from("profiles")
-    .select("full_name, email")
-    .eq("id", args.inviterName)
-    .single();
-  const inviterDisplay = (inviter as { full_name?: string | null; email?: string | null } | null)?.full_name
-    ?? (inviter as { email?: string | null } | null)?.email?.split("@")[0]
-    ?? "Stefan";
-
-  const html = `
-    <div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; color: #18181b;">
-      <h2 style="margin: 0 0 6px;">You're invited to TexasTurf OS</h2>
-      <p style="color: #71717a; margin: 0 0 18px;">${inviterDisplay} added you to the team.</p>
-      <p>Click the link below to sign in. It'll log you in automatically and walk you through a quick setup.</p>
-      <p style="margin: 24px 0;">
-        <a href="${args.inviteLink}"
-           style="display: inline-block; background: #18181b; color: #fff;
-                  padding: 12px 24px; border-radius: 8px; text-decoration: none;
-                  font-weight: 600;">
-          Open TexasTurf OS →
-        </a>
-      </p>
-      <p style="color: #71717a; font-size: 12px;">
-        If the button doesn't work, paste this link into your browser:<br>
-        <span style="word-break: break-all;">${args.inviteLink}</span>
-      </p>
-      <p style="color: #a1a1aa; font-size: 11px; margin-top: 32px;">
-        Didn't expect this email? You can safely ignore it.
-      </p>
-    </div>
-  `;
-
-  try {
-    const resp = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from,
-        to: args.to,
-        subject: `${inviterDisplay} invited you to TexasTurf OS`,
-        html,
-      }),
-    });
-    if (!resp.ok) {
-      const body = await resp.text().catch(() => "");
-      return { ok: false, detail: `Resend returned ${resp.status}: ${body.slice(0, 240)}` };
-    }
-    return { ok: true };
-  } catch (err) {
-    return { ok: false, detail: err instanceof Error ? err.message : String(err) };
-  }
 }
 
 // ─── Remove a user ────────────────────────────────────────────────────────────
