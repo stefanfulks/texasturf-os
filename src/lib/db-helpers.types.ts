@@ -98,6 +98,7 @@ export type RollType = Database["public"]["Enums"]["roll_type"]
 // Pitch (in-app sales deck) types
 export type PitchTier = Database["public"]["Tables"]["pitch_tiers"]["Row"]
 export type PitchSession = Database["public"]["Tables"]["pitch_sessions"]["Row"]
+export type PitchDeck = Database["public"]["Tables"]["pitch_decks"]["Row"]
 
 // App feedback (bugs / ideas / questions about the app itself)
 export type AppFeedback = Database["public"]["Tables"]["app_feedback"]["Row"]

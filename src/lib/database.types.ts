@@ -2030,6 +2030,39 @@ export type Database = {
           },
         ]
       }
+      pitch_decks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_default: boolean
+          name: string
+          service_line: string | null
+          slides: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          service_line?: string | null
+          slides?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          service_line?: string | null
+          slides?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pitch_sessions: {
         Row: {
           address: string | null
@@ -2039,6 +2072,7 @@ export type Database = {
           created_by: string | null
           deal_id: string | null
           decided_at: string | null
+          deck_id: string | null
           id: string
           presented_at: string | null
           prospect_name: string | null
@@ -2056,6 +2090,7 @@ export type Database = {
           created_by?: string | null
           deal_id?: string | null
           decided_at?: string | null
+          deck_id?: string | null
           id?: string
           presented_at?: string | null
           prospect_name?: string | null
@@ -2073,6 +2108,7 @@ export type Database = {
           created_by?: string | null
           deal_id?: string | null
           decided_at?: string | null
+          deck_id?: string | null
           id?: string
           presented_at?: string | null
           prospect_name?: string | null
@@ -2095,6 +2131,13 @@ export type Database = {
             columns: ["deal_id"]
             isOneToOne: false
             referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pitch_sessions_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "pitch_decks"
             referencedColumns: ["id"]
           },
         ]
@@ -4276,3 +4319,4 @@ export const Constants = {
     },
   },
 } as const
+
