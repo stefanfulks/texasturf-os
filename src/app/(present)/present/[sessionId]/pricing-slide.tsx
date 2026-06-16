@@ -64,11 +64,23 @@ export function PricingSlide({ session }: { session: PitchSessionView }) {
             Deposit due today: <span className="font-medium">{accepted.deposit != null ? usd(accepted.deposit) : "—"}</span>
             {accepted.total != null && <> (50% of {usd(accepted.total)})</>}.
           </p>
-          <p className="text-sm text-ink-3 mt-2">Next: finalize the quote and collect the deposit in Jobber — Wisestack financing appears there once the total is set.</p>
-          <div className="flex gap-2 mt-3">
-            <a href="https://secure.getjobber.com" target="_blank" rel="noopener noreferrer" className="btn btn-primary inline-flex">Open Jobber</a>
-            <a href="/pitch" className="btn btn-line inline-flex">Back to pitches</a>
-          </div>
+          {accepted.clientHubUri ? (
+            <>
+              <p className="text-sm text-ink-3 mt-2">Your quote is ready in Jobber — approve and pay there (financing available via Wisestack).</p>
+              <div className="flex gap-2 mt-3">
+                <a href={accepted.clientHubUri} className="btn btn-primary inline-flex">Approve &amp; pay in Jobber</a>
+                <a href="/pitch" className="btn btn-line inline-flex">Back to pitches</a>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-ink-3 mt-2">Next: finalize the quote and collect the deposit in Jobber — Wisestack financing appears there once the total is set.</p>
+              <div className="flex gap-2 mt-3">
+                <a href="https://secure.getjobber.com" target="_blank" rel="noopener noreferrer" className="btn btn-primary inline-flex">Open Jobber</a>
+                <a href="/pitch" className="btn btn-line inline-flex">Back to pitches</a>
+              </div>
+            </>
+          )}
         </div>
       ) : selected ? (() => {
         const p = session.prices.find((x) => x.tier === selected);

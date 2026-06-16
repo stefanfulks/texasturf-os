@@ -1,6 +1,7 @@
 "use client";
 import { useActionState } from "react";
 import { createPitchSession, type NewPitchState } from "./actions";
+import { JobberClientPicker } from "./jobber-client-picker";
 
 const initial: NewPitchState = { error: null };
 const field = "w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm";
@@ -18,6 +19,7 @@ export default function NewPitchPage() {
         <label className="block text-xs font-medium text-ink-3">Address
           <input name="address" placeholder="123 Oak St, Plano TX" className={field} />
         </label>
+        <JobberClientPicker />
         <label className="block text-xs font-medium text-ink-3">Install area (sq ft)
           <input type="number" name="installedSqft" min="1" required placeholder="800" className={field} />
         </label>

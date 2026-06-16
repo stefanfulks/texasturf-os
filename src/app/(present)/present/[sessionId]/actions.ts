@@ -1,9 +1,10 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getJobberAccountId, getClientPropertyId, createPitchQuote } from "@/lib/jobber/quotes";
 import type { ClientPrice } from "@/lib/pitch/types";
 
-export type AcceptResult = { ok: boolean; error?: string; total?: number; deposit?: number; dealId?: string };
+export type AcceptResult = { ok: boolean; error?: string; total?: number; deposit?: number; dealId?: string; clientHubUri?: string | null };
 
 const DEPOSIT_PCT = 50; // residential default (AR-SOP)
 
@@ -85,11 +86,45 @@ export async function acceptPitch(sessionId: string, tier: string): Promise<Acce
     .single();
   if (dealErr || !deal) return { ok: false, error: dealErr?.message ?? "Could not create the deal" };
 
+  // Best-effort: build the quote IN Jobber and grab its client-hub URL so the
+  // client is redirected to Jobber to approve + pay (Wisestack shows there). If
+  // Jobber isn't write-enabled, the client isn't a Jobber client, or anything
+  // fails, we keep the deposit-agreed record + manual handoff — close never breaks.
+  let clientHubUri: string | null = null;
+  let jobberQuoteId: string | null = null;
+  if (jobberClientId) {
+    try {
+      const accountId = await getJobberAccountId();
+      const propertyId = accountId ? await getClientPropertyId(accountId, jobberClientId) : null;
+      if (accountId && propertyId) {
+        const q = await createPitchQuote(accountId, {
+          clientId: jobberClientId,
+          propertyId,
+          title: `Texas Turf — ${chosen.name} install`,
+          lineName: `${chosen.name} turf install${sqft ? ` — ${sqft} sq ft` : ""}`,
+          total,
+          depositPct: DEPOSIT_PCT,
+        });
+        clientHubUri = q.clientHubUri;
+        jobberQuoteId = q.quoteId;
+      }
+    } catch (e) {
+      console.error("[pitch] Jobber quote creation failed; falling back to manual handoff", e);
+    }
+  }
+
   await supabase.from("deal_activities").insert({
     deal_id: deal.id,
     kind: "note",
-    body: `Pitch accepted on-site: ${chosen.name} — $${total.toLocaleString()}. Deposit agreed $${deposit.toLocaleString()} (${DEPOSIT_PCT}%). Finalize quote + collect deposit in Jobber.`,
-    metadata: { source: "pitch", tier, total, deposit_pct: DEPOSIT_PCT, deposit_usd: deposit, payment_status: "agreed" },
+    body: clientHubUri
+      ? `Pitch accepted on-site: ${chosen.name} — $${total.toLocaleString()}. Quote built in Jobber (${DEPOSIT_PCT}% deposit); client sent to Jobber to approve + pay.`
+      : `Pitch accepted on-site: ${chosen.name} — $${total.toLocaleString()}. Deposit agreed $${deposit.toLocaleString()} (${DEPOSIT_PCT}%). Finalize quote + collect deposit in Jobber.`,
+    metadata: {
+      source: "pitch", tier, total,
+      deposit_pct: DEPOSIT_PCT, deposit_usd: deposit,
+      payment_status: clientHubUri ? "quote_sent" : "agreed",
+      jobber_quote_id: jobberQuoteId, jobber_client_hub_uri: clientHubUri,
+    },
     created_by: user.id,
   });
 
@@ -99,5 +134,5 @@ export async function acceptPitch(sessionId: string, tier: string): Promise<Acce
     .eq("id", sessionId);
 
   revalidatePath("/pitch");
-  return { ok: true, total, deposit, dealId: deal.id };
+  return { ok: true, total, deposit, dealId: deal.id, clientHubUri };
 }

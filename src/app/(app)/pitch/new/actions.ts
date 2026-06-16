@@ -16,6 +16,7 @@ const schema = z.object({
   application: z.enum(["soil", "concrete"]),
   tearoutTier: z.string().min(1),
   access: z.enum(["normal", "difficult"]),
+  client_id: z.string().optional(),
 });
 
 export async function createPitchSession(_prev: NewPitchState, formData: FormData): Promise<NewPitchState> {
@@ -30,6 +31,7 @@ export async function createPitchSession(_prev: NewPitchState, formData: FormDat
     application: formData.get("application"),
     tearoutTier: formData.get("tearoutTier"),
     access: formData.get("access"),
+    client_id: formData.get("client_id") || undefined,
   });
   if (!parsed.success) return { error: parsed.error.issues.map((e) => e.message).join(", ") };
 
@@ -50,10 +52,28 @@ export async function createPitchSession(_prev: NewPitchState, formData: FormDat
     tier_snapshot: tiers,
     quote_snapshot: prices,
     deck_id: deckId,
+    client_id: parsed.data.client_id ?? null,
     status: "draft",
     created_by: user.id,
   }).select("id").single();
 
   if (error || !data) return { error: error?.message ?? "Could not create pitch" };
   redirect(`/present/${data.id}`);
+}
+
+/** Search synced Jobber clients to link a pitch (powers the new-pitch picker). */
+export async function searchJobberClientsForPitch(q: string): Promise<{ id: string; label: string }[]> {
+  const term = q.trim().replace(/[%,()]/g, "");
+  if (term.length < 2) return [];
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("jobber_clients")
+    .select("id, first_name, last_name, company_name")
+    .or(`company_name.ilike.%${term}%,first_name.ilike.%${term}%,last_name.ilike.%${term}%`)
+    .eq("is_archived", false)
+    .limit(8);
+  return (data ?? []).map((c) => ({
+    id: c.id,
+    label: c.company_name || [c.first_name, c.last_name].filter(Boolean).join(" ") || "Unnamed client",
+  }));
 }
