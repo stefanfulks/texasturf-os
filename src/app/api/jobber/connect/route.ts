@@ -28,11 +28,18 @@ export async function GET() {
   const { clientId, redirectUri, scopes } = jobberEnv();
   const state = randomBytes(16).toString("hex");
 
+  // The Pitch close builds quotes in Jobber, so the granted token needs quote +
+  // client write. Merge those required scopes with whatever JOBBER_SCOPES asks
+  // for, so a reconnect grants write regardless of the env value. (These must
+  // also be enabled on the app in the Jobber Developer Center → Scopes.)
+  const PITCH_SCOPES = ["read_clients", "write_clients", "read_quotes", "write_quotes"];
+  const scopeList = Array.from(new Set([...scopes, ...PITCH_SCOPES]));
+
   const url = new URL(JOBBER.authorizeUrl);
   url.searchParams.set("response_type", "code");
   url.searchParams.set("client_id",     clientId);
   url.searchParams.set("redirect_uri",  redirectUri);
-  if (scopes.length > 0) url.searchParams.set("scope", scopes.join(" "));
+  if (scopeList.length > 0) url.searchParams.set("scope", scopeList.join(" "));
   url.searchParams.set("state", state);
 
   const res = NextResponse.redirect(url.toString());
