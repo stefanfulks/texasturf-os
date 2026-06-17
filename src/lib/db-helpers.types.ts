@@ -99,6 +99,10 @@ export type RollType = Database["public"]["Enums"]["roll_type"]
 export type PitchTier = Database["public"]["Tables"]["pitch_tiers"]["Row"]
 export type PitchSession = Database["public"]["Tables"]["pitch_sessions"]["Row"]
 export type PitchDeck = Database["public"]["Tables"]["pitch_decks"]["Row"]
+export type PitchArea = Database["public"]["Tables"]["pitch_areas"]["Row"]
+export type PitchAddon = Database["public"]["Tables"]["pitch_addons"]["Row"]
+export type PitchSiteDoc = Database["public"]["Tables"]["pitch_site_docs"]["Row"]
+export type PitchPhoto = Database["public"]["Tables"]["pitch_photos"]["Row"]
 
 // App feedback (bugs / ideas / questions about the app itself)
 export type AppFeedback = Database["public"]["Tables"]["app_feedback"]["Row"]

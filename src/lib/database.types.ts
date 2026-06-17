@@ -2110,6 +2110,115 @@ export type Database = {
           },
         ]
       }
+      pitch_addons: {
+        Row: {
+          cost: number
+          created_at: string
+          id: string
+          kind: string
+          label: string
+          qty: number
+          session_id: string
+          sort: number
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          label: string
+          qty?: number
+          session_id: string
+          sort?: number
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string
+          qty?: number
+          session_id?: string
+          sort?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pitch_addons_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "pitch_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pitch_areas: {
+        Row: {
+          access: string
+          application: string
+          created_at: string
+          edgings: Json
+          extras: Json
+          id: string
+          infill_product: string | null
+          installed_sqft: number
+          label: string
+          notes: string | null
+          product: string
+          session_id: string
+          sort: number
+          target_margin: number | null
+          tearout_tier: string
+          tier_key: string | null
+          updated_at: string
+        }
+        Insert: {
+          access?: string
+          application?: string
+          created_at?: string
+          edgings?: Json
+          extras?: Json
+          id?: string
+          infill_product?: string | null
+          installed_sqft?: number
+          label: string
+          notes?: string | null
+          product: string
+          session_id: string
+          sort?: number
+          target_margin?: number | null
+          tearout_tier?: string
+          tier_key?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access?: string
+          application?: string
+          created_at?: string
+          edgings?: Json
+          extras?: Json
+          id?: string
+          infill_product?: string | null
+          installed_sqft?: number
+          label?: string
+          notes?: string | null
+          product?: string
+          session_id?: string
+          sort?: number
+          target_margin?: number | null
+          tearout_tier?: string
+          tier_key?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pitch_areas_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "pitch_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pitch_decks: {
         Row: {
           created_at: string
@@ -2143,6 +2252,57 @@ export type Database = {
         }
         Relationships: []
       }
+      pitch_photos: {
+        Row: {
+          area_id: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string | null
+          path: string
+          session_id: string
+          sort: number
+        }
+        Insert: {
+          area_id?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string | null
+          path: string
+          session_id: string
+          sort?: number
+        }
+        Update: {
+          area_id?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string | null
+          path?: string
+          session_id?: string
+          sort?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pitch_photos_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "pitch_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pitch_photos_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "pitch_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pitch_sessions: {
         Row: {
           address: string | null
@@ -2153,11 +2313,21 @@ export type Database = {
           deal_id: string | null
           decided_at: string | null
           deck_id: string | null
+          documented_at: string | null
+          explored_at: string | null
           id: string
+          kiosk_pin_hash: string | null
           presented_at: string | null
           prospect_name: string | null
           quote_snapshot: Json
+          quote_total: number | null
+          quote_v2: Json
+          quoted_at: string | null
           selected_tier: string | null
+          share_enabled: boolean
+          share_expires_at: string | null
+          share_token: string | null
+          shared_at: string | null
           status: string
           tier_snapshot: Json
           updated_at: string
@@ -2171,11 +2341,21 @@ export type Database = {
           deal_id?: string | null
           decided_at?: string | null
           deck_id?: string | null
+          documented_at?: string | null
+          explored_at?: string | null
           id?: string
+          kiosk_pin_hash?: string | null
           presented_at?: string | null
           prospect_name?: string | null
           quote_snapshot?: Json
+          quote_total?: number | null
+          quote_v2?: Json
+          quoted_at?: string | null
           selected_tier?: string | null
+          share_enabled?: boolean
+          share_expires_at?: string | null
+          share_token?: string | null
+          shared_at?: string | null
           status?: string
           tier_snapshot?: Json
           updated_at?: string
@@ -2189,11 +2369,21 @@ export type Database = {
           deal_id?: string | null
           decided_at?: string | null
           deck_id?: string | null
+          documented_at?: string | null
+          explored_at?: string | null
           id?: string
+          kiosk_pin_hash?: string | null
           presented_at?: string | null
           prospect_name?: string | null
           quote_snapshot?: Json
+          quote_total?: number | null
+          quote_v2?: Json
+          quoted_at?: string | null
           selected_tier?: string | null
+          share_enabled?: boolean
+          share_expires_at?: string | null
+          share_token?: string | null
+          shared_at?: string | null
           status?: string
           tier_snapshot?: Json
           updated_at?: string
@@ -2218,6 +2408,38 @@ export type Database = {
             columns: ["deck_id"]
             isOneToOne: false
             referencedRelation: "pitch_decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pitch_site_docs: {
+        Row: {
+          conditions: Json
+          session_id: string
+          updated_at: string
+          updated_by: string | null
+          use_notes: Json
+        }
+        Insert: {
+          conditions?: Json
+          session_id: string
+          updated_at?: string
+          updated_by?: string | null
+          use_notes?: Json
+        }
+        Update: {
+          conditions?: Json
+          session_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          use_notes?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pitch_site_docs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "pitch_sessions"
             referencedColumns: ["id"]
           },
         ]
@@ -4399,3 +4621,4 @@ export const Constants = {
     },
   },
 } as const
+
