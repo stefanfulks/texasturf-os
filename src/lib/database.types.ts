@@ -1680,6 +1680,86 @@ export type Database = {
           },
         ]
       }
+      kpi_log_entries: {
+        Row: {
+          created_at: string
+          created_by: string
+          entry_date: string
+          id: string
+          mgmt_notes: string | null
+          mgmt_signed_at: string | null
+          mgmt_signed_by: string | null
+          notes: string | null
+          pass_fail: string
+          payload: Json
+          section_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          entry_date?: string
+          id?: string
+          mgmt_notes?: string | null
+          mgmt_signed_at?: string | null
+          mgmt_signed_by?: string | null
+          notes?: string | null
+          pass_fail?: string
+          payload?: Json
+          section_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          entry_date?: string
+          id?: string
+          mgmt_notes?: string | null
+          mgmt_signed_at?: string | null
+          mgmt_signed_by?: string | null
+          notes?: string | null
+          pass_fail?: string
+          payload?: Json
+          section_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_log_entries_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_log_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_log_sections: {
+        Row: {
+          created_at: string
+          id: string
+          sort_order: number
+          targets: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          sort_order: number
+          targets?: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sort_order?: number
+          targets?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       maintenance_logs: {
         Row: {
           asset_id: string
@@ -4319,4 +4399,3 @@ export const Constants = {
     },
   },
 } as const
-

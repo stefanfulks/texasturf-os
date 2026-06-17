@@ -27,6 +27,12 @@ export default async function WarehousePage() {
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2">
           <Card
+            href="/operations/kpi-log"
+            title="KPI Log"
+            body="Daily warehouse KPI log. Office logs, management signs off. Replaces the KPI Tracker sheet."
+            cta="Open"
+          />
+          <Card
             href="/operations/pull-lists"
             title="Pull Lists"
             body="Daily material assembly per job. Replaces the Pull List PDF."
