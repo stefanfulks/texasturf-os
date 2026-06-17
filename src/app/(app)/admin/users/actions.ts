@@ -284,11 +284,16 @@ export async function removeUser(
   if (!userId) return { error: "user_id required", success: false };
   if (userId === auth.user.id) return { error: "You can't delete yourself.", success: false };
 
-  // Service-role admin deletion — cascades the auth.users row + ON DELETE
-  // CASCADE on profiles wipes the profile too.
+  // Service-role admin deletion of the auth.users row.
   const service = createServiceClient();
   const { error } = await service.auth.admin.deleteUser(userId);
   if (error) return { error: error.message, success: false };
+
+  // Explicitly remove the profile row too — do NOT rely on an ON DELETE CASCADE.
+  // If the cascade is missing, the profile is orphaned and a later re-invite of
+  // the same email is wrongly blocked by the up-front dup check in inviteUser.
+  // Deleting by id is idempotent (a no-op if a cascade already removed it).
+  await service.from("profiles").delete().eq("id", userId);
 
   revalidatePath("/admin/users");
   return { error: null, success: true };
