@@ -58,7 +58,7 @@ export async function createPitchSession(_prev: NewPitchState, formData: FormDat
   }).select("id").single();
 
   if (error || !data) return { error: error?.message ?? "Could not create pitch" };
-  redirect(`/present/${data.id}`);
+  redirect(`/pitch/${data.id}/document`);
 }
 
 /** Search synced Jobber clients to link a pitch (powers the new-pitch picker). */

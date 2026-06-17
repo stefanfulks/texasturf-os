@@ -17,14 +17,15 @@ export default async function PitchHomePage() {
       ) : (
         <ul className="space-y-2">
           {sessions.map((s) => (
-            <li key={s.id}>
-              <Link href={`/present/${s.id}`} className="card card-hover p-4 flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{s.prospect_name ?? "Untitled pitch"}</p>
-                  <p className="text-xs text-ink-3">{s.address ?? "—"} · {s.status}</p>
-                </div>
-                <span className="chip chip-neutral">Open</span>
-              </Link>
+            <li key={s.id} className="card p-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="font-medium">{s.prospect_name ?? "Untitled pitch"}</p>
+                <p className="text-xs text-ink-3">{s.address ?? "—"} · {s.status}</p>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Link href={`/pitch/${s.id}/document`} className="btn btn-line btn-sm">Document</Link>
+                <Link href={`/present/${s.id}`} className="btn btn-line btn-sm">Present</Link>
+              </div>
             </li>
           ))}
         </ul>
