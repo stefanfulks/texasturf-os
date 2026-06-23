@@ -163,6 +163,7 @@ export function DocumentForm({
         {msg && <p className="text-sm text-brand">{msg}</p>}
         <div className="flex gap-2 ml-auto">
           <Link href={`/present/${sessionId}`} className="btn btn-line">Hand to customer</Link>
+          <Link href={`/pitch/${sessionId}/quote`} className="btn btn-line">Build quote</Link>
           <button type="button" onClick={save} disabled={saving} className="btn btn-primary disabled:opacity-50">
             {saving ? "Saving…" : "Save documentation"}
           </button>

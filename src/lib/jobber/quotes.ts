@@ -39,12 +39,13 @@ export async function getClientPropertyId(accountId: string, clientId: string): 
   return data.client?.clientProperties?.nodes?.[0]?.id ?? null;
 }
 
+export type PitchQuoteLine = { name: string; quantity?: number; unitPrice: number };
+
 export type PitchQuoteInput = {
   clientId: string;
   propertyId: string;
   title: string;
-  lineName: string;
-  total: number;
+  lineItems: PitchQuoteLine[];
   depositPct: number;
 };
 
@@ -68,9 +69,12 @@ export async function createPitchQuote(
     allowClientHubCreditCardPayments: true,
     transitionQuoteTo: "AWAITING_RESPONSE",
     deposit: { rate: input.depositPct, type: "Percent" },
-    lineItems: [
-      { name: input.lineName, quantity: 1, unitPrice: input.total, saveToProductsAndServices: false },
-    ],
+    lineItems: input.lineItems.map((li) => ({
+      name: li.name,
+      quantity: li.quantity ?? 1,
+      unitPrice: li.unitPrice,
+      saveToProductsAndServices: false,
+    })),
   };
   const data = await jobberQuery<{
     quoteCreate: { quote: { id: string; clientHubUri: string } | null; userErrors: { message: string }[] };

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { PitchTier, PitchSession, PitchDeck, InvProduct } from "@/lib/db-helpers.types";
-import type { Tier, PitchSessionView, ClientPrice, TierWarranty } from "./types";
+import type { Tier, PitchSessionView, ClientPrice, ClientQuoteV2, TierWarranty } from "./types";
 import { DEFAULT_DECK, visibleSlides, type StoredSlide, type DeckSlide } from "./deck";
 
 /** Map a DB row to the resolved Tier shape used by pricing functions. */
@@ -55,6 +55,7 @@ export async function getPitchSession(id: string): Promise<PitchSessionView | nu
     address: row.address,
     prices: (row.quote_snapshot as ClientPrice[]) ?? [],
     selectedTier: row.selected_tier,
+    quoteV2: (row.quote_v2 as unknown as ClientQuoteV2) ?? null,
   };
 }
 

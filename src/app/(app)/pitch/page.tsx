@@ -24,6 +24,7 @@ export default async function PitchHomePage() {
               </div>
               <div className="flex gap-2 shrink-0">
                 <Link href={`/pitch/${s.id}/document`} className="btn btn-line btn-sm">Document</Link>
+                <Link href={`/pitch/${s.id}/quote`} className="btn btn-line btn-sm">Quote</Link>
                 <Link href={`/present/${s.id}`} className="btn btn-line btn-sm">Present</Link>
               </div>
             </li>

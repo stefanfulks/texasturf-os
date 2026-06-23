@@ -39,10 +39,24 @@ export type ClientPrice = {
   warranty: TierWarranty;
 };
 
+export type ClientArea = { label: string; productLabel: string; sqft: number; price: number | null };
+export type ClientAddon = { label: string; price: number };
+
+/** Multi-area client-safe quote (Pitch v2). NEVER includes cogs / margin / commission. */
+export type ClientQuoteV2 = {
+  areas: ClientArea[];
+  addons: ClientAddon[];
+  total: number | null;        // null => any area needs a custom quote
+  perSqft: number | null;
+  warranty: TierWarranty;
+  reviewRequired: boolean;
+};
+
 export type PitchSessionView = {
   id: string;
   prospectName: string | null;
   address: string | null;
-  prices: ClientPrice[];
+  prices: ClientPrice[];          // legacy single-tier (back-compat)
   selectedTier: string | null;
+  quoteV2: ClientQuoteV2 | null;  // v2 multi-area quote when built
 };
