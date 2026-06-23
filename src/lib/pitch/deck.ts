@@ -8,6 +8,8 @@ export type SlideKind =
   | "savings"
   | "why_us"
   | "gallery"
+  | "media"
+  | "video"
   | "process"
   | "reviews"
   | "pricing"
@@ -15,13 +17,17 @@ export type SlideKind =
   | "close";
 
 export type Point = { head: string; body: string };
+export type GalleryPair = { label: string; beforeUrl?: string; afterUrl?: string };
+export type MediaImage = { url: string; caption?: string };
 
 export type DeckSlide =
   | { kind: "cover"; title: string; subtitle?: string }
   | { kind: "why_turf"; title: string; points: Point[] }
   | { kind: "savings"; title: string; note: string }
   | { kind: "why_us"; title: string; points: Point[] }
-  | { kind: "gallery"; title: string; pairs: { label: string }[] }
+  | { kind: "gallery"; title: string; pairs: GalleryPair[] }
+  | { kind: "media"; title: string; images: MediaImage[] }
+  | { kind: "video"; title: string; url: string; poster?: string; caption?: string }
   | { kind: "process"; title: string; steps: Point[] }
   | { kind: "reviews"; title: string; quotes: { quote: string; name: string; city: string }[] }
   | { kind: "pricing"; title: string }
@@ -103,7 +109,7 @@ export function visibleSlides(slides: StoredSlide[]): DeckSlide[] {
 }
 
 // ── Builder field config — drives the generic copy editor in phase 2b ──
-export type FieldType = "text" | "textarea" | "lines" | "labels" | "pairs" | "quotes";
+export type FieldType = "text" | "textarea" | "lines" | "labels" | "pairs" | "quotes" | "gallerypairs" | "media";
 export type FieldDef = { key: string; label: string; type: FieldType };
 
 export const SLIDE_FIELDS: Record<SlideKind, FieldDef[]> = {
@@ -111,7 +117,9 @@ export const SLIDE_FIELDS: Record<SlideKind, FieldDef[]> = {
   why_turf:  [{ key: "title", label: "Title", type: "text" }, { key: "points", label: "Points — Head | Body (one per line)", type: "pairs" }],
   savings:   [{ key: "title", label: "Title", type: "text" }, { key: "note", label: "Note", type: "textarea" }],
   why_us:    [{ key: "title", label: "Title", type: "text" }, { key: "points", label: "Points — Head | Body (one per line)", type: "pairs" }],
-  gallery:   [{ key: "title", label: "Title", type: "text" }, { key: "pairs", label: "Captions (one per line)", type: "labels" }],
+  gallery:   [{ key: "title", label: "Title", type: "text" }, { key: "pairs", label: "Before/after — Caption | Before URL | After URL (one per line)", type: "gallerypairs" }],
+  media:     [{ key: "title", label: "Title", type: "text" }, { key: "images", label: "Photos — URL | Caption (one per line)", type: "media" }],
+  video:     [{ key: "title", label: "Title", type: "text" }, { key: "url", label: "Video URL (MP4)", type: "text" }, { key: "poster", label: "Poster image URL", type: "text" }, { key: "caption", label: "Caption", type: "text" }],
   process:   [{ key: "title", label: "Title", type: "text" }, { key: "steps", label: "Steps — Head | Body (one per line)", type: "pairs" }],
   reviews:   [{ key: "title", label: "Title", type: "text" }, { key: "quotes", label: "Reviews — Quote | Name | City (one per line)", type: "quotes" }],
   pricing:   [{ key: "title", label: "Title", type: "text" }],
@@ -121,6 +129,6 @@ export const SLIDE_FIELDS: Record<SlideKind, FieldDef[]> = {
 
 export const SLIDE_KIND_LABELS: Record<SlideKind, string> = {
   cover: "Cover", why_turf: "Why turf", savings: "Savings", why_us: "Why us",
-  gallery: "Before & after", process: "Process", reviews: "Reviews",
+  gallery: "Before & after", media: "Photos", video: "Video", process: "Process", reviews: "Reviews",
   pricing: "Pricing", financing: "Financing", close: "Close",
 };

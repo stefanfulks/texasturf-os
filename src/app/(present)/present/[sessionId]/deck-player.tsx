@@ -79,12 +79,56 @@ function GallerySlide({ slide }: { slide: Extract<DeckSlide, { kind: "gallery" }
         {slide.pairs.map((pair, i) => (
           <div key={i} className="card p-4">
             <div className="grid grid-cols-2 gap-2">
-              <div className="aspect-[4/3] rounded-lg bg-sunken flex items-center justify-center text-xs text-ink-4">Before</div>
-              <div className="aspect-[4/3] rounded-lg bg-brand-tint flex items-center justify-center text-xs text-brand">After</div>
+              {pair.beforeUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={pair.beforeUrl} alt={`${pair.label} before`} loading="lazy" className="aspect-[4/3] w-full rounded-lg object-cover" />
+              ) : (
+                <div className="aspect-[4/3] rounded-lg bg-sunken flex items-center justify-center text-xs text-ink-4">Before</div>
+              )}
+              {pair.afterUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={pair.afterUrl} alt={`${pair.label} after`} loading="lazy" className="aspect-[4/3] w-full rounded-lg object-cover" />
+              ) : (
+                <div className="aspect-[4/3] rounded-lg bg-brand-tint flex items-center justify-center text-xs text-brand">After</div>
+              )}
             </div>
             <p className="text-sm text-ink-2 mt-2 text-center">{pair.label}</p>
           </div>
         ))}
+      </div>
+    </SlideShell>
+  );
+}
+
+function MediaSlide({ slide }: { slide: Extract<DeckSlide, { kind: "media" }> }) {
+  return (
+    <SlideShell title={slide.title}>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {slide.images.map((img, i) => (
+          <figure key={i} className="card p-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={img.url} alt={img.caption ?? `Photo ${i + 1}`} loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
+            {img.caption && <figcaption className="text-xs text-ink-3 mt-1.5 text-center">{img.caption}</figcaption>}
+          </figure>
+        ))}
+      </div>
+    </SlideShell>
+  );
+}
+
+function VideoSlide({ slide }: { slide: Extract<DeckSlide, { kind: "video" }> }) {
+  return (
+    <SlideShell title={slide.title}>
+      <div className="card p-3 max-w-3xl mx-auto">
+        <video
+          src={slide.url}
+          poster={slide.poster || undefined}
+          controls
+          playsInline
+          preload="metadata"
+          className="w-full rounded-lg bg-black aspect-video"
+        />
+        {slide.caption && <p className="text-sm text-ink-2 mt-2 text-center">{slide.caption}</p>}
       </div>
     </SlideShell>
   );
@@ -152,6 +196,8 @@ function renderSlide(slide: DeckSlide, session: PitchSessionView): ReactNode {
     case "why_us": return <PointsSlide slide={slide} />;
     case "savings": return <SavingsSlide slide={slide} />;
     case "gallery": return <GallerySlide slide={slide} />;
+    case "media": return <MediaSlide slide={slide} />;
+    case "video": return <VideoSlide slide={slide} />;
     case "process": return <ProcessSlide slide={slide} />;
     case "reviews": return <ReviewsSlide slide={slide} />;
     case "pricing": return <div className="w-full"><PricingSlide session={session} /></div>;

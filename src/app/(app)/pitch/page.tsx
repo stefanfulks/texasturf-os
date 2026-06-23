@@ -8,6 +8,7 @@ export default async function PitchHomePage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="display text-2xl">Pitch</h1>
         <div className="flex gap-2">
+          <Link href="/pitch/assets" className="btn btn-line">Media</Link>
           <Link href="/pitch/decks" className="btn btn-line">Decks</Link>
           <Link href="/pitch/new" className="btn btn-primary">New pitch</Link>
         </div>
