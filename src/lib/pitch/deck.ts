@@ -21,7 +21,7 @@ export type GalleryPair = { label: string; beforeUrl?: string; afterUrl?: string
 export type MediaImage = { url: string; caption?: string };
 
 export type DeckSlide =
-  | { kind: "cover"; title: string; subtitle?: string }
+  | { kind: "cover"; title: string; subtitle?: string; logoUrl?: string }
   | { kind: "why_turf"; title: string; points: Point[] }
   | { kind: "savings"; title: string; note: string }
   | { kind: "why_us"; title: string; points: Point[] }
@@ -34,11 +34,15 @@ export type DeckSlide =
   | { kind: "financing"; title: string; body: string; bullets: string[] }
   | { kind: "close"; title: string; subtitle?: string; cta: string };
 
+// Public pitch-assets bucket (curated marketing media pulled from Drive).
+const ASSET = "https://ybedvthhofoutbqgwnvm.supabase.co/storage/v1/object/public/pitch-assets";
+
 // Seeded from the premium positioning in 01-Services/Service-Catalog.md.
-// NOTE: `reviews` quotes and `gallery` images are placeholders — replace with
-// real testimonials/photos before going live (tracked as phase-2 content).
+// Gallery/media images are REAL (Lemon backyard + DREES putting greens). The
+// `reviews` quotes remain placeholders and the testimonial `video` slide is
+// added in the deck editor once the compressed MP4 is uploaded.
 export const DEFAULT_DECK: DeckSlide[] = [
-  { kind: "cover", title: "Your new low-maintenance yard", subtitle: "Premium artificial turf, professionally installed" },
+  { kind: "cover", title: "Your new low-maintenance yard", subtitle: "Premium artificial turf, professionally installed", logoUrl: `${ASSET}/logo-512.png` },
   {
     kind: "why_turf",
     title: "Why homeowners switch to turf",
@@ -60,7 +64,23 @@ export const DEFAULT_DECK: DeckSlide[] = [
       { head: "Local crews", body: "Installed across the Austin metro and Hill Country by our own experienced teams." },
     ],
   },
-  { kind: "gallery", title: "Before & after", pairs: [{ label: "Backyard install" }, { label: "Putting green" }, { label: "Pet area" }] },
+  {
+    kind: "gallery",
+    title: "Before & after",
+    pairs: [
+      { label: "Backyard transformation", beforeUrl: `${ASSET}/lemon-before.jpg`, afterUrl: `${ASSET}/lemon-after.jpg` },
+    ],
+  },
+  {
+    kind: "media",
+    title: "See it in real Texas yards",
+    images: [
+      { url: `${ASSET}/lemon-lifestyle-1.jpg`, caption: "Backyard living" },
+      { url: `${ASSET}/lemon-lifestyle-2.jpg`, caption: "Green year-round" },
+      { url: `${ASSET}/drees-putting-green-1.jpg`, caption: "Custom putting green" },
+      { url: `${ASSET}/drees-putting-green-2.jpg`, caption: "Tour-quality detail" },
+    ],
+  },
   {
     kind: "process",
     title: "How it works",
@@ -113,7 +133,7 @@ export type FieldType = "text" | "textarea" | "lines" | "labels" | "pairs" | "qu
 export type FieldDef = { key: string; label: string; type: FieldType };
 
 export const SLIDE_FIELDS: Record<SlideKind, FieldDef[]> = {
-  cover:     [{ key: "title", label: "Title", type: "text" }, { key: "subtitle", label: "Subtitle", type: "text" }],
+  cover:     [{ key: "title", label: "Title", type: "text" }, { key: "subtitle", label: "Subtitle", type: "text" }, { key: "logoUrl", label: "Logo image URL", type: "text" }],
   why_turf:  [{ key: "title", label: "Title", type: "text" }, { key: "points", label: "Points — Head | Body (one per line)", type: "pairs" }],
   savings:   [{ key: "title", label: "Title", type: "text" }, { key: "note", label: "Note", type: "textarea" }],
   why_us:    [{ key: "title", label: "Title", type: "text" }, { key: "points", label: "Points — Head | Body (one per line)", type: "pairs" }],

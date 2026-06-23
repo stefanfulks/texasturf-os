@@ -20,7 +20,12 @@ function SlideShell({ title, eyebrow, children }: { title: string; eyebrow?: str
 function CoverSlide({ slide, session }: { slide: Extract<DeckSlide, { kind: "cover" }>; session: PitchSessionView }) {
   return (
     <div className="mx-auto max-w-3xl w-full px-6 py-10 text-center">
-      <p className="eyebrow mb-6">Texas Turf</p>
+      {slide.logoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={slide.logoUrl} alt="Texas Turf" className="mx-auto mb-6 h-20 w-20 rounded-2xl object-contain" />
+      ) : (
+        <p className="eyebrow mb-6">Texas Turf</p>
+      )}
       <h1 className="display text-5xl mb-4">{slide.title}</h1>
       {slide.subtitle && <p className="text-lg text-ink-2 mb-8">{slide.subtitle}</p>}
       <div className="inline-block card px-6 py-4 text-left">

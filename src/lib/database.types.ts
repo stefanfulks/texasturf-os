@@ -495,6 +495,890 @@ export type Database = {
         }
         Relationships: []
       }
+      fin_account: {
+        Row: {
+          active: boolean
+          cost_behavior: string
+          created_at: string
+          direct_type: string
+          id: string
+          name: string
+          reclass_note: string | null
+          section: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          cost_behavior: string
+          created_at?: string
+          direct_type?: string
+          id: string
+          name: string
+          reclass_note?: string | null
+          section: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          cost_behavior?: string
+          created_at?: string
+          direct_type?: string
+          id?: string
+          name?: string
+          reclass_note?: string | null
+          section?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_account_value: {
+        Row: {
+          account_id: string
+          actual_amount: number
+          budget_amount: number
+          created_at: string
+          id: string
+          period_id: string
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          actual_amount?: number
+          budget_amount?: number
+          created_at?: string
+          id?: string
+          period_id: string
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          actual_amount?: number
+          budget_amount?: number
+          created_at?: string
+          id?: string
+          period_id?: string
+          source?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_account_value_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "fin_account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_account_value_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "fin_period"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_ap_bill: {
+        Row: {
+          bill_num: string | null
+          created_at: string
+          due_date: string | null
+          expected_pay_date: string | null
+          id: string
+          invoice_date: string | null
+          open_balance: number
+          payment_type: string
+          source_invoice_id: string | null
+          terms: string | null
+          updated_at: string
+          vendor: string
+        }
+        Insert: {
+          bill_num?: string | null
+          created_at?: string
+          due_date?: string | null
+          expected_pay_date?: string | null
+          id?: string
+          invoice_date?: string | null
+          open_balance?: number
+          payment_type?: string
+          source_invoice_id?: string | null
+          terms?: string | null
+          updated_at?: string
+          vendor: string
+        }
+        Update: {
+          bill_num?: string | null
+          created_at?: string
+          due_date?: string | null
+          expected_pay_date?: string | null
+          id?: string
+          invoice_date?: string | null
+          open_balance?: number
+          payment_type?: string
+          source_invoice_id?: string | null
+          terms?: string | null
+          updated_at?: string
+          vendor?: string
+        }
+        Relationships: []
+      }
+      fin_ar_invoice: {
+        Row: {
+          created_at: string
+          customer: string
+          due_date: string | null
+          expected_receipt_date: string | null
+          funds_available_date: string | null
+          id: string
+          invoice_date: string | null
+          invoice_num: string | null
+          open_balance: number
+          result: string
+          terms: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer: string
+          due_date?: string | null
+          expected_receipt_date?: string | null
+          funds_available_date?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_num?: string | null
+          open_balance?: number
+          result?: string
+          terms?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer?: string
+          due_date?: string | null
+          expected_receipt_date?: string | null
+          funds_available_date?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_num?: string | null
+          open_balance?: number
+          result?: string
+          terms?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_burden_rate: {
+        Row: {
+          created_at: string
+          fica_cap: number
+          fica_rate: number
+          fiscal_year: number
+          futa_cap: number
+          futa_rate: number
+          id: string
+          medicare_rate: number
+          state: string
+          suta_cap: number
+          suta_rate: number
+          updated_at: string
+          wc_category: string
+          wc_rate_per_100: number
+        }
+        Insert: {
+          created_at?: string
+          fica_cap?: number
+          fica_rate?: number
+          fiscal_year: number
+          futa_cap?: number
+          futa_rate?: number
+          id?: string
+          medicare_rate?: number
+          state?: string
+          suta_cap?: number
+          suta_rate?: number
+          updated_at?: string
+          wc_category?: string
+          wc_rate_per_100?: number
+        }
+        Update: {
+          created_at?: string
+          fica_cap?: number
+          fica_rate?: number
+          fiscal_year?: number
+          futa_cap?: number
+          futa_rate?: number
+          id?: string
+          medicare_rate?: number
+          state?: string
+          suta_cap?: number
+          suta_rate?: number
+          updated_at?: string
+          wc_category?: string
+          wc_rate_per_100?: number
+        }
+        Relationships: []
+      }
+      fin_business_unit: {
+        Row: {
+          active: boolean
+          annual_budget: number
+          created_at: string
+          display_order: number
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          annual_budget?: number
+          created_at?: string
+          display_order?: number
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          annual_budget?: number
+          created_at?: string
+          display_order?: number
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_cash_snapshot: {
+        Row: {
+          created_at: string
+          ending_avail_credit: number
+          ending_cash: number
+          id: string
+          period_id: string
+          starting_avail_credit: number
+          starting_cash: number
+          total_credit_limit: number
+          updated_at: string
+          working_capital: number
+        }
+        Insert: {
+          created_at?: string
+          ending_avail_credit?: number
+          ending_cash?: number
+          id?: string
+          period_id: string
+          starting_avail_credit?: number
+          starting_cash?: number
+          total_credit_limit?: number
+          updated_at?: string
+          working_capital?: number
+        }
+        Update: {
+          created_at?: string
+          ending_avail_credit?: number
+          ending_cash?: number
+          id?: string
+          period_id?: string
+          starting_avail_credit?: number
+          starting_cash?: number
+          total_credit_limit?: number
+          updated_at?: string
+          working_capital?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_cash_snapshot_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: true
+            referencedRelation: "fin_period"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_change_log: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          field: string | null
+          id: string
+          new_value: string | null
+          old_value: string | null
+          reason: string | null
+          row_id: string | null
+          table_name: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          field?: string | null
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          reason?: string | null
+          row_id?: string | null
+          table_name: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          field?: string | null
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          reason?: string | null
+          row_id?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
+      fin_company_settings: {
+        Row: {
+          annual_revenue_plan: number
+          company_name: string
+          created_at: string
+          current_utilization: number
+          employee_overhead_uplift: number
+          fiscal_year: number
+          fiscal_year_start_date: string
+          goal_utilization: number
+          notes: string | null
+          standard_hours_per_year: number
+          total_credit_limit: number
+          updated_at: string
+          work_days_per_week: number
+          work_hours_per_day: number
+        }
+        Insert: {
+          annual_revenue_plan?: number
+          company_name?: string
+          created_at?: string
+          current_utilization?: number
+          employee_overhead_uplift?: number
+          fiscal_year: number
+          fiscal_year_start_date: string
+          goal_utilization?: number
+          notes?: string | null
+          standard_hours_per_year?: number
+          total_credit_limit?: number
+          updated_at?: string
+          work_days_per_week?: number
+          work_hours_per_day?: number
+        }
+        Update: {
+          annual_revenue_plan?: number
+          company_name?: string
+          created_at?: string
+          current_utilization?: number
+          employee_overhead_uplift?: number
+          fiscal_year?: number
+          fiscal_year_start_date?: string
+          goal_utilization?: number
+          notes?: string | null
+          standard_hours_per_year?: number
+          total_credit_limit?: number
+          updated_at?: string
+          work_days_per_week?: number
+          work_hours_per_day?: number
+        }
+        Relationships: []
+      }
+      fin_cost_rate: {
+        Row: {
+          created_at: string
+          effective_fiscal_year: number
+          id: string
+          key: string
+          unit: string | null
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          effective_fiscal_year: number
+          id?: string
+          key: string
+          unit?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          effective_fiscal_year?: number
+          id?: string
+          key?: string
+          unit?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      fin_debt: {
+        Row: {
+          asset: string | null
+          created_at: string
+          current_balance: number
+          id: string
+          interest_pct: number
+          lender: string
+          monthly_payment: number
+          updated_at: string
+        }
+        Insert: {
+          asset?: string | null
+          created_at?: string
+          current_balance?: number
+          id?: string
+          interest_pct?: number
+          lender: string
+          monthly_payment?: number
+          updated_at?: string
+        }
+        Update: {
+          asset?: string | null
+          created_at?: string
+          current_balance?: number
+          id?: string
+          interest_pct?: number
+          lender?: string
+          monthly_payment?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_employee: {
+        Row: {
+          active: boolean
+          annual_ot_hours: number
+          benefits_annual: number
+          bonus_annual: number
+          created_at: string
+          current_pay: number
+          holiday_days: number
+          hours_per_week: number
+          id: string
+          is_billable: boolean
+          linked_profile_id: string | null
+          linked_warehouse_employee_id: string | null
+          name: string
+          pay_type: string
+          pto_days: number
+          role_id: string | null
+          shutdown_days: number
+          sick_days: number
+          start_date: string | null
+          state: string
+          tax_classification: string
+          updated_at: string
+          vacation_days: number
+          wc_category: string | null
+          weeks_per_year: number
+        }
+        Insert: {
+          active?: boolean
+          annual_ot_hours?: number
+          benefits_annual?: number
+          bonus_annual?: number
+          created_at?: string
+          current_pay?: number
+          holiday_days?: number
+          hours_per_week?: number
+          id?: string
+          is_billable?: boolean
+          linked_profile_id?: string | null
+          linked_warehouse_employee_id?: string | null
+          name: string
+          pay_type?: string
+          pto_days?: number
+          role_id?: string | null
+          shutdown_days?: number
+          sick_days?: number
+          start_date?: string | null
+          state?: string
+          tax_classification?: string
+          updated_at?: string
+          vacation_days?: number
+          wc_category?: string | null
+          weeks_per_year?: number
+        }
+        Update: {
+          active?: boolean
+          annual_ot_hours?: number
+          benefits_annual?: number
+          bonus_annual?: number
+          created_at?: string
+          current_pay?: number
+          holiday_days?: number
+          hours_per_week?: number
+          id?: string
+          is_billable?: boolean
+          linked_profile_id?: string | null
+          linked_warehouse_employee_id?: string | null
+          name?: string
+          pay_type?: string
+          pto_days?: number
+          role_id?: string | null
+          shutdown_days?: number
+          sick_days?: number
+          start_date?: string | null
+          state?: string
+          tax_classification?: string
+          updated_at?: string
+          vacation_days?: number
+          wc_category?: string | null
+          weeks_per_year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_employee_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "fin_labor_role"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_labor_role: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_metric: {
+        Row: {
+          created_at: string
+          formula_text: string | null
+          id: string
+          label: string
+          lower_is_better: boolean
+          metric_group: string
+          plain_english: string | null
+          responsible_role: string | null
+          sort_order: number
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          formula_text?: string | null
+          id: string
+          label: string
+          lower_is_better?: boolean
+          metric_group: string
+          plain_english?: string | null
+          responsible_role?: string | null
+          sort_order?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          formula_text?: string | null
+          id?: string
+          label?: string
+          lower_is_better?: boolean
+          metric_group?: string
+          plain_english?: string | null
+          responsible_role?: string | null
+          sort_order?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_metric_value: {
+        Row: {
+          actual_value: number | null
+          created_at: string
+          id: string
+          metric_id: string
+          period_id: string
+          target_value: number | null
+          updated_at: string
+        }
+        Insert: {
+          actual_value?: number | null
+          created_at?: string
+          id?: string
+          metric_id: string
+          period_id: string
+          target_value?: number | null
+          updated_at?: string
+        }
+        Update: {
+          actual_value?: number | null
+          created_at?: string
+          id?: string
+          metric_id?: string
+          period_id?: string
+          target_value?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_metric_value_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "fin_metric"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_metric_value_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "fin_period"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_period: {
+        Row: {
+          created_at: string
+          fiscal_year: number
+          grain: string
+          id: string
+          is_closed: boolean
+          month: number | null
+          quarter: number | null
+          updated_at: string
+          week_start_monday: string | null
+        }
+        Insert: {
+          created_at?: string
+          fiscal_year: number
+          grain: string
+          id?: string
+          is_closed?: boolean
+          month?: number | null
+          quarter?: number | null
+          updated_at?: string
+          week_start_monday?: string | null
+        }
+        Update: {
+          created_at?: string
+          fiscal_year?: number
+          grain?: string
+          id?: string
+          is_closed?: boolean
+          month?: number | null
+          quarter?: number | null
+          updated_at?: string
+          week_start_monday?: string | null
+        }
+        Relationships: []
+      }
+      fin_product: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          infill_type: string | null
+          linked_inv_product_id: string | null
+          name: string
+          raw_cost_per_sqft: number
+          roll_size: string | null
+          sku: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          infill_type?: string | null
+          linked_inv_product_id?: string | null
+          name: string
+          raw_cost_per_sqft?: number
+          roll_size?: string | null
+          sku?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          infill_type?: string | null
+          linked_inv_product_id?: string | null
+          name?: string
+          raw_cost_per_sqft?: number
+          roll_size?: string | null
+          sku?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_profit_goal: {
+        Row: {
+          capex: number
+          created_at: string
+          current_lt_debt: number
+          distributions: number
+          fiscal_year: number
+          growth: number
+          id: string
+          taxes: number
+          updated_at: string
+        }
+        Insert: {
+          capex?: number
+          created_at?: string
+          current_lt_debt?: number
+          distributions?: number
+          fiscal_year: number
+          growth?: number
+          id?: string
+          taxes?: number
+          updated_at?: string
+        }
+        Update: {
+          capex?: number
+          created_at?: string
+          current_lt_debt?: number
+          distributions?: number
+          fiscal_year?: number
+          growth?: number
+          id?: string
+          taxes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_recurring_cost: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          description: string
+          frequency: string
+          id: string
+          last_payment_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          description: string
+          frequency: string
+          id?: string
+          last_payment_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          description?: string
+          frequency?: string
+          id?: string
+          last_payment_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fin_sales_actual: {
+        Row: {
+          amount: number
+          business_unit_id: string
+          created_at: string
+          fiscal_year: number
+          id: string
+          month: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          business_unit_id: string
+          created_at?: string
+          fiscal_year: number
+          id?: string
+          month: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          business_unit_id?: string
+          created_at?: string
+          fiscal_year?: number
+          id?: string
+          month?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_sales_actual_business_unit_id_fkey"
+            columns: ["business_unit_id"]
+            isOneToOne: false
+            referencedRelation: "fin_business_unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_seasonality: {
+        Row: {
+          business_unit_id: string
+          created_at: string
+          history_amount: number
+          history_year: number
+          id: string
+          month: number
+          scope: string
+          updated_at: string
+          year_weight_pct: number
+        }
+        Insert: {
+          business_unit_id: string
+          created_at?: string
+          history_amount?: number
+          history_year: number
+          id?: string
+          month: number
+          scope?: string
+          updated_at?: string
+          year_weight_pct?: number
+        }
+        Update: {
+          business_unit_id?: string
+          created_at?: string
+          history_amount?: number
+          history_year?: number
+          id?: string
+          month?: number
+          scope?: string
+          updated_at?: string
+          year_weight_pct?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_seasonality_business_unit_id_fkey"
+            columns: ["business_unit_id"]
+            isOneToOne: false
+            referencedRelation: "fin_business_unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       google_oauth_tokens: {
         Row: {
           access_token: string | null
@@ -4621,4 +5505,3 @@ export const Constants = {
     },
   },
 } as const
-

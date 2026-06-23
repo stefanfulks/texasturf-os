@@ -99,6 +99,7 @@ const DEPT_TABS: Partial<Record<Department, NavTab[]>> = {
 const FEEDBACK_PREFIXES = ["/feedback", "/admin/feedback"];
 
 const ADMIN_TABS: NavTab[] = [
+  { href: "/admin/finance", label: "Finance", prefixes: ["/admin/finance"] },
   { href: "/team", label: "Team", prefixes: ["/team", "/admin/users"] },
 ];
 

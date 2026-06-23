@@ -116,3 +116,27 @@ export type FeedbackAttachment = {
   type: string  // mime type
   size: number  // bytes
 }
+
+// ---- Finance suite ---------------------------------------------------------
+type FinTables = Database["public"]["Tables"]
+export type FinCompanySettings = FinTables["fin_company_settings"]["Row"]
+export type FinAccount        = FinTables["fin_account"]["Row"]
+export type FinAccountInsert  = FinTables["fin_account"]["Insert"]
+export type FinPeriod         = FinTables["fin_period"]["Row"]
+export type FinAccountValue   = FinTables["fin_account_value"]["Row"]
+export type FinBusinessUnit   = FinTables["fin_business_unit"]["Row"]
+export type FinSeasonality    = FinTables["fin_seasonality"]["Row"]
+export type FinSalesActual    = FinTables["fin_sales_actual"]["Row"]
+export type FinProduct        = FinTables["fin_product"]["Row"]
+export type FinCostRate       = FinTables["fin_cost_rate"]["Row"]
+export type FinLaborRole      = FinTables["fin_labor_role"]["Row"]
+export type FinEmployee       = FinTables["fin_employee"]["Row"]
+export type FinBurdenRate     = FinTables["fin_burden_rate"]["Row"]
+export type FinProfitGoal     = FinTables["fin_profit_goal"]["Row"]
+export type FinArInvoice      = FinTables["fin_ar_invoice"]["Row"]
+export type FinApBill         = FinTables["fin_ap_bill"]["Row"]
+export type FinRecurringCost  = FinTables["fin_recurring_cost"]["Row"]
+export type FinDebt           = FinTables["fin_debt"]["Row"]
+export type FinCashSnapshot   = FinTables["fin_cash_snapshot"]["Row"]
+export type FinMetric         = FinTables["fin_metric"]["Row"]
+export type FinMetricValue    = FinTables["fin_metric_value"]["Row"]
