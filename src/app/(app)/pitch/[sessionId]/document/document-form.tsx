@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PitchPhotoDropzone, type PitchPhotoItem } from "@/components/pitch-photo-dropzone";
+import { HandoffControls } from "./handoff-controls";
 import { addArea, updateArea, removeArea, saveSiteDoc, addPitchPhoto, removePitchPhoto, markDocumented } from "./actions";
 import type { PitchArea, PitchSiteDoc } from "@/lib/db-helpers.types";
 
@@ -159,10 +160,12 @@ export function DocumentForm({
         </label>
       </section>
 
+      <HandoffControls sessionId={sessionId} />
+
       <div className="flex items-center justify-between gap-3 border-t border-line pt-4">
         {msg && <p className="text-sm text-brand">{msg}</p>}
         <div className="flex gap-2 ml-auto">
-          <Link href={`/present/${sessionId}`} className="btn btn-line">Hand to customer</Link>
+          <Link href={`/present/${sessionId}`} className="btn btn-line">Present deck</Link>
           <Link href={`/pitch/${sessionId}/quote`} className="btn btn-line">Build quote</Link>
           <button type="button" onClick={save} disabled={saving} className="btn btn-primary disabled:opacity-50">
             {saving ? "Saving…" : "Save documentation"}

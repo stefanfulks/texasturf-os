@@ -47,7 +47,11 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth");
 
-  if (!user && !isAuthRoute) {
+  // Public customer self-explore links (no account). The loader uses a strict
+  // allowlist projection — no pricing/internal data is ever served here.
+  const isPublicRoute = request.nextUrl.pathname.startsWith("/explore");
+
+  if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

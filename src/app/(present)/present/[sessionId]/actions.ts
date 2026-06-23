@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { getJobberAccountId, getClientPropertyId, createPitchQuote, type PitchQuoteLine } from "@/lib/jobber/quotes";
 import type { ClientPrice, ClientQuoteV2 } from "@/lib/pitch/types";
@@ -161,4 +162,74 @@ export async function acceptPitch(sessionId: string, tier?: string | null): Prom
 
   revalidatePath("/pitch");
   return { ok: true, total, deposit, dealId: deal.id, clientHubUri };
+}
+
+// ── Customer self-explore: kiosk PIN + shareable link ──────────────────────
+
+function hashPin(pin: string): string {
+  const salt = randomBytes(16);
+  const hash = scryptSync(pin, salt, 32);
+  return `${salt.toString("hex")}:${hash.toString("hex")}`;
+}
+function verifyPinHash(pin: string, stored: string): boolean {
+  const [saltHex, hashHex] = stored.split(":");
+  if (!saltHex || !hashHex) return false;
+  const expected = Buffer.from(hashHex, "hex");
+  const actual = scryptSync(pin, Buffer.from(saltHex, "hex"), 32);
+  return actual.length === expected.length && timingSafeEqual(actual, expected);
+}
+
+/**
+ * Set the kiosk exit PIN (hashed — plaintext NEVER stored or returned) and move
+ * the session to `exploring`. Called right before the rep hands over the tablet.
+ */
+export async function setKioskPin(sessionId: string, pin: string): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not authenticated" };
+  if (!/^\d{4,8}$/.test(pin)) return { ok: false, error: "PIN must be 4–8 digits" };
+  const { error } = await supabase
+    .from("pitch_sessions")
+    .update({ kiosk_pin_hash: hashPin(pin), status: "exploring", explored_at: new Date().toISOString() })
+    .eq("id", sessionId);
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+/** Verify the kiosk exit PIN. Returns only a boolean — never the hash. */
+export async function verifyKioskPin(sessionId: string, pin: string): Promise<{ ok: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+  const { data } = await supabase.from("pitch_sessions").select("kiosk_pin_hash").eq("id", sessionId).single();
+  const stored = (data?.kiosk_pin_hash as string | null) ?? null;
+  if (!stored) return { ok: false };
+  return { ok: verifyPinHash(pin, stored) };
+}
+
+/**
+ * Create (or rotate) a shareable public-explore link: a random token, enabled,
+ * 14-day expiry. Returns the absolute URL. The public route hides all pricing.
+ */
+export async function enableShareLink(sessionId: string): Promise<{ ok: boolean; url?: string; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not authenticated" };
+  const token = randomBytes(32).toString("base64url");
+  const expires = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  const { error } = await supabase
+    .from("pitch_sessions")
+    .update({ share_token: token, share_enabled: true, share_expires_at: expires, shared_at: new Date().toISOString() })
+    .eq("id", sessionId);
+  if (error) return { ok: false, error: error.message };
+  const base = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
+  return { ok: true, url: `${base}/explore/${token}` };
+}
+
+/** Instantly disable a shared link (revoke access) without deleting the token. */
+export async function disableShareLink(sessionId: string): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not authenticated" };
+  const { error } = await supabase.from("pitch_sessions").update({ share_enabled: false }).eq("id", sessionId);
+  return error ? { ok: false, error: error.message } : { ok: true };
 }

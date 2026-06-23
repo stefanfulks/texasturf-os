@@ -1,22 +1,17 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import type { PitchSessionView } from "@/lib/pitch/types";
-import { DEFAULT_DECK, type DeckSlide } from "@/lib/pitch/deck";
-import { PricingSlide } from "./pricing-slide";
-import { renderContentSlide } from "./deck-slides";
-import { markPresented } from "./actions";
+import type { DeckSlide } from "@/lib/pitch/deck";
+import { renderContentSlide, type DisplaySession } from "./deck-slides";
 
-function renderSlide(slide: DeckSlide, session: PitchSessionView): ReactNode {
-  // The rep-facing deck shows the interactive pricing slide; everything else is
-  // the shared content renderer (also used by the read-only kiosk/public decks).
-  if (slide.kind === "pricing") return <div className="w-full"><PricingSlide session={session} /></div>;
-  return renderContentSlide(slide, { prospectName: session.prospectName, address: session.address });
-}
-
-export function DeckPlayer({ session, slides = DEFAULT_DECK }: { session: PitchSessionView; slides?: DeckSlide[] }) {
+/**
+ * Read-only deck player for customer self-explore (kiosk + public link).
+ * NO pricing, NO accept actions, NO markPresented. Callers pass slides already
+ * filtered of pricing/close. `header` is an optional top slot (kiosk exit).
+ */
+export function ReadOnlyDeck({ slides, display, header }: { slides: DeckSlide[]; display: DisplaySession; header?: ReactNode }) {
   const [index, setIndex] = useState(0);
   const startX = useRef(0);
-  const last = slides.length - 1;
+  const last = Math.max(0, slides.length - 1);
   const go = (n: number) => setIndex((i) => Math.max(0, Math.min(last, i + n)));
 
   useEffect(() => {
@@ -29,14 +24,14 @@ export function DeckPlayer({ session, slides = DEFAULT_DECK }: { session: PitchS
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [last]);
 
-  useEffect(() => {
-    void markPresented(session.id);
-  }, [session.id]);
-
+  if (slides.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center text-ink-3">Nothing to show yet.</div>;
+  }
   const slide = slides[index];
 
   return (
     <div className="min-h-screen flex flex-col">
+      {header}
       <div className="flex items-center justify-center gap-1.5 pt-5">
         {slides.map((_, i) => (
           <button
@@ -58,7 +53,7 @@ export function DeckPlayer({ session, slides = DEFAULT_DECK }: { session: PitchS
           else if (dx > 50) go(-1);
         }}
       >
-        <div className="min-h-full flex items-center">{renderSlide(slide, session)}</div>
+        <div className="min-h-full flex items-center">{renderContentSlide(slide, display)}</div>
       </div>
 
       <div className="flex items-center justify-between px-6 pb-6 pt-2">
