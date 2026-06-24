@@ -78,9 +78,11 @@ function SavingsSlide({ slide }: { slide: Extract<DeckSlide, { kind: "savings" }
 }
 
 function GallerySlide({ slide }: { slide: Extract<DeckSlide, { kind: "gallery" }> }) {
+  // One pair → a centered hero; multiple → a responsive grid.
+  const single = slide.pairs.length === 1;
   return (
     <SlideShell title={slide.title}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className={"grid gap-4 " + (single ? "max-w-2xl mx-auto" : "grid-cols-1 md:grid-cols-3")}>
         {slide.pairs.map((pair, i) => (
           <div key={i} className="card p-4">
             <div className="grid grid-cols-2 gap-2">
