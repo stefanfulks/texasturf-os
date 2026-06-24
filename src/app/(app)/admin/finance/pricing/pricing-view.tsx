@@ -3,11 +3,13 @@ import { useState } from "react";
 import { usd, pct } from "@/lib/finance/format";
 import { priceJob } from "@/lib/finance/overhead";
 
-export function PricingView({ absorptionRate }: { absorptionRate: number }) {
+export function PricingView({ absorptionRate, loadedLaborRate }: { absorptionRate: number; loadedLaborRate: number }) {
   const [job, setJob] = useState({ material: 0, burdenedLabor: 0, subcontract: 0, shipping: 0 });
+  const [laborHours, setLaborHours] = useState(0);
   const [cmp, setCmp] = useState({ cogs: 0, currentPrice: 0, targetMargin: 50 });
 
-  const priced = priceJob({ ...job, absorptionRate });
+  const effectiveLabor = laborHours > 0 ? laborHours * loadedLaborRate : job.burdenedLabor;
+  const priced = priceJob({ material: job.material, burdenedLabor: effectiveLabor, subcontract: job.subcontract, shipping: job.shipping, absorptionRate });
   const loadedCost = cmp.cogs * (1 + absorptionRate);
   const priceAtMargin = cmp.targetMargin < 100 ? loadedCost / (1 - cmp.targetMargin / 100) : null;
   const marginIfHeld = cmp.currentPrice > 0 ? (cmp.currentPrice - loadedCost) / cmp.currentPrice : null;
@@ -25,6 +27,10 @@ export function PricingView({ absorptionRate }: { absorptionRate: number }) {
               onChange={(e) => setJob((j) => ({ ...j, [k]: num(e.target.value) }))} />
           </label>
         ))}
+        <label className="flex items-center justify-between text-sm border-t border-line pt-2">
+          <span className="text-ink-3">labor hours × ${loadedLaborRate.toFixed(2)}/hr (loaded)</span>
+          <input type="number" className="w-32 bg-tint rounded px-2 py-1 text-right" onChange={(e) => setLaborHours(num(e.target.value))} />
+        </label>
         <div className="text-sm text-ink-2 border-t border-line pt-2">
           Job cost {usd(priced.actualCost)} → loaded breakeven <span className="font-semibold">{usd(priced.loadedBreakevenCost)}</span>
         </div>

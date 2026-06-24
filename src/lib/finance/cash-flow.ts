@@ -10,6 +10,7 @@ type CashFlowArgs = {
   ap: { expectedPayDate: string; openBalance: number; paymentType: "cash" | "credit" }[];
   recurring: { frequency: string; lastPaymentDate: string; amount: number }[];
   weeklyActuals: Record<string, { deposits: number; expenses: number }>;
+  salesForecastWeekly?: Record<string, number>;
 };
 
 function addDaysISO(iso: string, days: number): string {
@@ -56,7 +57,8 @@ export function computeCashFlow(args: CashFlowArgs): CashFlowResult {
     const actuals = args.weeklyActuals[weekStart] ?? { deposits: 0, expenses: 0 };
 
     const arDeposits = args.ar.filter((a) => inRange(a.expectedReceiptDate, weekStart, endExcl)).reduce((s, a) => s.plus(a.openBalance), new Decimal(0));
-    const deposits = arDeposits.plus(actuals.deposits);
+    const forecastDeposit = args.salesForecastWeekly?.[weekStart] ?? 0;
+    const deposits = arDeposits.plus(actuals.deposits).plus(forecastDeposit);
 
     const apCash = args.ap.filter((b) => b.paymentType === "cash" && inRange(b.expectedPayDate, weekStart, endExcl)).reduce((s, b) => s.plus(b.openBalance), new Decimal(0));
     const apCredit = args.ap.filter((b) => b.paymentType === "credit" && inRange(b.expectedPayDate, weekStart, endExcl)).reduce((s, b) => s.plus(b.openBalance), new Decimal(0));

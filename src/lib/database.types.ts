@@ -588,6 +588,7 @@ export type Database = {
           created_at: string
           due_date: string | null
           expected_pay_date: string | null
+          external_id: string | null
           id: string
           invoice_date: string | null
           open_balance: number
@@ -602,6 +603,7 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           expected_pay_date?: string | null
+          external_id?: string | null
           id?: string
           invoice_date?: string | null
           open_balance?: number
@@ -616,6 +618,7 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           expected_pay_date?: string | null
+          external_id?: string | null
           id?: string
           invoice_date?: string | null
           open_balance?: number
@@ -633,6 +636,7 @@ export type Database = {
           customer: string
           due_date: string | null
           expected_receipt_date: string | null
+          external_id: string | null
           funds_available_date: string | null
           id: string
           invoice_date: string | null
@@ -647,6 +651,7 @@ export type Database = {
           customer: string
           due_date?: string | null
           expected_receipt_date?: string | null
+          external_id?: string | null
           funds_available_date?: string | null
           id?: string
           invoice_date?: string | null
@@ -661,6 +666,7 @@ export type Database = {
           customer?: string
           due_date?: string | null
           expected_receipt_date?: string | null
+          external_id?: string | null
           funds_available_date?: string | null
           id?: string
           invoice_date?: string | null
@@ -1264,6 +1270,44 @@ export type Database = {
         }
         Relationships: []
       }
+      fin_qb_account_map: {
+        Row: {
+          active: boolean
+          created_at: string
+          fin_account_id: string
+          id: string
+          qb_account_id: string | null
+          qb_account_name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          fin_account_id: string
+          id?: string
+          qb_account_id?: string | null
+          qb_account_name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          fin_account_id?: string
+          id?: string
+          qb_account_id?: string | null
+          qb_account_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_qb_account_map_fin_account_id_fkey"
+            columns: ["fin_account_id"]
+            isOneToOne: false
+            referencedRelation: "fin_account"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fin_recurring_cost: {
         Row: {
           amount: number
@@ -1378,6 +1422,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fin_sync_log: {
+        Row: {
+          entity: string
+          id: string
+          message: string | null
+          rows_synced: number
+          source: string
+          status: string
+          synced_at: string
+        }
+        Insert: {
+          entity: string
+          id?: string
+          message?: string | null
+          rows_synced?: number
+          source?: string
+          status?: string
+          synced_at?: string
+        }
+        Update: {
+          entity?: string
+          id?: string
+          message?: string | null
+          rows_synced?: number
+          source?: string
+          status?: string
+          synced_at?: string
+        }
+        Relationships: []
       }
       google_oauth_tokens: {
         Row: {
@@ -3582,6 +3656,240 @@ export type Database = {
           },
         ]
       }
+      purchase_order_events: {
+        Row: {
+          changed_by_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          new_status: Database["public"]["Enums"]["po_status"] | null
+          notes: string | null
+          previous_status: Database["public"]["Enums"]["po_status"] | null
+          purchase_order_id: string
+          source: string
+        }
+        Insert: {
+          changed_by_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["po_status"] | null
+          notes?: string | null
+          previous_status?: Database["public"]["Enums"]["po_status"] | null
+          purchase_order_id: string
+          source?: string
+        }
+        Update: {
+          changed_by_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["po_status"] | null
+          notes?: string | null
+          previous_status?: Database["public"]["Enums"]["po_status"] | null
+          purchase_order_id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_order_events_purchase_order_id_fkey"
+            columns: ["purchase_order_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_orders: {
+        Row: {
+          actual_delivery_date: string | null
+          assigned_buyer_id: string | null
+          carrier: string | null
+          created_at: string
+          created_by_id: string | null
+          damage_notes: string | null
+          damage_reported: boolean
+          deposit_amount: number | null
+          deposit_paid_date: string | null
+          deposit_required: boolean
+          documents: Json
+          estimated_cost: number | null
+          eta: string | null
+          expected_delivery_date: string | null
+          final_order_amount: number | null
+          id: string
+          inventory_item_id: string | null
+          invoice_date: string | null
+          invoice_id: string | null
+          job_name: string | null
+          material_needed: string | null
+          needed_by: string | null
+          notes: string | null
+          order_date: string | null
+          payment_due_date: string | null
+          payment_status: Database["public"]["Enums"]["po_payment_status"]
+          payment_terms: Database["public"]["Enums"]["po_payment_terms"] | null
+          po_number: string | null
+          priority: Database["public"]["Enums"]["po_priority"]
+          project_id: string | null
+          purchase_type: Database["public"]["Enums"]["po_purchase_type"]
+          quantity_needed: string | null
+          quantity_received: string | null
+          quote_amount: number | null
+          received_by: string | null
+          remaining_balance: number | null
+          request_date: string
+          request_description: string
+          requested_by: string | null
+          requested_by_id: string | null
+          seq: number
+          shortage_notes: string | null
+          shortages_reported: boolean
+          slack_channel_id: string | null
+          slack_message_ts: string | null
+          slack_thread_ts: string | null
+          status: Database["public"]["Enums"]["po_status"]
+          status_changed_at: string
+          tracking_number: string | null
+          tracking_url: string | null
+          updated_at: string
+          vendor_contact: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          actual_delivery_date?: string | null
+          assigned_buyer_id?: string | null
+          carrier?: string | null
+          created_at?: string
+          created_by_id?: string | null
+          damage_notes?: string | null
+          damage_reported?: boolean
+          deposit_amount?: number | null
+          deposit_paid_date?: string | null
+          deposit_required?: boolean
+          documents?: Json
+          estimated_cost?: number | null
+          eta?: string | null
+          expected_delivery_date?: string | null
+          final_order_amount?: number | null
+          id?: string
+          inventory_item_id?: string | null
+          invoice_date?: string | null
+          invoice_id?: string | null
+          job_name?: string | null
+          material_needed?: string | null
+          needed_by?: string | null
+          notes?: string | null
+          order_date?: string | null
+          payment_due_date?: string | null
+          payment_status?: Database["public"]["Enums"]["po_payment_status"]
+          payment_terms?: Database["public"]["Enums"]["po_payment_terms"] | null
+          po_number?: string | null
+          priority?: Database["public"]["Enums"]["po_priority"]
+          project_id?: string | null
+          purchase_type?: Database["public"]["Enums"]["po_purchase_type"]
+          quantity_needed?: string | null
+          quantity_received?: string | null
+          quote_amount?: number | null
+          received_by?: string | null
+          remaining_balance?: number | null
+          request_date?: string
+          request_description: string
+          requested_by?: string | null
+          requested_by_id?: string | null
+          seq?: never
+          shortage_notes?: string | null
+          shortages_reported?: boolean
+          slack_channel_id?: string | null
+          slack_message_ts?: string | null
+          slack_thread_ts?: string | null
+          status?: Database["public"]["Enums"]["po_status"]
+          status_changed_at?: string
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          vendor_contact?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          actual_delivery_date?: string | null
+          assigned_buyer_id?: string | null
+          carrier?: string | null
+          created_at?: string
+          created_by_id?: string | null
+          damage_notes?: string | null
+          damage_reported?: boolean
+          deposit_amount?: number | null
+          deposit_paid_date?: string | null
+          deposit_required?: boolean
+          documents?: Json
+          estimated_cost?: number | null
+          eta?: string | null
+          expected_delivery_date?: string | null
+          final_order_amount?: number | null
+          id?: string
+          inventory_item_id?: string | null
+          invoice_date?: string | null
+          invoice_id?: string | null
+          job_name?: string | null
+          material_needed?: string | null
+          needed_by?: string | null
+          notes?: string | null
+          order_date?: string | null
+          payment_due_date?: string | null
+          payment_status?: Database["public"]["Enums"]["po_payment_status"]
+          payment_terms?: Database["public"]["Enums"]["po_payment_terms"] | null
+          po_number?: string | null
+          priority?: Database["public"]["Enums"]["po_priority"]
+          project_id?: string | null
+          purchase_type?: Database["public"]["Enums"]["po_purchase_type"]
+          quantity_needed?: string | null
+          quantity_received?: string | null
+          quote_amount?: number | null
+          received_by?: string | null
+          remaining_balance?: number | null
+          request_date?: string
+          request_description?: string
+          requested_by?: string | null
+          requested_by_id?: string | null
+          seq?: never
+          shortage_notes?: string | null
+          shortages_reported?: boolean
+          slack_channel_id?: string | null
+          slack_message_ts?: string | null
+          slack_thread_ts?: string | null
+          status?: Database["public"]["Enums"]["po_status"]
+          status_changed_at?: string
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          vendor_contact?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_orders_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recurring_rules: {
         Row: {
           active: boolean
@@ -5137,6 +5445,30 @@ export type Database = {
         | "do_not_call"
         | "invalid_number"
       outreach_segment: "residential" | "b2b_partner"
+      po_payment_status: "not_due" | "due_soon" | "past_due" | "paid"
+      po_payment_terms:
+        | "paid_in_full"
+        | "deposit"
+        | "net_15"
+        | "net_30"
+        | "net_45"
+        | "due_on_delivery"
+        | "other"
+      po_priority: "low" | "normal" | "high" | "urgent"
+      po_purchase_type: "inventory_replenishment" | "project_specific"
+      po_status:
+        | "new_request"
+        | "awaiting_review"
+        | "awaiting_approval"
+        | "quote_gathering"
+        | "ready_to_order"
+        | "order_placed"
+        | "waiting_on_vendor"
+        | "in_transit"
+        | "delivered"
+        | "payment_outstanding"
+        | "closed"
+        | "cancelled"
       project_status:
         | "intake"
         | "planning"
@@ -5424,6 +5756,32 @@ export const Constants = {
         "invalid_number",
       ],
       outreach_segment: ["residential", "b2b_partner"],
+      po_payment_status: ["not_due", "due_soon", "past_due", "paid"],
+      po_payment_terms: [
+        "paid_in_full",
+        "deposit",
+        "net_15",
+        "net_30",
+        "net_45",
+        "due_on_delivery",
+        "other",
+      ],
+      po_priority: ["low", "normal", "high", "urgent"],
+      po_purchase_type: ["inventory_replenishment", "project_specific"],
+      po_status: [
+        "new_request",
+        "awaiting_review",
+        "awaiting_approval",
+        "quote_gathering",
+        "ready_to_order",
+        "order_placed",
+        "waiting_on_vendor",
+        "in_transit",
+        "delivered",
+        "payment_outstanding",
+        "closed",
+        "cancelled",
+      ],
       project_status: [
         "intake",
         "planning",

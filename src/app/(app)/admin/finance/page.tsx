@@ -1,28 +1,37 @@
 import { requireAdmin } from "@/lib/auth/require-role";
-import { createClient } from "@/lib/supabase/server";
+import { getFinanceOverviewInput } from "@/lib/finance/overview-queries";
+import { computeFinanceOverview } from "@/lib/finance/metrics";
 import { getScorecard } from "@/lib/finance/cash-flow-queries";
-import { usd } from "@/lib/finance/format";
+import { usd, pct, signedUsd } from "@/lib/finance/format";
 
 export default async function FinanceHomePage() {
   await requireAdmin();
-  const supabase = await createClient();
-  const [{ data: snap }, { data: settings }, scorecard] = await Promise.all([
-    supabase.from("fin_cash_snapshot").select("ending_cash, ending_avail_credit, working_capital").order("created_at", { ascending: false }).limit(1).maybeSingle(),
-    supabase.from("fin_company_settings").select("annual_revenue_plan").eq("fiscal_year", 2026).single(),
-    getScorecard(),
-  ]);
+  const [input, scorecard] = await Promise.all([getFinanceOverviewInput(2026), getScorecard()]);
+  const o = computeFinanceOverview(input);
+  const totalWeeks = input.cashFlow.weeks.length;
 
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-semibold text-ink">Finance</h1>
-        <p className="text-ink-3 text-sm">FY2026 plan {usd(Number(settings?.annual_revenue_plan ?? 0))}.</p>
+        <h1 className="text-xl font-semibold text-ink">Finance cockpit</h1>
+        <p className="text-ink-3 text-sm">
+          Live across every module{o.lastQbSyncAt ? ` · QuickBooks synced ${new Date(o.lastQbSyncAt).toLocaleDateString()}` : " · QuickBooks not synced yet"}.
+        </p>
       </header>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Card label="Cash on hand" value={usd(Number(snap?.ending_cash ?? 0))} />
-        <Card label="Available credit" value={usd(Number(snap?.ending_avail_credit ?? 0))} />
-        <Card label="Working capital" value={usd(Number(snap?.working_capital ?? 0))} />
+      {o.alerts.length > 0 && (
+        <div className="rounded-xl border border-warn bg-warn/10 p-3 space-y-1">
+          {o.alerts.map((a, i) => <p key={i} className="text-sm text-warn">⚠ {a}</p>)}
+        </div>
+      )}
+
+      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <Card label="Cash on hand" value={usd(o.cashOnHand)} href="/admin/finance/cash-flow" />
+        <Card label="Working capital" value={usd(o.workingCapital)} sub={`runway ${o.runwayWeeks >= totalWeeks ? totalWeeks + "+" : o.runwayWeeks} wks`} href="/admin/finance/cash-flow" />
+        <Card label="Net income vs plan" value={usd(o.pnl.actualNetIncome)} sub={`${signedUsd(o.pnl.varianceNetIncome)} vs budget`} href="/admin/finance/budget" />
+        <Card label="Break-even attainment" value={pct(o.breakEvenAttainmentPct)} sub={usd(o.breakEvenRevenue)} href="/admin/finance/break-even" />
+        <Card label="Sales pace YTD" value={pct(o.salesPacePct)} sub={`${usd(o.salesActualYtd)} / ${usd(o.salesPlanYtd)}`} href="/admin/finance/sales-trend" />
+        <Card label="Gross margin" value={pct(o.grossMarginPct)} sub={`overhead ${pct(o.overheadRate)}`} href="/admin/finance/pricing" />
       </div>
 
       <section className="space-y-2">
@@ -50,11 +59,12 @@ export default async function FinanceHomePage() {
   );
 }
 
-function Card({ label, value }: { label: string; value: string }) {
+function Card({ label, value, sub, href }: { label: string; value: string; sub?: string; href: string }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-4">
+    <a href={href} className="rounded-xl border border-line bg-surface p-4 hover:bg-hover block">
       <p className="text-xs uppercase tracking-wide text-ink-3">{label}</p>
-      <p className="text-2xl font-bold text-ink mt-1">{value}</p>
-    </div>
+      <p className="text-lg font-semibold text-ink mt-1">{value}</p>
+      {sub && <p className="text-xs text-ink-4 mt-0.5">{sub}</p>}
+    </a>
   );
 }

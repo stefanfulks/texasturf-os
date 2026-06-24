@@ -36,4 +36,14 @@ describe("computeCashFlow", () => {
     expect(r.weeks[1].expenses).toBeCloseTo(1000, 2);
     expect(r.weeks[0].expenses).toBeCloseTo(0, 2);
   });
+
+  it("adds sales-forecast deposits to the weeks they fall in", () => {
+    const r = computeCashFlow({
+      weekStarts: weeks, openingCash: 0, openingAvailCredit: 0, creditLimit: 0,
+      ar: [], ap: [], recurring: [], weeklyActuals: {},
+      salesForecastWeekly: { "2026-06-15": 25000 },
+    });
+    expect(r.weeks[1].deposits).toBeCloseTo(25000, 2);
+    expect(r.weeks[0].deposits).toBeCloseTo(0, 2);
+  });
 });

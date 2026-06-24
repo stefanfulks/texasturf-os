@@ -1,32 +1,22 @@
 import { requireAdmin } from "@/lib/auth/require-role";
-import { getCashFlowData, getScorecard } from "@/lib/finance/cash-flow-queries";
-import { computeCashFlow } from "@/lib/finance/cash-flow";
-import { weekStartsForTimeline } from "@/lib/finance/periods";
+import { getScorecard } from "@/lib/finance/cash-flow-queries";
+import { getFinanceOverviewInput } from "@/lib/finance/overview-queries";
 import { CashFlowView } from "./cash-flow-view";
-
-function currentMonday(): string {
-  const now = new Date();
-  const day = now.getUTCDay();
-  const diff = (day + 6) % 7;
-  now.setUTCDate(now.getUTCDate() - diff);
-  return now.toISOString().slice(0, 10);
-}
 
 export default async function CashFlowPage() {
   await requireAdmin();
-  const [data, scorecard] = await Promise.all([getCashFlowData(), getScorecard()]);
-  const weekStarts = weekStartsForTimeline(currentMonday());
-  const result = computeCashFlow({ ...data, weekStarts, weeklyActuals: {} });
-
+  const [input, scorecard] = await Promise.all([getFinanceOverviewInput(2026), getScorecard()]);
+  const result = input.cashFlow;
   const groups = [...new Set(scorecard.map((m) => m.metric_group))];
+  const creditLimit = result.weeks[0]?.startingAvailCredit ?? 0;
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-semibold text-ink">Cash flow — 13 weeks</h1>
-        <p className="text-ink-3 text-sm">4 weeks history + current + 8 forecast. Close the current week to snapshot cash + KPIs.</p>
+        <p className="text-ink-3 text-sm">4 weeks history + current + 8 forecast. Forecast weeks include the sales reforecast; close the current week to snapshot.</p>
       </header>
-      <CashFlowView result={result} creditLimit={data.creditLimit} currentWeekIndex={4} />
+      <CashFlowView result={result} creditLimit={creditLimit} currentWeekIndex={input.currentWeekIndex} />
 
       <section className="space-y-2">
         <h2 className="font-medium text-ink">KPI scorecard</h2>

@@ -7,7 +7,8 @@ import { logFinChange } from "@/lib/finance/audit";
 
 type FinSettingsTable =
   | "fin_company_settings" | "fin_account" | "fin_business_unit"
-  | "fin_product" | "fin_cost_rate" | "fin_labor_role" | "fin_burden_rate";
+  | "fin_product" | "fin_cost_rate" | "fin_labor_role" | "fin_burden_rate"
+  | "fin_qb_account_map";
 
 export async function upsertFinRow(table: FinSettingsTable, row: Record<string, unknown>) {
   await requireAdmin();
