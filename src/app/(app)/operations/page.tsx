@@ -27,6 +27,12 @@ export default async function WarehousePage() {
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2">
           <Card
+            href="/operations/vendor-orders"
+            title="Vendor Orders"
+            body="Purchase requests from request → order → delivery → payment. Replaces the #low-inventory free-for-all."
+            cta="Open"
+          />
+          <Card
             href="/operations/kpi-log"
             title="KPI Log"
             body="Daily warehouse KPI log. Office logs, management signs off. Replaces the KPI Tracker sheet."

@@ -140,3 +140,29 @@ export type FinDebt           = FinTables["fin_debt"]["Row"]
 export type FinCashSnapshot   = FinTables["fin_cash_snapshot"]["Row"]
 export type FinMetric         = FinTables["fin_metric"]["Row"]
 export type FinMetricValue    = FinTables["fin_metric_value"]["Row"]
+
+// ---- Vendor purchasing & order tracking ------------------------------------
+export type PurchaseOrder = Database["public"]["Tables"]["purchase_orders"]["Row"]
+export type PurchaseOrderInsert = Database["public"]["Tables"]["purchase_orders"]["Insert"]
+export type PurchaseOrderUpdate = Database["public"]["Tables"]["purchase_orders"]["Update"]
+export type PurchaseOrderEvent = Database["public"]["Tables"]["purchase_order_events"]["Row"]
+export type PurchaseOrderEventInsert = Database["public"]["Tables"]["purchase_order_events"]["Insert"]
+export type PoStatus = Database["public"]["Enums"]["po_status"]
+export type PoPriority = Database["public"]["Enums"]["po_priority"]
+export type PoPurchaseType = Database["public"]["Enums"]["po_purchase_type"]
+export type PoPaymentTerms = Database["public"]["Enums"]["po_payment_terms"]
+export type PoPaymentStatus = Database["public"]["Enums"]["po_payment_status"]
+
+// Shape of each entry in purchase_orders.documents (manifest of files in the
+// private `purchase-orders` storage bucket).
+export type PoDocument = {
+  path: string   // object path within the `purchase-orders` bucket
+  name: string   // original filename
+  type: string   // mime type
+  size: number   // bytes
+  category?: string  // 'quote' | 'po' | 'invoice' | 'shipping' | 'photo' | 'other'
+}
+
+// ---- Finance suite: QuickBooks seam ----------------------------------------
+export type FinQbAccountMap = Database["public"]["Tables"]["fin_qb_account_map"]["Row"]
+export type FinSyncLog      = Database["public"]["Tables"]["fin_sync_log"]["Row"]
