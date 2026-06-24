@@ -102,29 +102,29 @@ export async function GET(request: Request) {
     const reqAgeDays = o.request_date ? -1 * (daysUntil(o.request_date) ?? 0) : 0;
 
     if (NEEDS_ORDERING.includes(o.status)) {
-      needsOrdering.push({ id: o.id, text: `*${label(o)}* — ${buyer}${o.needed_by ? `, need by ${fmtDate(o.needed_by)}` : ""}` });
+      needsOrdering.push({ id: o.id, text: `*${label(o)}* — ${buyer}${o.needed_by ? `, need by ${fmtDate(o.needed_by)}` : ""}`, actions: ["mark_ordered"] });
     }
     if (WAITING.includes(o.status)) {
-      waitingOnVendor.push({ id: o.id, text: `*${label(o)}* — ${vName(o)}${o.eta ? `, ETA ${fmtDate(o.eta)}` : ", _no ETA_"}` });
+      waitingOnVendor.push({ id: o.id, text: `*${label(o)}* — ${vName(o)}${o.eta ? `, ETA ${fmtDate(o.eta)}` : ", _no ETA_"}`, actions: ["update_eta", "mark_delivered"] });
     }
     if (o.status === "in_transit") {
-      inTransit.push({ id: o.id, text: `*${label(o)}* — ${vName(o)}, ETA ${fmtDate(o.eta)}${o.tracking_number ? `, \`${o.tracking_number}\`` : ", _no tracking#_"}` });
+      inTransit.push({ id: o.id, text: `*${label(o)}* — ${vName(o)}, ETA ${fmtDate(o.eta)}${o.tracking_number ? `, \`${o.tracking_number}\`` : ", _no tracking#_"}`, actions: ["update_eta", "mark_delivered"] });
     }
     if (o.remaining_balance != null && o.remaining_balance > 0 && dueDays != null && dueDays >= 0 && dueDays <= 7) {
-      upcomingPayments.push({ id: o.id, text: `${vName(o)} — *${money(o.remaining_balance)}* due ${fmtDate(o.payment_due_date)}` });
+      upcomingPayments.push({ id: o.id, text: `${vName(o)} — *${money(o.remaining_balance)}* due ${fmtDate(o.payment_due_date)}`, actions: ["deposit_paid", "final_payment"] });
       addNudge(o.assigned_buyer_id, `💵 Payment to ${vName(o)} (${money(o.remaining_balance)}) is due ${fmtDate(o.payment_due_date)} — ${label(o)}`);
     }
 
     // Overdue (highly visible)
     if (NEEDS_ORDERING.includes(o.status) && o.needed_by && (daysUntil(o.needed_by) ?? 0) < 0) {
-      overdue.push({ id: o.id, text: `*${label(o)}* still not ordered — was needed ${fmtDate(o.needed_by)} (${buyer})` });
+      overdue.push({ id: o.id, text: `*${label(o)}* still not ordered — was needed ${fmtDate(o.needed_by)} (${buyer})`, actions: ["mark_ordered"] });
     }
     if (SHIPPING.includes(o.status) && etaDays != null && etaDays < 0) {
-      overdue.push({ id: o.id, text: `*${label(o)}* from ${vName(o)} past ETA ${fmtDate(o.eta)}` });
+      overdue.push({ id: o.id, text: `*${label(o)}* from ${vName(o)} past ETA ${fmtDate(o.eta)}`, actions: ["update_eta", "mark_delivered"] });
       addNudge(o.assigned_buyer_id, `🚚 ${label(o)} from ${vName(o)} is past its ETA (${fmtDate(o.eta)}). Check on it?`);
     }
     if (o.remaining_balance != null && o.remaining_balance > 0 && dueDays != null && dueDays < 0) {
-      overdue.push({ id: o.id, text: `Payment ${money(o.remaining_balance)} to ${vName(o)} is *past due* (${fmtDate(o.payment_due_date)})` });
+      overdue.push({ id: o.id, text: `Payment ${money(o.remaining_balance)} to ${vName(o)} is *past due* (${fmtDate(o.payment_due_date)})`, actions: ["final_payment", "deposit_paid"] });
       addNudge(o.assigned_buyer_id, `⚠️ Payment ${money(o.remaining_balance)} to ${vName(o)} is PAST DUE (${fmtDate(o.payment_due_date)}).`);
     }
     // Waiting too long (>5 days unmoved in early stages)
