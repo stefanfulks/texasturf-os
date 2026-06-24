@@ -4639,6 +4639,45 @@ export type Database = {
           },
         ]
       }
+      unmatched_calls: {
+        Row: {
+          duration_sec: number | null
+          from_number: string
+          id: string
+          occurred_at: string
+          recording_sid: string | null
+          recording_url: string | null
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          transcript: string | null
+        }
+        Insert: {
+          duration_sec?: number | null
+          from_number: string
+          id?: string
+          occurred_at?: string
+          recording_sid?: string | null
+          recording_url?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          transcript?: string | null
+        }
+        Update: {
+          duration_sec?: number | null
+          from_number?: string
+          id?: string
+          occurred_at?: string
+          recording_sid?: string | null
+          recording_url?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          transcript?: string | null
+        }
+        Relationships: []
+      }
       vehicle_reservations: {
         Row: {
           asset_id: string
