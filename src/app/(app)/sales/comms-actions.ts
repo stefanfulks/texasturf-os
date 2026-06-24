@@ -27,6 +27,8 @@ import {
   isTwilioConfigured,
   isSmsConfigured,
 } from "@/lib/twilio/client";
+import { getValidGoogleAccessToken } from "@/lib/google/tokens";
+import { sendGmail, type SendError } from "@/lib/google/gmail";
 
 export type CommResult = { ok: true } | { ok: false; reason: string };
 
@@ -192,3 +194,109 @@ export async function sendSms(
     return { ok: false, reason: "Couldn't send the text — try again." };
   }
 }
+
+/**
+ * Send an outbound email to the lead from the rep's own Gmail, and log it to
+ * the deal timeline. Uses the existing Google OAuth refresh tokens stored in
+ * google_oauth_tokens (set up for Calendar; we just added the gmail.send scope
+ * in login/actions.ts). Existing users get the new scope on next sign-in
+ * (prompt=consent), and the typed `scope_missing` error tells them so.
+ */
+export async function sendEmailFromDeal(
+  dealId: string,
+  contactId: string,
+  subject: string,
+  body: string,
+): Promise<CommResult> {
+  const subj = subject.trim();
+  const text = body.trim();
+  if (!subj) return { ok: false, reason: "Add a subject line." };
+  if (!text) return { ok: false, reason: "Write a message first." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, reason: "Sign in first." };
+
+  // From = the signed-in user's own profile (their Gmail address).
+  const { data: profile } = (await supabase
+    .from("profiles")
+    .select("full_name, email")
+    .eq("id", user.id)
+    .maybeSingle()) as unknown as {
+    data: { full_name: string | null; email: string | null } | null;
+  };
+  const fromName = profile?.full_name?.trim() || "TexasTurf";
+  const fromEmail = profile?.email?.trim() || user.email;
+  if (!fromEmail) {
+    return { ok: false, reason: "Your account is missing an email." };
+  }
+
+  const contact = await getContact(contactId);
+  const toEmail = contact?.email?.trim();
+  if (!toEmail) {
+    return {
+      ok: false,
+      reason: "Add an email to this contact before sending.",
+    };
+  }
+
+  const tokenStatus = await getValidGoogleAccessToken(user.id);
+  if (!tokenStatus.ok) {
+    return {
+      ok: false,
+      reason:
+        tokenStatus.reason === "no_tokens"
+          ? "Sign in with Google to enable Gmail send."
+          : "Couldn't authorize Gmail — try signing in again.",
+    };
+  }
+
+  try {
+    const sent = await sendGmail(tokenStatus.accessToken, {
+      to: toEmail,
+      fromName,
+      fromEmail,
+      subject: subj,
+      body: text,
+    });
+
+    const sb = await salesDb();
+    await sb.from("deal_activities").insert({
+      deal_id: dealId,
+      kind: "email",
+      direction: "outbound",
+      // Store subject + body so the timeline shows the full thing on review.
+      body: `Subject: ${subj}\n\n${text}`,
+      metadata: {
+        gmailMessageId: sent.id,
+        gmailThreadId: sent.threadId,
+        toEmail,
+        fromEmail,
+      },
+      created_by: user.id,
+    });
+
+    revalidatePath(`/sales/deals/${dealId}`);
+    return { ok: true };
+  } catch (err) {
+    const sendErr = err as SendError;
+    if (sendErr?.kind === "scope_missing") {
+      return {
+        ok: false,
+        reason:
+          "Gmail send permission not granted — sign out + sign in again to enable it.",
+      };
+    }
+    if (sendErr?.kind === "auth_failed") {
+      return { ok: false, reason: "Your Google session expired — sign in again." };
+    }
+    Sentry.captureException(err, {
+      tags: { feature: "sales-comms", action: "sendEmail" },
+      extra: { dealId, contactId },
+    });
+    return { ok: false, reason: "Couldn't send the email — try again." };
+  }
+}
+

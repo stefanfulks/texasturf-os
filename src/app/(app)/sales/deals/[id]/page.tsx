@@ -21,6 +21,7 @@ import { DealHeaderActions } from "@/components/sales/DealHeaderActions";
 import { DealOverviewForms } from "@/components/sales/DealOverviewForms";
 import { DealComms } from "@/components/sales/DealComms";
 import { isTwilioConfigured, isSmsConfigured } from "@/lib/twilio/client";
+import { isGmailConfigured } from "@/lib/google/gmail";
 
 export const dynamic = "force-dynamic";
 
@@ -89,10 +90,12 @@ export default async function DealDetailPage({
   const ownerName = deal.owner_id ? profileNames[deal.owner_id] : null;
 
   // Comms: capability flags are computed server-side so creds stay server-only;
-  // the SMS thread is just the existing activity timeline filtered to texts.
+  // the SMS + email threads are just the existing activity timeline filtered.
   const twilioConfigured = isTwilioConfigured();
   const smsConfigured = isSmsConfigured();
+  const gmailConfigured = isGmailConfigured();
   const smsActivities = activities.filter((a) => a.kind === "sms");
+  const emailActivities = activities.filter((a) => a.kind === "email");
 
   const now = today();
   const open = deal.stage !== "closed_won" && deal.stage !== "closed_lost";
@@ -234,9 +237,12 @@ export default async function DealDetailPage({
             dealId={deal.id}
             contactId={deal.sales_contact_id}
             contactPhone={contact?.phone ?? null}
+            contactEmail={contact?.email ?? null}
             smsActivities={smsActivities}
+            emailActivities={emailActivities}
             twilioConfigured={twilioConfigured}
             smsConfigured={smsConfigured}
+            gmailConfigured={gmailConfigured}
           />
 
           <div className="card px-4 py-3.5">
