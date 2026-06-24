@@ -7,6 +7,7 @@ import { UserMenu } from "@/components/user-menu";
 import { NavLinks } from "@/components/nav-links";
 import { NotificationBell } from "@/components/notification-bell";
 import { TurfyLauncher } from "@/components/turfy-launcher";
+import { CommandPalette, SearchButton } from "@/components/command-palette";
 import { AnalyticsIdentify } from "@/components/analytics-identify";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { parseDepartments } from "@/lib/departments";
@@ -86,8 +87,9 @@ export default async function AppLayout({
             <NavLinks isAdmin={isAdmin} department={primaryDepartment} feedbackCount={feedbackOpen} />
           </div>
 
-          {/* RIGHT — notifications + settings gear */}
+          {/* RIGHT — search + notifications + settings gear */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <SearchButton />
             <NotificationBell initialUnread={unreadCount ?? 0} />
             <Link
               href="/settings"
@@ -104,6 +106,7 @@ export default async function AppLayout({
         {children}
       </div>
       <TurfyLauncher greetingName={greetingName} />
+      <CommandPalette />
     </div>
     </PostHogProvider>
     </Suspense>
