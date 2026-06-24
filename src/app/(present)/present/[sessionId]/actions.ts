@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { getJobberAccountId, getClientPropertyId, createPitchQuote, type PitchQuoteLine } from "@/lib/jobber/quotes";
@@ -221,7 +222,13 @@ export async function enableShareLink(sessionId: string): Promise<{ ok: boolean;
     .update({ share_token: token, share_enabled: true, share_expires_at: expires, shared_at: new Date().toISOString() })
     .eq("id", sessionId);
   if (error) return { ok: false, error: error.message };
-  const base = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
+  // Derive the base URL from the live request host so the link is always the
+  // domain the rep is actually on (prod or local) — no dependency on a
+  // NEXT_PUBLIC_APP_URL env var being set correctly per environment.
+  const h = await headers();
+  const host = h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const base = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
   return { ok: true, url: `${base}/explore/${token}` };
 }
 
