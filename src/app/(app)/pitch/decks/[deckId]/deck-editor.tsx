@@ -16,6 +16,7 @@ function toText(value: unknown, type: FieldType): string {
   if (type === "quotes") return (value as { quote: string; name: string; city: string }[]).map((q) => `${q.quote} | ${q.name} | ${q.city}`).join("\n");
   if (type === "gallerypairs") return (value as { label: string; beforeUrl?: string; afterUrl?: string }[]).map((p) => [p.label, p.beforeUrl ?? "", p.afterUrl ?? ""].join(" | ")).join("\n");
   if (type === "media") return (value as { url: string; caption?: string }[]).map((m) => (m.caption ? `${m.url} | ${m.caption}` : m.url)).join("\n");
+  if (type === "ratings") return (value as { platform: string; score: string; detail?: string }[]).map((r) => [r.platform, r.score, r.detail ?? ""].join(" | ")).join("\n");
   return "";
 }
 
@@ -28,6 +29,7 @@ function fromText(text: string, type: FieldType): unknown {
   if (type === "quotes") return lines.map((l) => { const p = l.split("|").map((s) => s.trim()); return { quote: p[0] ?? "", name: p[1] ?? "", city: p[2] ?? "" }; });
   if (type === "gallerypairs") return lines.map((l) => { const p = l.split("|").map((s) => s.trim()); return { label: p[0] ?? "", beforeUrl: p[1] || undefined, afterUrl: p[2] || undefined }; });
   if (type === "media") return lines.map((l) => { const i = l.indexOf("|"); return i === -1 ? { url: l } : { url: l.slice(0, i).trim(), caption: l.slice(i + 1).trim() || undefined }; });
+  if (type === "ratings") return lines.map((l) => { const p = l.split("|").map((s) => s.trim()); return { platform: p[0] ?? "", score: p[1] ?? "", detail: p[2] || undefined }; });
   return text;
 }
 

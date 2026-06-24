@@ -12,6 +12,7 @@ export type SlideKind =
   | "video"
   | "process"
   | "reviews"
+  | "ratings"
   | "pricing"
   | "financing"
   | "close";
@@ -19,6 +20,7 @@ export type SlideKind =
 export type Point = { head: string; body: string };
 export type GalleryPair = { label: string; beforeUrl?: string; afterUrl?: string };
 export type MediaImage = { url: string; caption?: string };
+export type RatingItem = { platform: string; score: string; detail?: string };
 
 export type DeckSlide =
   | { kind: "cover"; title: string; subtitle?: string; logoUrl?: string }
@@ -30,6 +32,7 @@ export type DeckSlide =
   | { kind: "video"; title: string; url: string; poster?: string; caption?: string }
   | { kind: "process"; title: string; steps: Point[] }
   | { kind: "reviews"; title: string; quotes: { quote: string; name: string; city: string }[] }
+  | { kind: "ratings"; title: string; subtitle?: string; items: RatingItem[] }
   | { kind: "pricing"; title: string }
   | { kind: "financing"; title: string; body: string; bullets: string[] }
   | { kind: "close"; title: string; subtitle?: string; cta: string };
@@ -93,12 +96,12 @@ export const DEFAULT_DECK: DeckSlide[] = [
     ],
   },
   {
-    kind: "reviews",
-    title: "What our customers say",
-    quotes: [
-      { quote: "Best decision we made for the backyard — looks incredible and the dog loves it.", name: "Sarah M.", city: "Round Rock" },
-      { quote: "No more mowing in July. Crew was fast and clean.", name: "David R.", city: "Austin" },
-      { quote: "The putting green is a dream. Neighbors keep asking who did it.", name: "Mark T.", city: "Lakeway" },
+    kind: "ratings",
+    title: "Trusted across the Austin metro",
+    subtitle: "Rated by real homeowners on the platforms they trust.",
+    items: [
+      { platform: "HomeAdvisor", score: "4.8", detail: "Verified homeowner reviews" },
+      { platform: "Yelp", score: "4.5", detail: "24 reviews" },
     ],
   },
   { kind: "pricing", title: "Choose your turf" },
@@ -129,7 +132,7 @@ export function visibleSlides(slides: StoredSlide[]): DeckSlide[] {
 }
 
 // ── Builder field config — drives the generic copy editor in phase 2b ──
-export type FieldType = "text" | "textarea" | "lines" | "labels" | "pairs" | "quotes" | "gallerypairs" | "media";
+export type FieldType = "text" | "textarea" | "lines" | "labels" | "pairs" | "quotes" | "gallerypairs" | "media" | "ratings";
 export type FieldDef = { key: string; label: string; type: FieldType };
 
 export const SLIDE_FIELDS: Record<SlideKind, FieldDef[]> = {
@@ -142,6 +145,7 @@ export const SLIDE_FIELDS: Record<SlideKind, FieldDef[]> = {
   video:     [{ key: "title", label: "Title", type: "text" }, { key: "url", label: "Video URL (MP4)", type: "text" }, { key: "poster", label: "Poster image URL", type: "text" }, { key: "caption", label: "Caption", type: "text" }],
   process:   [{ key: "title", label: "Title", type: "text" }, { key: "steps", label: "Steps — Head | Body (one per line)", type: "pairs" }],
   reviews:   [{ key: "title", label: "Title", type: "text" }, { key: "quotes", label: "Reviews — Quote | Name | City (one per line)", type: "quotes" }],
+  ratings:   [{ key: "title", label: "Title", type: "text" }, { key: "subtitle", label: "Subtitle", type: "text" }, { key: "items", label: "Ratings — Platform | Score | Detail (one per line)", type: "ratings" }],
   pricing:   [{ key: "title", label: "Title", type: "text" }],
   financing: [{ key: "title", label: "Title", type: "text" }, { key: "body", label: "Body", type: "textarea" }, { key: "bullets", label: "Bullets (one per line)", type: "lines" }],
   close:     [{ key: "title", label: "Title", type: "text" }, { key: "subtitle", label: "Subtitle", type: "text" }, { key: "cta", label: "Button label", type: "text" }],
@@ -150,5 +154,5 @@ export const SLIDE_FIELDS: Record<SlideKind, FieldDef[]> = {
 export const SLIDE_KIND_LABELS: Record<SlideKind, string> = {
   cover: "Cover", why_turf: "Why turf", savings: "Savings", why_us: "Why us",
   gallery: "Before & after", media: "Photos", video: "Video", process: "Process", reviews: "Reviews",
-  pricing: "Pricing", financing: "Financing", close: "Close",
+  ratings: "Ratings", pricing: "Pricing", financing: "Financing", close: "Close",
 };

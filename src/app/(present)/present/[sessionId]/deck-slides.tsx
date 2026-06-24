@@ -165,6 +165,24 @@ function ReviewsSlide({ slide }: { slide: Extract<DeckSlide, { kind: "reviews" }
   );
 }
 
+function RatingsSlide({ slide }: { slide: Extract<DeckSlide, { kind: "ratings" }> }) {
+  return (
+    <SlideShell title={slide.title}>
+      {slide.subtitle && <p className="text-ink-2 mb-6 max-w-xl">{slide.subtitle}</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+        {slide.items.map((it, i) => (
+          <div key={i} className="card p-6 text-center">
+            <p className="display text-5xl text-brand">{it.score}<span className="text-2xl text-ink-3"> / 5</span></p>
+            <p className="text-yellow-500 text-lg mt-1" aria-hidden>★★★★★</p>
+            <p className="text-base font-medium mt-2">{it.platform}</p>
+            {it.detail && <p className="text-sm text-ink-3">{it.detail}</p>}
+          </div>
+        ))}
+      </div>
+    </SlideShell>
+  );
+}
+
 function FinancingSlide({ slide }: { slide: Extract<DeckSlide, { kind: "financing" }> }) {
   return (
     <SlideShell title={slide.title}>
@@ -205,6 +223,7 @@ export function renderContentSlide(slide: DeckSlide, display: DisplaySession): R
     case "video": return <VideoSlide slide={slide} />;
     case "process": return <ProcessSlide slide={slide} />;
     case "reviews": return <ReviewsSlide slide={slide} />;
+    case "ratings": return <RatingsSlide slide={slide} />;
     case "financing": return <FinancingSlide slide={slide} />;
     case "close": return <CloseSlide slide={slide} />;
     case "pricing": return null;
