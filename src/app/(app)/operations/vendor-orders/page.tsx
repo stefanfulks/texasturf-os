@@ -49,6 +49,7 @@ export default async function VendorOrdersPage({
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/operations/vendor-orders/dashboard" className="btn btn-ghost">Dashboard</Link>
           <Link href="/operations/vendor-orders/new" className="btn btn-primary">+ New request</Link>
         </div>
       </div>
