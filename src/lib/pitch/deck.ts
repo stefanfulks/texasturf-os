@@ -96,12 +96,15 @@ export const DEFAULT_DECK: DeckSlide[] = [
     ],
   },
   {
+    // Placeholder — enter your verified live ratings in the deck editor
+    // (/pitch/decks). No specific numbers are hardcoded so nothing unverified ships.
     kind: "ratings",
     title: "Trusted across the Austin metro",
-    subtitle: "Rated by real homeowners on the platforms they trust.",
+    subtitle: "Add your live HomeAdvisor, Google, and Yelp ratings in the deck editor.",
     items: [
-      { platform: "HomeAdvisor", score: "4.8", detail: "Verified homeowner reviews" },
-      { platform: "Yelp", score: "4.5", detail: "24 reviews" },
+      { platform: "HomeAdvisor", score: "—", detail: "Add your rating" },
+      { platform: "Google", score: "—", detail: "Add your rating" },
+      { platform: "Yelp", score: "—", detail: "Add your rating" },
     ],
   },
   { kind: "pricing", title: "Choose your turf" },
