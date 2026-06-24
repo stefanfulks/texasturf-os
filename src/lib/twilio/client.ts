@@ -80,3 +80,17 @@ export function twilioWebhookUrl(path: string): string {
   const base = publicBaseUrl();
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
+
+/**
+ * Slack channel id (e.g. "C012ABCD") for the sales-comms fan-out — inbound
+ * SMS replies, voicemails, and answered inbound calls all post here. Returns
+ * null when the env var `SLACK_SALES_CHANNEL_ID` is unset, in which case
+ * callers must skip Slack gracefully (in-app notifications still fire).
+ *
+ * Stefan-side setup: in Slack, view the #sales-comms channel details → copy
+ * the `C…` id, then `printf '%s' 'Cxxxx' | vercel env add SLACK_SALES_CHANNEL_ID production`.
+ */
+export function slackSalesChannelId(): string | null {
+  const v = process.env.SLACK_SALES_CHANNEL_ID?.trim();
+  return v && v.length > 0 ? v : null;
+}
