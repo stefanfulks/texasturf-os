@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Check } from "lucide-react";
 import { setMyDepartment } from "./actions";
 import {
   DEPARTMENTS,
   DEPARTMENT_LABEL,
-  DEPARTMENT_EMOJI,
+  DEPARTMENT_ICON,
   DEPARTMENT_DESCRIPTION,
   type Department,
 } from "@/lib/departments";
@@ -62,6 +63,7 @@ export function PickDepartmentPrompt({
       <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {DEPARTMENTS.map((dept) => {
           const on = selected.includes(dept);
+          const Icon = DEPARTMENT_ICON[dept];
           return (
             <button
               key={dept}
@@ -76,7 +78,9 @@ export function PickDepartmentPrompt({
               }
               aria-pressed={on}
             >
-              <span className="text-lg leading-none mt-0.5">{DEPARTMENT_EMOJI[dept]}</span>
+              <span className={"medallion " + (on ? "medallion-brand" : "")}>
+                <Icon className="h-[18px] w-[18px]" />
+              </span>
               <span className="flex-1 min-w-0">
                 <span className="block font-medium text-ink">
                   {DEPARTMENT_LABEL[dept]}
@@ -86,8 +90,8 @@ export function PickDepartmentPrompt({
                 </span>
               </span>
               {on && (
-                <span className="text-brand mt-0.5" aria-hidden>
-                  ✓
+                <span className="mt-0.5 text-brand" aria-hidden>
+                  <Check className="h-4 w-4" strokeWidth={2.5} />
                 </span>
               )}
             </button>

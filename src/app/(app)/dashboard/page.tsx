@@ -16,7 +16,7 @@ import { PickDepartmentPrompt } from "./pick-department";
 import { DashboardQuickSearch } from "./quick-search";
 import {
   DEPARTMENT_LABEL,
-  DEPARTMENT_EMOJI,
+  DEPARTMENT_ICON,
   DEPARTMENT_HREF,
   DEPARTMENT_DESCRIPTION,
   isDepartment,
@@ -24,6 +24,12 @@ import {
   parseDepartments,
   type Department,
 } from "@/lib/departments";
+
+/** Renders a department's SVG icon (replaces the old emoji glyph). */
+function DeptIcon({ dept, className }: { dept: Department; className?: string }) {
+  const Icon = DEPARTMENT_ICON[dept];
+  return <Icon className={className} />;
+}
 
 export const metadata = { title: "TexasTurf OS" };
 
@@ -138,7 +144,10 @@ export default async function DashboardPage({
               {departments.map((d, i) => (
                 <span key={d}>
                   {i > 0 && <span className="text-ink-4"> · </span>}
-                  {DEPARTMENT_LABEL[d]} {DEPARTMENT_EMOJI[d]}
+                  <span className="inline-flex items-center gap-1 align-middle">
+                    <DeptIcon dept={d} className="h-3.5 w-3.5 text-ink-4" />
+                    {DEPARTMENT_LABEL[d]}
+                  </span>
                 </span>
               ))}
             </p>
@@ -199,7 +208,9 @@ export default async function DashboardPage({
         <section className="reveal panel" style={{ animationDelay: "180ms" }}>
           <div className="panel-head">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-ink">
-              <span>{DEPARTMENT_EMOJI[primaryDepartment]}</span>
+              <span className="medallion medallion-brand !h-6 !w-6 !rounded-lg">
+                <DeptIcon dept={primaryDepartment} className="h-3.5 w-3.5" />
+              </span>
               {DEPARTMENT_LABEL[primaryDepartment]} snapshot
             </h2>
             <Link href={DEPARTMENT_HREF[primaryDepartment]} className="text-xs font-medium text-ink-3 hover:text-brand transition-colors">
@@ -335,7 +346,7 @@ export default async function DashboardPage({
               key={d}
               href={DEPARTMENT_HREF[d]}
               label={DEPARTMENT_LABEL[d]}
-              emoji={DEPARTMENT_EMOJI[d]}
+              dept={d}
               description={DEPARTMENT_DESCRIPTION[d]}
               highlight={ownSet.has(d)}
             />
@@ -354,7 +365,7 @@ export default async function DashboardPage({
                   key={d}
                   href={DEPARTMENT_HREF[d]}
                   label={DEPARTMENT_LABEL[d]}
-                  emoji={DEPARTMENT_EMOJI[d]}
+                  dept={d}
                   description={DEPARTMENT_DESCRIPTION[d]}
                   highlight={false}
                 />
@@ -643,11 +654,11 @@ function StatTile({
 }
 
 function DepartmentTile({
-  href, label, emoji, description, highlight,
+  href, label, dept, description, highlight,
 }: {
   href: string;
   label: string;
-  emoji: string;
+  dept: Department;
   description: string;
   highlight: boolean;
 }) {
@@ -659,7 +670,9 @@ function DepartmentTile({
         (highlight ? "ring-1 ring-brand-line" : "")
       }
     >
-      <span className="text-2xl mt-0.5 leading-none">{emoji}</span>
+      <span className={"medallion " + (highlight ? "medallion-brand" : "")}>
+        <DeptIcon dept={dept} className="h-[18px] w-[18px]" />
+      </span>
       <span className="flex-1 min-w-0">
         <span className="flex items-center gap-2 text-sm font-semibold text-ink">
           {label}

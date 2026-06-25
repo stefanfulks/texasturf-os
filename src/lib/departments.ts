@@ -3,6 +3,10 @@
  * dashboard and nav surface. Orthogonal to `role`, which is the permission
  * tier (admin / office / field).
  */
+import {
+  Briefcase, Warehouse, Building2, HardHat, Megaphone, Banknote,
+  type LucideIcon,
+} from "lucide-react";
 
 export const DEPARTMENTS = [
   "sales",
@@ -35,6 +39,18 @@ export const DEPARTMENT_EMOJI: Record<Department, string> = {
   field:     "🏗️",
   marketing: "📣",
   financial: "💰",
+};
+
+// SVG-icon equivalents of the emoji above — preferred for UI (themeable, crisp,
+// consistent). Pair with the `.medallion` primitive. The emoji map stays for any
+// surface not yet migrated.
+export const DEPARTMENT_ICON: Record<Department, LucideIcon> = {
+  sales:     Briefcase,
+  warehouse: Warehouse,
+  office:    Building2,
+  field:     HardHat,
+  marketing: Megaphone,
+  financial: Banknote,
 };
 
 // Hub pages used to be card-grid menus that just funneled to the real tools.
