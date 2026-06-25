@@ -12,6 +12,7 @@ import {
   Film,
   BookOpen,
   CheckCircle2,
+  Target,
   type LucideIcon,
 } from "lucide-react";
 
@@ -145,8 +146,9 @@ export function MarketingOverview({ campaigns, counts }: MarketingOverviewProps)
   ];
 
   const modules: Array<{ label: string; body: string; href: string; icon: LucideIcon; medallion: string }> = [
+    { label: "Growth funnel", body: "The paid Meta funnel framework — layers, audiences, scripts, budget.", href: "/marketing/funnel", icon: Target, medallion: "medallion-brand" },
     { label: "Content engine", body: "Capture video, photos, and POVs; track the pipeline to published.", href: "/marketing/content", icon: Film, medallion: "medallion-info" },
-    { label: "Playbook", body: "Briefs, Jobber copy blocks, and channel checklists in one place.", href: "/marketing/playbook", icon: BookOpen, medallion: "medallion-brand" },
+    { label: "Playbook", body: "The organic plan: referrals, content cadence, service spotlights.", href: "/marketing/playbook", icon: BookOpen, medallion: "medallion-brand" },
     { label: "Referrals", body: "Roster, outreach calls, and the reward ledger end to end.", href: "/marketing/referrals", icon: Users, medallion: "medallion-warn" },
     { label: "Reviews", body: "Ask at the right moment and watch the reputation flywheel turn.", href: "/marketing/reviews", icon: Star, medallion: "" },
   ];
@@ -272,7 +274,7 @@ export function MarketingOverview({ campaigns, counts }: MarketingOverviewProps)
       {/* Module hub */}
       <section className="reveal space-y-3" style={{ animationDelay: "240ms" }}>
         <p className="eyebrow">Jump into</p>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {modules.map((m) => {
             const Icon = m.icon;
             return (

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  Gift, Film, CalendarDays, CalendarRange, FolderTree, Sparkles, type LucideIcon,
+  Gift, Film, CalendarDays, CalendarRange, FolderTree, Sparkles, Target,
+  ArrowUpRight, type LucideIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
@@ -97,6 +98,26 @@ export default async function PlaybookPage() {
           </div>
         </div>
       </section>
+
+      <Link
+        href="/marketing/funnel"
+        className="card card-hover group reveal flex items-center gap-4 p-4"
+        style={{ animationDelay: "90ms" }}
+      >
+        <span className="medallion medallion-brand medallion-lg">
+          <Target className="h-5 w-5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+            Paid growth funnel <span className="chip chip-brand">New</span>
+          </p>
+          <p className="mt-0.5 text-xs text-ink-3">
+            The Meta ads framework — three layers, the audience ladder, ad scripts per turf
+            type, budget, and metrics.
+          </p>
+        </div>
+        <ArrowUpRight className="h-4 w-4 flex-shrink-0 text-ink-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand" />
+      </Link>
 
       <div className="reveal space-y-5" style={{ animationDelay: "120ms" }}>
         <Section title="Referral program — the Thank-You Blitz" icon={Gift} medallion="medallion-brand">
