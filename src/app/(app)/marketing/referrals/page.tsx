@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AlertTriangle, Download, Plus, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/database.types";
 import { RosterTable, BuildRosterButton } from "./roster-table";
@@ -46,12 +47,25 @@ export default async function ReferralsPage({
 
   if (campaignErr || !campaign) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Referral Program</h1>
-        <div className="rounded-xl border border-warn/30 bg-warn-tint p-6 text-sm text-warn">
-          {campaignErr
-            ? "Marketing tables aren't in the database yet. Apply supabase/migrations/20260610200000_marketing_core.sql, then reload."
-            : "No referral campaign found. The marketing_core migration seeds “Referral Thank-You Blitz 2026” — apply it, then reload."}
+      <div className="space-y-5">
+        <div>
+          <p className="eyebrow mb-2">Marketing</p>
+          <h1 className="page-title">Referral Program</h1>
+        </div>
+        <div className="panel">
+          <div className="empty-state">
+            <span className="medallion medallion-warn">
+              <AlertTriangle className="h-5 w-5" />
+            </span>
+            <p className="empty-state-title">
+              {campaignErr ? "Marketing tables aren’t set up yet" : "No referral campaign found"}
+            </p>
+            <p className="empty-state-body">
+              {campaignErr
+                ? "Apply supabase/migrations/20260610200000_marketing_core.sql, then reload."
+                : "The marketing_core migration seeds “Referral Thank-You Blitz 2026” — apply it, then reload."}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -97,87 +111,100 @@ export default async function ReferralsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <header className="reveal flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{campaign.name}</h1>
-          <p className="text-sm text-ink-3 mt-0.5">
-            $250 Visa gift card or 1 year of the TexasTurf Care Plan — earned when the referred job is completed and paid.
-            Referred friends get $100 off.
+          <p className="eyebrow mb-2">Marketing · Referral program</p>
+          <h1 className="page-title">{campaign.name}</h1>
+          <p className="page-sub">
+            $250 Visa gift card or a year of the TexasTurf Care Plan — earned when the
+            referred job is completed and paid. Referred friends get $100 off.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <BuildRosterButton campaignId={campaign.id} />
           <a
             href={`/marketing/referrals/export?campaign=${campaign.id}`}
-            className="px-4 py-2 text-sm font-medium border border-line-strong rounded-lg hover:bg-hover"
+            className="btn btn-line"
           >
+            <Download className="h-4 w-4" />
             Export Reevo CSV
           </a>
         </div>
-      </div>
+      </header>
 
       {/* Funnel chips */}
-      <div className="flex flex-wrap gap-2">
+      <div className="reveal flex flex-wrap items-center gap-2" style={{ animationDelay: "60ms" }}>
         <Link
           href="/marketing/referrals"
-          className={`text-xs px-2.5 py-1 rounded-full border ${!status ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}
+          className={"chip " + (!status ? "border-brand-strong bg-brand text-on-brand" : "chip-outline hover:bg-hover")}
         >
-          All {rosterTotal}
+          All <span className={!status ? "text-on-brand/70" : "text-ink-4"}>{rosterTotal}</span>
         </Link>
-        {CALL_STATUSES.map((s) => (
-          <Link
-            key={s}
-            href={`/marketing/referrals?status=${s}`}
-            className={`text-xs px-2.5 py-1 rounded-full border ${status === s ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"}`}
-          >
-            {STATUS_LABEL[s]} {counts[s]}
-          </Link>
-        ))}
-        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${rewardsDue > 0 ? "bg-danger-tint text-danger" : "bg-sunken text-ink-3"}`}>
+        {CALL_STATUSES.map((s) => {
+          const active = status === s;
+          return (
+            <Link
+              key={s}
+              href={`/marketing/referrals?status=${s}`}
+              className={"chip " + (active ? "border-brand-strong bg-brand text-on-brand" : "chip-outline hover:bg-hover")}
+            >
+              {STATUS_LABEL[s]} <span className={active ? "text-on-brand/70" : "text-ink-4"}>{counts[s]}</span>
+            </Link>
+          );
+        })}
+        <span className="ml-auto" />
+        <span className={"chip " + (rewardsDue > 0 ? "chip-danger" : "chip-neutral")}>
           Rewards due {rewardsDue}
         </span>
       </div>
 
       {/* Search */}
-      <form method="get" className="flex gap-2">
+      <form method="get" className="reveal flex gap-2" style={{ animationDelay: "120ms" }}>
         {status && <input type="hidden" name="status" value={status} />}
-        <input
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder="Search clients…"
-          className="w-64 text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
-        />
-        <button type="submit" className="px-3 py-2 text-sm border border-line rounded-lg hover:bg-hover">
-          Search
-        </button>
+        <div className="relative w-full sm:w-72">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-4" />
+          <input
+            name="q"
+            defaultValue={q ?? ""}
+            placeholder="Search clients…"
+            className="field-input !pl-9"
+          />
+        </div>
+        <button type="submit" className="btn btn-line">Search</button>
       </form>
 
       {/* Call roster */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-line bg-hover flex items-center justify-between">
-          <span className="text-xs font-semibold text-ink-2">Call roster</span>
-          <span className="text-xs text-ink-4">
+      <section className="panel reveal" style={{ animationDelay: "180ms" }}>
+        <div className="panel-head">
+          <span className="text-sm font-semibold text-ink">Call roster</span>
+          <span className="text-xs text-ink-3">
             showing {(roster ?? []).length} of {status ? counts[status as (typeof CALL_STATUSES)[number]] : rosterTotal}
           </span>
         </div>
         <RosterTable rows={(roster ?? []) as OutreachRow[]} campaignId={campaign.id} />
-      </div>
+      </section>
 
       {/* Ledger */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-line bg-hover flex items-center justify-between">
-          <span className="text-xs font-semibold text-ink-2">Referral ledger</span>
-          <span className="text-xs text-ink-4">{(referrals ?? []).length} referrals</span>
+      <section className="panel reveal" style={{ animationDelay: "240ms" }}>
+        <div className="panel-head">
+          <span className="text-sm font-semibold text-ink">Referral ledger</span>
+          <span className="text-xs text-ink-3">{(referrals ?? []).length} referrals</span>
         </div>
         <LedgerTable rows={(referrals ?? []) as ReferralRow[]} isAdmin={isAdmin} />
-      </div>
+      </section>
 
       {/* Manual add */}
-      <details className="rounded-xl border border-line bg-white p-6">
-        <summary className="text-sm font-semibold cursor-pointer select-none">
-          Add a referral manually (walk-in, Jobber link, word of mouth)
+      <details className="panel group reveal" style={{ animationDelay: "300ms" }}>
+        <summary className="flex cursor-pointer select-none list-none items-center gap-3 px-5 py-4 transition-colors hover:bg-hover">
+          <span className="medallion medallion-brand">
+            <Plus className="h-[18px] w-[18px]" />
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-semibold text-ink">Add a referral manually</span>
+            <span className="block text-xs text-ink-3">Walk-in, Jobber link, or word of mouth.</span>
+          </span>
         </summary>
-        <div className="mt-4">
+        <div className="border-t border-line p-5">
           <AddReferralForm campaignId={campaign.id} />
         </div>
       </details>
