@@ -50,7 +50,10 @@
   /* Elevation — layered low-alpha, the refined recipe */
   --shadow-e1: 0 1px 2px rgba(26, 24, 19, 0.04), 0 1px 3px rgba(26, 24, 19, 0.05);
   --shadow-e2: 0 2px 4px rgba(26, 24, 19, 0.05), 0 8px 18px -6px rgba(26, 24, 19, 0.10);
+  --shadow-e3: 0 6px 16px -4px rgba(26, 24, 19, 0.10), 0 24px 56px -14px rgba(26, 24, 19, 0.20);
   --shadow-pop: 0 4px 12px -2px rgba(26, 24, 19, 0.10), 0 18px 44px -10px rgba(26, 24, 19, 0.18);
+  /* Brand glow — for hero accents and the primary CTA's resting lift */
+  --shadow-brand: 0 1px 2px rgba(21, 87, 48, 0.18), 0 10px 28px -8px rgba(21, 87, 48, 0.28);
 
   /* Motion */
   --ease-out: cubic-bezier(0.21, 0.99, 0.45, 1);
@@ -298,10 +301,243 @@
     transform: translateY(6px);
     animation: reveal 0.5s var(--ease-out) forwards;
   }
+
+  /* ── Page header — one consistent title voice across all 25 sections ──────── */
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    color: var(--color-ink);
+  }
+  @media (min-width: 640px) { .page-title { font-size: 1.75rem; } }
+  .page-sub {
+    margin-top: 0.3rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-ink-3);
+    max-width: 64ch;
+  }
+
+  /* ── Stat / KPI card — the hero of any operational surface ─────────────────
+     A tinted accent rail, an uppercase micro-label, a big tabular figure, and
+     room for a trend delta. Becomes interactive (lift + brand rail) as a link. */
+  .stat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.125rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    box-shadow: var(--shadow-e1);
+    overflow: hidden;
+    transition: border-color 0.18s var(--ease-out),
+      box-shadow 0.18s var(--ease-out),
+      transform 0.18s var(--ease-out);
+  }
+  .stat::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--color-line-strong);
+    opacity: 0.6;
+    transition: background 0.18s var(--ease-out), opacity 0.18s var(--ease-out);
+  }
+  a.stat:hover, .stat-interactive:hover {
+    border-color: var(--color-line-strong);
+    box-shadow: var(--shadow-e2);
+    transform: translateY(-1px);
+  }
+  a.stat:hover::before, .stat-interactive:hover::before { background: var(--color-brand); opacity: 1; }
+  .stat-accent-brand::before  { background: var(--color-brand);  opacity: 1; }
+  .stat-accent-warn::before   { background: var(--color-warn);   opacity: 1; }
+  .stat-accent-danger::before { background: var(--color-danger); opacity: 1; }
+  .stat-accent-info::before   { background: var(--color-info);   opacity: 1; }
+
+  .stat-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 1.875rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+  .stat-foot { font-size: 0.75rem; color: var(--color-ink-3); }
+
+  /* Trend delta pill */
+  .delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    padding: 0.125rem 0.4rem;
+    border-radius: 999px;
+  }
+  .delta-up   { color: var(--color-brand-strong); background: var(--color-brand-tint); }
+  .delta-down { color: var(--color-danger);        background: var(--color-danger-tint); }
+  .delta-flat { color: var(--color-ink-3);         background: var(--color-sunken); }
+
+  /* ── Icon medallion — tinted rounded-square icon container ───────────────── */
+  .medallion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 11px;
+    background: var(--color-sunken);
+    color: var(--color-ink-2);
+    border: 1px solid var(--color-line);
+  }
+  .medallion-brand  { background: var(--color-brand-tint);  color: var(--color-brand-strong); border-color: var(--color-brand-line); }
+  .medallion-warn   { background: var(--color-warn-tint);   color: var(--color-warn);   border-color: color-mix(in srgb, var(--color-warn) 22%, transparent); }
+  .medallion-danger { background: var(--color-danger-tint); color: var(--color-danger); border-color: color-mix(in srgb, var(--color-danger) 22%, transparent); }
+  .medallion-info   { background: var(--color-info-tint);   color: var(--color-info);   border-color: color-mix(in srgb, var(--color-info) 20%, transparent); }
+  .medallion-lg { width: 2.75rem; height: 2.75rem; border-radius: 13px; }
+
+  /* ── Empty state — never a bare line of gray text again ──────────────────── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.625rem;
+    padding: 2.75rem 1.5rem;
+  }
+  .empty-state .medallion { width: 2.75rem; height: 2.75rem; border-radius: 13px; }
+  .empty-state-title { font-size: 0.9375rem; font-weight: 600; color: var(--color-ink); }
+  .empty-state-body  { font-size: 0.8125rem; color: var(--color-ink-3); max-width: 44ch; line-height: 1.5; }
+
+  /* ── Status dot — leading indicator inside chips and rows ────────────────── */
+  .dot { width: 0.5rem; height: 0.5rem; border-radius: 999px; flex-shrink: 0; }
+  .dot-brand  { background: var(--color-brand); }
+  .dot-warn   { background: var(--color-warn); }
+  .dot-danger { background: var(--color-danger); }
+  .dot-info   { background: var(--color-info); }
+  .dot-muted  { background: var(--color-ink-4); }
+  .dot-pulse  { animation: dot-pulse 2.4s var(--ease-out) infinite; }
+
+  /* ── Chip extras (complements existing .chip system) ─────────────────────── */
+  .chip-outline { background: var(--color-surface); color: var(--color-ink-2); border-color: var(--color-line-strong); }
+
+  /* ── Segmented control — filters and view switches ───────────────────────── */
+  .segmented {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.1875rem;
+    background: var(--color-sunken);
+    border: 1px solid var(--color-line);
+    border-radius: 11px;
+  }
+  .segmented > button, .segmented > a {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0.3125rem 0.6875rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-ink-3);
+    cursor: pointer;
+    transition: color 0.14s var(--ease-out), background 0.14s var(--ease-out), box-shadow 0.14s var(--ease-out);
+  }
+  .segmented > button:hover, .segmented > a:hover { color: var(--color-ink); }
+  .segmented > [aria-selected="true"], .segmented > [data-active="true"] {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-e1);
+  }
+
+  /* ── Keyboard hint — for ⌘K and shortcut affordances ─────────────────────── */
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.3125rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-line-strong);
+    background: var(--color-surface);
+    box-shadow: 0 1px 0 var(--color-line-strong);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-ink-3);
+  }
+
+  /* ── "View all →" affordance — arrow eases out on hover ──────────────────── */
+  .link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-brand-strong);
+    transition: gap 0.16s var(--ease-out), color 0.14s var(--ease-out);
+  }
+  .link-arrow:hover { gap: 0.45rem; color: var(--color-brand); }
+
+  /* ── Skeleton loader — shimmer, not a blocking spinner ───────────────────── */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-sunken);
+    border-radius: 8px;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-surface) 80%, transparent), transparent);
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  /* ── Hero band — a brand-tinted feature surface for showcase headers ─────── */
+  .hero-band {
+    position: relative;
+    border-radius: 18px;
+    border: 1px solid var(--color-brand-line);
+    background:
+      radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--color-brand) 12%, transparent), transparent 60%),
+      linear-gradient(180deg, var(--color-brand-tint), color-mix(in srgb, var(--color-brand-tint) 35%, var(--color-surface)));
+    box-shadow: var(--shadow-e1);
+    overflow: hidden;
+  }
 }
 
 @keyframes reveal {
   to { opacity: 1; transform: none; }
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@keyframes dot-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand) 45%, transparent); }
+  70%  { box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-brand) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand) 0%, transparent); }
 }
 
 /* ── Installed app (home-screen / PWA standalone) ─────────────────────────── */
@@ -344,5 +580,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { animation: none; opacity: 1; transform: none; }
-  .card-hover, .btn, .row-link { transition: none; }
+  .card-hover, .btn, .row-link, .stat, .link-arrow,
+  .segmented > button, .segmented > a { transition: none; }
+  .skeleton::after, .dot-pulse { animation: none; }
 }

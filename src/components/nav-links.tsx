@@ -160,10 +160,10 @@ export function NavLinks({
               key={tab.href}
               href={tab.href}
               className={
-                "rounded-lg px-2.5 py-1.5 transition-colors " +
+                "rounded-lg border px-2.5 py-1.5 transition-all " +
                 (active
-                  ? "font-semibold text-ink bg-sunken"
-                  : "text-ink-3 hover:text-ink hover:bg-hover")
+                  ? "border-line bg-surface font-semibold text-ink shadow-e1"
+                  : "border-transparent text-ink-3 hover:bg-hover hover:text-ink")
               }
             >
               {tab.label}
@@ -198,9 +198,9 @@ export function NavLinks({
                   key={tab.href}
                   href={tab.href}
                   className={
-                    "flex items-center justify-between px-4 py-2.5 text-sm transition-colors " +
+                    "relative flex items-center justify-between px-4 py-2.5 text-sm transition-colors " +
                     (active
-                      ? "font-semibold text-ink bg-sunken"
+                      ? "bg-brand-tint font-semibold text-brand-strong before:absolute before:inset-y-1.5 before:left-0 before:w-0.5 before:rounded-full before:bg-brand"
                       : "text-ink-2 hover:bg-hover")
                   }
                 >

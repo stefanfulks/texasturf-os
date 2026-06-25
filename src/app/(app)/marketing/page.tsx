@@ -1,21 +1,7 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AlertTriangle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-
-const TYPE_LABEL: Record<string, string> = {
-  referral: "Referral",
-  service_spotlight: "Service spotlight",
-  seasonal: "Seasonal",
-  event: "Event",
-  other: "Other",
-};
-
-const STATUS_BADGE: Record<string, string> = {
-  draft: "bg-sunken text-ink-3",
-  active: "bg-brand-tint text-brand",
-  paused: "bg-warn-tint text-warn",
-  completed: "bg-hover text-ink-4",
-};
+import { MarketingOverview } from "./marketing-overview";
 
 export default async function MarketingPage() {
   const supabase = await createClient();
@@ -47,93 +33,39 @@ export default async function MarketingPage() {
 
   if (campaignsRes.error) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Marketing</h1>
-        <div className="rounded-xl border border-warn/30 bg-warn-tint p-6 text-sm text-warn">
-          Marketing tables aren&rsquo;t in the database yet. Apply
-          {" "}<code className="font-mono">supabase/migrations/20260610200000_marketing_core.sql</code>, then reload.
+      <div className="space-y-5">
+        <div>
+          <p className="eyebrow mb-2">Marketing</p>
+          <h1 className="page-title">Growth, referrals &amp; reputation</h1>
+        </div>
+        <div className="panel">
+          <div className="empty-state">
+            <span className="medallion medallion-warn">
+              <AlertTriangle className="h-5 w-5" />
+            </span>
+            <p className="empty-state-title">Marketing tables aren&rsquo;t set up yet</p>
+            <p className="empty-state-body">
+              Apply <code className="rounded bg-sunken px-1.5 py-0.5 font-mono text-[0.7rem] text-ink-2">supabase/migrations/20260610200000_marketing_core.sql</code>, then reload this page.
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
   const campaigns = campaignsRes.data ?? [];
-  const activeCount = campaigns.filter((c) => c.status === "active").length;
-
-  const tiles = [
-    { label: "Active campaigns", value: activeCount, href: "/marketing", accent: "text-ink" },
-    { label: "Calls remaining", value: queuedRes.count ?? 0, href: "/marketing/referrals", accent: (queuedRes.count ?? 0) > 0 ? "text-warn" : "text-ink" },
-    { label: "Open referrals", value: openReferralsRes.count ?? 0, href: "/marketing/referrals", accent: "text-ink" },
-    { label: "Rewards due", value: rewardsDueRes.count ?? 0, href: "/marketing/referrals", accent: (rewardsDueRes.count ?? 0) > 0 ? "text-danger" : "text-ink" },
-    { label: "Reviews to ask", value: reviewsToAskRes.count ?? 0, href: "/marketing/reviews", accent: (reviewsToAskRes.count ?? 0) > 0 ? "text-warn" : "text-ink" },
-  ];
+  const activeCampaigns = campaigns.filter((c) => c.status === "active").length;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Marketing</h1>
-        <p className="text-sm text-ink-3 mt-0.5">
-          Campaigns, the referral program, and (soon) the content engine. Sends go out via Jobber; calls run in Reevo; this is the system of record.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {tiles.map((t) => (
-          <Link key={t.label} href={t.href} className="rounded-xl border border-line bg-white p-4 hover:bg-hover transition-colors">
-            <p className="text-xs text-ink-3">{t.label}</p>
-            <p className={`text-2xl font-semibold mt-1 ${t.accent}`}>{t.value}</p>
-          </Link>
-        ))}
-      </div>
-
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
-        <div className="px-5 py-3 border-b border-line bg-hover flex items-center justify-between">
-          <span className="text-xs font-semibold text-ink-2">Campaigns</span>
-          <span className="text-xs text-ink-4">{campaigns.length}</span>
-        </div>
-        {campaigns.length === 0 ? (
-          <div className="py-10 text-center text-sm text-ink-4">
-            No campaigns yet — the migration seeds the Referral Thank-You Blitz.
-          </div>
-        ) : (
-          <div className="divide-y divide-line">
-            {campaigns.map((c) => (
-              <Link
-                key={c.id}
-                href={c.type === "referral" ? "/marketing/referrals" : "/marketing"}
-                className="flex items-center gap-4 px-5 py-3.5 hover:bg-hover transition-colors"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-ink">{c.name}</p>
-                  <p className="text-xs text-ink-4">
-                    {TYPE_LABEL[c.type] ?? c.type}
-                    {c.service_line ? ` · ${c.service_line}` : ""}
-                    {c.starts_on ? ` · starts ${c.starts_on}` : ""}
-                  </p>
-                </div>
-                <span className={`text-xs px-2 py-0.5 rounded font-medium ${STATUS_BADGE[c.status] ?? STATUS_BADGE.draft}`}>
-                  {c.status}
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="rounded-xl border border-dashed border-line bg-white p-5">
-          <p className="text-sm font-semibold text-ink-4">Content engine</p>
-          <p className="text-xs text-ink-4 mt-1">
-            Troy&rsquo;s video pipeline, the POV program, and the Drive/YouTube library index land here in Phase 2.
-          </p>
-        </div>
-        <div className="rounded-xl border border-dashed border-line bg-white p-5">
-          <p className="text-sm font-semibold text-ink-4">Campaign detail &amp; playbook</p>
-          <p className="text-xs text-ink-4 mt-1">
-            Briefs, Jobber copy blocks, channel checklists, and the marketing playbook land here in Phase 3.
-          </p>
-        </div>
-      </div>
-    </div>
+    <MarketingOverview
+      campaigns={campaigns}
+      counts={{
+        activeCampaigns,
+        calls: queuedRes.count ?? 0,
+        openReferrals: openReferralsRes.count ?? 0,
+        rewardsDue: rewardsDueRes.count ?? 0,
+        reviews: reviewsToAskRes.count ?? 0,
+      }}
+    />
   );
 }
