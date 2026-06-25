@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AlertTriangle, Film, Scissors, Camera, Lightbulb, Plus, type LucideIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/database.types";
 import { PipelineBoard } from "./pipeline-board";
@@ -36,10 +37,19 @@ export default async function ContentPage({
 
   if (error) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Content</h1>
-        <div className="rounded-xl border border-warn/30 bg-warn-tint p-6 text-sm text-warn">
-          Content tables aren&rsquo;t in the database yet. Apply the marketing_content migration, then reload.
+      <div className="space-y-5">
+        <div>
+          <p className="eyebrow mb-2">Marketing</p>
+          <h1 className="page-title">Content</h1>
+        </div>
+        <div className="panel">
+          <div className="empty-state">
+            <span className="medallion medallion-warn">
+              <AlertTriangle className="h-5 w-5" />
+            </span>
+            <p className="empty-state-title">Content tables aren&rsquo;t set up yet</p>
+            <p className="empty-state-body">Apply the marketing_content migration, then reload this page.</p>
+          </div>
         </div>
       </div>
     );
@@ -52,11 +62,11 @@ export default async function ContentPage({
   weekAgoDate.setDate(weekAgoDate.getDate() - 7);
   const weekAgo = weekAgoDate.toISOString().slice(0, 10);
   const publishedThisWeek = items.filter((i) => i.published_on && i.published_on >= weekAgo);
-  const scoreboard = [
-    { label: "Long videos / wk", value: publishedThisWeek.filter((i) => i.type === "long_video").length },
-    { label: "Shorts / wk", value: publishedThisWeek.filter((i) => i.type === "short").length },
-    { label: "POV + field clips / wk", value: publishedThisWeek.filter((i) => i.type === "pov_clip" || i.type === "before_after").length },
-    { label: "Ideas in bank", value: items.filter((i) => i.status === "idea").length },
+  const scoreboard: Array<{ label: string; value: number; icon: LucideIcon; accent: string }> = [
+    { label: "Long videos / wk", value: publishedThisWeek.filter((i) => i.type === "long_video").length, icon: Film, accent: "stat-accent-brand" },
+    { label: "Shorts / wk", value: publishedThisWeek.filter((i) => i.type === "short").length, icon: Scissors, accent: "" },
+    { label: "POV + field clips / wk", value: publishedThisWeek.filter((i) => i.type === "pov_clip" || i.type === "before_after").length, icon: Camera, accent: "" },
+    { label: "Ideas in bank", value: items.filter((i) => i.status === "idea").length, icon: Lightbulb, accent: "stat-accent-warn" },
   ];
 
   // Mint short-lived signed URLs for any uploaded file (voice memos + photos)
@@ -86,50 +96,56 @@ export default async function ContentPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Content</h1>
-          <p className="text-sm text-ink-3 mt-0.5">
-            Troy&rsquo;s videos, POV clips, field proof, and voice memos. Master files live in Drive/YouTube — this is the index + pipeline.
-          </p>
-        </div>
-      </div>
+      <header className="reveal">
+        <p className="eyebrow mb-2">Marketing</p>
+        <h1 className="page-title">Content</h1>
+        <p className="page-sub">
+          Troy&rsquo;s videos, POV clips, field proof, and voice memos. Master files
+          live in Drive/YouTube — this is the index + pipeline.
+        </p>
+      </header>
 
       {/* Quick capture — drop a voice memo or photo, categorize in one tap */}
       <QuickCapture serviceLines={SERVICE_LINES} />
 
       {/* Scoreboard */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {scoreboard.map((s) => (
-          <div key={s.label} className="rounded-xl border border-line bg-white p-4">
-            <p className="text-xs text-ink-3">{s.label}</p>
-            <p className="text-2xl font-semibold mt-1 text-ink">{s.value}</p>
-          </div>
-        ))}
+      <div className="reveal grid grid-cols-2 gap-3 lg:grid-cols-4" style={{ animationDelay: "60ms" }}>
+        {scoreboard.map((s) => {
+          const Icon = s.icon;
+          return (
+            <div key={s.label} className={`stat ${s.accent}`}>
+              <div className="flex items-start justify-between">
+                <span className="stat-label">{s.label}</span>
+                <span className="medallion medallion-brand !h-7 !w-7 !rounded-[9px]">
+                  <Icon className="h-4 w-4" />
+                </span>
+              </div>
+              <span className="stat-value">{s.value}</span>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-line">
-        <Link
-          href="/marketing/content?tab=pipeline"
-          className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 ${view === "pipeline" ? "border-ink text-ink" : "border-transparent text-ink-3 hover:text-ink-2"}`}
-        >
-          Pipeline
-        </Link>
-        <Link
-          href="/marketing/content?tab=library"
-          className={`px-4 py-2 text-sm font-medium -mb-px border-b-2 ${view === "library" ? "border-ink text-ink" : "border-transparent text-ink-3 hover:text-ink-2"}`}
-        >
-          Library
-        </Link>
+      {/* Tabs + add */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="segmented">
+          <Link href="/marketing/content?tab=pipeline" data-active={view === "pipeline"}>Pipeline</Link>
+          <Link href="/marketing/content?tab=library" data-active={view === "library"}>Library</Link>
+        </div>
       </div>
 
       {/* Add */}
-      <details className="rounded-xl border border-line bg-white p-5">
-        <summary className="text-sm font-semibold cursor-pointer select-none">
-          Add content (idea, video, or voice memo)
+      <details className="panel group">
+        <summary className="flex cursor-pointer select-none list-none items-center gap-3 px-5 py-4 transition-colors hover:bg-hover">
+          <span className="medallion medallion-brand">
+            <Plus className="h-[18px] w-[18px]" />
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-semibold text-ink">Add content</span>
+            <span className="block text-xs text-ink-3">An idea, a finished video, or a voice memo.</span>
+          </span>
         </summary>
-        <div className="mt-4">
+        <div className="border-t border-line p-5">
           <AddContentForm />
         </div>
       </details>
