@@ -2,21 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { DEPARTMENTS, DEPARTMENT_LABEL, DEPARTMENT_ICON } from "@/lib/departments";
 import { updateAccount, type UpdateAccountState } from "./actions";
 
 const initial: UpdateAccountState = { error: null, success: false };
 
 const fieldCls =
   "field-input";
-
-const DEPARTMENTS = [
-  { key: "sales",     label: "Sales",     emoji: "💼" },
-  { key: "warehouse", label: "Warehouse", emoji: "📦" },
-  { key: "office",    label: "Office",    emoji: "🏢" },
-  { key: "field",     label: "Field",     emoji: "🏗️" },
-  { key: "marketing", label: "Marketing", emoji: "📣" },
-  { key: "financial", label: "Financial", emoji: "💰" },
-];
 
 export function AccountForm({
   fullName,
@@ -83,13 +75,14 @@ export function AccountForm({
 
       <Section title="Departments" hint="Pick every department you work across. Drives the Dashboard's snapshot.">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {DEPARTMENTS.map((d) => {
-            const on = picked.includes(d.key);
+          {DEPARTMENTS.map((dept) => {
+            const on = picked.includes(dept);
+            const Icon = DEPARTMENT_ICON[dept];
             return (
               <button
-                key={d.key}
+                key={dept}
                 type="button"
-                onClick={() => toggle(d.key)}
+                onClick={() => toggle(dept)}
                 className={
                   "flex items-center gap-2 h-12 rounded-xl border px-3 text-sm font-medium text-left transition-colors " +
                   (on
@@ -97,8 +90,8 @@ export function AccountForm({
                     : "border-line bg-white text-ink-2 active:bg-hover")
                 }
               >
-                <span className="text-base leading-none">{d.emoji}</span>
-                <span>{d.label}</span>
+                <span className="medallion"><Icon className="h-[18px] w-[18px]" /></span>
+                <span>{DEPARTMENT_LABEL[dept]}</span>
               </button>
             );
           })}

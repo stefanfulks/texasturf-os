@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Copy, Check, Minus, Plus, Square, Circle, Triangle, Ruler, Box } from "lucide-react";
+import { Copy, Check, Minus, Plus, Square, Circle, Triangle, Ruler, Box, Mountain, Flower2, Footprints, Grip, Sprout } from "lucide-react";
 import {
   MATERIALS,
   CATEGORY_LABELS,
@@ -36,12 +36,12 @@ const CATEGORY_EMOJI: Record<MaterialCategory, string> = {
   boulders: "🗿",
 };
 
-const PRESETS: { label: string; emoji: string; materialKey: string; lengthFt: number; widthFt: number; depthIn: number }[] = [
-  { label: "10×10 river rock bed",     emoji: "🪨", materialKey: "river_rock_1_3",     lengthFt: 10, widthFt: 10, depthIn: 3 },
-  { label: "4×20 flower bed mulch",    emoji: "🌸", materialKey: "hardwood_mulch",     lengthFt: 20, widthFt: 4,  depthIn: 3 },
-  { label: "10×12 DG patio",           emoji: "🛤️", materialKey: "decomposed_granite", lengthFt: 12, widthFt: 10, depthIn: 3 },
-  { label: "8×8 pea gravel pad",       emoji: "🪙", materialKey: "pea_gravel",         lengthFt: 8,  widthFt: 8,  depthIn: 2 },
-  { label: "Sod prep 500 ft²",         emoji: "🟩", materialKey: "sandy_loam",         lengthFt: 25, widthFt: 20, depthIn: 4 },
+const PRESETS: { label: string; Icon: typeof Square; materialKey: string; lengthFt: number; widthFt: number; depthIn: number }[] = [
+  { label: "10×10 river rock bed",     Icon: Mountain,   materialKey: "river_rock_1_3",     lengthFt: 10, widthFt: 10, depthIn: 3 },
+  { label: "4×20 flower bed mulch",    Icon: Flower2,    materialKey: "hardwood_mulch",     lengthFt: 20, widthFt: 4,  depthIn: 3 },
+  { label: "10×12 DG patio",           Icon: Footprints, materialKey: "decomposed_granite", lengthFt: 12, widthFt: 10, depthIn: 3 },
+  { label: "8×8 pea gravel pad",       Icon: Grip,       materialKey: "pea_gravel",         lengthFt: 8,  widthFt: 8,  depthIn: 2 },
+  { label: "Sod prep 500 ft²",         Icon: Sprout,     materialKey: "sandy_loam",         lengthFt: 25, widthFt: 20, depthIn: 4 },
 ];
 
 function groupMaterials() {
@@ -132,17 +132,20 @@ export function MaterialsCalculator() {
           Quick start
         </p>
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:flex-wrap snap-x">
-          {PRESETS.map((p) => (
-            <button
-              key={p.label}
-              type="button"
-              onClick={() => applyPreset(p)}
-              className="shrink-0 snap-start flex items-center gap-2 rounded-full bg-white border border-line px-4 h-11 text-sm font-medium text-ink-2 hover:border-line-strong active:bg-hover"
-            >
-              <span className="text-base leading-none">{p.emoji}</span>
-              {p.label}
-            </button>
-          ))}
+          {PRESETS.map((p) => {
+            const Icon = p.Icon;
+            return (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => applyPreset(p)}
+                className="shrink-0 snap-start flex items-center gap-2 rounded-full bg-white border border-line px-4 h-11 text-sm font-medium text-ink-2 hover:border-line-strong active:bg-hover"
+              >
+                <Icon className="h-4 w-4 shrink-0 text-ink-3" />
+                {p.label}
+              </button>
+            );
+          })}
         </div>
       </section>
 
