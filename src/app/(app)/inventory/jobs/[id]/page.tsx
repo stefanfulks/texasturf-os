@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
+import { Ruler, Layers, Activity } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { JobStatusBadge } from "@/components/inventory/job-status-badge";
 import { RollStatusBadge } from "@/components/inventory/roll-status-badge";
@@ -223,7 +224,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           )}
         </div>
         {allocations.length === 0 ? (
-          <div className="py-8 text-center text-sm text-ink-4">No allocations yet.</div>
+          <div className="empty-state">
+            <span className="medallion"><Ruler className="h-5 w-5" /></span>
+            <p className="empty-state-title">No allocations yet</p>
+            <p className="empty-state-body">Add an allocation to reserve turf for this job.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -325,7 +330,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <h2 className="text-sm font-semibold">Rolls Assigned to Job</h2>
         </div>
         {rolls.length === 0 ? (
-          <div className="py-8 text-center text-sm text-ink-4">No rolls currently assigned to this job.</div>
+          <div className="empty-state">
+            <span className="medallion"><Layers className="h-5 w-5" /></span>
+            <p className="empty-state-title">No rolls assigned</p>
+            <p className="empty-state-body">Assign rolls from an allocation and they&rsquo;ll show up here.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -362,7 +371,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <h2 className="text-sm font-semibold">Transaction History</h2>
         </div>
         {transactions.length === 0 ? (
-          <div className="py-8 text-center text-sm text-ink-4">No transactions recorded.</div>
+          <div className="empty-state">
+            <span className="medallion"><Activity className="h-5 w-5" /></span>
+            <p className="empty-state-title">No transactions recorded</p>
+            <p className="empty-state-body">Pulls, cuts, and returns for this job will appear here as they happen.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

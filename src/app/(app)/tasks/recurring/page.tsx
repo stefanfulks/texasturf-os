@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Repeat } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { RecurringRuleForm } from "./rule-form";
 import { RuleRow } from "./rule-row";
@@ -57,8 +58,10 @@ export default async function RecurringTasksPage() {
           <span className="ml-2 text-xs text-ink-4">{activeRules.length}</span>
         </div>
         {activeRules.length === 0 ? (
-          <div className="py-10 text-center text-sm text-ink-4">
-            No active recurring rules. Create one above.
+          <div className="empty-state">
+            <span className="medallion"><Repeat className="h-5 w-5" /></span>
+            <p className="empty-state-title">No active recurring rules</p>
+            <p className="empty-state-body">Create a rule above and its tasks will generate themselves on schedule.</p>
           </div>
         ) : (
           <div className="divide-y divide-line">

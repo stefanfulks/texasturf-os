@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+import { ArrowRightLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { InvTransaction, InvRoll, InvJob } from "@/lib/db-helpers.types";
 
@@ -199,8 +200,10 @@ export default async function InventoryTransactionsPage({
       {/* Table */}
       <div className="card overflow-x-auto">
         {transactions.length === 0 ? (
-          <div className="py-12 text-center text-sm text-ink-4">
-            No transactions found.
+          <div className="empty-state">
+            <span className="medallion"><ArrowRightLeft className="h-5 w-5" /></span>
+            <p className="empty-state-title">No transactions found</p>
+            <p className="empty-state-body">Adjust the filters, or record inventory activity and it will show up here.</p>
           </div>
         ) : (
           <table className="w-full text-sm">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
-import { ChevronLeft, ExternalLink, MapPin, Calendar, User } from "lucide-react";
+import { ChevronLeft, ExternalLink, MapPin, Calendar, User, ClipboardList, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { JobForm } from "../job-form";
 import { JobArchiveButton } from "./archive-button";
@@ -160,8 +160,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         </div>
 
         {tasks.length === 0 ? (
-          <div className="py-10 text-center text-sm text-ink-4">
-            No tasks yet. Create a task and link it to this job.
+          <div className="empty-state">
+            <span className="medallion"><ClipboardList className="h-5 w-5" /></span>
+            <p className="empty-state-title">No tasks yet</p>
+            <p className="empty-state-body">Create a task and link it to this job to track the work here.</p>
           </div>
         ) : (
           <div className="divide-y divide-line">
@@ -220,8 +222,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         </div>
 
         {invoices.length === 0 ? (
-          <div className="py-10 text-center text-sm text-ink-4">
-            No invoices linked to this job yet.
+          <div className="empty-state">
+            <span className="medallion"><FileText className="h-5 w-5" /></span>
+            <p className="empty-state-title">No invoices linked</p>
+            <p className="empty-state-body">Invoices matched to this job will appear here.</p>
           </div>
         ) : (
           <div className="divide-y divide-line">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
-import { Scissors, Edit } from "lucide-react";
+import { Scissors, Edit, Activity } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { RollStatusBadge } from "@/components/inventory/roll-status-badge";
 import type {
@@ -437,8 +437,10 @@ export default async function RollDetailPage({
           </span>
         </div>
         {transactions.length === 0 ? (
-          <div className="py-8 text-center text-sm text-ink-4">
-            No transactions yet.
+          <div className="empty-state">
+            <span className="medallion"><Activity className="h-5 w-5" /></span>
+            <p className="empty-state-title">No transactions yet</p>
+            <p className="empty-state-body">Receiving, cuts, and dispatches for this roll will appear here.</p>
           </div>
         ) : (
           <table className="w-full text-sm">

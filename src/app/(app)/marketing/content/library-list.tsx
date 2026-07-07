@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { SearchX } from "lucide-react";
 import { updateContentLinks, updateContentCategory, type ActionState } from "./actions";
 import type { ContentWithUrl } from "./page";
 
@@ -122,7 +123,11 @@ export function LibraryList({
 
       <div className="card overflow-hidden">
         {items.length === 0 ? (
-          <div className="py-10 text-center text-sm text-ink-4">Nothing matches that filter.</div>
+          <div className="empty-state">
+            <span className="medallion"><SearchX className="h-5 w-5" /></span>
+            <p className="empty-state-title">Nothing matches that filter</p>
+            <p className="empty-state-body">Try a different type or clear the search to see the full library.</p>
+          </div>
         ) : (
           <div className="divide-y divide-line">
             {items.map((i) => (

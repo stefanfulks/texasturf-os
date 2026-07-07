@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Store } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { VendorForm } from "./vendor-form";
 import type { Vendor } from "@/lib/db-helpers.types";
@@ -67,7 +68,11 @@ export default async function VendorsPage() {
           <span className="ml-2 text-xs text-ink-4">{active.length}</span>
         </div>
         {active.length === 0 ? (
-          <div className="py-10 text-center text-sm text-ink-4">No vendors yet.</div>
+          <div className="empty-state">
+            <span className="medallion"><Store className="h-5 w-5" /></span>
+            <p className="empty-state-title">No vendors yet</p>
+            <p className="empty-state-body">Add a vendor above to start tracking their invoices and spend.</p>
+          </div>
         ) : (
           <div className="divide-y divide-line">
             {active.map((v) => {

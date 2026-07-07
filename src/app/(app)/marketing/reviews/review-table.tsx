@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Star } from "lucide-react";
 import { buildReviewList, updateReviewStatus, type ActionState } from "./actions";
 import type { ReviewRow } from "./page";
 
@@ -69,8 +70,10 @@ function PlatformSelect({ id, platform }: { id: string; platform: ReviewRow["pla
 export function ReviewTable({ rows }: { rows: ReviewRow[] }) {
   if (rows.length === 0) {
     return (
-      <div className="py-10 text-center text-sm text-ink-4">
-        No jobs in the list yet — hit “Build list from completed jobs” to pull recent completed installs.
+      <div className="empty-state">
+        <span className="medallion"><Star className="h-5 w-5" /></span>
+        <p className="empty-state-title">No jobs in the list yet</p>
+        <p className="empty-state-body">Hit “Build list from completed jobs” to pull recent completed installs.</p>
       </div>
     );
   }

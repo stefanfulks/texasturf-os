@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useActionState } from "react";
+import { Users } from "lucide-react";
 import { buildRoster, logCallOutcome, createReferral, type ActionState } from "./actions";
 import type { OutreachRow } from "./page";
 
@@ -173,8 +174,10 @@ function RosterRow({ row, campaignId }: { row: OutreachRow; campaignId: string }
 export function RosterTable({ rows, campaignId }: { rows: OutreachRow[]; campaignId: string }) {
   if (rows.length === 0) {
     return (
-      <div className="py-10 text-center text-sm text-ink-4">
-        Roster is empty — hit “Build roster from Jobber” to pull in every past client with a completed job and a phone number.
+      <div className="empty-state">
+        <span className="medallion"><Users className="h-5 w-5" /></span>
+        <p className="empty-state-title">Roster is empty</p>
+        <p className="empty-state-body">Hit “Build roster from Jobber” to pull in every past client with a completed job and a phone number.</p>
       </div>
     );
   }

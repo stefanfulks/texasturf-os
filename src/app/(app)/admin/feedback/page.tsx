@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { signFeedbackPaths } from "@/lib/feedback-images";
@@ -90,8 +91,12 @@ export default async function AdminFeedbackPage() {
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-3">Open</h2>
         {open.length === 0 ? (
-          <div className="card px-5 py-10 text-center text-sm text-ink-4">
-            Inbox zero. No open feedback right now.
+          <div className="card">
+            <div className="empty-state">
+              <span className="medallion medallion-brand"><CheckCircle2 className="h-5 w-5" /></span>
+              <p className="empty-state-title">Inbox zero</p>
+              <p className="empty-state-body">No open feedback right now — new reports from the team will land here.</p>
+            </div>
           </div>
         ) : (
           <ul className="space-y-3">

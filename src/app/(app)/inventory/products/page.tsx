@@ -1,3 +1,4 @@
+import { Package } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ProductForm } from "./product-form";
 import { ProductRow } from "./product-row";
@@ -42,8 +43,10 @@ export default async function InventoryProductsPage() {
 
       <div className="card overflow-hidden">
         {products.length === 0 ? (
-          <div className="py-12 text-center text-sm text-ink-4">
-            No products yet.
+          <div className="empty-state">
+            <span className="medallion"><Package className="h-5 w-5" /></span>
+            <p className="empty-state-title">No products yet</p>
+            <p className="empty-state-body">Add a product above and rolls can be received against it.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">

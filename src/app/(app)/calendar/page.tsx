@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CalendarDays } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { listUpcomingEvents, type GoogleCalendarEvent } from "@/lib/google/calendar";
 import { getValidGoogleAccessToken } from "@/lib/google/tokens";
@@ -103,8 +104,12 @@ export default async function CalendarPage() {
               Try signing out and back in with Google.
             </div>
           ) : groupedEvents.size === 0 ? (
-            <div className="card p-8 text-center text-sm text-ink-4">
-              No upcoming events in the next 2 weeks.
+            <div className="card">
+              <div className="empty-state">
+                <span className="medallion"><CalendarDays className="h-5 w-5" /></span>
+                <p className="empty-state-title">No upcoming events</p>
+                <p className="empty-state-body">Nothing on the calendar for the next two weeks — new events will show up here.</p>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">

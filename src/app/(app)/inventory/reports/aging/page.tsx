@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+import { CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { RollStatusBadge } from "@/components/inventory/roll-status-badge";
 import type {
@@ -124,8 +125,10 @@ export default async function AgingReportPage() {
           <span className="text-xs text-ink-4">{oldRolls.length} roll{oldRolls.length !== 1 ? "s" : ""}</span>
         </div>
         {oldRolls.length === 0 ? (
-          <div className="py-12 text-center text-sm text-ink-4">
-            No rolls have been sitting that long.
+          <div className="empty-state">
+            <span className="medallion medallion-brand"><CheckCircle2 className="h-5 w-5" /></span>
+            <p className="empty-state-title">No aging stock</p>
+            <p className="empty-state-body">No rolls have been sitting 91+ days — inventory is moving.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">

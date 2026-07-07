@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Gift } from "lucide-react";
 import { createReferral, updateReferralStage, updateReward, type ActionState } from "./actions";
 import type { ReferralRow } from "./page";
 
@@ -122,8 +123,10 @@ function RewardControls({ row, isAdmin }: { row: ReferralRow; isAdmin: boolean }
 export function LedgerTable({ rows, isAdmin }: { rows: ReferralRow[]; isAdmin: boolean }) {
   if (rows.length === 0) {
     return (
-      <div className="py-10 text-center text-sm text-ink-4">
-        No referrals yet. They&rsquo;ll land here as calls produce names — first one&rsquo;s coming.
+      <div className="empty-state">
+        <span className="medallion"><Gift className="h-5 w-5" /></span>
+        <p className="empty-state-title">No referrals yet</p>
+        <p className="empty-state-body">They&rsquo;ll land here as calls produce names — first one&rsquo;s coming.</p>
       </div>
     );
   }

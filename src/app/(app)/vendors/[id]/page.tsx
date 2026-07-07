@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { FileText } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { VendorForm } from "../vendor-form";
@@ -184,7 +185,11 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
           <Link href={`/invoices/new`} className="text-xs text-ink-3 hover:text-ink">+ New Invoice</Link>
         </div>
         {invoices.length === 0 ? (
-          <div className="py-8 text-center text-sm text-ink-4">No invoices yet.</div>
+          <div className="empty-state">
+            <span className="medallion"><FileText className="h-5 w-5" /></span>
+            <p className="empty-state-title">No invoices yet</p>
+            <p className="empty-state-body">Invoices from this vendor will show up here once they&rsquo;re added.</p>
+          </div>
         ) : (
           <div className="divide-y divide-line">
             {invoices.map((inv) => (

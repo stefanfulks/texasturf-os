@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { SearchX } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { RollStatusBadge } from "@/components/inventory/roll-status-badge";
 import { assignRoll, swapRoll } from "../../../../actions";
@@ -112,8 +113,10 @@ export default async function AssignRollPage({
           </h2>
         </div>
         {candidates.length === 0 ? (
-          <div className="py-10 text-center text-sm text-ink-4">
-            No matching available rolls. Try adjusting the allocation specs or receiving more inventory.
+          <div className="empty-state">
+            <span className="medallion"><SearchX className="h-5 w-5" /></span>
+            <p className="empty-state-title">No matching rolls available</p>
+            <p className="empty-state-body">Try adjusting the allocation specs or receiving more inventory.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">

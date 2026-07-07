@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+import { SearchX } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type {
   InvJob,
@@ -184,8 +185,10 @@ export default async function TurfOverageReportPage({
       {/* Table */}
       <div className="card overflow-x-auto">
         {rows.length === 0 ? (
-          <div className="py-12 text-center text-sm text-ink-4">
-            No jobs match the filters.
+          <div className="empty-state">
+            <span className="medallion"><SearchX className="h-5 w-5" /></span>
+            <p className="empty-state-title">No jobs match the filters</p>
+            <p className="empty-state-body">Widen the date range or clear a filter to see overage data.</p>
           </div>
         ) : (
           <table className="w-full text-sm">

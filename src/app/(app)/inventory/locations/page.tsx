@@ -1,3 +1,4 @@
+import { MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { LocationForm } from "./location-form";
 import { LocationRow } from "./location-row";
@@ -48,8 +49,10 @@ export default async function InventoryLocationsPage() {
       {/* Table */}
       <div className="card overflow-hidden">
         {locations.length === 0 ? (
-          <div className="py-12 text-center text-sm text-ink-4">
-            No locations yet.
+          <div className="empty-state">
+            <span className="medallion"><MapPin className="h-5 w-5" /></span>
+            <p className="empty-state-title">No locations yet</p>
+            <p className="empty-state-body">Add a warehouse or yard location above to start organizing rolls.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">

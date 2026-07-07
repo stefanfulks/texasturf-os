@@ -176,8 +176,10 @@ export default async function InvoicesPage({
       {/* Invoice list */}
       <div className="card overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-sm text-ink-4">
-            No invoices found.
+          <div className="empty-state">
+            <span className="medallion"><Search className="h-5 w-5" /></span>
+            <p className="empty-state-title">No invoices found</p>
+            <p className="empty-state-body">Try a different search or status filter, or add a new invoice to get started.</p>
           </div>
         ) : (
           <div className="divide-y divide-line">

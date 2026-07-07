@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CheckCircle2, Boxes } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ItemForm } from "./item-form";
 import { ItemRow } from "./item-row";
@@ -115,8 +116,20 @@ export default async function InventoryItemsPage({
       {/* Table */}
       <div className="card overflow-x-auto">
         {items.length === 0 ? (
-          <div className="py-12 text-center text-sm text-ink-4">
-            {lowOnly ? "No low-stock items." : "No items yet."}
+          <div className="empty-state">
+            {lowOnly ? (
+              <>
+                <span className="medallion medallion-brand"><CheckCircle2 className="h-5 w-5" /></span>
+                <p className="empty-state-title">No low-stock items</p>
+                <p className="empty-state-body">Everything is at or above its minimum right now.</p>
+              </>
+            ) : (
+              <>
+                <span className="medallion"><Boxes className="h-5 w-5" /></span>
+                <p className="empty-state-title">No items yet</p>
+                <p className="empty-state-body">Add consumables and supplies above to track stock levels here.</p>
+              </>
+            )}
           </div>
         ) : (
           <table className="w-full text-sm">

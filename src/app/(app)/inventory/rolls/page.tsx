@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDistanceToNowStrict } from "date-fns";
+import { Layers } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { RollStatusBadge } from "@/components/inventory/roll-status-badge";
 import { RollFilterBar } from "./roll-filter-bar";
@@ -167,8 +168,10 @@ export default async function InventoryRollsPage({
       {/* Table */}
       <div className="card overflow-hidden">
         {rolls.length === 0 ? (
-          <div className="py-16 text-center text-sm text-ink-4">
-            No rolls found.
+          <div className="empty-state">
+            <span className="medallion"><Layers className="h-5 w-5" /></span>
+            <p className="empty-state-title">No rolls found</p>
+            <p className="empty-state-body">Try clearing a filter, or receive new inventory to see rolls here.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">

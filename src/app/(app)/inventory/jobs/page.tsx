@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+import { ClipboardList } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { JobStatusBadge } from "@/components/inventory/job-status-badge";
 import type { InvJob, InvAllocation } from "@/lib/db-helpers.types";
@@ -122,7 +123,11 @@ export default async function InventoryJobsPage({
       {/* Table */}
       <div className="card overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-sm text-ink-4">No jobs found.</div>
+          <div className="empty-state">
+            <span className="medallion"><ClipboardList className="h-5 w-5" /></span>
+            <p className="empty-state-title">No jobs found</p>
+            <p className="empty-state-body">Try a different search or status filter — new jobs will appear here.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
