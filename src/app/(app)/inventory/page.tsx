@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { formatDistanceToNowStrict } from "date-fns";
+import { Layers, Ruler, ClipboardList, ArrowRightLeft, Activity, CheckCircle2 } from "lucide-react";
 import type {
   InvRoll,
   InvJob,
@@ -196,70 +197,77 @@ export default async function InventoryDashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-end justify-between gap-4">
+      <header className="reveal flex items-end justify-between gap-4">
         <div>
-          <h1 className="page-title">Inventory Dashboard</h1>
-          <p className="text-sm text-ink-3 mt-1">
-            Roll inventory, jobs, and stock at a glance.
-          </p>
+          <p className="eyebrow mb-2">Warehouse</p>
+          <h1 className="page-title">Inventory</h1>
+          <p className="page-sub">Roll inventory, jobs, and stock at a glance.</p>
         </div>
-      </div>
+      </header>
 
       {/* Stat row */}
-      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="card p-5">
-          <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
-            Total Active Rolls
-          </p>
-          <p className="display text-2xl tabular-nums">
-            {fmtInt(totalActiveRolls)}
-          </p>
-          <p className="text-xs text-ink-4 mt-1">In active lifecycle</p>
+      <section className="reveal grid grid-cols-2 gap-3 sm:grid-cols-4" style={{ animationDelay: "60ms" }}>
+        <div className="stat">
+          <div className="flex items-start justify-between">
+            <span className="stat-label">Active rolls</span>
+            <span className="medallion medallion-brand !h-7 !w-7 !rounded-[9px]">
+              <Layers className="h-4 w-4" />
+            </span>
+          </div>
+          <span className="stat-value">{fmtInt(totalActiveRolls)}</span>
+          <span className="stat-foot">In active lifecycle</span>
         </div>
 
-        <div className="card p-5">
-          <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
-            Linear Feet In Stock
-          </p>
-          <p className="display text-2xl tabular-nums">
+        <div className="stat">
+          <div className="flex items-start justify-between">
+            <span className="stat-label">Linear feet in stock</span>
+            <span className="medallion medallion-brand !h-7 !w-7 !rounded-[9px]">
+              <Ruler className="h-4 w-4" />
+            </span>
+          </div>
+          <span className="stat-value">
             {fmtFt(totalInStockFt)}
-            <span className="text-sm font-normal text-ink-4 ml-1">ft</span>
-          </p>
-          <p className="text-xs text-ink-4 mt-1">Available + allocated</p>
+            <span className="ml-1 text-sm font-normal text-ink-4">ft</span>
+          </span>
+          <span className="stat-foot">Available + allocated</span>
         </div>
 
-        <div className="card p-5">
-          <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
-            Active Jobs
-          </p>
-          <p className="display text-2xl tabular-nums">
-            {fmtInt(activeJobsCount)}
-          </p>
-          <p className="text-xs text-ink-4 mt-1">Not completed or archived</p>
+        <div className="stat">
+          <div className="flex items-start justify-between">
+            <span className="stat-label">Active jobs</span>
+            <span className="medallion medallion-brand !h-7 !w-7 !rounded-[9px]">
+              <ClipboardList className="h-4 w-4" />
+            </span>
+          </div>
+          <span className="stat-value">{fmtInt(activeJobsCount)}</span>
+          <span className="stat-foot">Not completed or archived</span>
         </div>
 
-        <div className="card p-5">
-          <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
-            Open Allocations
-          </p>
-          <p className="display text-2xl tabular-nums">
-            {fmtInt(openAllocationsCount)}
-          </p>
-          <p className="text-xs text-ink-4 mt-1">Awaiting fulfillment</p>
+        <div className={"stat" + (openAllocationsCount > 0 ? " stat-accent-warn" : "")}>
+          <div className="flex items-start justify-between">
+            <span className="stat-label">Open allocations</span>
+            <span className={"medallion !h-7 !w-7 !rounded-[9px] " + (openAllocationsCount > 0 ? "medallion-warn" : "medallion-brand")}>
+              <ArrowRightLeft className="h-4 w-4" />
+            </span>
+          </div>
+          <span className="stat-value">{fmtInt(openAllocationsCount)}</span>
+          <span className="stat-foot">Awaiting fulfillment</span>
         </div>
       </section>
 
-      {/* Two cards: Recent Activity + Low Stock */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Two panels: Recent Activity + Low Stock */}
+      <section className="reveal grid grid-cols-1 gap-3 lg:grid-cols-2" style={{ animationDelay: "120ms" }}>
         {/* Recent Activity */}
-        <div className="card overflow-hidden">
-          <div className="px-5 py-3 border-b border-line flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-ink">Recent Activity</h2>
-            <span className="text-xs text-ink-4">Last 10</span>
+        <div className="panel">
+          <div className="panel-head">
+            <h2 className="text-sm font-semibold text-ink">Recent activity</h2>
+            <span className="text-xs text-ink-3">Last 10</span>
           </div>
           {transactions.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-sm text-ink-4">No transactions yet.</p>
+            <div className="empty-state">
+              <span className="medallion"><Activity className="h-5 w-5" /></span>
+              <p className="empty-state-title">No transactions yet</p>
+              <p className="empty-state-body">Receiving, cuts, and dispatches will appear here as they happen.</p>
             </div>
           ) : (
             <ul className="divide-y divide-line">
@@ -302,16 +310,18 @@ export default async function InventoryDashboardPage() {
         </div>
 
         {/* Low Stock Alert */}
-        <div className="card overflow-hidden">
-          <div className="px-5 py-3 border-b border-line flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-ink">Low Stock Alert</h2>
-            <span className="text-xs text-ink-4">
+        <div className="panel">
+          <div className="panel-head">
+            <h2 className="text-sm font-semibold text-ink">Low stock alert</h2>
+            <span className={"chip " + (lowStockItems.length > 0 ? "chip-danger" : "chip-neutral")}>
               {lowStockItems.length} item{lowStockItems.length === 1 ? "" : "s"}
             </span>
           </div>
           {lowStockItems.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-sm text-ink-4">All stock levels are healthy.</p>
+            <div className="empty-state">
+              <span className="medallion medallion-brand"><CheckCircle2 className="h-5 w-5" /></span>
+              <p className="empty-state-title">All stock levels are healthy</p>
+              <p className="empty-state-body">Items dipping below their minimum will surface here.</p>
             </div>
           ) : (
             <ul className="divide-y divide-line">
@@ -334,9 +344,9 @@ export default async function InventoryDashboardPage() {
       </section>
 
       {/* Rolls by status */}
-      <section className="card overflow-hidden">
-        <div className="px-5 py-3 border-b border-line">
-          <h2 className="text-sm font-semibold text-ink">Rolls by Status</h2>
+      <section className="panel reveal" style={{ animationDelay: "180ms" }}>
+        <div className="panel-head">
+          <h2 className="text-sm font-semibold text-ink">Rolls by status</h2>
         </div>
         <div className="p-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {ALL_ROLL_STATUSES.map((status) => (

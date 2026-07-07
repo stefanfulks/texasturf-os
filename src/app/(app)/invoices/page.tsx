@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
+import { AlertCircle, Clock, CheckCircle2, Banknote, Download, Plus, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Invoice, InvoiceStatus } from "@/lib/db-helpers.types";
 import { INVOICE_STATUS_CONFIG as STATUS_CONFIG } from "@/lib/invoices/status";
@@ -93,48 +94,55 @@ export default async function InvoicesPage({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <header className="reveal flex items-end justify-between flex-wrap gap-4">
         <div>
+          <p className="eyebrow mb-2">Office</p>
           <h1 className="page-title">Invoices</h1>
-          <p className="text-sm text-ink-3 mt-0.5">{filtered.length} invoice{filtered.length !== 1 ? "s" : ""}</p>
+          <p className="page-sub">{filtered.length} invoice{filtered.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
           {isOfficeOrAdmin && (
             <Link
               href={`/api/invoices/export?month=${currentMonth}&year=${currentYear}`}
-              className="flex items-center gap-2 rounded-xl border border-line-strong bg-white px-4 py-2.5 text-sm font-semibold text-ink-2 hover:border-line-strong hover:text-ink transition-colors"
+              className="btn btn-line"
             >
+              <Download className="h-4 w-4" />
               Export CSV
             </Link>
           )}
-          <Link
-            href="/invoices/new"
-            className="btn btn-primary"
-          >
-            <span className="text-lg leading-none">+</span> Submit Invoice
+          <Link href="/invoices/new" className="btn btn-primary">
+            <Plus className="h-4 w-4" /> Submit invoice
           </Link>
         </div>
-      </div>
+      </header>
 
       {/* Stats (admin/office only) */}
       {isOfficeOrAdmin && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="reveal grid grid-cols-2 gap-3 sm:grid-cols-4" style={{ animationDelay: "60ms" }}>
           {[
-            { label: "Needs Action", value: needsAction,            color: needsAction > 0 ? "text-warn font-semibold" : "text-ink-4" },
-            { label: "Awaiting Approval", value: stats["awaiting_approval"] ?? 0, color: "text-ink" },
-            { label: "Approved (unpaid)", value: stats["approved"]  ?? 0, color: "text-brand" },
-            { label: "Paid (this run)",   value: stats["paid"]      ?? 0, color: "text-brand" },
-          ].map((s) => (
-            <div key={s.label} className="card px-4 py-3">
-              <p className="text-xs text-ink-4 mb-1">{s.label}</p>
-              <p className={`text-2xl font-semibold ${s.color}`}>{s.value}</p>
-            </div>
-          ))}
+            { label: "Needs action", value: needsAction, icon: AlertCircle, accent: needsAction > 0 ? "stat-accent-warn" : "", medallion: needsAction > 0 ? "medallion-warn" : "medallion-brand" },
+            { label: "Awaiting approval", value: stats["awaiting_approval"] ?? 0, icon: Clock, accent: "", medallion: "medallion-brand" },
+            { label: "Approved (unpaid)", value: stats["approved"] ?? 0, icon: CheckCircle2, accent: "", medallion: "medallion-brand" },
+            { label: "Paid (this run)", value: stats["paid"] ?? 0, icon: Banknote, accent: "stat-accent-brand", medallion: "medallion-brand" },
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <div key={s.label} className={`stat ${s.accent}`}>
+                <div className="flex items-start justify-between">
+                  <span className="stat-label">{s.label}</span>
+                  <span className={`medallion ${s.medallion} !h-7 !w-7 !rounded-[9px]`}>
+                    <Icon className="h-4 w-4" />
+                  </span>
+                </div>
+                <span className="stat-value">{s.value}</span>
+              </div>
+            );
+          })}
         </div>
       )}
 
       {/* Filter + Search */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="reveal flex flex-col gap-3 sm:flex-row sm:items-center" style={{ animationDelay: "120ms" }}>
         {/* Status filter pills */}
         <div className="flex flex-wrap gap-1.5">
           {FILTER_GROUPS.map((group) => {
@@ -143,11 +151,7 @@ export default async function InvoicesPage({
               <Link
                 key={group.label}
                 href={group.label === "All" ? "/invoices" : `/invoices?status=${encodeURIComponent(group.label)}`}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                  active
-                    ? "bg-brand text-white border-ink"
-                    : "bg-white text-ink-2 border-line hover:border-line-strong"
-                }`}
+                className={"chip " + (active ? "border-brand-strong bg-brand text-on-brand" : "chip-outline hover:bg-hover")}
               >
                 {group.label}
               </Link>
@@ -156,13 +160,16 @@ export default async function InvoicesPage({
         </div>
 
         {/* Search */}
-        <form method="GET" className="flex-1 max-w-sm">
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Search invoices…"
-            className="w-full text-sm border border-line rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
-          />
+        <form method="GET" className="max-w-sm flex-1">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-4" />
+            <input
+              name="q"
+              defaultValue={q}
+              placeholder="Search invoices…"
+              className="field-input !pl-9"
+            />
+          </div>
         </form>
       </div>
 
