@@ -106,7 +106,7 @@ export default async function AppLayout({
         {children}
       </div>
       <TurfyLauncher greetingName={greetingName} />
-      <CommandPalette />
+      <CommandPalette isAdmin={isAdmin} />
     </div>
     </PostHogProvider>
     </Suspense>

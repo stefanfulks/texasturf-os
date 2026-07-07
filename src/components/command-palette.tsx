@@ -19,42 +19,20 @@ import {
   type SearchHit,
   type SearchType,
 } from "@/lib/search/runSearch";
+import { palettePages } from "@/lib/navigation";
 
 // --- Pages (instant, client-side filter) ---------------------------------
+// Sourced from THE app map in lib/navigation — the same map that renders the
+// UserMenu catalog, so search and the menu can never drift apart.
 
-const PAGES: SearchHit[] = [
-  ["/dashboard", "Home"],
-  ["/today", "Today"],
-  ["/agenda", "Agenda"],
-  ["/calendar", "Calendar"],
-  ["/meetings", "Meetings"],
-  ["/sales", "Sales pipeline"],
-  ["/sales/materials-calculator", "Materials calculator"],
-  ["/clients", "Clients"],
-  ["/jobs", "Jobs"],
-  ["/tasks", "Tasks"],
-  ["/invoices", "Invoices"],
-  ["/inventory", "Inventory"],
-  ["/operations", "Operations"],
-  ["/fleet/reservations", "Vehicles & equipment"],
-  ["/vendors", "Vendors"],
-  ["/reports", "Reports"],
-  ["/attention", "Attention"],
-  ["/pricing", "Pricing"],
-  ["/marketing", "Marketing"],
-  ["/assistant", "Turfy"],
-  ["/team", "Team"],
-  ["/settings", "Settings"],
-  ["/settings/account", "Settings · Account"],
-  ["/settings/calendar", "Settings · Calendar"],
-  ["/settings/jobber", "Settings · Jobber"],
-  ["/feedback", "Feedback"],
-].map(([href, label]) => ({
-  id: `page-${href}`,
-  type: "page" as SearchType,
-  label,
-  href,
-}));
+function buildPages(isAdmin: boolean): SearchHit[] {
+  return palettePages(isAdmin).map(({ href, label }) => ({
+    id: `page-${href}`,
+    type: "page" as SearchType,
+    label,
+    href,
+  }));
+}
 
 // --- Type → badge styling -------------------------------------------------
 
@@ -81,7 +59,7 @@ function flatten(groups: SearchGroup[]): SearchHit[] {
 
 // --- Component ------------------------------------------------------------
 
-export function CommandPalette() {
+export function CommandPalette({ isAdmin = false }: { isAdmin?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -159,11 +137,12 @@ export function CommandPalette() {
   }, [query, open]);
 
   // Filtered pages (always visible at the top).
+  const pages = useMemo(() => buildPages(isAdmin), [isAdmin]);
   const filteredPages = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return PAGES.slice(0, 8);
-    return PAGES.filter((p) => p.label.toLowerCase().includes(q)).slice(0, 8);
-  }, [query]);
+    if (!q) return pages.slice(0, 8);
+    return pages.filter((p) => p.label.toLowerCase().includes(q)).slice(0, 8);
+  }, [query, pages]);
 
   // The flat list the keyboard navigates: Pages group + entity groups.
   const visibleGroups: SearchGroup[] = useMemo(() => {

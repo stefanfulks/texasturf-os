@@ -5,12 +5,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { ChevronDown, LogOut, Settings, User as UserIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { workspacesFor, activeWorkspace } from "@/lib/navigation";
 
 /**
  * Top-bar identity button. Shows the user's first name + chevron; clicking
  * opens a unified menu with:
  *   - profile snapshot (name, email, role)
- *   - workspace navigation (everything the old AppSwitcher catalog had)
+ *   - workspace navigation (the app map from lib/navigation — the same map
+ *     that powers the ⌘K palette, so the two can never drift)
  *   - direct links to Settings and Sign out
  *
  * Consolidates three previous components (AppSwitcher chip, email label,
@@ -18,131 +20,6 @@ import { createClient } from "@/lib/supabase/client";
  * top bar.
  */
 
-type Tool = { label: string; href: string };
-type Workspace = {
-  label: string;
-  emoji: string;
-  primaryHref: string;
-  tools: Tool[];
-  prefixes: string[];
-  adminOnly?: boolean;
-  comingSoon?: boolean;
-};
-
-const WORKSPACES: readonly Workspace[] = [
-  {
-    label: "Personal",
-    emoji: "🏠",
-    primaryHref: "/dashboard",
-    tools: [
-      { label: "Home",      href: "/dashboard" },
-      { label: "Agenda",    href: "/agenda" },
-      { label: "Tasks",     href: "/tasks" },
-      { label: "Recurring", href: "/tasks/recurring" },
-      { label: "Calendar",  href: "/calendar" },
-      { label: "Meetings",  href: "/meetings" },
-      { label: "Attention", href: "/attention" },
-      { label: "Turfy", href: "/assistant" },
-    ],
-    prefixes: ["/dashboard", "/agenda", "/tasks", "/calendar", "/meetings", "/attention", "/assistant"],
-  },
-  {
-    label: "Sales",
-    emoji: "💼",
-    primaryHref: "/pricing",
-    tools: [
-      { label: "Pricing Calculator",   href: "/pricing" },
-      { label: "Materials Calculator", href: "/sales/materials-calculator" },
-      { label: "Clients",              href: "/clients" },
-      { label: "Jobs",                 href: "/jobs" },
-    ],
-    prefixes: ["/sales", "/pricing", "/jobs", "/clients"],
-  },
-  {
-    label: "Warehouse",
-    emoji: "📦",
-    primaryHref: "/operations",
-    tools: [
-      { label: "Operations Today",      href: "/operations" },
-      { label: "Inventory",             href: "/inventory" },
-      { label: "Pull Lists",            href: "/operations/pull-lists" },
-      { label: "Inspections",           href: "/operations/inspections" },
-      { label: "Deliveries",            href: "/operations/deliveries" },
-      { label: "Vehicle Maintenance",   href: "/operations/vehicles" },
-      { label: "Tool Spend",            href: "/operations/tools" },
-      { label: "Spend Budgets",         href: "/operations/budgets" },
-      { label: "Employees",             href: "/operations/employees" },
-      { label: "Fleet & Equipment",     href: "/fleet" },
-      { label: "Vehicle Reservations",  href: "/fleet/reservations" },
-    ],
-    prefixes: ["/warehouse", "/inventory", "/fleet", "/operations"],
-  },
-  {
-    label: "Office",
-    emoji: "🏢",
-    primaryHref: "/invoices",
-    tools: [
-      { label: "Invoices", href: "/invoices" },
-      { label: "Vendors",  href: "/vendors" },
-      { label: "Clients",  href: "/clients" },
-      { label: "Meetings", href: "/meetings" },
-      { label: "Jobs",     href: "/jobs" },
-    ],
-    prefixes: ["/office", "/invoices", "/vendors", "/clients"],
-  },
-  {
-    label: "Marketing",
-    emoji: "📣",
-    primaryHref: "/marketing",
-    tools: [
-      { label: "Overview",  href: "/marketing" },
-      { label: "Referrals", href: "/marketing/referrals" },
-      { label: "Content",   href: "/marketing/content" },
-      { label: "Campaigns", href: "/marketing/campaigns" },
-      { label: "Reviews",   href: "/marketing/reviews" },
-      { label: "Playbook",  href: "/marketing/playbook" },
-    ],
-    prefixes: ["/marketing"],
-  },
-  {
-    label: "Financial",
-    emoji: "💰",
-    primaryHref: "/reports",
-    tools: [
-      { label: "Reports", href: "/reports" },
-      { label: "Team",    href: "/team" },
-    ],
-    prefixes: ["/financial", "/reports", "/team"],
-    adminOnly: true,
-  },
-  {
-    label: "Field",
-    emoji: "🏗️",
-    primaryHref: "/today",
-    tools: [
-      { label: "Today",                href: "/today" },
-      { label: "My Tasks",             href: "/tasks" },
-      { label: "Jobs",                 href: "/jobs" },
-      { label: "Calendar",             href: "/calendar" },
-      { label: "Turfy",                href: "/assistant" },
-      { label: "Vehicle Reservations", href: "/fleet/reservations" },
-    ],
-    prefixes: ["/field", "/today"],
-  },
-  {
-    label: "Admin",
-    emoji: "🛡️",
-    primaryHref: "/admin/users",
-    tools: [
-      { label: "Users",            href: "/admin/users" },
-      { label: "Feedback Triage",  href: "/admin/feedback" },
-      { label: "Team Performance", href: "/team" },
-      { label: "Jobber Settings",  href: "/settings/jobber" },
-    ],
-    prefixes: ["/admin"],
-    adminOnly: true,
-  },
-] as const;
 
 function isActiveHref(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(href + "/");
@@ -208,11 +85,8 @@ export function UserMenu({
     });
   }
 
-  const workspaces = WORKSPACES.filter((w) => !w.adminOnly || isAdmin);
-  const activeWsLabel =
-    workspaces.find((w) =>
-      w.prefixes.some((p) => pathname === p || pathname.startsWith(p + "/")),
-    )?.label ?? null;
+  const workspaces = workspacesFor(isAdmin);
+  const activeWsLabel = activeWorkspace(pathname, isAdmin)?.label ?? null;
 
   // Each time the menu opens, expand only the workspace matching the current
   // page — its tools are one glance away, everything else stays tucked.
@@ -268,15 +142,18 @@ export function UserMenu({
             <ul className="space-y-0.5">
               {workspaces.map((ws) => {
                 const isOpen = openWs === ws.label;
+                const WsIcon = ws.icon;
                 return (
                   <li key={ws.label}>
                     <button
                       type="button"
                       onClick={() => setOpenWs(isOpen ? null : ws.label)}
                       aria-expanded={isOpen}
-                      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-hover transition-colors"
+                      className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-hover transition-colors"
                     >
-                      <span className="text-base leading-none">{ws.emoji}</span>
+                      <span className={"medallion !h-7 !w-7 !rounded-[9px] " + (ws.label === activeWsLabel ? "medallion-brand" : "")}>
+                        <WsIcon className="h-4 w-4" />
+                      </span>
                       <span className="flex-1 text-left text-sm font-semibold text-ink">{ws.label}</span>
                       {isOpen && ws.label === activeWsLabel && (
                         <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />
@@ -296,7 +173,7 @@ export function UserMenu({
                               className={
                                 "rounded-lg px-2 py-1 text-[11px] font-medium transition-colors " +
                                 (active
-                                  ? "bg-brand text-white"
+                                  ? "bg-brand text-on-brand"
                                   : "text-ink-2 hover:bg-hover hover:text-ink")
                               }
                             >
