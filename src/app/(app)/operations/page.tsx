@@ -7,7 +7,7 @@ export default async function WarehousePage() {
   const counts = await warehouseDashboardCounts();
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div>
       <div className="flex items-baseline justify-between gap-2">
         <h1 className="page-title">Warehouse</h1>
         <Link href="/inventory" className="text-sm text-ink-3 hover:underline shrink-0">

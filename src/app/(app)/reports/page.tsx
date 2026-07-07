@@ -235,7 +235,7 @@ export default async function ReportsPage({
   // ── Render ──────────────────────────────────────────────────
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-10">
+    <div className="space-y-10">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h1 className="page-title">Reports</h1>

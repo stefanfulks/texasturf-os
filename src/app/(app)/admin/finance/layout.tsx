@@ -21,7 +21,7 @@ export default async function FinanceLayout({ children }: { children: React.Reac
     redirect("/dashboard");
   }
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+    <div className="space-y-6">
       <nav className="flex flex-wrap gap-1 text-sm border-b border-line pb-2">
         {FIN_NAV.map((t) => (
           <Link key={t.href} href={t.href} className="rounded-lg px-2.5 py-1.5 text-ink-3 hover:text-ink hover:bg-hover">

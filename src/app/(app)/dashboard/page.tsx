@@ -128,7 +128,7 @@ export default async function DashboardPage({
   const otherDepartments = orderedDepartments.filter((d) => !ownSet.has(d));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-7">
+    <div className="space-y-7">
       {/* Greeting */}
       <div className="reveal flex items-end justify-between gap-4 flex-wrap" style={{ animationDelay: "0ms" }}>
         <div>

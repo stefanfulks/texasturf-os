@@ -26,7 +26,7 @@ export default async function ClientsPage({
   const { data, error } = await query;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div>
       <div className="flex items-baseline justify-between">
         <h1 className="page-title">Clients</h1>
         <Link

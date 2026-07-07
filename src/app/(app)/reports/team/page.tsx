@@ -151,7 +151,7 @@ export default async function TeamPerformancePage({
   const next = nextPeriod(month, year);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>

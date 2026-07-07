@@ -119,7 +119,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const isCompleted = job.status === "completed";
 
   return (
-    <div className="max-w-6xl space-y-6">
+    <div className="space-y-6">
       <Link
         href="/inventory/jobs"
         className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink"

@@ -102,7 +102,7 @@ export default async function AppLayout({
           </div>
         </div>
       </header>
-      <div className="w-full flex-1 px-4 py-6 sm:px-6 sm:py-9">
+      <div className="w-full flex-1 px-4 py-6 sm:px-6 sm:py-9 lg:px-8 2xl:px-10">
         {children}
       </div>
       <TurfyLauncher greetingName={greetingName} />

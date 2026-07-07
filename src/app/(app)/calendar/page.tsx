@@ -74,7 +74,7 @@ export default async function CalendarPage() {
   const groupedEvents = groupEventsByDay(events);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="page-title">Calendar</h1>

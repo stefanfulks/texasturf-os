@@ -65,7 +65,7 @@ export default async function KpiLogPage({
   const targets = (activeSection?.targets ?? []) as KpiTarget[];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="page-title">KPI Log</h1>
