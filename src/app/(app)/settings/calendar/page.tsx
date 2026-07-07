@@ -27,7 +27,7 @@ export default async function CalendarSettingsPage() {
       </Link>
 
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Calendar</h1>
+        <h1 className="page-title">Calendar</h1>
         <p className="text-sm sm:text-base text-ink-2 mt-1">
           Personal Google Calendar + the shared TexasTurf calendar shown on the Calendar page.
         </p>

@@ -35,7 +35,7 @@ export default async function AccountSettingsPage() {
         Settings
       </Link>
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Account</h1>
+        <h1 className="page-title">Account</h1>
         <p className="text-sm sm:text-base text-ink-2 mt-1">
           Your name and which departments you work across. Your role is set by an admin.
         </p>

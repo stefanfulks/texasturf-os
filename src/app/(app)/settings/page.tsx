@@ -29,7 +29,7 @@ export default async function SettingsHubPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Settings</h1>
+        <h1 className="page-title">Settings</h1>
         <p className="text-sm sm:text-base text-ink-2 mt-1">
           Tune your account, manage shared tools, and connect integrations.
         </p>

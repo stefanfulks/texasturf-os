@@ -13,7 +13,7 @@ export default async function FinanceHomePage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-semibold text-ink">Finance cockpit</h1>
+        <h1 className="page-title">Finance cockpit</h1>
         <p className="text-ink-3 text-sm">
           Live across every module{o.lastQbSyncAt ? ` · QuickBooks synced ${new Date(o.lastQbSyncAt).toLocaleDateString()}` : " · QuickBooks not synced yet"}.
         </p>

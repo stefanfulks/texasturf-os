@@ -45,7 +45,7 @@ export default async function FinanceSettingsPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-xl font-semibold text-ink">Finance settings</h1>
+        <h1 className="page-title">Finance settings</h1>
         <p className="text-ink-3 text-sm">
           FY{settings?.fiscal_year ?? 2026} · revenue plan {settings ? `$${Number(settings.annual_revenue_plan).toLocaleString()}` : "—"}. Edit the backbone every finance tool reads.
         </p>

@@ -65,7 +65,7 @@ export default async function MeetingsPage() {
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-5 pb-12">
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Meetings</h1>
+          <h1 className="page-title">Meetings</h1>
           <p className="text-sm sm:text-base text-ink-2 mt-1">
             File items into your team&apos;s meetings — they show up in the agenda when it&apos;s time to run it.
           </p>

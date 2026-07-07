@@ -99,7 +99,7 @@ export default async function MeetingDetailPage({ params, searchParams }: Props)
       </Link>
 
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">{meeting.name}</h1>
+        <h1 className="page-title">{meeting.name}</h1>
         {meeting.description && (
           <p className="text-sm sm:text-base text-ink-2 mt-1">{meeting.description}</p>
         )}

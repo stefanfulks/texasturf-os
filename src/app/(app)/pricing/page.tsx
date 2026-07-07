@@ -14,8 +14,9 @@ export default async function PricingPage() {
   return (
     <div className="space-y-6">
       <div>
+        <p className="eyebrow mb-2">Sales</p>
         <h1 className="page-title">Pricing Calculator</h1>
-        <p className="text-sm text-ink-3 mt-0.5">
+        <p className="page-sub">
           Enter job details, target a margin, get price + commission + company net instantly.
         </p>
       </div>

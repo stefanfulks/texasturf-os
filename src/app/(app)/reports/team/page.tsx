@@ -155,7 +155,7 @@ export default async function TeamPerformancePage({
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Team Performance</h1>
+          <h1 className="page-title">Team Performance</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             Individual KPI tracking by team member
           </p>

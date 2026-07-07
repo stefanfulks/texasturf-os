@@ -48,8 +48,9 @@ export default async function VendorsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
+          <p className="eyebrow mb-2">Office</p>
           <h1 className="page-title">Vendors & Contractors</h1>
-          <p className="text-sm text-ink-3 mt-0.5">{active.length} active</p>
+          <p className="page-sub">{active.length} active</p>
         </div>
       </div>
 

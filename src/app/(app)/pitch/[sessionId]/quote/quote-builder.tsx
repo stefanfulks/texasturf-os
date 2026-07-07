@@ -96,7 +96,7 @@ export function QuoteBuilder({
     <div className="mx-auto max-w-3xl px-4 py-6 space-y-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="display text-2xl">Build the quote</h1>
+          <h1 className="page-title">Build the quote</h1>
           <p className="text-sm text-ink-3">
             {session.prospectName ?? "Prospect"}{session.address ? ` · ${session.address}` : ""} — price each area, add upgrades, then present.
           </p>

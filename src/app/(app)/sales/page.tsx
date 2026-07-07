@@ -104,7 +104,7 @@ export default async function SalesPage({
             {usd(openPipelineValue(deals))} open ·{" "}
             {usd(weightedPipeline(deals))} weighted
           </p>
-          <h1 className="display mt-1 text-2xl text-ink">Sales pipeline</h1>
+          <h1 className="mt-1 page-title">Sales pipeline</h1>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/sales/materials-calculator" className="btn btn-line btn-sm">

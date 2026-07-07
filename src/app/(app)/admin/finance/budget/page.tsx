@@ -30,7 +30,7 @@ export default async function BudgetPage() {
     <div className="space-y-5">
       <header className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-ink">Budget P&amp;L</h1>
+          <h1 className="page-title">Budget P&amp;L</h1>
           <p className="text-ink-3 text-sm">Budget vs actual vs variance, FY2026.</p>
         </div>
         <form action={seed}><button className="rounded-lg bg-tint px-3 py-1.5 text-sm">Auto-seed first draft</button></form>

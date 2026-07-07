@@ -13,7 +13,7 @@ export default async function CashFlowPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-semibold text-ink">Cash flow — 13 weeks</h1>
+        <h1 className="page-title">Cash flow — 13 weeks</h1>
         <p className="text-ink-3 text-sm">4 weeks history + current + 8 forecast. Forecast weeks include the sales reforecast; close the current week to snapshot.</p>
       </header>
       <CashFlowView result={result} creditLimit={creditLimit} currentWeekIndex={input.currentWeekIndex} />

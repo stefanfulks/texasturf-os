@@ -65,8 +65,9 @@ export default async function FeedbackPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
+        <p className="eyebrow mb-2">Support</p>
         <h1 className="page-title">Feedback</h1>
-        <p className="mt-0.5 text-sm text-ink-3">
+        <p className="page-sub">
           Bug? Idea? Question? Drop it here — add a screenshot if it helps — and an admin will follow up.
         </p>
       </div>

@@ -44,7 +44,7 @@ export default async function NewMeetingPage() {
         Meetings
       </Link>
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">New Meeting</h1>
+        <h1 className="page-title">New Meeting</h1>
         <p className="text-sm sm:text-base text-ink-2 mt-1">
           Define cadence, who can see it, and the agenda sections people will file items under.
         </p>

@@ -47,7 +47,7 @@ export default async function NewReservationPage() {
         Reservations
       </Link>
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
+        <h1 className="page-title">
           Reserve a vehicle
         </h1>
         <p className="text-sm sm:text-base text-ink-2 mt-1">

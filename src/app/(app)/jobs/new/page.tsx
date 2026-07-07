@@ -21,7 +21,7 @@ export default async function NewJobPage() {
         Jobs
       </Link>
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">New Job</h1>
+        <h1 className="page-title">New Job</h1>
         <p className="text-sm sm:text-base text-ink-2 mt-1">
           Customer install, commercial bid, or other tracked work.
         </p>

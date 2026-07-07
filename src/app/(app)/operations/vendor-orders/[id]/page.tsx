@@ -45,7 +45,7 @@ export default async function VendorOrderDetailPage({ params }: { params: Promis
               <span className="font-mono text-xs text-ink-4">{poNumber(order.seq)}</span>
               <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${pr.badge}`}>{pr.label}</span>
             </div>
-            <h1 className="mt-0.5 text-xl font-semibold tracking-tight">
+            <h1 className="mt-0.5 page-title">
               {order.material_needed || order.request_description}
             </h1>
           </div>

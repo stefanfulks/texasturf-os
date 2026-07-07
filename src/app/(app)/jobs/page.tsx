@@ -52,7 +52,7 @@ export default async function JobsPage() {
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-6 pb-32 sm:pb-6">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Jobs</h1>
+          <h1 className="page-title">Jobs</h1>
           <p className="text-sm sm:text-base text-ink-2 mt-1">
             Customer installs, commercial bids, and internal work — synced with Jobber.
           </p>

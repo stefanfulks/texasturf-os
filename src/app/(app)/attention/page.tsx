@@ -370,7 +370,7 @@ export default async function AttentionPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-ink">Attention Board</h1>
+        <h1 className="page-title">Attention Board</h1>
         <p className="text-sm text-ink-3 mt-1">
           Items flagged across all modules
         </p>

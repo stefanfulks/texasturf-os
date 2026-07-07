@@ -76,7 +76,7 @@ export default async function CalendarPage() {
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Calendar</h1>
+          <h1 className="page-title">Calendar</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             {isGoogleUser
               ? "Your personal Google Calendar, plus the shared TexasTurf calendar."

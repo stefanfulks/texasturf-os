@@ -23,7 +23,7 @@ export default async function MaterialsCalculatorPage() {
         Home
       </Link>
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
+        <h1 className="page-title">
           Materials Calculator
         </h1>
         <p className="text-sm sm:text-base text-ink-2 mt-1">

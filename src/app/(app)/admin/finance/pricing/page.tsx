@@ -17,7 +17,7 @@ export default async function PricingPage() {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-xl font-semibold text-ink">Overhead absorption &amp; job pricing</h1>
+        <h1 className="page-title">Overhead absorption &amp; job pricing</h1>
         <p className="text-ink-3 text-sm">
           Absorption rate <span className="font-semibold text-ink">{pct(overhead.absorptionRate)}</span> · loaded labor <span className="font-semibold text-ink">${loadedLaborRate.toFixed(2)}/hr</span>
           {" "}(direct {usd(inputs.totalDirect)}, indirect {usd(inputs.totalIndirect)}).

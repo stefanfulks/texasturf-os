@@ -19,7 +19,7 @@ export default async function NewEventPage() {
         <Link href="/calendar" className="text-sm text-ink-3 hover:text-ink">
           ← Calendar
         </Link>
-        <h1 className="text-2xl font-bold text-ink">New event</h1>
+        <h1 className="page-title">New event</h1>
         <div className="rounded-xl border border-warn/30 bg-warn-tint p-4 text-sm text-warn">
           Creating events requires a Google sign-in. Sign out and sign back in with Google to enable this.
         </div>
@@ -33,7 +33,7 @@ export default async function NewEventPage() {
         ← Calendar
       </Link>
       <div>
-        <h1 className="text-2xl font-bold text-ink">New event</h1>
+        <h1 className="page-title">New event</h1>
         <p className="text-sm text-ink-3 mt-0.5">
           Creates an event on your primary Google Calendar.
         </p>

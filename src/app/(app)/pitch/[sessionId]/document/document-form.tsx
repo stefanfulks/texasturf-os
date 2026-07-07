@@ -82,7 +82,7 @@ export function DocumentForm({
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 space-y-5">
       <div>
-        <h1 className="display text-2xl">Document the site</h1>
+        <h1 className="page-title">Document the site</h1>
         <p className="text-sm text-ink-3">
           {session.prospectName ?? "Prospect"}{session.address ? ` · ${session.address}` : ""} — capture areas, photos, conditions, and notes before you measure.
         </p>

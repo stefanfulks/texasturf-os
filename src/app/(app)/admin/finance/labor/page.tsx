@@ -15,7 +15,7 @@ export default async function LaborPage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-xl font-semibold text-ink">Labor burden</h1>
+        <h1 className="page-title">Labor burden</h1>
         <p className="text-ink-3 text-sm">Fully-loaded cost per employee. Current utilization {(current * 100).toFixed(0)}%, goal {(goal * 100).toFixed(0)}%.</p>
       </header>
       <LaborView rows={rows} />

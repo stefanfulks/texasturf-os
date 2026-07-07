@@ -6,7 +6,7 @@ export default async function PitchHomePage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="display text-2xl">Pitch</h1>
+        <h1 className="page-title">Pitch</h1>
         <div className="flex gap-2">
           <Link href="/pitch/assets" className="btn btn-line">Media</Link>
           <Link href="/pitch/decks" className="btn btn-line">Decks</Link>

@@ -82,7 +82,7 @@ export default async function TeamKpiEntryPage({
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold text-ink">Enter KPIs</h1>
+        <h1 className="page-title">Enter KPIs</h1>
         <p className="text-sm text-ink-3 mt-0.5">
           {member.full_name} &mdash; {member.role_title} &mdash; {monthLabel}
         </p>

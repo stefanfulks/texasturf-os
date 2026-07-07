@@ -41,7 +41,7 @@ export default async function SalesInboxPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Sales Inbox</h1>
+        <h1 className="page-title">Sales Inbox</h1>
         <p className="text-sm sm:text-base text-ink-2 mt-1">
           Voicemails from numbers not in your CRM, plus a feed of recent inbound calls and texts across all deals.
         </p>

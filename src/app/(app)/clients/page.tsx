@@ -28,7 +28,7 @@ export default async function ClientsPage({
   return (
     <div className="mx-auto max-w-5xl">
       <div className="flex items-baseline justify-between">
-        <h1 className="text-2xl font-semibold">Clients</h1>
+        <h1 className="page-title">Clients</h1>
         <Link
           href="/settings/jobber"
           className="text-sm text-ink-3 hover:underline"

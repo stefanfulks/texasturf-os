@@ -47,7 +47,7 @@ export default async function MeetingsSettingsPage() {
       </Link>
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">Meetings</h1>
+          <h1 className="page-title">Meetings</h1>
           <p className="text-sm sm:text-base text-ink-2 mt-1">
             {isAdmin
               ? "Create, edit, archive meeting templates. Sections drive what people can file under each one."

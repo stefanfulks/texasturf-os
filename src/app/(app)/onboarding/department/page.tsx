@@ -33,7 +33,7 @@ export default async function DepartmentOnboardingPage() {
   return (
     <div className="py-12">
       <div className="max-w-2xl mx-auto text-center mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight">Welcome, {greetingName}.</h1>
+        <h1 className="page-title">Welcome, {greetingName}.</h1>
         <p className="mt-2 text-sm text-ink-3">
           Quick setup so we can show you the right tools — pick one or more
           departments that describe your day-to-day work.

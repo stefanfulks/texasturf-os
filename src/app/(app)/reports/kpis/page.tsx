@@ -54,7 +54,7 @@ export default async function KpisPage({
           >
             &larr; Back to Reports
           </Link>
-          <h1 className="text-2xl font-bold text-ink mt-1">
+          <h1 className="mt-1 page-title">
             KPI Tracking &mdash; {monthName(month, year)}
           </h1>
         </div>

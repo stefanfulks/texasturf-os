@@ -104,7 +104,7 @@ export default async function ClientDetailPage({
         </Link>
         <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="display text-2xl text-ink flex items-center gap-2">
+            <h1 className="page-title flex items-center gap-2">
               {name}
               {client.is_archived && <span className="chip chip-neutral">Archived</span>}
             </h1>

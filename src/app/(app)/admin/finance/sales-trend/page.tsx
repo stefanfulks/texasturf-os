@@ -28,7 +28,7 @@ export default async function SalesTrendPage({ searchParams }: { searchParams: P
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-xl font-semibold text-ink">Sales trend &amp; reforecast</h1>
+        <h1 className="page-title">Sales trend &amp; reforecast</h1>
         <p className="text-ink-3 text-sm">FY2026 plan {usd(plan)}. Unit budgets total {usd(sumUnitBudgets)}.</p>
         {Math.abs(sumUnitBudgets - plan) > 1 && (
           <p className="text-warn text-sm mt-1">⚠ Business-unit budgets ({usd(sumUnitBudgets)}) don&apos;t equal the company plan ({usd(plan)}).</p>

@@ -18,7 +18,7 @@ export default function ImportPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold text-ink">Import</h1>
+      <h1 className="page-title">Import</h1>
       <div className="flex gap-2 text-sm">
         {(["ar", "ap"] as const).map((t) => (
           <button key={t} onClick={() => setType(t)} className={"rounded-lg px-3 py-1.5 " + (type === t ? "bg-brand text-white" : "bg-tint text-ink-2")}>{t === "ar" ? "AR (receivables)" : "AP (payables)"}</button>

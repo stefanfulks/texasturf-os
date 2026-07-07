@@ -13,7 +13,7 @@ export function ComingSoon({
     <main className="min-h-dvh bg-hover px-8 py-12 dark:bg-ink">
       <div className="mx-auto max-w-3xl">
         <div className="flex items-baseline justify-between">
-          <h1 className="text-2xl font-semibold">{title}</h1>
+          <h1 className="page-title">{title}</h1>
           <Link href="/operations" className="text-sm text-ink-3 hover:underline">
             ← Warehouse
           </Link>

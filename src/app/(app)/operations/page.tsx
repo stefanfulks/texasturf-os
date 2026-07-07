@@ -9,7 +9,7 @@ export default async function WarehousePage() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="flex items-baseline justify-between gap-2">
-        <h1 className="text-xl sm:text-2xl font-semibold">Warehouse</h1>
+        <h1 className="page-title">Warehouse</h1>
         <Link href="/inventory" className="text-sm text-ink-3 hover:underline shrink-0">
           Inventory →
         </Link>

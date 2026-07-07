@@ -105,7 +105,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       {/* Header */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink break-words">{job.name}</h1>
+          <h1 className="page-title break-words">{job.name}</h1>
           {job.customer_name && (
             <p className="text-base text-ink-2 mt-1 flex items-center gap-1.5">
               <User className="h-4 w-4 text-ink-4" />

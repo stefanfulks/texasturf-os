@@ -14,7 +14,7 @@ export default async function InspectionsListPage() {
     <main className="min-h-dvh bg-hover px-8 py-12 dark:bg-ink">
       <div className="mx-auto max-w-5xl">
         <div className="flex items-baseline justify-between">
-          <h1 className="text-2xl font-semibold">Equipment Inspections</h1>
+          <h1 className="page-title">Equipment Inspections</h1>
           <Link href="/operations" className="text-sm text-ink-3 hover:underline">
             ← Warehouse
           </Link>

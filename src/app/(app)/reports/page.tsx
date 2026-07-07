@@ -238,7 +238,7 @@ export default async function ReportsPage({
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-10">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <h1 className="text-2xl font-bold text-ink">Reports</h1>
+        <h1 className="page-title">Reports</h1>
         <div className="flex items-center gap-3 text-sm">
           <Link
             href={`/reports?month=${prev.month}&year=${prev.year}`}

@@ -72,7 +72,7 @@ export function AssetLibrary({ initial }: { initial: AssetItem[] }) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 space-y-5">
       <div>
-        <h1 className="display text-2xl">Pitch media library</h1>
+        <h1 className="page-title">Pitch media library</h1>
         <p className="text-sm text-ink-3">
           Upload before/after photos, putting-green shots, and the testimonial video. Copy an asset&apos;s URL into a deck slide
           (Before &amp; after, Photos, or Video) in the <span className="font-medium">deck editor</span>.

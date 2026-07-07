@@ -55,7 +55,7 @@ export default async function TodayPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="flex items-baseline justify-between gap-2">
-        <h1 className="text-xl sm:text-2xl font-semibold">
+        <h1 className="page-title">
           Today —{" "}
           {start.toLocaleDateString(undefined, {
             weekday: "short",

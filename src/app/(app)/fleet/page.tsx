@@ -54,8 +54,9 @@ export default async function FleetPage({
     <div className="space-y-6">
       <div className="flex items-end justify-between flex-wrap gap-4">
         <div>
+          <p className="eyebrow mb-2">Operations</p>
           <h1 className="page-title">Fleet</h1>
-          <p className="text-sm text-ink-2">
+          <p className="page-sub">
             Trucks, trailers, and heavy equipment.
             {showArchived && <span className="ml-1 text-ink-3">Showing archived assets.</span>}
           </p>

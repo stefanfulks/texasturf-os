@@ -45,8 +45,9 @@ export default async function AdminUsersPage() {
       <div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
+            <p className="eyebrow mb-2">Admin</p>
             <h1 className="page-title">Team</h1>
-            <p className="mt-0.5 text-sm text-ink-3">
+            <p className="page-sub">
               Invite new teammates and manage their access. Role gates what
               they can DO (admin / office / field). Departments drive what
               they SEE on the dashboard.

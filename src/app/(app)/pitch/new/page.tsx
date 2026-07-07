@@ -10,7 +10,7 @@ export default function NewPitchPage() {
   const [state, formAction, isPending] = useActionState(createPitchSession, initial);
   return (
     <div className="mx-auto max-w-lg px-4 py-6">
-      <h1 className="display text-2xl mb-1">New pitch</h1>
+      <h1 className="page-title mb-1">New pitch</h1>
       <p className="text-sm text-ink-3 mb-4">Private setup — the client never sees this screen.</p>
       <form action={formAction} className="card p-4 space-y-3">
         <label className="block text-xs font-medium text-ink-3">Prospect name

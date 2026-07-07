@@ -23,8 +23,9 @@ export default async function AssistantPage() {
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <div>
+        <p className="eyebrow mb-2">Assistant</p>
         <h1 className="page-title">Turfy</h1>
-        <p className="mt-0.5 text-sm text-ink-3">
+        <p className="page-sub">
           Ask anything about tasks, invoices, inventory, vendors. I look things
           up in your live data — I don&apos;t make stuff up.
         </p>
