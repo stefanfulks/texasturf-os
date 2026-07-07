@@ -166,3 +166,9 @@ export type PoDocument = {
 // ---- Finance suite: QuickBooks seam ----------------------------------------
 export type FinQbAccountMap = Database["public"]["Tables"]["fin_qb_account_map"]["Row"]
 export type FinSyncLog      = Database["public"]["Tables"]["fin_sync_log"]["Row"]
+
+// ---- Financial engine: config tables (Step 2 of the holistic rebuild) ------
+// (FinCostRate already aliased in the finance-suite section above.)
+export type FinCommissionTier = Database["public"]["Tables"]["fin_commission_tier"]["Row"]
+export type FinMileageBand    = Database["public"]["Tables"]["fin_mileage_band"]["Row"]
+export type FinProductRow     = Database["public"]["Tables"]["fin_product"]["Row"]

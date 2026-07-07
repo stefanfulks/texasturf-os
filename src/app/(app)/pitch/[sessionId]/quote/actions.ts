@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveTiers } from "@/lib/pitch/queries";
+import { loadEngineConfig } from "@/lib/engine/load";
 import { priceMultiArea, toClientQuoteV2 } from "@/lib/pitch/quote-v2";
 import type { PitchArea, PitchAddon } from "@/lib/db-helpers.types";
 import type { ClientQuoteV2 } from "@/lib/pitch/types";
@@ -61,11 +62,12 @@ export async function saveAndPriceQuote(sessionId: string, areas: AreaInput[], a
   ]);
 
   const tiers = await getActiveTiers();
+  const engineConfig = await loadEngineConfig(supabase);
   const fallbackMargin = tiers[0]?.targetMargin ?? 50;
   const warranty = tiers.find((t) => t.key === "platinum")?.warranty ?? tiers[0]?.warranty ?? { residential_years: 15, commercial_years: 8, prorated: true };
   const labelByKey = new Map(tiers.map((t) => [t.pricingKey, t.productLabel]));
 
-  const mq = priceMultiArea((areaRows ?? []) as PitchArea[], (addonRows ?? []) as PitchAddon[], fallbackMargin);
+  const mq = priceMultiArea((areaRows ?? []) as PitchArea[], (addonRows ?? []) as PitchAddon[], fallbackMargin, engineConfig);
   const client = toClientQuoteV2(mq, warranty, (area) => labelByKey.get(area.product) ?? area.product);
 
   await supabase

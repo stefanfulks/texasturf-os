@@ -842,17 +842,58 @@ export type Database = {
         }
         Relationships: []
       }
+      fin_commission_tier: {
+        Row: {
+          created_at: string
+          id: string
+          label: string | null
+          max_margin_pct: number | null
+          min_margin_pct: number
+          rate_pct: number
+          requires_review: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          max_margin_pct?: number | null
+          min_margin_pct: number
+          rate_pct?: number
+          requires_review?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          max_margin_pct?: number | null
+          min_margin_pct?: number
+          rate_pct?: number
+          requires_review?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       fin_company_settings: {
         Row: {
           annual_revenue_plan: number
           company_name: string
           created_at: string
+          crew_count: number
           current_utilization: number
           employee_overhead_uplift: number
           fiscal_year: number
           fiscal_year_start_date: string
           goal_utilization: number
+          labor_model: string
           notes: string | null
+          overhead_mode: string
+          overhead_pinned_rate: number
+          sqft_per_crew_day: number
           standard_hours_per_year: number
           total_credit_limit: number
           updated_at: string
@@ -863,12 +904,17 @@ export type Database = {
           annual_revenue_plan?: number
           company_name?: string
           created_at?: string
+          crew_count?: number
           current_utilization?: number
           employee_overhead_uplift?: number
           fiscal_year: number
           fiscal_year_start_date: string
           goal_utilization?: number
+          labor_model?: string
           notes?: string | null
+          overhead_mode?: string
+          overhead_pinned_rate?: number
+          sqft_per_crew_day?: number
           standard_hours_per_year?: number
           total_credit_limit?: number
           updated_at?: string
@@ -879,12 +925,17 @@ export type Database = {
           annual_revenue_plan?: number
           company_name?: string
           created_at?: string
+          crew_count?: number
           current_utilization?: number
           employee_overhead_uplift?: number
           fiscal_year?: number
           fiscal_year_start_date?: string
           goal_utilization?: number
+          labor_model?: string
           notes?: string | null
+          overhead_mode?: string
+          overhead_pinned_rate?: number
+          sqft_per_crew_day?: number
           standard_hours_per_year?: number
           total_credit_limit?: number
           updated_at?: string
@@ -1158,6 +1209,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fin_mileage_band: {
+        Row: {
+          cost_per_mile: number
+          created_at: string
+          flat_cost: number
+          id: string
+          label: string | null
+          max_miles: number | null
+          min_miles: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          cost_per_mile?: number
+          created_at?: string
+          flat_cost?: number
+          id?: string
+          label?: string | null
+          max_miles?: number | null
+          min_miles?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          cost_per_mile?: number
+          created_at?: string
+          flat_cost?: number
+          id?: string
+          label?: string | null
+          max_miles?: number | null
+          min_miles?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       fin_period: {
         Row: {

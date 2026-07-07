@@ -3,6 +3,7 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveTiers } from "@/lib/pitch/queries";
+import { loadEngineConfig } from "@/lib/engine/load";
 import { priceTiers } from "@/lib/pitch/pricing";
 import { ensureDefaultDeck } from "../decks/actions";
 import type { BaseJob } from "@/lib/pitch/types";
@@ -42,7 +43,8 @@ export async function createPitchSession(_prev: NewPitchState, formData: FormDat
     access: parsed.data.access,
   };
   const tiers = await getActiveTiers();
-  const prices = priceTiers(base, tiers);
+  const engineConfig = await loadEngineConfig(supabase);
+  const prices = priceTiers(base, tiers, engineConfig);
   const deckId = await ensureDefaultDeck();
 
   const { data, error } = await supabase.from("pitch_sessions").insert({

@@ -1,17 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  TURF_PRODUCTS,
-  INFILL_PRODUCTS,
-  EDGING_PRODUCTS,
-  NAILER_BOARD,
-  TEAROUT_TIERS,
-  COMMISSION_TIERS,
-  CALCULATION_CONSTANTS as C,
-} from "@/lib/pricing/data";
 import { calculateQuote, type Job, type Edging, type Extra } from "@/lib/pricing/calculator";
-import { commissionFor, laborRateFor, wasteFor } from "@/lib/engine/config";
+import {
+  DEFAULT_ENGINE_CONFIG,
+  commissionFor,
+  laborRateFor,
+  wasteFor,
+  type EngineConfig,
+} from "@/lib/engine/config";
 import { parseJobDescription } from "@/lib/pricing/parser";
 
 // ─── Styling helpers ──────────────────────────────────────────────────────────
@@ -48,35 +45,51 @@ function defaultJob(): Job {
 // Both suggestions delegate to the engine — the single implementation shared
 // with the pitch-deck adapters, so this calculator and the deck can never
 // drift apart again (they used to: greens got 10% waste + $1.60 labor there).
-function suggestLaborRate(job: Pick<Job, "application" | "installedSqft" | "product">): number {
-  return laborRateFor({
-    application: job.application,
-    installedSqft: job.installedSqft ?? 0,
-    product: job.product,
-  });
+function suggestLaborRate(
+  job: Pick<Job, "application" | "installedSqft" | "product">,
+  config: EngineConfig,
+): number {
+  return laborRateFor(
+    { application: job.application, installedSqft: job.installedSqft ?? 0, product: job.product },
+    config,
+  );
 }
 
-function suggestWastePct(productName: string): number {
-  return wasteFor(productName);
+function suggestWastePct(productName: string, config: EngineConfig): number {
+  return wasteFor(productName, config);
 }
 
 // ─── The calculator ──────────────────────────────────────────────────────────
 
-export function PricingCalculator() {
+export function PricingCalculator({ config }: { config?: EngineConfig }) {
+  // Engine config — DB-backed when the server page supplies it (admin-edited
+  // product costs, labor rates, waste, commission tiers), code defaults
+  // otherwise. Shadows the old static imports so every usage below reads config.
+  const engine = config ?? DEFAULT_ENGINE_CONFIG;
+  const {
+    TURF_PRODUCTS,
+    INFILL_PRODUCTS,
+    EDGING_PRODUCTS,
+    NAILER_BOARD,
+    TEAROUT_TIERS,
+    COMMISSION_TIERS,
+    CALCULATION_CONSTANTS: C,
+  } = engine.pricing;
+
   const [job, setJob] = useState<Job>(defaultJob);
   const [nlText, setNlText] = useState("");
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
   const [laborTouched, setLaborTouched] = useState(false);
 
   // Effective labor rate is derived: auto-suggest unless the user has typed one in.
-  const effectiveLabor = laborTouched ? job.laborRate : suggestLaborRate(job);
+  const effectiveLabor = laborTouched ? job.laborRate : suggestLaborRate(job, engine);
   const effectiveJob   = useMemo<Job>(() => ({ ...job, laborRate: effectiveLabor }), [job, effectiveLabor]);
 
-  const result = useMemo(() => calculateQuote(effectiveJob), [effectiveJob]);
+  const result = useMemo(() => calculateQuote(effectiveJob, engine.pricing), [effectiveJob, engine]);
 
-  const productKeys = useMemo(() => Object.keys(TURF_PRODUCTS), []);
-  const infillKeys  = useMemo(() => Object.keys(INFILL_PRODUCTS), []);
-  const edgingKeys  = useMemo(() => Object.keys(EDGING_PRODUCTS), []);
+  const productKeys = useMemo(() => Object.keys(TURF_PRODUCTS), [TURF_PRODUCTS]);
+  const infillKeys  = useMemo(() => Object.keys(INFILL_PRODUCTS), [INFILL_PRODUCTS]);
+  const edgingKeys  = useMemo(() => Object.keys(EDGING_PRODUCTS), [EDGING_PRODUCTS]);
 
   const turf = TURF_PRODUCTS[job.product];
   const isAGL          = turf?.infillType === "agl";
@@ -102,7 +115,7 @@ export function PricingCalculator() {
       if (parsed.targetMargin != null)  next.targetMargin  = parsed.targetMargin;
       // If product was set, update default waste too (unless parsed also set waste)
       if (parsed.product && parsed.wastePct == null) {
-        next.wastePct = suggestWastePct(parsed.product);
+        next.wastePct = suggestWastePct(parsed.product, engine);
       }
       return next;
     });
@@ -174,7 +187,7 @@ export function PricingCalculator() {
       (turf.historicalRange ? ` · historical sale $${turf.historicalRange[0]}–$${turf.historicalRange[2]}/sqft` : "")
     : "";
 
-  const laborSuggestion = suggestLaborRate(job);
+  const laborSuggestion = suggestLaborRate(job, engine);
   const laborHint = laborTouched
     ? `Default for this config: $${laborSuggestion.toFixed(2)}/sqft`
     : `Auto-set to $${laborSuggestion.toFixed(2)}/sqft based on type — edit to override`;
@@ -216,7 +229,7 @@ export function PricingCalculator() {
                 value={job.product}
                 onChange={(e) => {
                   const p = e.target.value;
-                  setJob((j) => ({ ...j, product: p, wastePct: suggestWastePct(p) }));
+                  setJob((j) => ({ ...j, product: p, wastePct: suggestWastePct(p, engine) }));
                 }}
                 className={field}
               >

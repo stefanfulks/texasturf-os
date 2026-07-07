@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { loadEngineConfig } from "@/lib/engine/load";
 import { PricingCalculator } from "./pricing-calculator";
 
 export const metadata = {
@@ -11,6 +12,10 @@ export default async function PricingPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // DB-backed engine config: admin-edited product costs, labor rates, waste,
+  // and commission tiers flow into the calculator (RLS: team-readable).
+  const engineConfig = await loadEngineConfig(supabase);
+
   return (
     <div className="space-y-6">
       <div>
@@ -20,7 +25,7 @@ export default async function PricingPage() {
           Enter job details, target a margin, get price + commission + company net instantly.
         </p>
       </div>
-      <PricingCalculator />
+      <PricingCalculator config={engineConfig} />
     </div>
   );
 }

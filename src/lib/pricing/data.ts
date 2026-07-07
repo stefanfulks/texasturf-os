@@ -107,7 +107,9 @@ export const CALCULATION_CONSTANTS = {
   GLUE_LF_PER_GAL:      100,
   GLUE_SQFT_PER_GAL:    40,
   SEAM_TAPE_PER_LF:     0.24,
-  MIN_MARGIN_FOR_QUOTE: 40,
+  // Widened to number (not the literal 40) so the DB-backed engine config can
+  // override it per fiscal year.
+  MIN_MARGIN_FOR_QUOTE: 40 as number,
   MARGIN_SLIDER_MIN:    30,
   MARGIN_SLIDER_MAX:    70,
 } as const;
