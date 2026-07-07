@@ -190,7 +190,7 @@ export function TriageRow({
                   onChange={(e) => setAdminNotes(e.target.value)}
                   rows={2}
                   placeholder="Optional: what you're doing about it, or a follow-up question."
-                  className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong resize-y"
+                  className="field-input resize-y"
                 />
               </div>
             </div>

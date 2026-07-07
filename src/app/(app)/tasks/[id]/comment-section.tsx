@@ -87,7 +87,7 @@ export function CommentSection({
           required
           dropdownPosition="above"
           placeholder="Add a comment… @ to mention, # to link a task, job, invoice, or client."
-          className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong placeholder:text-ink-4 resize-none"
+          className="field-input placeholder:text-ink-4 resize-none"
         />
         {state.error && <p className="text-xs text-danger">{state.error}</p>}
         <div className="flex justify-between items-center">

@@ -62,7 +62,7 @@ export default async function VendorsPage() {
 
       {/* Active vendors */}
       <div className="card overflow-hidden">
-        <div className="px-5 py-3 border-b border-line bg-hover">
+        <div className="panel-head">
           <span className="text-xs font-semibold text-ink-2">Active</span>
           <span className="ml-2 text-xs text-ink-4">{active.length}</span>
         </div>
@@ -103,7 +103,7 @@ export default async function VendorsPage() {
       {/* Inactive */}
       {inactive.length > 0 && (
         <div className="card overflow-hidden opacity-60">
-          <div className="px-5 py-3 border-b border-line bg-hover">
+          <div className="panel-head">
             <span className="text-xs font-semibold text-ink-3">Inactive</span>
             <span className="ml-2 text-xs text-ink-4">{inactive.length}</span>
           </div>

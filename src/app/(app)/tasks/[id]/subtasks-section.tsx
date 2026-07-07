@@ -112,13 +112,13 @@ export function SubtasksSection({
             className="field-input"
           />
           <div className="grid grid-cols-2 gap-2">
-            <select name="priority" defaultValue="normal" className="text-sm border border-line rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-line-strong">
+            <select name="priority" defaultValue="normal" className="field-input">
               <option value="low">Low</option>
               <option value="normal">Normal</option>
               <option value="high">High</option>
               <option value="urgent">Urgent</option>
             </select>
-            <input name="due_date" type="date" className="text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong" />
+            <input name="due_date" type="date" className="field-input" />
           </div>
           {state.error && <p className="text-xs text-danger">{state.error}</p>}
           <div className="flex justify-end gap-2">

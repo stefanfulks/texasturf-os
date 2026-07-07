@@ -153,7 +153,7 @@ export function QuickCapture({ serviceLines }: { serviceLines: string[] }) {
                       type="button"
                       onClick={() => setServiceLine(u.id, s)}
                       className={`text-[11px] px-2 py-0.5 rounded-full border ${
-                        u.service_line === s ? "bg-brand text-white border-ink" : "border-line text-ink-2 hover:bg-hover"
+                        u.service_line === s ? "border-brand-strong bg-brand text-on-brand" : "border-line text-ink-2 hover:bg-hover"
                       }`}
                     >
                       {s.replace(/_/g, " ")}

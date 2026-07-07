@@ -98,7 +98,7 @@ export default async function InventoryJobsPage({
                 href={href}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                   active
-                    ? "bg-brand text-white border-ink"
+                    ? "border-brand-strong bg-brand text-on-brand"
                     : "bg-white text-ink-2 border-line hover:border-line-strong"
                 }`}
               >
@@ -114,7 +114,7 @@ export default async function InventoryJobsPage({
             name="q"
             defaultValue={q}
             placeholder="Search job # or name…"
-            className="w-full text-sm border border-line rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
+            className="field-input"
           />
         </form>
       </div>

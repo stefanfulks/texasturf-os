@@ -65,7 +65,7 @@ export function InvoiceCommentSection({
           name="body"
           rows={3}
           placeholder="Add a comment…"
-          className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong resize-none"
+          className="field-input resize-none"
           required
         />
         {isOfficeOrAdmin && (

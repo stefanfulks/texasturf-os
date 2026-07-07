@@ -99,7 +99,7 @@ export function FeedbackForm({ userId }: { userId: string }) {
               ? "Steps to reproduce, what you expected vs what happened, anything that helps us track it down."
               : "More context — the more specific, the faster we can act on it."
           }
-          className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong resize-y"
+          className="field-input resize-y"
         />
       </div>
 

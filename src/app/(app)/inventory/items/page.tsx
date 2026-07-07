@@ -83,7 +83,7 @@ export default async function InventoryItemsPage({
             href={`/inventory/items${q ? `?q=${encodeURIComponent(q)}` : ""}`}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               !lowOnly
-                ? "bg-brand text-white border-ink"
+                ? "border-brand-strong bg-brand text-on-brand"
                 : "bg-white text-ink-2 border-line hover:border-line-strong"
             }`}
           >
@@ -93,7 +93,7 @@ export default async function InventoryItemsPage({
             href={`/inventory/items?low=1${q ? `&q=${encodeURIComponent(q)}` : ""}`}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
               lowOnly
-                ? "bg-brand text-white border-ink"
+                ? "border-brand-strong bg-brand text-on-brand"
                 : "bg-white text-ink-2 border-line hover:border-line-strong"
             }`}
           >
@@ -107,7 +107,7 @@ export default async function InventoryItemsPage({
             name="q"
             defaultValue={q}
             placeholder="Search items…"
-            className="w-full text-sm border border-line rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white"
+            className="field-input"
           />
         </form>
       </div>

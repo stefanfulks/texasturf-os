@@ -52,7 +52,7 @@ export default async function RecurringTasksPage() {
 
       {/* Active rules */}
       <div className="card overflow-hidden">
-        <div className="px-5 py-3 border-b border-line bg-hover">
+        <div className="panel-head">
           <span className="text-xs font-semibold text-ink-2">Active</span>
           <span className="ml-2 text-xs text-ink-4">{activeRules.length}</span>
         </div>
@@ -76,7 +76,7 @@ export default async function RecurringTasksPage() {
       {/* Paused rules */}
       {pausedRules.length > 0 && (
         <div className="card overflow-hidden">
-          <div className="px-5 py-3 border-b border-line bg-hover">
+          <div className="panel-head">
             <span className="text-xs font-semibold text-ink-2">Paused</span>
             <span className="ml-2 text-xs text-ink-4">{pausedRules.length}</span>
           </div>

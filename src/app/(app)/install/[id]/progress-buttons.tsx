@@ -98,7 +98,7 @@ export function ProgressButtons({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Optional note (attached to the next event you tap)"
-              className="w-full text-sm border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-line-strong bg-white resize-none"
+              className="field-input resize-none"
             />
             <button
               type="button"

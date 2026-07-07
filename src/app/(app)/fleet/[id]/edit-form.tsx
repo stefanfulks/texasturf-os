@@ -100,7 +100,7 @@ export function EditForm({ asset }: { asset: Asset }) {
           name="next_action"
           defaultValue={asset.next_action ?? ""}
           placeholder="e.g. Needs oil change before Friday"
-          className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-4 focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong"
+          className="field-input"
         />
       </div>
 
@@ -112,7 +112,7 @@ export function EditForm({ asset }: { asset: Asset }) {
           defaultValue={asset.notes ?? ""}
           rows={3}
           placeholder="Any additional notes..."
-          className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-4 focus:border-line-strong focus:outline-none focus:ring-1 focus:ring-line-strong resize-none"
+          className="field-input resize-none"
         />
       </div>
 
