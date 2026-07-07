@@ -264,7 +264,7 @@ export default async function ReportsPage({
           Financial Overview
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="rounded-xl border border-line bg-white p-5">
+          <div className="card p-5">
             <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">Total Submitted</p>
             <p className="text-2xl font-bold text-ink">${fmt(totalSubmitted)}</p>
             <p className="text-xs text-ink-4 mt-1">{submittedCount} invoice{submittedCount !== 1 ? "s" : ""}</p>
@@ -279,7 +279,7 @@ export default async function ReportsPage({
             <p className="text-2xl font-bold text-brand">${fmt(totalPaid)}</p>
             <p className="text-xs text-brand mt-1">{paidCount} invoice{paidCount !== 1 ? "s" : ""}</p>
           </div>
-          <div className="rounded-xl border border-line bg-white p-5">
+          <div className="card p-5">
             <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">Avg Approval Time</p>
             <p className="text-2xl font-bold text-ink">
               {avgApprovalDays !== null ? `${avgApprovalDays.toFixed(1)} days` : "—"}
@@ -302,7 +302,7 @@ export default async function ReportsPage({
             Edit Budget &rarr;
           </Link>
         </div>
-        <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="card overflow-hidden">
           {budgets.length === 0 ? (
             <div className="p-8 text-center">
               <p className="text-sm text-ink-4 mb-3">No budget set for this period.</p>
@@ -415,7 +415,7 @@ export default async function ReportsPage({
         <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
           Top Vendors This Period
         </p>
-        <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="card overflow-hidden">
           {topVendors.length === 0 ? (
             <div className="p-8 text-center">
               <p className="text-sm text-ink-4">No invoices this period.</p>
@@ -457,7 +457,7 @@ export default async function ReportsPage({
           </Link>
         </div>
         {kpiEntries.length === 0 ? (
-          <div className="rounded-xl border border-line bg-white p-8 text-center">
+          <div className="card p-8 text-center">
             <p className="text-sm text-ink-4 mb-3">No KPIs entered for this period.</p>
             <Link
               href={`/reports/kpis?month=${month}&year=${year}`}
@@ -479,7 +479,7 @@ export default async function ReportsPage({
                 else indicatorClass = "text-danger";
               }
               return (
-                <div key={kpi.id} className="rounded-xl border border-line bg-white p-5">
+                <div key={kpi.id} className="card p-5">
                   <p className="text-xs font-semibold text-ink-3 uppercase tracking-wide mb-2 truncate">
                     {kpi.kpi_label}
                   </p>

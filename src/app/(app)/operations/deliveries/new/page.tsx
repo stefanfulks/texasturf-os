@@ -30,7 +30,7 @@ export default async function NewDeliveryPage({
   return (
     <div className="max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Log delivery</h1>
+        <h1 className="page-title">Log delivery</h1>
         <p className="mt-0.5 text-sm text-ink-3">
           Capture what landed at the job site. We&apos;ll auto-post to the
           warehouse Slack channel.

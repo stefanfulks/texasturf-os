@@ -26,7 +26,7 @@ export function EntryTable({
   }
 
   return (
-    <div className="rounded-xl border border-line bg-white overflow-x-auto">
+    <div className="card overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-line bg-hover">

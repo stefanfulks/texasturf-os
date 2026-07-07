@@ -33,7 +33,7 @@ export default async function PullListDetailPage({ params }: { params: Params })
           <Link href="/operations/pull-lists" className="text-xs text-ink-3 hover:text-ink">
             ← All pull lists
           </Link>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+          <h1 className="mt-1 page-title">
             {pl.client_name ?? "(no client)"}
             {pl.job_number && <span className="ml-2 text-ink-4">#{pl.job_number}</span>}
           </h1>
@@ -161,7 +161,7 @@ export default async function PullListDetailPage({ params }: { params: Params })
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
+    <section className="card p-5 space-y-3">
       <h2 className="text-sm font-semibold">{title}</h2>
       {children}
     </section>

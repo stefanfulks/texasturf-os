@@ -88,7 +88,7 @@ export default async function InstallPage({ params }: { params: Params }) {
         <Link href="/today" className="text-xs text-ink-3 hover:text-ink">
           ← Today
         </Link>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">{clientName(visit)}</h1>
+        <h1 className="mt-1 page-title">{clientName(visit)}</h1>
         <p className="mt-0.5 text-sm text-ink-3">
           {fmtTime(visit.starts_at)}
           {visit.ends_at && <> → {fmtTime(visit.ends_at)}</>}
@@ -102,7 +102,7 @@ export default async function InstallPage({ params }: { params: Params }) {
       </div>
 
       {/* ─── Current state ───────────────────────────────────────────── */}
-      <div className="rounded-xl border border-line bg-white p-5">
+      <div className="card p-5">
         <div className="text-xs uppercase tracking-wide text-ink-3">Current state</div>
         <div className="mt-1 text-xl font-semibold text-ink">
           {JOB_PROGRESS_LABELS[current]}
@@ -134,7 +134,7 @@ export default async function InstallPage({ params }: { params: Params }) {
 
       {/* ─── Linked pull list ──────────────────────────────────────── */}
       {pullList && (
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="card p-5">
           <div className="text-xs uppercase tracking-wide text-ink-3">Materials</div>
           <Link
             href={`/operations/pull-lists/${pullList.id}`}
@@ -146,7 +146,7 @@ export default async function InstallPage({ params }: { params: Params }) {
       )}
 
       {/* ─── Timeline ──────────────────────────────────────────────── */}
-      <section className="rounded-xl border border-line bg-white p-5">
+      <section className="card p-5">
         <h2 className="text-sm font-semibold">Timeline</h2>
         {events.length === 0 ? (
           <p className="mt-2 text-sm text-ink-3">

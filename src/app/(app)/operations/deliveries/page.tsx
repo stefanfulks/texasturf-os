@@ -20,7 +20,7 @@ export default async function DeliveriesPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Deliveries</h1>
+          <h1 className="page-title">Deliveries</h1>
           <p className="mt-0.5 text-sm text-ink-3">
             Post-delivery confirmations. One row = one Slack post to the
             warehouse channel.
@@ -49,7 +49,7 @@ export default async function DeliveriesPage() {
           </Link>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-line bg-white">
+        <div className="overflow-x-auto card">
           <table className="w-full text-sm">
             <thead className="bg-hover text-left text-xs uppercase tracking-wide text-ink-3">
               <tr>

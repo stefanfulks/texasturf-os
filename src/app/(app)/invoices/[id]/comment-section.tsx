@@ -24,7 +24,7 @@ export function InvoiceCommentSection({
   const [state, formAction, isPending] = useActionState(addInvoiceComment, initial);
 
   return (
-    <div className="rounded-xl border border-line bg-white overflow-hidden">
+    <div className="card overflow-hidden">
       <div className="px-5 py-3 border-b border-line">
         <h2 className="text-sm font-semibold">Comments</h2>
       </div>

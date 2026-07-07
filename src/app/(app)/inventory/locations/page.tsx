@@ -32,7 +32,7 @@ export default async function InventoryLocationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Locations</h1>
+          <h1 className="page-title">Locations</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             {active} active · {locations.length} total
           </p>
@@ -40,13 +40,13 @@ export default async function InventoryLocationsPage() {
       </div>
 
       {/* Add form */}
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <h2 className="text-sm font-semibold mb-4">Add Location</h2>
         <LocationForm mode="create" />
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {locations.length === 0 ? (
           <div className="py-12 text-center text-sm text-ink-4">
             No locations yet.

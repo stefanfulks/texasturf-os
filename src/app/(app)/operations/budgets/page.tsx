@@ -17,7 +17,7 @@ export default async function BudgetsPage() {
   return (
     <div className="space-y-8 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Spend budgets</h1>
+        <h1 className="page-title">Spend budgets</h1>
         <p className="mt-0.5 text-sm text-ink-3">
           Period spend targets that drive the vs-budget cards on{" "}
           <Link href="/operations/vehicles" className="underline">Vehicle Maintenance</Link>{" "}
@@ -64,7 +64,7 @@ function BudgetSection({
           No budgets set for this category yet.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-line bg-white">
+        <div className="overflow-x-auto card">
           <table className="w-full text-sm">
             <thead className="bg-hover text-left text-xs uppercase tracking-wide text-ink-3">
               <tr>

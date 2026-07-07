@@ -133,7 +133,7 @@ export function QuickCapture({ serviceLines }: { serviceLines: string[] }) {
       </div>
 
       {justAdded.length > 0 && (
-        <div className="rounded-xl border border-line bg-white p-4 space-y-3">
+        <div className="card p-4 space-y-3">
           <p className="text-xs font-semibold text-ink-2">Just added — tap a service line to categorize</p>
           {justAdded.map((u) => (
             <div key={u.id} className="flex items-start gap-3 border-t border-line pt-3 first:border-0 first:pt-0">

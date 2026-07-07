@@ -17,7 +17,7 @@ export function SettingsForm({
   const [state, formAction, pending] = useActionState(saveInventorySettings, initialState);
 
   return (
-    <form action={formAction} className="space-y-6 rounded-xl border border-line bg-white p-6">
+    <form action={formAction} className="space-y-6 card p-6">
       {/* Default receiving location */}
       <div>
         <label className="block">

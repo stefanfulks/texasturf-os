@@ -25,13 +25,13 @@ export default async function ArchivedJobsPage() {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Archived Jobs</h1>
+        <h1 className="page-title">Archived Jobs</h1>
         <p className="text-sm text-ink-3 mt-0.5">
           {jobs.length} archived job{jobs.length !== 1 ? "s" : ""}
         </p>
       </div>
 
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {jobs.length === 0 ? (
           <div className="py-16 text-center text-sm text-ink-4">No archived jobs.</div>
         ) : (

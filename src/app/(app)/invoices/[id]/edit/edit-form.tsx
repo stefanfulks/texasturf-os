@@ -35,7 +35,7 @@ export function EditInvoiceForm({
       <input type="hidden" name="invoice_id" value={invoice.id} />
 
       {/* Basic info */}
-      <div className="rounded-xl border border-line bg-white p-5 space-y-4">
+      <div className="card p-5 space-y-4">
         <h2 className="text-sm font-semibold">Basics</h2>
 
         <div>
@@ -77,7 +77,7 @@ export function EditInvoiceForm({
       </div>
 
       {/* Invoice meta */}
-      <div className="rounded-xl border border-line bg-white p-5 space-y-4">
+      <div className="card p-5 space-y-4">
         <h2 className="text-sm font-semibold">Invoice meta</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -104,7 +104,7 @@ export function EditInvoiceForm({
       </div>
 
       {/* Amounts */}
-      <div className="rounded-xl border border-line bg-white p-5 space-y-4">
+      <div className="card p-5 space-y-4">
         <h2 className="text-sm font-semibold">Amounts</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
@@ -123,7 +123,7 @@ export function EditInvoiceForm({
       </div>
 
       {/* Notes */}
-      <div className="rounded-xl border border-line bg-white p-5 space-y-4">
+      <div className="card p-5 space-y-4">
         <h2 className="text-sm font-semibold">Notes</h2>
         <div>
           <p className={label}>Admin notes</p>
@@ -154,7 +154,7 @@ export function EditInvoiceForm({
         <button
           type="button"
           onClick={() => router.push(`/invoices/${invoice.id}`)}
-          className="px-4 py-2 rounded-xl border border-line bg-white text-sm font-semibold text-ink-2 hover:border-line-strong transition-colors"
+          className="px-4 py-2 card text-sm font-semibold text-ink-2 hover:border-line-strong transition-colors"
         >
           Cancel
         </button>

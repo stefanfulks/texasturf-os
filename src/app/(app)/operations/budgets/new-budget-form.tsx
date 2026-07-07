@@ -62,7 +62,7 @@ export function NewBudgetForm({
   return (
     <form
       action={handleCreate}
-      className="rounded-xl border border-line bg-white p-3 flex flex-wrap items-end gap-2"
+      className="card p-3 flex flex-wrap items-end gap-2"
     >
       <input type="hidden" name="kind" value={kind} />
       <div>

@@ -428,7 +428,7 @@ function DraftCardView({
     card.draft.kind === "update_task_status" ? ArrowRightCircle :
     ListPlus;
   return (
-    <div className="rounded-xl border border-line bg-white px-3.5 py-3 text-xs space-y-2.5">
+    <div className="card px-3.5 py-3 text-xs space-y-2.5">
       <div className="flex items-start gap-2">
         <Icon className="h-4 w-4 flex-shrink-0 text-info mt-0.5" />
         <div className="min-w-0 flex-1">

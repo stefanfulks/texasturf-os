@@ -93,7 +93,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
 
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{vendor.name}</h1>
+          <h1 className="page-title">{vendor.name}</h1>
           <p className="text-sm text-ink-3">{vendor.contact_name}{vendor.email ? ` · ${vendor.email}` : ""}{vendor.phone ? ` · ${vendor.phone}` : ""}</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
@@ -108,7 +108,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
 
       {/* Scorecard */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Total Invoices</p>
           <p className="text-xl font-semibold">{activeInvoices.length}</p>
           {firstInvoiceDate && (
@@ -120,25 +120,25 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
           <p className="text-xl font-semibold text-brand">${totalPaid.toLocaleString("en-US", { minimumFractionDigits: 2 })}</p>
           <p className="text-xs text-ink-4 mt-1">{paidInvoices.length} invoice{paidInvoices.length !== 1 ? "s" : ""}</p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Open Balance</p>
           <p className={`text-xl font-semibold ${totalUnpaid > 0 ? "text-warn" : "text-ink-4"}`}>
             ${totalUnpaid.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Avg Invoice</p>
           <p className="text-xl font-semibold">
             {avgInvoiceAmount != null ? `$${avgInvoiceAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Avg Days to Approval</p>
           <p className={`text-xl font-semibold ${avgDaysToApproval != null && avgDaysToApproval > 7 ? "text-warn" : "text-ink"}`}>
             {avgDaysToApproval != null ? `${avgDaysToApproval.toFixed(1)}d` : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Avg Days to Payment</p>
           <p className={`text-xl font-semibold ${avgDaysToPayment != null && avgDaysToPayment > 30 ? "text-danger" : "text-ink"}`}>
             {avgDaysToPayment != null ? `${avgDaysToPayment.toFixed(1)}d` : "—"}
@@ -147,7 +147,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Monthly trend */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">6-Month Trend</h2>
         </div>
@@ -178,7 +178,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Invoice history */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Invoice History</h2>
           <Link href={`/invoices/new`} className="text-xs text-ink-3 hover:text-ink">+ New Invoice</Link>
@@ -212,7 +212,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
 
       {/* Edit form */}
       {isOfficeOrAdmin && (
-        <div className="rounded-xl border border-line bg-white p-6">
+        <div className="card p-6">
           <h2 className="text-sm font-semibold mb-4">Edit Vendor</h2>
           <VendorForm mode="edit" vendor={vendor} />
         </div>

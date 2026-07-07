@@ -24,7 +24,7 @@ export function EventForm() {
   const [state, formAction, pending] = useActionState(createCalendarEvent, initialState);
 
   return (
-    <form action={formAction} className="space-y-4 rounded-xl border border-line bg-white p-6">
+    <form action={formAction} className="space-y-4 card p-6">
       <label className="block text-sm font-medium text-ink-2">
         Title
         <input

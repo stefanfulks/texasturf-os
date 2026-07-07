@@ -30,11 +30,11 @@ export default async function NewAllocationPage({ params }: { params: Promise<{ 
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Add Allocation</h1>
+        <h1 className="page-title">Add Allocation</h1>
         <p className="text-sm text-ink-3 mt-0.5">Request material for this job. You can assign a roll afterwards.</p>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <AllocationForm jobId={id} products={products} action={createAllocation} />
       </div>
     </div>

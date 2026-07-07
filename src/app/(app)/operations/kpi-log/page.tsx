@@ -68,7 +68,7 @@ export default async function KpiLogPage({
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">KPI Log</h1>
+          <h1 className="page-title">KPI Log</h1>
           <p className="mt-0.5 text-sm text-ink-3">
             Daily warehouse ops log. Office adds, management signs off.
           </p>

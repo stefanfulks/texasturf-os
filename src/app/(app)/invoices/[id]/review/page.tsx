@@ -53,7 +53,7 @@ export default async function InvoiceReviewPage({ params }: { params: Promise<{ 
     <div className="max-w-3xl space-y-6">
       <Link href={`/invoices/${id}`} className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink">← Invoice</Link>
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Review Invoice</h1>
+        <h1 className="page-title">Review Invoice</h1>
         <p className="text-sm text-ink-3 mt-0.5">{invoice.title}</p>
       </div>
 

@@ -42,7 +42,7 @@ export function SubtasksSection({
   const done = subtasks.filter((s) => s.status === "done").length;
 
   return (
-    <section className="rounded-xl border border-line bg-white overflow-hidden">
+    <section className="card overflow-hidden">
       <div className="flex items-center justify-between px-5 py-3 border-b border-line">
         <div className="flex items-baseline gap-3">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-4">

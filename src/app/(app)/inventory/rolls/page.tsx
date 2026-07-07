@@ -141,7 +141,7 @@ export default async function InventoryRollsPage({
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Rolls</h1>
+          <h1 className="page-title">Rolls</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             {rolls.length} roll{rolls.length !== 1 ? "s" : ""}
           </p>
@@ -165,7 +165,7 @@ export default async function InventoryRollsPage({
       />
 
       {/* Table */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {rolls.length === 0 ? (
           <div className="py-16 text-center text-sm text-ink-4">
             No rolls found.

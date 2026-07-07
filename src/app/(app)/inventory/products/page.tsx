@@ -28,19 +28,19 @@ export default async function InventoryProductsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Products</h1>
+          <h1 className="page-title">Products</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             {active} active · {products.length} total
           </p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <h2 className="text-sm font-semibold mb-4">Add Product</h2>
         <ProductForm mode="create" />
       </div>
 
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {products.length === 0 ? (
           <div className="py-12 text-center text-sm text-ink-4">
             No products yet.

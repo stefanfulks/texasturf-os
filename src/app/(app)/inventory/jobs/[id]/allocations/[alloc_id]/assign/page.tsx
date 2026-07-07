@@ -80,7 +80,7 @@ export default async function AssignRollPage({
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="page-title">
           {isSwap ? "Swap Roll" : "Assign Roll"}
         </h1>
         <p className="text-sm text-ink-3 mt-0.5">
@@ -105,7 +105,7 @@ export default async function AssignRollPage({
         </div>
       )}
 
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">
             Candidate Rolls <span className="text-ink-4 font-normal">({candidates.length})</span>

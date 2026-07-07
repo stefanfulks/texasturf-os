@@ -65,7 +65,7 @@ export default async function FeedbackPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Feedback</h1>
+        <h1 className="page-title">Feedback</h1>
         <p className="mt-0.5 text-sm text-ink-3">
           Bug? Idea? Question? Drop it here — add a screenshot if it helps — and an admin will follow up.
         </p>
@@ -74,7 +74,7 @@ export default async function FeedbackPage() {
       <FeedbackForm userId={user.id} />
 
       {submissions.length > 0 && (
-        <section className="rounded-xl border border-line bg-white overflow-hidden">
+        <section className="card overflow-hidden">
           <div className="px-5 py-3 border-b border-line">
             <h2 className="text-sm font-semibold">Your past submissions</h2>
           </div>

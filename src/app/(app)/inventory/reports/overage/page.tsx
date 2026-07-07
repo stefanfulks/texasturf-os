@@ -103,7 +103,7 @@ export default async function TurfOverageReportPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Turf Overage Report</h1>
+          <h1 className="page-title">Turf Overage Report</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             Requested vs dispatched feet per job
           </p>
@@ -111,7 +111,7 @@ export default async function TurfOverageReportPage({
       </div>
 
       {/* Filters */}
-      <form method="GET" className="flex flex-wrap gap-3 items-end rounded-xl border border-line bg-white p-4">
+      <form method="GET" className="flex flex-wrap gap-3 items-end card p-4">
         <div>
           <label className="block text-xs font-medium text-ink-3 mb-1">Status</label>
           <select
@@ -160,19 +160,19 @@ export default async function TurfOverageReportPage({
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Jobs</p>
           <p className="text-2xl font-semibold text-ink">{withRequested.length}</p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Over</p>
           <p className="text-2xl font-semibold text-danger">{totalOver}</p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Under</p>
           <p className="text-2xl font-semibold text-brand">{totalUnder}</p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Avg Variance</p>
           <p className={`text-2xl font-semibold ${varianceColor(avgVariancePct)}`}>
             {avgVariancePct > 0 ? "+" : ""}
@@ -182,7 +182,7 @@ export default async function TurfOverageReportPage({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-line bg-white overflow-x-auto">
+      <div className="card overflow-x-auto">
         {rows.length === 0 ? (
           <div className="py-12 text-center text-sm text-ink-4">
             No jobs match the filters.

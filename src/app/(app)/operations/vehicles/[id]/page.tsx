@@ -68,7 +68,7 @@ export default async function MaintenanceDetailPage({ params }: { params: Params
         <Link href="/operations/vehicles" className="text-xs text-ink-3 hover:text-ink">
           ← All maintenance
         </Link>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">{log.description}</h1>
+        <h1 className="mt-1 page-title">{log.description}</h1>
         <p className="mt-0.5 text-sm text-ink-3">{fmtDate(log.performed_at)}</p>
       </div>
 
@@ -133,7 +133,7 @@ export default async function MaintenanceDetailPage({ params }: { params: Params
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
+    <section className="card p-5 space-y-3">
       <h2 className="text-sm font-semibold">{title}</h2>
       {children}
     </section>

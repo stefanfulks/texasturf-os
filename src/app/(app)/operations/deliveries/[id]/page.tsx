@@ -36,7 +36,7 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
           <Link href="/operations/deliveries" className="text-xs text-ink-3 hover:text-ink">
             ← All deliveries
           </Link>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+          <h1 className="mt-1 page-title">
             {d.client_name ?? "(no client)"}
           </h1>
           <p className="mt-0.5 text-sm text-ink-3 tabular-nums">
@@ -152,7 +152,7 @@ export default async function DeliveryDetailPage({ params }: { params: Params })
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
+    <section className="card p-5 space-y-3">
       <h2 className="text-sm font-semibold">{title}</h2>
       {children}
     </section>

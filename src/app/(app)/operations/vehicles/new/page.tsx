@@ -21,7 +21,7 @@ export default async function NewMaintenancePage({
   return (
     <div className="max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Log service</h1>
+        <h1 className="page-title">Log service</h1>
         <p className="mt-0.5 text-sm text-ink-3">
           Records a maintenance event against a vehicle. Optionally links to a
           scheduled service so &quot;last serviced&quot; advances.

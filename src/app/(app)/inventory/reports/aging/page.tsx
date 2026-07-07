@@ -89,7 +89,7 @@ export default async function AgingReportPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Aging Report</h1>
+          <h1 className="page-title">Aging Report</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             Available rolls bucketed by days in stock. Older rolls should move first.
           </p>
@@ -116,7 +116,7 @@ export default async function AgingReportPage() {
       </div>
 
       {/* Old rolls table */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="px-5 py-3 border-b border-line flex items-center justify-between">
           <h2 className="text-sm font-semibold text-ink">
             Rolls sitting 91+ days

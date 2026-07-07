@@ -103,13 +103,13 @@ export default async function CalendarPage() {
               Try signing out and back in with Google.
             </div>
           ) : groupedEvents.size === 0 ? (
-            <div className="rounded-xl border border-line bg-white p-8 text-center text-sm text-ink-4">
+            <div className="card p-8 text-center text-sm text-ink-4">
               No upcoming events in the next 2 weeks.
             </div>
           ) : (
             <div className="space-y-4">
               {Array.from(groupedEvents.entries()).map(([day, dayEvents]) => (
-                <div key={day} className="rounded-xl border border-line bg-white overflow-hidden">
+                <div key={day} className="card overflow-hidden">
                   <div className="bg-hover px-4 py-2 border-b border-line">
                     <p className="font-semibold text-ink text-sm">{day}</p>
                   </div>
@@ -139,7 +139,7 @@ export default async function CalendarPage() {
           )}
         </section>
       ) : (
-        <div className="rounded-xl border border-line bg-white p-6">
+        <div className="card p-6">
           <p className="text-sm text-ink-2">
             <strong className="text-ink">Connect your Google account</strong> to see your personal calendar inline.
             Sign out and sign back in using the &quot;Continue with Google&quot; button.
@@ -159,7 +159,7 @@ export default async function CalendarPage() {
           <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
             Shared TexasTurf calendar
           </p>
-          <div className="rounded-xl border border-line bg-white overflow-hidden">
+          <div className="card overflow-hidden">
             <iframe
               src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(embedSrc)}&ctz=America%2FChicago&mode=WEEK&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0`}
               className="w-full"
@@ -173,7 +173,7 @@ export default async function CalendarPage() {
           <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
             Shared TexasTurf calendar
           </p>
-          <div className="rounded-xl border border-line bg-white p-6 text-sm text-ink-2">
+          <div className="card p-6 text-sm text-ink-2">
             Set <code className="bg-sunken px-1.5 py-0.5 rounded text-xs">NEXT_PUBLIC_GOOGLE_CALENDAR_EMBED_SRC</code> in
             Vercel to the Google Calendar ID (e.g. <code className="bg-sunken px-1.5 py-0.5 rounded text-xs">team@texasturfusa.com</code>) to embed
             the shared calendar here. Make sure the calendar is set to

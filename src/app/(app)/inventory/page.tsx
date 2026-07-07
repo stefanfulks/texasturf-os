@@ -198,7 +198,7 @@ export default async function InventoryDashboardPage() {
       {/* Header */}
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Inventory Dashboard</h1>
+          <h1 className="page-title">Inventory Dashboard</h1>
           <p className="text-sm text-ink-3 mt-1">
             Roll inventory, jobs, and stock at a glance.
           </p>
@@ -207,42 +207,42 @@ export default async function InventoryDashboardPage() {
 
       {/* Stat row */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="card p-5">
           <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
             Total Active Rolls
           </p>
-          <p className="text-2xl font-semibold tracking-tight">
+          <p className="display text-2xl tabular-nums">
             {fmtInt(totalActiveRolls)}
           </p>
           <p className="text-xs text-ink-4 mt-1">In active lifecycle</p>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="card p-5">
           <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
             Linear Feet In Stock
           </p>
-          <p className="text-2xl font-semibold tracking-tight">
+          <p className="display text-2xl tabular-nums">
             {fmtFt(totalInStockFt)}
             <span className="text-sm font-normal text-ink-4 ml-1">ft</span>
           </p>
           <p className="text-xs text-ink-4 mt-1">Available + allocated</p>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="card p-5">
           <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
             Active Jobs
           </p>
-          <p className="text-2xl font-semibold tracking-tight">
+          <p className="display text-2xl tabular-nums">
             {fmtInt(activeJobsCount)}
           </p>
           <p className="text-xs text-ink-4 mt-1">Not completed or archived</p>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="card p-5">
           <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">
             Open Allocations
           </p>
-          <p className="text-2xl font-semibold tracking-tight">
+          <p className="display text-2xl tabular-nums">
             {fmtInt(openAllocationsCount)}
           </p>
           <p className="text-xs text-ink-4 mt-1">Awaiting fulfillment</p>
@@ -252,7 +252,7 @@ export default async function InventoryDashboardPage() {
       {/* Two cards: Recent Activity + Low Stock */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent Activity */}
-        <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="px-5 py-3 border-b border-line flex items-center justify-between">
             <h2 className="text-sm font-semibold text-ink">Recent Activity</h2>
             <span className="text-xs text-ink-4">Last 10</span>
@@ -302,7 +302,7 @@ export default async function InventoryDashboardPage() {
         </div>
 
         {/* Low Stock Alert */}
-        <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="px-5 py-3 border-b border-line flex items-center justify-between">
             <h2 className="text-sm font-semibold text-ink">Low Stock Alert</h2>
             <span className="text-xs text-ink-4">
@@ -334,7 +334,7 @@ export default async function InventoryDashboardPage() {
       </section>
 
       {/* Rolls by status */}
-      <section className="rounded-xl border border-line bg-white overflow-hidden">
+      <section className="card overflow-hidden">
         <div className="px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold text-ink">Rolls by Status</h2>
         </div>

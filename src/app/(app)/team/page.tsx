@@ -45,7 +45,7 @@ export default async function AdminUsersPage() {
       <div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Team</h1>
+            <h1 className="page-title">Team</h1>
             <p className="mt-0.5 text-sm text-ink-3">
               Invite new teammates and manage their access. Role gates what
               they can DO (admin / office / field). Departments drive what
@@ -60,7 +60,7 @@ export default async function AdminUsersPage() {
 
       <InviteUserForm />
 
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

@@ -215,7 +215,7 @@ export default async function TeamMemberDetailPage({
         </Link>
         <div className="mt-3 flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-ink">{member.full_name}</h1>
+            <h1 className="page-title text-ink">{member.full_name}</h1>
             <p className="text-sm text-ink-3 mt-0.5">{member.role_title}</p>
             {member.department && (
               <p className="text-xs text-ink-4 mt-0.5">{member.department}</p>
@@ -278,7 +278,7 @@ export default async function TeamMemberDetailPage({
         <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
           KPI Breakdown — {monthName(month, year)}
         </p>
-        <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="card overflow-hidden">
           {definitions.length === 0 ? (
             <div className="p-8 text-center">
               <p className="text-sm text-ink-4">No KPI definitions found for this member.</p>
@@ -345,7 +345,7 @@ export default async function TeamMemberDetailPage({
           <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
             6-Month Trend
           </p>
-          <div className="rounded-xl border border-line bg-white overflow-x-auto">
+          <div className="card overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-line bg-hover">

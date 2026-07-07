@@ -100,7 +100,7 @@ export function ReviewForm({
   return (
     <div className="space-y-6">
       {/* Invoice fields editor */}
-      <form action={fieldsAction} className="rounded-xl border border-line bg-white p-6 space-y-5">
+      <form action={fieldsAction} className="card p-6 space-y-5">
         <h2 className="text-sm font-semibold">Invoice Details</h2>
         <input type="hidden" name="invoice_id" value={invoice.id} />
 
@@ -204,7 +204,7 @@ export function ReviewForm({
       </form>
 
       {/* Line items editor */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Line Items</h2>
           <button type="button" onClick={addLine} className="text-xs text-ink-2 hover:text-ink font-medium">+ Add line</button>
@@ -265,7 +265,7 @@ export function ReviewForm({
       </div>
 
       {/* Status advance */}
-      <div className="rounded-xl border border-line bg-white p-6 space-y-4">
+      <div className="card p-6 space-y-4">
         <h2 className="text-sm font-semibold">Advance Status</h2>
 
         <form action={statusAction} className="space-y-4">

@@ -89,7 +89,7 @@ export default async function VendorOrdersDashboard() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <Link href="/operations/vendor-orders" className="text-sm text-ink-3 hover:underline">← Vendor Orders</Link>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">Purchasing Dashboard</h1>
+          <h1 className="mt-1 page-title">Purchasing Dashboard</h1>
         </div>
       </div>
 
@@ -149,7 +149,7 @@ export default async function VendorOrdersDashboard() {
 function Kpi({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "danger" | "warn" }) {
   const color = tone === "danger" ? "text-danger" : tone === "warn" ? "text-warn" : "text-ink";
   return (
-    <div className="rounded-xl border border-line bg-white p-4">
+    <div className="card p-4">
       <div className="text-[11px] text-ink-4">{label}</div>
       <div className={`mt-1 text-xl font-semibold tabular-nums ${color}`}>{value}</div>
       {sub && <div className="text-[11px] text-ink-4 mt-0.5">{sub}</div>}
@@ -169,7 +169,7 @@ function MiniStat({ label, value, sub, tone }: { label: string; value: string; s
 
 function Panel({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-line bg-white p-5">
+    <div className="card p-5">
       <div className="mb-3">
         <h2 className="text-sm font-semibold text-ink">{title}</h2>
         {subtitle && <p className="text-[11px] text-ink-4">{subtitle}</p>}

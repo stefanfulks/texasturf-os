@@ -24,7 +24,7 @@ export default async function InventorySettingsPage() {
         ← Inventory
       </Link>
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Inventory Settings</h1>
+        <h1 className="page-title">Inventory Settings</h1>
         <p className="text-sm text-ink-3 mt-0.5">
           Module-wide settings stored in the <code className="text-xs px-1.5 py-0.5 bg-sunken rounded">inv_settings</code> table.
         </p>

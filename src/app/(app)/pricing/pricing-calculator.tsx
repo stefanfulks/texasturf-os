@@ -20,7 +20,7 @@ const field        = "w-full text-sm border border-line rounded-lg px-3 py-2 foc
 const fieldNarrow  = field + " py-1.5";
 const labelCls     = "text-xs font-medium text-ink-3 mb-1 block";
 const sectionTitle = "text-sm font-semibold text-ink mb-3";
-const sectionBox   = "rounded-xl border border-line bg-white p-5 space-y-3";
+const sectionBox   = "card p-5 space-y-3";
 
 // ─── Default job ──────────────────────────────────────────────────────────────
 

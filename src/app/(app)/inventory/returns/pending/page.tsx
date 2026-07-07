@@ -105,7 +105,7 @@ export default async function PendingReturnsPage() {
         >
           <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" /> Back to Returns
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">Pending Returns Review</h1>
+        <h1 className="page-title">Pending Returns Review</h1>
         <p className="text-sm text-ink-3 mt-1">
           Rolls in Returned status awaiting review. Restock to Available or write off as Damaged.
         </p>

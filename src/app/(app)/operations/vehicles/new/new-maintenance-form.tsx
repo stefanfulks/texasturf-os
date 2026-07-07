@@ -214,7 +214,7 @@ export function NewMaintenanceForm({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
+    <section className="card p-5 space-y-3">
       <h2 className="text-sm font-semibold text-ink">{title}</h2>
       {children}
     </section>

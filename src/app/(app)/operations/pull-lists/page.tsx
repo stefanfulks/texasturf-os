@@ -38,7 +38,7 @@ export default async function PullListsPage({
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Pull Lists</h1>
+          <h1 className="page-title">Pull Lists</h1>
           <p className="mt-0.5 text-sm text-ink-3">
             Daily material assembly per job. Replaces the Pull List PDF.
           </p>
@@ -86,7 +86,7 @@ export default async function PullListsPage({
           </Link>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-line bg-white">
+        <div className="overflow-x-auto card">
           <table className="w-full text-sm">
             <thead className="bg-hover text-left text-xs uppercase tracking-wide text-ink-3">
               <tr>

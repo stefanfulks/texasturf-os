@@ -76,7 +76,7 @@ export default async function ToolPurchaseDetailPage({ params }: { params: Param
         <Link href="/operations/tools" className="text-xs text-ink-3 hover:text-ink">
           ← All purchases
         </Link>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">{p.item_name}</h1>
+        <h1 className="mt-1 page-title">{p.item_name}</h1>
         <p className="mt-0.5 text-sm text-ink-3">
           {fmtDate(p.purchase_date)}
           {p.vendor && <> · {p.vendor}</>}
@@ -122,7 +122,7 @@ export default async function ToolPurchaseDetailPage({ params }: { params: Param
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-line bg-white p-5 space-y-3">
+    <section className="card p-5 space-y-3">
       <h2 className="text-sm font-semibold">{title}</h2>
       {children}
     </section>

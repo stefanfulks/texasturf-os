@@ -53,7 +53,7 @@ export default async function InventoryReceivePage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Receive Inventory</h1>
+          <h1 className="page-title">Receive Inventory</h1>
           <p className="text-sm text-ink-3 mt-1">
             Add new rolls to TexasTurf warehouse inventory.
           </p>

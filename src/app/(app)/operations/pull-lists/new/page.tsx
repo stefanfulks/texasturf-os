@@ -26,7 +26,7 @@ export default async function NewPullListPage() {
   return (
     <div className="max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">New Pull List</h1>
+        <h1 className="page-title">New Pull List</h1>
         <p className="mt-0.5 text-sm text-ink-3">
           Build today&apos;s pull list. Sign-offs and status moves happen on the
           detail page once it&apos;s saved.

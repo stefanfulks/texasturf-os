@@ -67,7 +67,7 @@ export default async function PendingInventoryPage() {
           >
             <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" /> Back to Receive
           </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">Pending Inventory</h1>
+          <h1 className="page-title">Pending Inventory</h1>
           <p className="text-sm text-ink-3 mt-1">
             Rolls received in Planned status. Confirm to release into Available, or reject as
             damaged.

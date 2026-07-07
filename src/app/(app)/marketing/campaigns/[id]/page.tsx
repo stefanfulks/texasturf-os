@@ -38,7 +38,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
       <div>
         <Link href="/marketing/campaigns" className="text-xs text-ink-4 hover:underline">← Campaigns</Link>
         <div className="flex items-center justify-between flex-wrap gap-3 mt-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{c.name}</h1>
+          <h1 className="page-title">{c.name}</h1>
           <StatusControl id={c.id} status={c.status} />
         </div>
         <p className="text-sm text-ink-3 mt-0.5">
@@ -47,13 +47,13 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
       </div>
 
       {c.brief_md && (
-        <section className="rounded-xl border border-line bg-white p-6">
+        <section className="card p-6">
           <h2 className="text-sm font-semibold mb-2">Brief</h2>
           <pre className="text-sm text-ink-2 whitespace-pre-wrap font-sans leading-relaxed">{c.brief_md}</pre>
         </section>
       )}
 
-      <section className="rounded-xl border border-line bg-white p-6 space-y-4">
+      <section className="card p-6 space-y-4">
         <h2 className="text-sm font-semibold">Copy to paste into Jobber</h2>
         {copyBlocks.length === 0 ? (
           <p className="text-sm text-ink-4">No copy blocks on this campaign yet.</p>
@@ -80,7 +80,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
         )}
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-6">
+      <section className="card p-6">
         <h2 className="text-sm font-semibold mb-3">Channel checklist</h2>
         <ChannelChecklist id={c.id} items={checklist} />
       </section>

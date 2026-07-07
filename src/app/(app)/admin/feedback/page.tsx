@@ -63,7 +63,7 @@ export default async function AdminFeedbackPage() {
       <div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Feedback</h1>
+            <h1 className="page-title">Feedback</h1>
             <p className="mt-0.5 text-sm text-ink-3">
               Bugs, feature requests, and questions from the team. Mark items
               complete, reply with admin notes, or delete — submitters see your
@@ -90,7 +90,7 @@ export default async function AdminFeedbackPage() {
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-3">Open</h2>
         {open.length === 0 ? (
-          <div className="rounded-xl border border-line bg-white px-5 py-10 text-center text-sm text-ink-4">
+          <div className="card px-5 py-10 text-center text-sm text-ink-4">
             Inbox zero. No open feedback right now.
           </div>
         ) : (

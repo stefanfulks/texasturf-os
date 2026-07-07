@@ -130,7 +130,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="page-title">
               {job.job_number ? `${job.job_number} · ` : ""}
               {job.job_name}
             </h1>
@@ -191,26 +191,26 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Total Allocations</p>
           <p className="text-xl font-semibold">{totalAllocations}</p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Allocated Rolls</p>
           <p className="text-xl font-semibold">{allocatedRolls}</p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Total Requested</p>
           <p className="text-xl font-semibold">{totalRequestedFt.toLocaleString()} ft</p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Total Dispatched</p>
           <p className="text-xl font-semibold">{totalDispatchedFt.toLocaleString()} ft</p>
         </div>
       </div>
 
       {/* Allocations table */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Allocations</h2>
           {!isArchived && (
@@ -320,7 +320,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       </div>
 
       {/* Rolls assigned table */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Rolls Assigned to Job</h2>
         </div>
@@ -357,7 +357,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       </div>
 
       {/* Transaction history */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="px-5 py-3 border-b border-line">
           <h2 className="text-sm font-semibold">Transaction History</h2>
         </div>
@@ -408,7 +408,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       {/* Edit form */}
       {!isArchived && (
-        <div className="rounded-xl border border-line bg-white p-6">
+        <div className="card p-6">
           <h2 className="text-sm font-semibold mb-4">Edit Job</h2>
           <JobForm mode="edit" job={job} />
         </div>

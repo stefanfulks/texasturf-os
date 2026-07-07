@@ -39,10 +39,10 @@ export default async function InvoiceApprovalPage({ params }: { params: Promise<
     <div className="max-w-2xl space-y-6">
       <Link href={`/invoices/${id}`} className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink">← Invoice</Link>
 
-      <h1 className="text-2xl font-semibold tracking-tight">Ownership Approval</h1>
+      <h1 className="page-title">Ownership Approval</h1>
 
       {/* Invoice summary */}
-      <div className="rounded-xl border border-line bg-white p-5 space-y-3">
+      <div className="card p-5 space-y-3">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold">{invoice.title}</h2>
@@ -83,7 +83,7 @@ export default async function InvoiceApprovalPage({ params }: { params: Promise<
 
       {/* Line items summary */}
       {lineItems.length > 0 && (
-        <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="px-5 py-3 border-b border-line">
             <h3 className="text-sm font-semibold">Line Items</h3>
           </div>

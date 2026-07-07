@@ -185,7 +185,7 @@ export default async function RollDetailPage({
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-semibold tracking-tight font-mono">
+            <h1 className="page-title font-mono">
               {roll.tt_sku_tag_number ?? "—"}
             </h1>
             <RollStatusBadge status={roll.status} />
@@ -222,7 +222,7 @@ export default async function RollDetailPage({
       {/* Two column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Metadata */}
-        <div className="rounded-xl border border-line bg-white overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="px-5 py-3 border-b border-line">
             <h2 className="text-sm font-semibold">Roll Information</h2>
           </div>
@@ -297,7 +297,7 @@ export default async function RollDetailPage({
         <div className="space-y-6">
           {/* Allocated job */}
           {job && (
-            <div className="rounded-xl border border-line bg-white overflow-hidden">
+            <div className="card overflow-hidden">
               <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">Allocated Job</h2>
               </div>
@@ -322,7 +322,7 @@ export default async function RollDetailPage({
 
           {/* Parent roll */}
           {parentRoll && (
-            <div className="rounded-xl border border-line bg-white overflow-hidden">
+            <div className="card overflow-hidden">
               <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">Parent Roll</h2>
               </div>
@@ -350,7 +350,7 @@ export default async function RollDetailPage({
 
           {/* Child rolls */}
           {roll.roll_type === "parent" && childRolls.length > 0 && (
-            <div className="rounded-xl border border-line bg-white overflow-hidden">
+            <div className="card overflow-hidden">
               <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">
                   Child Rolls ({childRolls.length})
@@ -384,7 +384,7 @@ export default async function RollDetailPage({
 
           {/* Allocations */}
           {allocations.length > 0 && (
-            <div className="rounded-xl border border-line bg-white overflow-hidden">
+            <div className="card overflow-hidden">
               <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">
                   Allocations ({allocations.length})
@@ -429,7 +429,7 @@ export default async function RollDetailPage({
       </div>
 
       {/* Transaction History */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="px-5 py-3 border-b border-line flex items-center justify-between">
           <h2 className="text-sm font-semibold">Transaction History</h2>
           <span className="text-xs text-ink-4">

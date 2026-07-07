@@ -43,7 +43,7 @@ export default async function InventoryItemsPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Other Inventory</h1>
+          <h1 className="page-title">Other Inventory</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             Consumables, fasteners, infill, accessories
           </p>
@@ -52,17 +52,17 @@ export default async function InventoryItemsPage({
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Total Items</p>
           <p className="text-2xl font-semibold text-ink">{allItems.length}</p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Active</p>
           <p className="text-2xl font-semibold text-ink">
             {allItems.filter((i) => i.active).length}
           </p>
         </div>
-        <div className="rounded-xl border border-line bg-white px-4 py-3">
+        <div className="card px-4 py-3">
           <p className="text-xs text-ink-4 mb-1">Low Stock</p>
           <p className={`text-2xl font-semibold ${lowStockCount > 0 ? "text-danger" : "text-ink-4"}`}>
             {lowStockCount}
@@ -71,7 +71,7 @@ export default async function InventoryItemsPage({
       </div>
 
       {/* Add form */}
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <h2 className="text-sm font-semibold mb-4">Add Item</h2>
         <ItemForm mode="create" locations={locations} />
       </div>
@@ -113,7 +113,7 @@ export default async function InventoryItemsPage({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-line bg-white overflow-x-auto">
+      <div className="card overflow-x-auto">
         {items.length === 0 ? (
           <div className="py-12 text-center text-sm text-ink-4">
             {lowOnly ? "No low-stock items." : "No items yet."}

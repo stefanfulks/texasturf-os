@@ -95,7 +95,7 @@ export default async function InvoicesPage({
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
+          <h1 className="page-title">Invoices</h1>
           <p className="text-sm text-ink-3 mt-0.5">{filtered.length} invoice{filtered.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export default async function InvoicesPage({
             { label: "Approved (unpaid)", value: stats["approved"]  ?? 0, color: "text-brand" },
             { label: "Paid (this run)",   value: stats["paid"]      ?? 0, color: "text-brand" },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-line bg-white px-4 py-3">
+            <div key={s.label} className="card px-4 py-3">
               <p className="text-xs text-ink-4 mb-1">{s.label}</p>
               <p className={`text-2xl font-semibold ${s.color}`}>{s.value}</p>
             </div>
@@ -167,7 +167,7 @@ export default async function InvoicesPage({
       </div>
 
       {/* Invoice list */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-16 text-center text-sm text-ink-4">
             No invoices found.

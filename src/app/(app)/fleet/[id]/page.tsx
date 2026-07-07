@@ -78,7 +78,7 @@ export default async function AssetDetailPage({
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{asset.name}</h1>
+          <h1 className="page-title">{asset.name}</h1>
           <p className="mt-1 text-sm text-ink-3">{UNIT_LABELS[asset.unit_type]}</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap mt-1">

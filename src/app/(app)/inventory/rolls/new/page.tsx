@@ -40,13 +40,13 @@ export default async function NewRollPage() {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">New Roll</h1>
+        <h1 className="page-title">New Roll</h1>
         <p className="text-sm text-ink-3 mt-0.5">
           Add a new parent roll to inventory.
         </p>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <RollForm
           mode="create"
           locations={locations}

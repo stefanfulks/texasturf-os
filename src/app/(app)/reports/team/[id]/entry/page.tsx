@@ -89,7 +89,7 @@ export default async function TeamKpiEntryPage({
       </div>
 
       {definitions.length === 0 ? (
-        <div className="rounded-xl border border-line bg-white p-8 text-center">
+        <div className="card p-8 text-center">
           <p className="text-sm text-ink-4">
             No KPI definitions found for this team member.
           </p>

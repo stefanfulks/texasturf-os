@@ -34,7 +34,7 @@ export default async function InvoiceEditPage({ params }: { params: Promise<{ id
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Edit Invoice</h1>
+        <h1 className="page-title">Edit Invoice</h1>
         <p className="text-sm text-ink-3 mt-0.5">
           {invoice.title} · all fields editable
         </p>

@@ -32,7 +32,7 @@ export function BudgetForm({ budgets, month, year }: Props) {
       <input type="hidden" name="month" value={month} />
       <input type="hidden" name="year" value={year} />
 
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {CATEGORIES.map(({ key, label }, idx) => {
           const existing = budgetMap.get(key);
           return (

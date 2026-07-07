@@ -52,13 +52,13 @@ export default async function EditRollPage({
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Edit Roll</h1>
+        <h1 className="page-title">Edit Roll</h1>
         <p className="text-sm text-ink-3 mt-0.5">
           Update roll details. Status changes are logged as transactions.
         </p>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <RollForm
           mode="edit"
           roll={roll}

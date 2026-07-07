@@ -57,7 +57,7 @@ export default async function JobberSettingsPage({
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Jobber connection</h1>
+        <h1 className="page-title">Jobber connection</h1>
         <p className="mt-0.5 text-sm text-ink-3">
           Sync clients and visits from Jobber into the OS so the team can see
           them alongside everything else.
@@ -70,7 +70,7 @@ export default async function JobberSettingsPage({
         </p>
       )}
 
-      <section className="rounded-xl border border-line bg-white p-5">
+      <section className="card p-5">
         <h2 className="text-sm font-semibold">Connected accounts</h2>
         {accounts.length === 0 ? (
           <p className="mt-2 text-sm text-ink-3">No Jobber account connected yet.</p>
@@ -103,7 +103,7 @@ export default async function JobberSettingsPage({
       </section>
 
       {primaryAccountId && (
-        <section className="rounded-xl border border-line bg-white p-5">
+        <section className="card p-5">
           <h2 className="text-sm font-semibold">Local mirror</h2>
           <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
             <div className="rounded-lg border border-line p-3">
@@ -127,7 +127,7 @@ export default async function JobberSettingsPage({
         </section>
       )}
 
-      <section className="rounded-xl border border-line bg-white p-5">
+      <section className="card p-5">
         <h2 className="text-sm font-semibold">Recent webhook events</h2>
         {lastEvents.length === 0 ? (
           <p className="mt-2 text-sm text-ink-3">No events yet.</p>

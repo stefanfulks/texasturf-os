@@ -74,7 +74,7 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-white overflow-hidden">
+    <div className="card overflow-hidden">
       <div className="flex items-center justify-between px-5 py-4 border-b border-line">
         <div className="flex items-center gap-2.5">
           <span className="text-lg">{icon}</span>

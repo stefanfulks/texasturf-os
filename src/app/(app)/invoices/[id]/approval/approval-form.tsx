@@ -13,7 +13,7 @@ export function ApprovalForm({ invoiceId, currentStatus }: { invoiceId: string; 
   const isPaid = currentStatus === "paid";
 
   return (
-    <form action={formAction} className="rounded-xl border border-line bg-white p-6 space-y-5">
+    <form action={formAction} className="card p-6 space-y-5">
       <h2 className="text-sm font-semibold">Decision</h2>
       <input type="hidden" name="invoice_id" value={invoiceId} />
 

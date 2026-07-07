@@ -181,7 +181,7 @@ export default async function TeamPerformancePage({
 
       {/* Member Grid */}
       {members.length === 0 ? (
-        <div className="rounded-xl border border-line bg-white p-12 text-center">
+        <div className="card p-12 text-center">
           <p className="text-sm text-ink-4">No active team members found.</p>
         </div>
       ) : (
@@ -198,7 +198,7 @@ export default async function TeamPerformancePage({
             return (
               <div
                 key={member.id}
-                className="rounded-xl border border-line bg-white p-5 flex flex-col gap-3"
+                className="card p-5 flex flex-col gap-3"
               >
                 <div>
                   <p className="font-semibold text-ink text-sm leading-tight">

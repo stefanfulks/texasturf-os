@@ -14,11 +14,11 @@ export default async function NewJobPage() {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">New Job</h1>
+        <h1 className="page-title">New Job</h1>
         <p className="text-sm text-ink-3 mt-0.5">Create a new job before adding allocations.</p>
       </div>
 
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <JobForm mode="create" />
       </div>
     </div>

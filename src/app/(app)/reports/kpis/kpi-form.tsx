@@ -33,7 +33,7 @@ export function KpiForm({ entries, month, year }: Props) {
       <input type="hidden" name="month" value={month} />
       <input type="hidden" name="year" value={year} />
 
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {KPI_DEFINITIONS.map(({ key, label, unit }, idx) => {
           const existing = entryMap.get(key);
           return (

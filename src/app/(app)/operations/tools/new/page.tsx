@@ -22,7 +22,7 @@ export default async function NewToolPurchasePage() {
   return (
     <div className="max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Log purchase</h1>
+        <h1 className="page-title">Log purchase</h1>
         <p className="mt-0.5 text-sm text-ink-3">
           Quick field-log of a tool, small-equipment, or supply purchase.
         </p>

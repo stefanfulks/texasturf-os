@@ -74,7 +74,7 @@ export default async function InventoryReturnsPage({
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Process Returns</h1>
+          <h1 className="page-title">Process Returns</h1>
           <p className="text-sm text-ink-3 mt-1">
             Receive rolls back from a job, or log an unmarked return when the job source is
             unknown.

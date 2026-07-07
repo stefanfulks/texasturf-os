@@ -129,7 +129,7 @@ export default async function InventoryTransactionsPage({
       </Link>
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Transaction Log</h1>
+          <h1 className="page-title">Transaction Log</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             {total.toLocaleString()} transaction{total !== 1 ? "s" : ""}
           </p>
@@ -137,7 +137,7 @@ export default async function InventoryTransactionsPage({
       </div>
 
       {/* Filters */}
-      <form method="GET" className="flex flex-wrap gap-3 items-end rounded-xl border border-line bg-white p-4">
+      <form method="GET" className="flex flex-wrap gap-3 items-end card p-4">
         <div>
           <label className="block text-xs font-medium text-ink-3 mb-1">Type</label>
           <select
@@ -197,7 +197,7 @@ export default async function InventoryTransactionsPage({
       </form>
 
       {/* Table */}
-      <div className="rounded-xl border border-line bg-white overflow-x-auto">
+      <div className="card overflow-x-auto">
         {transactions.length === 0 ? (
           <div className="py-12 text-center text-sm text-ink-4">
             No transactions found.

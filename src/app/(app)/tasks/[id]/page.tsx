@@ -108,7 +108,7 @@ export default async function TaskDetailPage({
       </div>
 
       {/* Edit form */}
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <TaskEditForm
           task={task}
           allProfiles={allProfiles}
@@ -117,7 +117,7 @@ export default async function TaskDetailPage({
       </div>
 
       {/* Meta */}
-      <div className="rounded-xl border border-line bg-white p-5 space-y-2 text-sm text-ink-2">
+      <div className="card p-5 space-y-2 text-sm text-ink-2">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-3">Details</h3>
         {taggedAssignees.length > 0 && (
           <div className="flex gap-2">
@@ -166,7 +166,7 @@ export default async function TaskDetailPage({
       <SubtasksSection parentId={id} subtasks={subtasks} />
 
       {/* Comments */}
-      <div className="rounded-xl border border-line bg-white">
+      <div className="card">
         <CommentSection
           taskId={id}
           currentUserId={user?.id ?? ""}
@@ -182,7 +182,7 @@ export default async function TaskDetailPage({
 
       {/* Activity */}
       {activityRes.data && activityRes.data.length > 0 && (
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className="card p-5">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-4">Activity</h3>
           <div className="space-y-3">
             {(activityRes.data as unknown as Array<{ id: string; event_type: string; old_value: string | null; new_value: string | null; created_at: string; actor: { full_name: string | null; email: string } | null }>).map((event) => {

@@ -45,7 +45,7 @@ export function RecurringRuleForm({
   }
 
   return (
-    <div className="rounded-xl border border-line bg-white p-6 space-y-4">
+    <div className="card p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">New Recurring Rule</h3>
         <button onClick={() => setOpen(false)} className="text-ink-4 hover:text-ink-2 text-sm">✕</button>

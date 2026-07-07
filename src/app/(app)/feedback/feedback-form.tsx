@@ -39,7 +39,7 @@ export function FeedbackForm({ userId }: { userId: string }) {
   }
 
   return (
-    <form action={formAction} className="rounded-xl border border-line bg-white p-6 space-y-5">
+    <form action={formAction} className="card p-6 space-y-5">
       <input type="hidden" name="category" value={category} />
       <input type="hidden" name="page_url" value={pageUrl} />
 

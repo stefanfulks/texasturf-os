@@ -68,18 +68,18 @@ export default async function VendorOrderDetailPage({ params }: { params: Promis
       )}
 
       {/* Editable detail */}
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <EditForm order={order} buyers={buyers} vendors={lookups.vendors} projects={lookups.projects} canEdit={canEdit} />
       </div>
 
       {/* Documents */}
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <h2 className="text-sm font-semibold text-ink mb-4">Documents</h2>
         <DocumentsSection id={order.id} docs={docs} urls={urls} canEdit={canEdit} />
       </div>
 
       {/* History */}
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <h2 className="text-sm font-semibold text-ink mb-4">History</h2>
         {events.length === 0 ? (
           <p className="text-sm text-ink-4">No activity yet.</p>

@@ -48,19 +48,19 @@ export default async function VendorsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Vendors & Contractors</h1>
+          <h1 className="page-title">Vendors & Contractors</h1>
           <p className="text-sm text-ink-3 mt-0.5">{active.length} active</p>
         </div>
       </div>
 
       {/* New vendor form */}
-      <div className="rounded-xl border border-line bg-white p-6">
+      <div className="card p-6">
         <h2 className="text-sm font-semibold mb-4">Add Vendor</h2>
         <VendorForm mode="create" />
       </div>
 
       {/* Active vendors */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="px-5 py-3 border-b border-line bg-hover">
           <span className="text-xs font-semibold text-ink-2">Active</span>
           <span className="ml-2 text-xs text-ink-4">{active.length}</span>
@@ -101,7 +101,7 @@ export default async function VendorsPage() {
 
       {/* Inactive */}
       {inactive.length > 0 && (
-        <div className="rounded-xl border border-line bg-white overflow-hidden opacity-60">
+        <div className="card overflow-hidden opacity-60">
           <div className="px-5 py-3 border-b border-line bg-hover">
             <span className="text-xs font-semibold text-ink-3">Inactive</span>
             <span className="ml-2 text-xs text-ink-4">{inactive.length}</span>

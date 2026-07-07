@@ -66,7 +66,7 @@ export default async function VehiclesPage({
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Vehicle Maintenance</h1>
+          <h1 className="page-title">Vehicle Maintenance</h1>
           <p className="mt-0.5 text-sm text-ink-3">
             Service log per vehicle, with cost vs budget for the current period.
           </p>
@@ -81,11 +81,11 @@ export default async function VehiclesPage({
 
       {/* ─── Spend rollup ───────────────────────────────────────────── */}
       <section className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-line bg-white p-4">
+        <div className="card p-4">
           <div className="text-xs uppercase tracking-wide text-ink-3">{monthLabel} spend</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums">{fmtUSD(monthSpend)}</div>
         </div>
-        <div className="rounded-xl border border-line bg-white p-4">
+        <div className="card p-4">
           <div className="text-xs uppercase tracking-wide text-ink-3">Budget</div>
           {budget ? (
             <>
@@ -105,7 +105,7 @@ export default async function VehiclesPage({
             </div>
           )}
         </div>
-        <div className="rounded-xl border border-line bg-white p-4">
+        <div className="card p-4">
           <div className="text-xs uppercase tracking-wide text-ink-3">Vs budget</div>
           {budget ? (
             <>
@@ -162,7 +162,7 @@ export default async function VehiclesPage({
           </Link>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-line bg-white">
+        <div className="overflow-x-auto card">
           <table className="w-full text-sm">
             <thead className="bg-hover text-left text-xs uppercase tracking-wide text-ink-3">
               <tr>

@@ -131,7 +131,7 @@ export function TaskEditForm({
           <summary className="list-none cursor-pointer h-10 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-line-strong px-3 text-xs font-medium text-ink-2 hover:border-line-strong hover:text-ink group-open:border-solid">
             <span className="text-base leading-none">+</span> Add / remove people
           </summary>
-          <ul className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-line bg-white divide-y divide-line">
+          <ul className="mt-2 max-h-48 overflow-y-auto card divide-y divide-line">
             {allProfiles.map((p) => {
               const isOn = assigneeIds.includes(p.id);
               return (

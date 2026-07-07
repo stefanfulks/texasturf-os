@@ -92,7 +92,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{invoice.title}</h1>
+          <h1 className="page-title">{invoice.title}</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             {invoice.vendor?.name ?? "No vendor"}
             {invoice.submitted_by && ` · Submitted by ${invoice.submitted_by.full_name ?? invoice.submitted_by.email.split("@")[0]}`}
@@ -149,7 +149,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
           {/* Original file preview */}
           {signedUrl && (
-            <div className="rounded-xl border border-line bg-white overflow-hidden">
+            <div className="card overflow-hidden">
               <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">Original Invoice</h2>
               </div>
@@ -182,7 +182,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           )}
 
           {/* Extracted invoice data */}
-          <div className="rounded-xl border border-line bg-white overflow-hidden">
+          <div className="card overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b border-line">
               <h2 className="text-sm font-semibold">Invoice Details</h2>
               {invoice.ocr_confidence != null && (
@@ -215,7 +215,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
           {/* Line items */}
           {lineItems.length > 0 && (
-            <div className="rounded-xl border border-line bg-white overflow-hidden">
+            <div className="card overflow-hidden">
               <div className="px-5 py-3 border-b border-line">
                 <h2 className="text-sm font-semibold">Line Items</h2>
               </div>
@@ -295,7 +295,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
           {/* Notes (office visible) */}
           {isOfficeOrAdmin && (invoice.admin_notes || invoice.variance_notes || invoice.ownership_notes || invoice.payment_notes) && (
-            <div className="rounded-xl border border-line bg-white p-4 space-y-3 text-sm">
+            <div className="card p-4 space-y-3 text-sm">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-4">Notes</h3>
               {invoice.admin_notes      && <div><p className="text-xs text-ink-4 mb-0.5">Admin</p><p className="text-ink-2">{invoice.admin_notes}</p></div>}
               {invoice.variance_notes   && <div><p className="text-xs text-ink-4 mb-0.5">Variance</p><p className="text-ink-2">{invoice.variance_notes}</p></div>}
@@ -306,14 +306,14 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
           {/* OCR text */}
           {isOfficeOrAdmin && invoice.ocr_text && (
-            <details className="rounded-xl border border-line bg-white overflow-hidden">
+            <details className="card overflow-hidden">
               <summary className="px-4 py-3 text-sm font-semibold cursor-pointer">Raw OCR Text</summary>
               <pre className="px-4 pb-4 text-xs text-ink-3 whitespace-pre-wrap overflow-x-auto">{invoice.ocr_text}</pre>
             </details>
           )}
 
           {/* Status history */}
-          <div className="rounded-xl border border-line bg-white overflow-hidden">
+          <div className="card overflow-hidden">
             <div className="px-4 py-3 border-b border-line">
               <h3 className="text-sm font-semibold">Status History</h3>
             </div>
@@ -341,7 +341,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
           {/* Integration links */}
           {isOfficeOrAdmin && invoice.monday_item_id && (
-            <div className="rounded-xl border border-line bg-white p-4 text-sm">
+            <div className="card p-4 text-sm">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-4 mb-2">Integrations</h3>
               <a
                 href={`https://texasturfusa.monday.com/boards/`}

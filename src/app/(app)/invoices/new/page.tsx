@@ -31,7 +31,7 @@ export default async function NewInvoicePage({
       <Link href="/invoices" className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink mb-6">← Invoices</Link>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Submit Invoice</h1>
+        <h1 className="page-title">Submit Invoice</h1>
         <p className="text-sm text-ink-3 mt-1">Upload your invoice or receipt. We&apos;ll extract the details automatically.</p>
       </div>
 

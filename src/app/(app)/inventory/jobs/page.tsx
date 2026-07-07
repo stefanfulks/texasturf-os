@@ -62,7 +62,7 @@ export default async function InventoryJobsPage({
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Jobs</h1>
+          <h1 className="page-title">Jobs</h1>
           <p className="text-sm text-ink-3 mt-0.5">
             {filtered.length} job{filtered.length !== 1 ? "s" : ""}
           </p>
@@ -120,7 +120,7 @@ export default async function InventoryJobsPage({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-16 text-center text-sm text-ink-4">No jobs found.</div>
         ) : (

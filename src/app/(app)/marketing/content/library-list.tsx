@@ -120,7 +120,7 @@ export function LibraryList({
         </div>
       )}
 
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {items.length === 0 ? (
           <div className="py-10 text-center text-sm text-ink-4">Nothing matches that filter.</div>
         ) : (

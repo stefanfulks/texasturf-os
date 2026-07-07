@@ -72,7 +72,7 @@ export function TriageRow({
   const isOpen = item.status === "new" || item.status === "in_progress";
 
   return (
-    <li className="rounded-xl border border-line bg-white overflow-hidden">
+    <li className="card overflow-hidden">
       <div className="p-5 space-y-2">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="min-w-0">

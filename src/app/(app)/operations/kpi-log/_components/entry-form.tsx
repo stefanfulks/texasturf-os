@@ -56,7 +56,7 @@ export function EntryForm({ section, canSubmit }: { section: SectionId; canSubmi
     <form
       ref={formRef}
       action={handleSubmit}
-      className="rounded-xl border border-line bg-white p-5 space-y-3"
+      className="card p-5 space-y-3"
     >
       <input type="hidden" name="section_id" value={section} />
 

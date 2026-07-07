@@ -49,7 +49,7 @@ export default async function InventoryReportsPage() {
         ← Inventory
       </Link>
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Inventory Reports</h1>
+        <h1 className="page-title">Inventory Reports</h1>
         <p className="text-sm text-ink-3 mt-0.5">
           Aging, usage variance, and stock value analysis
         </p>
@@ -59,7 +59,7 @@ export default async function InventoryReportsPage() {
         {/* Aging */}
         <Link
           href="/inventory/reports/aging"
-          className="group rounded-xl border border-line bg-white p-6 hover:border-line-strong hover:shadow-sm transition-all"
+          className="group card p-6 hover:border-line-strong hover:shadow-sm transition-all"
         >
           <div className="flex items-start justify-between mb-3">
             <div>
@@ -88,7 +88,7 @@ export default async function InventoryReportsPage() {
         {/* Overage */}
         <Link
           href="/inventory/reports/overage"
-          className="group rounded-xl border border-line bg-white p-6 hover:border-line-strong hover:shadow-sm transition-all"
+          className="group card p-6 hover:border-line-strong hover:shadow-sm transition-all"
         >
           <div className="flex items-start justify-between mb-3">
             <div>
@@ -110,7 +110,7 @@ export default async function InventoryReportsPage() {
         </Link>
 
         {/* Inventory snapshot */}
-        <div className="rounded-xl border border-line bg-white p-6">
+        <div className="card p-6">
           <div className="flex items-start justify-between mb-3">
             <div>
               <h2 className="text-sm font-semibold text-ink">In-Stock Snapshot</h2>

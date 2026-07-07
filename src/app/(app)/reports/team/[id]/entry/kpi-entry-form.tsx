@@ -46,7 +46,7 @@ export function TeamKpiEntryForm({ member, definitions, entries, month, year }: 
       </div>
 
       {/* KPI rows */}
-      <div className="rounded-xl border border-line bg-white overflow-hidden">
+      <div className="card overflow-hidden">
         {definitions.map((def, idx) => {
           const existing = entryMap.get(def.kpi_key);
           return (
