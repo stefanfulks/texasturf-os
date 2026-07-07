@@ -7,18 +7,29 @@
  */
 
 import { calculateQuote, type Job, type QuoteResult } from "@/lib/pricing/calculator";
-import { suggestLaborRate } from "./pricing";
+import {
+  DEFAULT_ENGINE_CONFIG,
+  laborRateFor,
+  wasteFor,
+  type EngineConfig,
+} from "@/lib/engine/config";
 import type { ClientQuoteV2, TierWarranty } from "./types";
 import type { PitchArea, PitchAddon } from "@/lib/db-helpers.types";
 
-/** Turn a stored area row into a calculator Job (mirrors buildTierJob, per-area). */
-export function areaToJob(area: PitchArea, fallbackMargin: number): Partial<Job> {
+/** Turn a stored area row into a calculator Job (mirrors buildTierJob, per-area).
+ * Waste % and labor rate come from the engine — putting-green areas now get
+ * their 20% waste and premium labor rate instead of the drifted 10%/$1.60. */
+export function areaToJob(
+  area: PitchArea,
+  fallbackMargin: number,
+  config: EngineConfig = DEFAULT_ENGINE_CONFIG,
+): Partial<Job> {
   const application: Job["application"] = area.application === "concrete" ? "concrete" : "soil";
   const sqft = Number(area.installed_sqft) || 0;
   return {
     product: area.product,
     installedSqft: sqft,
-    wastePct: 10,
+    wastePct: wasteFor(area.product, config),
     application,
     tearoutTier: area.tearout_tier,
     access: area.access === "difficult" ? "difficult" : "normal",
@@ -29,7 +40,7 @@ export function areaToJob(area: PitchArea, fallbackMargin: number): Partial<Job>
     glueMode: application === "concrete" ? "full" : "perimeter",
     glueLF: 0,
     seamTapeLF: 0,
-    laborRate: suggestLaborRate(application, sqft),
+    laborRate: laborRateFor({ application, installedSqft: sqft, product: area.product }, config),
     extras: Array.isArray(area.extras) ? (area.extras as Job["extras"]) : [],
     targetMargin: area.target_margin != null ? Number(area.target_margin) : fallbackMargin,
   };
@@ -52,10 +63,18 @@ function addonClientPrice(cost: number, qty: number, margin: number): number {
   return Math.round((cost * qty) / (1 - m));
 }
 
-export function priceMultiArea(areas: PitchArea[], addons: PitchAddon[], fallbackMargin: number): MultiAreaQuote {
+export function priceMultiArea(
+  areas: PitchArea[],
+  addons: PitchAddon[],
+  fallbackMargin: number,
+  config: EngineConfig = DEFAULT_ENGINE_CONFIG,
+): MultiAreaQuote {
   const areaQuotes: AreaQuote[] = areas.map((a) => ({
     area: a,
-    result: calculateQuote(areaToJob(a, a.target_margin != null ? Number(a.target_margin) : fallbackMargin)),
+    result: calculateQuote(
+      areaToJob(a, a.target_margin != null ? Number(a.target_margin) : fallbackMargin, config),
+      config.pricing,
+    ),
   }));
 
   const reviewFlags = areaQuotes.flatMap((q) => q.result.reviewFlags.map((f) => `${q.area.label}: ${f}`));

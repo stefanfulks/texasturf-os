@@ -219,10 +219,12 @@ export function calculateQuote(
   const price           = canProducePrice ? cogs / (1 - marginDecimal) : null;
   const grossProfit     = price !== null ? price - cogs : null;
 
-  // Commission tier lookup
+  // Commission tier lookup — half-open [min, max), null max = uncapped. Tiers
+  // come from `data` so DB-configured tiers flow straight through.
+  const m = job.targetMargin ?? 0;
   let commissionRate = 0;
   for (const tier of COMMISSION_TIERS) {
-    if ((job.targetMargin ?? 0) >= tier.minMargin && (job.targetMargin ?? 0) <= tier.maxMargin) {
+    if (m >= tier.minMargin && (tier.maxMargin === null || m < tier.maxMargin)) {
       commissionRate = tier.rate;
       break;
     }
@@ -230,19 +232,23 @@ export function calculateQuote(
   const commission = grossProfit !== null ? grossProfit * commissionRate : null;
   const companyNet = grossProfit !== null ? grossProfit - (commission ?? 0) : null;
 
-  // "Raise price to hit next tier" hint
+  // "Raise price to hit next tier" hint — derived from the tier table (never
+  // hardcoded): the lowest tier above the current margin with a better rate.
   let nextTier: NextTierHint | null = null;
-  if (canProducePrice && price !== null && (job.targetMargin ?? 0) < 60) {
-    const nextMarginTarget = (job.targetMargin ?? 0) < 50 ? 50 : 60;
-    const nextPrice        = cogs / (1 - nextMarginTarget / 100);
-    const nextRate         = nextMarginTarget === 50 ? 0.06 : 0.08;
-    const nextCommission   = (nextPrice - cogs) * nextRate;
-    nextTier = {
-      marginTarget:    nextMarginTarget,
-      priceDelta:      nextPrice - price,
-      commissionDelta: nextCommission - (commission ?? 0),
-      newRate:         nextRate,
-    };
+  if (canProducePrice && price !== null) {
+    const candidate = COMMISSION_TIERS
+      .filter((t) => t.minMargin > m && t.rate > commissionRate && !t.requiresReview)
+      .sort((a, b) => a.minMargin - b.minMargin)[0];
+    if (candidate) {
+      const nextPrice      = cogs / (1 - candidate.minMargin / 100);
+      const nextCommission = (nextPrice - cogs) * candidate.rate;
+      nextTier = {
+        marginTarget:    candidate.minMargin,
+        priceDelta:      nextPrice - price,
+        commissionDelta: nextCommission - (commission ?? 0),
+        newRate:         candidate.rate,
+      };
+    }
   }
 
   const pricePerSqft = (installed > 0 && price !== null) ? price / installed : null;

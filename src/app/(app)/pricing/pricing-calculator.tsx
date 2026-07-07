@@ -7,11 +7,11 @@ import {
   EDGING_PRODUCTS,
   NAILER_BOARD,
   TEAROUT_TIERS,
-  LABOR_DEFAULTS,
   COMMISSION_TIERS,
   CALCULATION_CONSTANTS as C,
 } from "@/lib/pricing/data";
 import { calculateQuote, type Job, type Edging, type Extra } from "@/lib/pricing/calculator";
+import { commissionFor, laborRateFor, wasteFor } from "@/lib/engine/config";
 import { parseJobDescription } from "@/lib/pricing/parser";
 
 // ─── Styling helpers ──────────────────────────────────────────────────────────
@@ -45,19 +45,19 @@ function defaultJob(): Job {
   };
 }
 
+// Both suggestions delegate to the engine — the single implementation shared
+// with the pitch-deck adapters, so this calculator and the deck can never
+// drift apart again (they used to: greens got 10% waste + $1.60 labor there).
 function suggestLaborRate(job: Pick<Job, "application" | "installedSqft" | "product">): number {
-  const turf = TURF_PRODUCTS[job.product];
-  if (turf?.category === "putting_green") return LABOR_DEFAULTS.putting_green.rate;
-  if (job.application === "concrete")     return LABOR_DEFAULTS.concrete.rate;
-  if ((job.installedSqft ?? 0) > 0 && (job.installedSqft ?? 0) < 600) return LABOR_DEFAULTS.soil_small.rate;
-  return LABOR_DEFAULTS.soil_standard.rate;
+  return laborRateFor({
+    application: job.application,
+    installedSqft: job.installedSqft ?? 0,
+    product: job.product,
+  });
 }
 
 function suggestWastePct(productName: string): number {
-  const turf = TURF_PRODUCTS[productName];
-  if (!turf) return 10;
-  if (turf.category === "putting_green") return 20;
-  return 10;
+  return wasteFor(productName);
 }
 
 // ─── The calculator ──────────────────────────────────────────────────────────
@@ -160,9 +160,8 @@ export function PricingCalculator() {
 
   // ─── Display strings ────────────────────────────────────────────────────────
 
-  const tierLabel = COMMISSION_TIERS.find(
-    (t) => job.targetMargin >= t.minMargin && job.targetMargin <= t.maxMargin,
-  )?.label ?? "Manager review";
+  const tierLabel =
+    commissionFor(job.targetMargin, COMMISSION_TIERS).tier?.label ?? "Manager review";
 
   const tierColor =
     job.targetMargin < 40 ? "bg-danger-tint text-danger"     :

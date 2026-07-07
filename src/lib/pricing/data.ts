@@ -26,7 +26,15 @@ export type EdgingProduct = { materialPerLF: number; laborPerLF: number };
 export type NailerOption  = { costPerLF: number; label: string };
 export type TearoutTier   = { rate: number | "review"; description: string };
 export type LaborDefault  = { rate: number; description: string };
-export type CommissionTier = { minMargin: number; maxMargin: number; rate: number; label: string };
+/** Matching is half-open [minMargin, maxMargin); maxMargin null = uncapped.
+ * (The old inclusive 40–49.99 bands left a dead zone at 49.995 that paid 0%.) */
+export type CommissionTier = {
+  minMargin: number;
+  maxMargin: number | null;
+  rate: number;
+  label: string;
+  requiresReview?: boolean;
+};
 
 export const TURF_PRODUCTS: Record<string, TurfProduct> = {
   "TexasMoss":               { cost: 1.32, category: "landscape",     infillType: "standard",  rollSize: "15x100", historicalRange: [4.29, 6.99, 8.15] },
@@ -83,9 +91,10 @@ export const LABOR_DEFAULTS: Record<"soil_standard" | "soil_small" | "putting_gr
 };
 
 export const COMMISSION_TIERS: CommissionTier[] = [
-  { minMargin: 40, maxMargin: 49.99, rate: 0.04, label: "4% of GP" },
-  { minMargin: 50, maxMargin: 59.99, rate: 0.06, label: "6% of GP" },
-  { minMargin: 60, maxMargin: 100,   rate: 0.08, label: "8% of GP" },
+  { minMargin: 0,  maxMargin: 40,   rate: 0,    label: "Below quote floor — manager review", requiresReview: true },
+  { minMargin: 40, maxMargin: 50,   rate: 0.04, label: "4% of GP" },
+  { minMargin: 50, maxMargin: 60,   rate: 0.06, label: "6% of GP" },
+  { minMargin: 60, maxMargin: null, rate: 0.08, label: "8% of GP" },
 ];
 
 export const CALCULATION_CONSTANTS = {
