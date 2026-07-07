@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { DEFAULT_DECK, type SlideKind } from "../deck";
 
+// Mirrors the full SlideKind union in ../deck.ts — update BOTH when adding a
+// kind (this list went stale twice: media + ratings shipped without it).
 const KNOWN: SlideKind[] = [
-  "cover", "why_turf", "savings", "why_us", "gallery",
-  "process", "reviews", "pricing", "financing", "close",
+  "cover", "why_turf", "savings", "why_us", "gallery", "media", "video",
+  "process", "reviews", "ratings", "pricing", "financing", "close",
 ];
 
 describe("DEFAULT_DECK", () => {
