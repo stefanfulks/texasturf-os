@@ -146,9 +146,10 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
   {
     label: "Admin",
     icon: ShieldCheck,
-    primaryHref: "/admin/users",
+    // /admin/users is a legacy redirect shim → /team; link straight there.
+    primaryHref: "/team",
     tools: [
-      { label: "Users",           href: "/admin/users" },
+      { label: "Users",           href: "/team" },
       { label: "Content",         href: "/admin/content" },
       { label: "Feedback Triage", href: "/admin/feedback" },
       { label: "Jobber Settings", href: "/settings/jobber" },

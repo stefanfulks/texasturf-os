@@ -21,10 +21,6 @@ import { workspacesFor, activeWorkspace } from "@/lib/navigation";
  */
 
 
-function isActiveHref(pathname: string, href: string): boolean {
-  return pathname === href || pathname.startsWith(href + "/");
-}
-
 function firstName(fullName: string | null, email: string): string {
   if (fullName?.trim()) return fullName.trim().split(/\s+/)[0];
   return email.split("@")[0];
@@ -56,7 +52,6 @@ export function UserMenu({
   isAdmin: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [openWs, setOpenWs] = useState<string | null>(null);
   const [signOutPending, startSignOut] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -87,14 +82,6 @@ export function UserMenu({
 
   const workspaces = workspacesFor(isAdmin);
   const activeWsLabel = activeWorkspace(pathname, isAdmin)?.label ?? null;
-
-  // Each time the menu opens, expand only the workspace matching the current
-  // page — its tools are one glance away, everything else stays tucked.
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (open) setOpenWs(activeWsLabel);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
 
   return (
     <div ref={ref} className="relative">
@@ -136,53 +123,30 @@ export function UserMenu({
             </div>
           </div>
 
-          {/* Workspaces — collapsed general buttons that expand to their tools */}
+          {/* Workspaces — one click straight to that department's home. Its
+              sub-pages are reachable from the top tab bar and from module-hub
+              tiles on the home page itself, not from an accordion here. */}
           <div className="px-2 py-2 border-b border-line">
             <p className="px-2 mb-1 eyebrow">Go to</p>
             <ul className="space-y-0.5">
               {workspaces.map((ws) => {
-                const isOpen = openWs === ws.label;
                 const WsIcon = ws.icon;
+                const isActive = ws.label === activeWsLabel;
                 return (
                   <li key={ws.label}>
-                    <button
-                      type="button"
-                      onClick={() => setOpenWs(isOpen ? null : ws.label)}
-                      aria-expanded={isOpen}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-hover transition-colors"
+                    <Link
+                      href={ws.primaryHref}
+                      className={
+                        "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors " +
+                        (isActive ? "bg-hover" : "hover:bg-hover")
+                      }
                     >
-                      <span className={"medallion !h-7 !w-7 !rounded-[9px] " + (ws.label === activeWsLabel ? "medallion-brand" : "")}>
+                      <span className={"medallion !h-7 !w-7 !rounded-[9px] " + (isActive ? "medallion-brand" : "")}>
                         <WsIcon className="h-4 w-4" />
                       </span>
                       <span className="flex-1 text-left text-sm font-semibold text-ink">{ws.label}</span>
-                      {isOpen && ws.label === activeWsLabel && (
-                        <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />
-                      )}
-                      <ChevronDown
-                        className={`h-3.5 w-3.5 text-ink-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                    {isOpen && ws.tools.length > 0 && (
-                      <div className="pl-7 pr-1 pb-1.5 pt-0.5 flex flex-wrap gap-1">
-                        {ws.tools.map((tool) => {
-                          const active = isActiveHref(pathname, tool.href);
-                          return (
-                            <Link
-                              key={tool.href}
-                              href={tool.href}
-                              className={
-                                "rounded-lg px-2 py-1 text-[11px] font-medium transition-colors " +
-                                (active
-                                  ? "bg-brand text-on-brand"
-                                  : "text-ink-2 hover:bg-hover hover:text-ink")
-                              }
-                            >
-                              {tool.label}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
+                      {isActive && <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden />}
+                    </Link>
                   </li>
                 );
               })}
