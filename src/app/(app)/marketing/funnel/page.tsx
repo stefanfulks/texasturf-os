@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata = { title: "Growth Funnel · Marketing · TexasTurf OS" };
+export const metadata = { title: "Ads · Marketing · TexasTurf OS" };
 
 /* ── Local building blocks ─────────────────────────────────────────────────── */
 
@@ -114,8 +114,8 @@ export function FunnelFramework() {
       {/* Header */}
       <header className="reveal flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow mb-2">Marketing framework · Paid growth</p>
-          <h1 className="page-title">Year-Round Green Funnel</h1>
+          <p className="eyebrow mb-2">Marketing</p>
+          <h1 className="page-title">Ads</h1>
           <p className="page-sub">
             A three-layer Meta funnel: educate Texas homeowners on why turf beats real
             grass, retarget the ones who pay attention with a free-visualization offer,
@@ -178,9 +178,6 @@ export function FunnelFramework() {
 
       {/* 1 · Goals */}
       <Section n="01" title="Campaign overview" icon={Megaphone} medallion="medallion-brand">
-        <p>
-          <span className="font-semibold text-ink">System name:</span> Texas Turf — Year-Round Green Funnel.
-        </p>
         <p>
           <span className="font-semibold text-ink">Primary goal:</span> generate{" "}
           <Fill>~60</Fill> qualified leads/month under your break-even cost per lead

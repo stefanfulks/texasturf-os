@@ -9,7 +9,7 @@ export const metadata = { title: "Content · TexasTurf OS" };
 
 // Which page each editor group links to (so admins can jump to see their edits).
 const GROUP_PREVIEW: Record<string, string> = {
-  "Marketing · Playbook": "/marketing/playbook",
+  "Marketing · Organic Growth": "/marketing/playbook",
 };
 
 export default async function ContentAdminPage() {

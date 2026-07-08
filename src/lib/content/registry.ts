@@ -28,46 +28,46 @@ export type ContentBlock = {
 };
 
 export const CONTENT_BLOCKS: ContentBlock[] = [
-  // ── Marketing · Playbook ──────────────────────────────────────────────────
-  { key: "mkt.playbook.title", group: "Marketing · Playbook", label: "Page title", default: "Marketing Playbook" },
+  // ── Marketing · Organic Growth ──────────────────────────────────────────────────
+  { key: "mkt.playbook.title", group: "Marketing · Organic Growth", label: "Page title", default: "Organic Growth" },
   {
-    key: "mkt.playbook.sub", group: "Marketing · Playbook", label: "Page subtitle", multiline: true,
+    key: "mkt.playbook.sub", group: "Marketing · Organic Growth", label: "Page subtitle", multiline: true,
     default: "The plan everyone follows. Calls run in Reevo, sends go out via Jobber, the record lives here.",
   },
-  { key: "mkt.playbook.thesis.eyebrow", group: "Marketing · Playbook", label: "Thesis — eyebrow", default: "The system in one line" },
+  { key: "mkt.playbook.thesis.eyebrow", group: "Marketing · Organic Growth", label: "Thesis — eyebrow", default: "The system in one line" },
   {
-    key: "mkt.playbook.thesis.body", group: "Marketing · Playbook", label: "Thesis — body", multiline: true,
+    key: "mkt.playbook.thesis.body", group: "Marketing · Organic Growth", label: "Thesis — body", multiline: true,
     help: "Wrap text in **double asterisks** to bold it.",
     default:
       "We grow through **past clients (referrals)**, **all 13 service lines** (not just turf), and **content** (Troy's videos + field POV). TexasTurf isn't a turf company — it's an outdoor construction company. One crew relationship, thirteen capabilities.",
   },
 
-  { key: "mkt.playbook.referral.title", group: "Marketing · Playbook", label: "Referral section — title", default: "Referral program — the Thank-You Blitz" },
+  { key: "mkt.playbook.referral.title", group: "Marketing · Organic Growth", label: "Referral section — title", default: "Referral program — the Thank-You Blitz" },
   {
-    key: "mkt.playbook.referral.bullets", group: "Marketing · Playbook", label: "Referral section — bullets", multiline: true,
+    key: "mkt.playbook.referral.bullets", group: "Marketing · Organic Growth", label: "Referral section — bullets", multiline: true,
     help: "One bullet per line. **Bold** with double asterisks.",
     default:
       "**Reward (referrer's choice):** $250 Visa gift card or 1 year of the TexasTurf Care Plan free.\n**Referred friend:** $100 off their project.\n**Earned when:** the referred job is completed and the final invoice is paid.\n**Uncapped, never expires.** B2B partners (pool builders, designers) get reciprocal terms, not gift cards.\n**Care Plan** = annual deep-clean + groom, seam/edge inspection w/ minor repairs, drainage check, pet-odor treatment, priority scheduling, 10% off other work. Never call it “insurance.”",
   },
 
-  { key: "mkt.playbook.cadence.title", group: "Marketing · Playbook", label: "Content cadence — title", default: "Content cadence — the accountability loop" },
+  { key: "mkt.playbook.cadence.title", group: "Marketing · Organic Growth", label: "Content cadence — title", default: "Content cadence — the accountability loop" },
   {
-    key: "mkt.playbook.cadence.body", group: "Marketing · Playbook", label: "Content cadence — body", multiline: true,
+    key: "mkt.playbook.cadence.body", group: "Marketing · Organic Growth", label: "Content cadence — body", multiline: true,
     help: "Blank line = new paragraph. **Bold** with double asterisks.",
     default:
       "**Troy — 1 long YouTube video / week (publishes Friday)**\n**Mon** — pick topic + outline/script\n**Wed** — film (piggyback on an active job site)\n**Thu** — hand to editor\n**Fri** — publish + log it in Content\n\n**Max — 2–3 POV clips / week (Meta glasses)**\nExcavator cab, loading trucks, seam work, timelapses. The raw views engine. Drop into the Content library.\n\n**Every crew — per job**\n1 before walkthrough, 1 process clip, 1 after reveal. Foreman checklist item; lands in the library.",
   },
 
-  { key: "mkt.playbook.troy.title", group: "Marketing · Playbook", label: "Troy calendar — title", default: "Troy — 12-week starter calendar" },
-  { key: "mkt.playbook.spotlight.title", group: "Marketing · Playbook", label: "Spotlight calendar — title", default: "12-month service spotlight calendar" },
+  { key: "mkt.playbook.troy.title", group: "Marketing · Organic Growth", label: "Troy calendar — title", default: "Troy — 12-week starter calendar" },
+  { key: "mkt.playbook.spotlight.title", group: "Marketing · Organic Growth", label: "Spotlight calendar — title", default: "12-month service spotlight calendar" },
   {
-    key: "mkt.playbook.spotlight.intro", group: "Marketing · Playbook", label: "Spotlight calendar — intro", multiline: true,
+    key: "mkt.playbook.spotlight.intro", group: "Marketing · Organic Growth", label: "Spotlight calendar — intro", multiline: true,
     default: "One service line per month. Each ships the same kit: Jobber email + Troy long video + 4–6 shorts + before/after set + SEO post + yard-sign/social CTA swap.",
   },
 
-  { key: "mkt.playbook.wherethings.title", group: "Marketing · Playbook", label: "Where things live — title", default: "Where things live" },
+  { key: "mkt.playbook.wherethings.title", group: "Marketing · Organic Growth", label: "Where things live — title", default: "Where things live" },
   {
-    key: "mkt.playbook.wherethings.bullets", group: "Marketing · Playbook", label: "Where things live — bullets", multiline: true,
+    key: "mkt.playbook.wherethings.bullets", group: "Marketing · Organic Growth", label: "Where things live — bullets", multiline: true,
     help: "One bullet per line. **Bold** with double asterisks.",
     default:
       "**Reevo** — outbound calls + sequences (the referral dialer).\n**Jobber** — client-facing emails + passive referral links.\n**This app** — the record: roster, ledger, campaign briefs/copy, content pipeline + library.\n**Google Drive** — master video/photo files. **YouTube** — publishing. **This app** holds the links + small voice memos.",

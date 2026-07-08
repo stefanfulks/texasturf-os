@@ -146,9 +146,9 @@ export function MarketingOverview({ campaigns, counts }: MarketingOverviewProps)
   ];
 
   const modules: Array<{ label: string; body: string; href: string; icon: LucideIcon; medallion: string }> = [
-    { label: "Growth funnel", body: "The paid Meta funnel framework — layers, audiences, scripts, budget.", href: "/marketing/funnel", icon: Target, medallion: "medallion-brand" },
-    { label: "Content engine", body: "Capture video, photos, and POVs; track the pipeline to published.", href: "/marketing/content", icon: Film, medallion: "medallion-info" },
-    { label: "Playbook", body: "The organic plan: referrals, content cadence, service spotlights.", href: "/marketing/playbook", icon: BookOpen, medallion: "medallion-brand" },
+    { label: "Ads", body: "The paid Meta funnel framework — layers, audiences, scripts, budget.", href: "/marketing/funnel", icon: Target, medallion: "medallion-brand" },
+    { label: "Content", body: "Capture video, photos, and POVs; track the pipeline to published.", href: "/marketing/content", icon: Film, medallion: "medallion-info" },
+    { label: "Organic Growth", body: "The organic plan: referrals, content cadence, service spotlights.", href: "/marketing/playbook", icon: BookOpen, medallion: "medallion-brand" },
     { label: "Referrals", body: "Roster, outreach calls, and the reward ledger end to end.", href: "/marketing/referrals", icon: Users, medallion: "medallion-warn" },
     { label: "Reviews", body: "Ask at the right moment and watch the reputation flywheel turn.", href: "/marketing/reviews", icon: Star, medallion: "" },
   ];

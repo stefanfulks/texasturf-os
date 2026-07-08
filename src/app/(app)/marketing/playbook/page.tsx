@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getContent } from "@/lib/content/load";
 import { RichText, RichList } from "@/lib/content/rich-text";
 
-export const metadata = { title: "Marketing Playbook · TexasTurf OS" };
+export const metadata = { title: "Organic Growth · Marketing · TexasTurf OS" };
 
 function Section({
   title,
@@ -104,7 +104,7 @@ export default async function PlaybookPage() {
         </span>
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-2 text-sm font-semibold text-ink">
-            Paid growth funnel <span className="chip chip-brand">New</span>
+            Ads <span className="chip chip-brand">New</span>
           </p>
           <p className="mt-0.5 text-xs text-ink-3">
             The Meta ads framework — three layers, the audience ladder, ad scripts per turf
