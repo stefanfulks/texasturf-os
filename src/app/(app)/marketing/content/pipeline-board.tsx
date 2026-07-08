@@ -1,86 +1,139 @@
 "use client";
 
-import { useActionState } from "react";
-import { updateContentStatus, type ActionState } from "./actions";
+import { useMemo, useState, useTransition } from "react";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
+import { moveContentItem, type ContentDetailPatch } from "./actions";
+import { ASSIGNEE_META } from "@/lib/content/assignees";
+import { ContentDetailPanel } from "./content-detail-panel";
 import type { ContentWithUrl } from "./page";
 
-const initial: ActionState = { error: null, success: false };
-
-const STATUS_LABEL: Record<string, string> = {
-  idea: "Idea",
-  scripted: "Scripted",
-  scheduled_shoot: "Shoot",
-  filmed: "Filmed",
-  editing: "Editing",
-  ready: "Ready",
-  published: "Published",
+const STATUS_META: Record<string, { label: string; dot: string; headerBg: string }> = {
+  idea:             { label: "Idea",       dot: "bg-ink-4",   headerBg: "bg-sunken" },
+  scripted:         { label: "Scripted",   dot: "bg-info",    headerBg: "bg-info-tint" },
+  scheduled_shoot:  { label: "Shoot",      dot: "bg-warn",    headerBg: "bg-warn-tint" },
+  filmed:           { label: "Filmed",     dot: "bg-info",    headerBg: "bg-info-tint" },
+  editing:          { label: "Editing",    dot: "bg-warn",    headerBg: "bg-warn-tint" },
+  ready:            { label: "Ready",      dot: "bg-brand",   headerBg: "bg-brand-tint" },
+  published:        { label: "Published",  dot: "bg-brand",   headerBg: "bg-brand-tint" },
 };
 
-const TYPE_BADGE: Record<string, string> = {
-  long_video: "bg-info-tint text-info",
-  short: "bg-info-tint text-info",
-  pov_clip: "bg-info-tint text-info",
-  before_after: "bg-warn-tint text-warn",
-  photo_set: "bg-sunken text-ink-2",
-  voice_memo: "bg-brand-tint text-brand",
-  blog_post: "bg-info-tint text-info",
-  other: "bg-hover text-ink-3",
-};
+/** Drag-and-drop content funnel board. Card face shows ONLY title, tag, and
+ * who films it — click a card for the full play-by-play (shots, b-roll,
+ * script, props) in a slide-over. */
+export function PipelineBoard({ items: initialItems, statuses }: { items: ContentWithUrl[]; statuses: string[] }) {
+  const [items, setItems] = useState(initialItems);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
 
-function NextButton({ id, status, statuses }: { id: string; status: string; statuses: string[] }) {
-  const [state, formAction, isPending] = useActionState(updateContentStatus, initial);
-  const idx = statuses.indexOf(status);
-  const next = idx >= 0 && idx < statuses.length - 1 ? statuses[idx + 1] : null;
-  if (!next) return null;
-  return (
-    <form action={formAction} className="inline">
-      <input type="hidden" name="id" value={id} />
-      <input type="hidden" name="status" value={next} />
-      <button
-        type="submit"
-        disabled={isPending}
-        title={state.error ?? `Move to ${STATUS_LABEL[next]}`}
-        className="text-[11px] px-1.5 py-0.5 rounded border border-line text-ink-3 hover:bg-hover disabled:opacity-50"
-      >
-        → {STATUS_LABEL[next]}
-      </button>
-    </form>
-  );
-}
+  const selected = useMemo(() => items.find((i) => i.id === selectedId) ?? null, [items, selectedId]);
 
-export function PipelineBoard({ items, statuses }: { items: ContentWithUrl[]; statuses: string[] }) {
+  function moveLocally(id: string, status: string) {
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, status: status as ContentWithUrl["status"] } : i)));
+    startTransition(() => { void moveContentItem(id, status as Parameters<typeof moveContentItem>[1]); });
+  }
+
+  function handleDragEnd(result: DropResult) {
+    if (!result.destination) return;
+    const newStatus = result.destination.droppableId;
+    const sourceStatus = result.source.droppableId;
+    if (newStatus === sourceStatus) return;
+    moveLocally(result.draggableId, newStatus);
+  }
+
+  function handleSaved(patch: ContentDetailPatch) {
+    if (!selectedId) return;
+    setItems((prev) => prev.map((i) => (i.id === selectedId ? { ...i, ...patch } as ContentWithUrl : i)));
+    setSelectedId(null);
+  }
+
+  function handleDeleted() {
+    setItems((prev) => prev.filter((i) => i.id !== selectedId));
+    setSelectedId(null);
+  }
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
-      {statuses.map((status) => {
-        const col = items.filter((i) => i.status === status);
-        return (
-          <div key={status} className="rounded-xl border border-line bg-hover/50 min-h-24">
-            <div className="px-3 py-2 border-b border-line flex items-center justify-between">
-              <span className="text-xs font-semibold text-ink-2">{STATUS_LABEL[status]}</span>
-              <span className="text-xs text-ink-4">{col.length}</span>
-            </div>
-            <div className="p-2 space-y-2">
-              {col.slice(0, 50).map((i) => (
-                <div key={i.id} className="rounded-lg border border-line bg-white p-2.5">
-                  <p className="text-xs font-medium text-ink leading-snug">{i.title}</p>
-                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${TYPE_BADGE[i.type] ?? TYPE_BADGE.other}`}>
-                      {i.type.replace(/_/g, " ")}
-                    </span>
-                    {i.service_line && (
-                      <span className="text-[10px] text-ink-4">{i.service_line.replace(/_/g, " ")}</span>
-                    )}
-                  </div>
-                  <div className="mt-1.5">
-                    <NextButton id={i.id} status={i.status} statuses={statuses} />
-                  </div>
+    <>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {statuses.map((status) => {
+            const meta = STATUS_META[status] ?? { label: status, dot: "bg-ink-4", headerBg: "bg-sunken" };
+            const col = items.filter((i) => i.status === status);
+            return (
+              <div key={status} className="flex w-64 flex-shrink-0 flex-col rounded-xl border border-line bg-hover/40">
+                <div className={`flex items-center justify-between px-3 py-2.5 rounded-t-xl ${meta.headerBg}`}>
+                  <span className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+                    <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+                    {meta.label}
+                  </span>
+                  <span className="rounded-full border border-line bg-white px-1.5 py-0.5 text-xs font-medium leading-none text-ink-4">
+                    {col.length}
+                  </span>
                 </div>
-              ))}
-              {col.length > 50 && <p className="text-[10px] text-ink-4 px-1">+{col.length - 50} more</p>}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+                <Droppable droppableId={status}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={"flex-1 space-y-2 p-2 transition-colors " + (snapshot.isDraggingOver ? "bg-info-tint/60" : "")}
+                      style={{ minHeight: 60 }}
+                    >
+                      {col.length === 0 && (
+                        <div className="py-6 text-center text-xs text-ink-4">
+                          {snapshot.isDraggingOver ? "Drop here" : "No ideas"}
+                        </div>
+                      )}
+                      {col.map((item, index) => {
+                        const a = item.assignee ? ASSIGNEE_META[item.assignee] : null;
+                        const AIcon = a?.icon;
+                        return (
+                          <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(dragProvided, dragSnapshot) => (
+                              <div
+                                ref={dragProvided.innerRef}
+                                {...dragProvided.draggableProps}
+                                {...dragProvided.dragHandleProps}
+                                style={dragProvided.draggableProps.style}
+                                className={"transition-shadow " + (dragSnapshot.isDragging ? "shadow-xl rotate-1" : "")}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedId(item.id)}
+                                  className="card card-hover w-full p-2.5 text-left"
+                                >
+                                  <p className="text-xs font-medium leading-snug text-ink">{item.title}</p>
+                                  <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                                    {item.tag && <span className="chip chip-outline !h-auto !py-0.5 !text-[10px]">{item.tag}</span>}
+                                    {a && (
+                                      <span className={`chip ${a.chip} !h-auto !py-0.5 !text-[10px]`}>
+                                        {AIcon && <AIcon className="h-2.5 w-2.5" />}
+                                        {a.label}
+                                      </span>
+                                    )}
+                                  </div>
+                                </button>
+                              </div>
+                            )}
+                          </Draggable>
+                        );
+                      })}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            );
+          })}
+        </div>
+      </DragDropContext>
+
+      {selected && (
+        <ContentDetailPanel
+          item={selected}
+          onClose={() => setSelectedId(null)}
+          onSaved={handleSaved}
+          onDeleted={handleDeleted}
+        />
+      )}
+    </>
   );
 }

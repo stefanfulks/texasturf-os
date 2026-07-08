@@ -9,6 +9,7 @@ export type ActionState = { error: string | null; success: boolean; info?: strin
 
 const TYPES = ["long_video", "short", "pov_clip", "before_after", "photo_set", "blog_post", "voice_memo", "other"] as const;
 const STATUSES = ["idea", "scripted", "scheduled_shoot", "filmed", "editing", "ready", "published", "archived"] as const;
+const ASSIGNEES = ["warehouse", "ivana", "stefan", "troy"] as const;
 
 const createSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -16,6 +17,8 @@ const createSchema = z.object({
   status: z.enum(STATUSES).default("idea"),
   service_line: z.string().optional(),
   hook: z.string().optional(),
+  tag: z.string().optional(),
+  assignee: z.enum(ASSIGNEES).optional(),
   drive_url: z.string().url().optional().or(z.literal("")),
   youtube_url: z.string().url().optional().or(z.literal("")),
   asset_path: z.string().optional(),   // set by the client after a bucket upload (voice memos)
@@ -33,6 +36,8 @@ export async function createContentItem(_prev: ActionState, formData: FormData):
     status: formData.get("status") || "idea",
     service_line: formData.get("service_line") || undefined,
     hook: formData.get("hook") || undefined,
+    tag: formData.get("tag") || undefined,
+    assignee: formData.get("assignee") || undefined,
     drive_url: formData.get("drive_url") || undefined,
     youtube_url: formData.get("youtube_url") || undefined,
     asset_path: formData.get("asset_path") || undefined,
@@ -47,6 +52,8 @@ export async function createContentItem(_prev: ActionState, formData: FormData):
     status: parsed.data.status,
     service_line: parsed.data.service_line ?? null,
     hook: parsed.data.hook ?? null,
+    tag: parsed.data.tag ?? null,
+    assignee: parsed.data.assignee ?? null,
     drive_url: parsed.data.drive_url || null,
     youtube_url: parsed.data.youtube_url || null,
     asset_path: parsed.data.asset_path || null,
@@ -58,6 +65,67 @@ export async function createContentItem(_prev: ActionState, formData: FormData):
   revalidatePath("/marketing/content");
   revalidatePath("/marketing");
   return { error: null, success: true, info: "Added." };
+}
+
+/** Drag-and-drop status move — plain callable, not form-bound (mirrors
+ * tasks/actions.ts updateTaskStatus). Stamps published_on on arrival at 'published'. */
+export async function moveContentItem(
+  id: string,
+  status: (typeof STATUSES)[number],
+): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const patch: Database["public"]["Tables"]["content_items"]["Update"] = { status };
+  if (status === "published") patch.published_on = new Date().toISOString().slice(0, 10);
+
+  const { error } = await supabase.from("content_items").update(patch).eq("id", id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/marketing/content");
+  revalidatePath("/marketing");
+  return {};
+}
+
+export type ContentDetailPatch = {
+  title?: string;
+  tag?: string | null;
+  assignee?: (typeof ASSIGNEES)[number] | null;
+  type?: (typeof TYPES)[number];
+  service_line?: string | null;
+  hook?: string | null;
+  script_md?: string | null;
+  shot_list_md?: string | null;
+  b_roll_md?: string | null;
+  props_md?: string | null;
+};
+
+/** Save the full play-by-play from the detail panel — plain callable. */
+export async function updateContentDetail(id: string, patch: ContentDetailPatch): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase.from("content_items").update(patch).eq("id", id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/marketing/content");
+  return {};
+}
+
+/** Delete a content idea from the funnel — plain callable. */
+export async function deleteContentItem(id: string): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase.from("content_items").delete().eq("id", id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/marketing/content");
+  revalidatePath("/marketing");
+  return {};
 }
 
 const statusSchema = z.object({

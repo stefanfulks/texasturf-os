@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useActionState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { createContentItem, type ActionState } from "./actions";
+import { ASSIGNEES, ASSIGNEE_META } from "@/lib/content/assignees";
 
 const initial: ActionState = { error: null, success: false };
 const field =
@@ -74,6 +75,17 @@ export function AddContentForm() {
         </select>
       </div>
 
+      <div>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Tag</label>
+        <input name="tag" placeholder="e.g. 101/FAQ, Ad Creative" className={field} />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-ink-3 mb-1">Who films it</label>
+        <select name="assignee" className={field} defaultValue="">
+          <option value="">Unassigned</option>
+          {ASSIGNEES.map((a) => <option key={a} value={a}>{ASSIGNEE_META[a].label}</option>)}
+        </select>
+      </div>
       <div>
         <label className="block text-xs font-medium text-ink-3 mb-1">Service line</label>
         <select name="service_line" className={field} defaultValue="">

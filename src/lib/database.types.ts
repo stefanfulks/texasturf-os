@@ -301,6 +301,8 @@ export type Database = {
       content_items: {
         Row: {
           asset_path: string | null
+          assignee: Database["public"]["Enums"]["content_assignee"] | null
+          b_roll_md: string | null
           created_at: string
           created_by_id: string | null
           creator_id: string | null
@@ -308,11 +310,15 @@ export type Database = {
           hook: string | null
           id: string
           job_ref: string | null
+          props_md: string | null
           published_channels: Json
           published_on: string | null
+          script_md: string | null
           service_line: string | null
+          shot_list_md: string | null
           shot_on: string | null
           status: Database["public"]["Enums"]["content_item_status"]
+          tag: string | null
           title: string
           type: Database["public"]["Enums"]["content_item_type"]
           updated_at: string
@@ -320,6 +326,8 @@ export type Database = {
         }
         Insert: {
           asset_path?: string | null
+          assignee?: Database["public"]["Enums"]["content_assignee"] | null
+          b_roll_md?: string | null
           created_at?: string
           created_by_id?: string | null
           creator_id?: string | null
@@ -327,11 +335,15 @@ export type Database = {
           hook?: string | null
           id?: string
           job_ref?: string | null
+          props_md?: string | null
           published_channels?: Json
           published_on?: string | null
+          script_md?: string | null
           service_line?: string | null
+          shot_list_md?: string | null
           shot_on?: string | null
           status?: Database["public"]["Enums"]["content_item_status"]
+          tag?: string | null
           title: string
           type?: Database["public"]["Enums"]["content_item_type"]
           updated_at?: string
@@ -339,6 +351,8 @@ export type Database = {
         }
         Update: {
           asset_path?: string | null
+          assignee?: Database["public"]["Enums"]["content_assignee"] | null
+          b_roll_md?: string | null
           created_at?: string
           created_by_id?: string | null
           creator_id?: string | null
@@ -346,11 +360,15 @@ export type Database = {
           hook?: string | null
           id?: string
           job_ref?: string | null
+          props_md?: string | null
           published_channels?: Json
           published_on?: string | null
+          script_md?: string | null
           service_line?: string | null
+          shot_list_md?: string | null
           shot_on?: string | null
           status?: Database["public"]["Enums"]["content_item_status"]
+          tag?: string | null
           title?: string
           type?: Database["public"]["Enums"]["content_item_type"]
           updated_at?: string
@@ -5525,6 +5543,7 @@ export type Database = {
         | "seasonal"
         | "event"
         | "other"
+      content_assignee: "warehouse" | "ivana" | "stefan" | "troy"
       content_item_status:
         | "idea"
         | "scripted"
@@ -5829,6 +5848,7 @@ export const Constants = {
         "event",
         "other",
       ],
+      content_assignee: ["warehouse", "ivana", "stefan", "troy"],
       content_item_status: [
         "idea",
         "scripted",

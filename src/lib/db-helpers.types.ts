@@ -175,3 +175,6 @@ export type FinProductRow     = Database["public"]["Tables"]["fin_product"]["Row
 
 // ---- Editable content (CMS) ------------------------------------------------
 export type ContentBlockRow = Database["public"]["Tables"]["content_blocks"]["Row"]
+
+// ---- Content funnel: assignee ----------------------------------------------
+export type ContentAssignee = Database["public"]["Enums"]["content_assignee"]
