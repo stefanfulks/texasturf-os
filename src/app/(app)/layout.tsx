@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { UserMenu } from "@/components/user-menu";
+import { SectionHome } from "@/components/section-home";
 import { NavLinks } from "@/components/nav-links";
 import { NotificationBell } from "@/components/notification-bell";
 import { TurfyLauncher } from "@/components/turfy-launcher";
@@ -83,6 +84,8 @@ export default async function AppLayout({
               role={profile?.role ?? null}
               isAdmin={isAdmin}
             />
+            <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
+            <SectionHome isAdmin={isAdmin} />
             <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
             <NavLinks isAdmin={isAdmin} department={primaryDepartment} feedbackCount={feedbackOpen} />
           </div>
