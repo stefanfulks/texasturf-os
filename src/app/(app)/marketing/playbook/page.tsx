@@ -5,6 +5,8 @@ import {
   ArrowUpRight, type LucideIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getContent } from "@/lib/content/load";
+import { RichText, RichList } from "@/lib/content/rich-text";
 
 export const metadata = { title: "Marketing Playbook · TexasTurf OS" };
 
@@ -69,15 +71,14 @@ export default async function PlaybookPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const cm = await getContent();
+
   return (
     <div className="max-w-4xl space-y-6">
       <header className="reveal">
         <p className="eyebrow mb-2">Marketing</p>
-        <h1 className="page-title">Marketing Playbook</h1>
-        <p className="page-sub">
-          The plan everyone follows. Calls run in Reevo, sends go out via Jobber, the
-          record lives here.
-        </p>
+        <h1 className="page-title">{cm.get("mkt.playbook.title")}</h1>
+        <p className="page-sub">{cm.get("mkt.playbook.sub")}</p>
       </header>
 
       {/* The thesis — hero callout */}
@@ -87,14 +88,8 @@ export default async function PlaybookPage() {
             <Sparkles className="h-5 w-5" />
           </span>
           <div>
-            <p className="eyebrow mb-1.5 text-brand-strong">The system in one line</p>
-            <p className="text-sm leading-relaxed text-ink-2">
-              We grow through <strong className="text-ink">past clients (referrals)</strong>,{" "}
-              <strong className="text-ink">all 13 service lines</strong> (not just turf), and{" "}
-              <strong className="text-ink">content</strong> (Troy&rsquo;s videos + field POV).
-              TexasTurf isn&rsquo;t a turf company — it&rsquo;s an outdoor construction company.
-              One crew relationship, thirteen capabilities.
-            </p>
+            <p className="eyebrow mb-1.5 text-brand-strong">{cm.get("mkt.playbook.thesis.eyebrow")}</p>
+            <RichText text={cm.get("mkt.playbook.thesis.body")} className="text-sm leading-relaxed text-ink-2" />
           </div>
         </div>
       </section>
@@ -120,38 +115,22 @@ export default async function PlaybookPage() {
       </Link>
 
       <div className="reveal space-y-5" style={{ animationDelay: "120ms" }}>
-        <Section title="Referral program — the Thank-You Blitz" icon={Gift} medallion="medallion-brand">
-          <ul className="list-disc space-y-1 pl-5">
-            <li><strong className="text-ink">Reward (referrer&rsquo;s choice):</strong> $250 Visa gift card or 1 year of the TexasTurf Care Plan free.</li>
-            <li><strong className="text-ink">Referred friend:</strong> $100 off their project.</li>
-            <li><strong className="text-ink">Earned when:</strong> the referred job is completed and the final invoice is paid.</li>
-            <li><strong className="text-ink">Uncapped, never expires.</strong> B2B partners (pool builders, designers) get reciprocal terms, not gift cards.</li>
-            <li><strong className="text-ink">Care Plan</strong> = annual deep-clean + groom, seam/edge inspection w/ minor repairs, drainage check, pet-odor treatment, priority scheduling, 10% off other work. Never call it &ldquo;insurance.&rdquo;</li>
-          </ul>
+        <Section title={cm.get("mkt.playbook.referral.title")} icon={Gift} medallion="medallion-brand">
+          <RichList text={cm.get("mkt.playbook.referral.bullets")} />
           <p className="text-xs text-ink-3">
             Run it from <Link href="/marketing/referrals" className="link-arrow">Referrals</Link>: Build roster → Export Reevo CSV → dial → log outcomes → track to reward.
           </p>
         </Section>
 
-        <Section title="Content cadence — the accountability loop" icon={Film} medallion="medallion-info">
-          <p className="font-medium text-ink">Troy — 1 long YouTube video / week (publishes Friday)</p>
-          <ul className="list-disc space-y-1 pl-5">
-            <li><strong className="text-ink">Mon</strong> — pick topic + outline/script</li>
-            <li><strong className="text-ink">Wed</strong> — film (piggyback on an active job site)</li>
-            <li><strong className="text-ink">Thu</strong> — hand to editor</li>
-            <li><strong className="text-ink">Fri</strong> — publish + log it in <Link href="/marketing/content" className="link-arrow">Content</Link></li>
-          </ul>
-          <p className="mt-2 font-medium text-ink">Max — 2–3 POV clips / week (Meta glasses)</p>
-          <p>Excavator cab, loading trucks, seam work, timelapses. The raw views engine. Drop into the Content library.</p>
-          <p className="mt-2 font-medium text-ink">Every crew — per job</p>
-          <p>1 before walkthrough, 1 process clip, 1 after reveal. Foreman checklist item; lands in the library.</p>
+        <Section title={cm.get("mkt.playbook.cadence.title")} icon={Film} medallion="medallion-info">
+          <RichText text={cm.get("mkt.playbook.cadence.body")} className="[&:not(:first-child)]:mt-2" />
           <p className="text-xs text-ink-3">
             The <Link href="/marketing/content" className="link-arrow">Content scoreboard</Link> tracks published-this-week counts live — that&rsquo;s the accountability number.
             (When Troy &amp; Max get app logins, these become auto-recurring tasks.)
           </p>
         </Section>
 
-        <Section title="Troy — 12-week starter calendar" icon={CalendarDays} medallion="medallion-warn">
+        <Section title={cm.get("mkt.playbook.troy.title")} icon={CalendarDays} medallion="medallion-warn">
           <div className="overflow-x-auto">
             <table className="w-full text-xs num">
               <thead>
@@ -175,8 +154,8 @@ export default async function PlaybookPage() {
           <p className="text-xs text-ink-3">All 12 are seeded as ideas in the <Link href="/marketing/content" className="link-arrow">Content pipeline</Link>.</p>
         </Section>
 
-        <Section title="12-month service spotlight calendar" icon={CalendarRange} medallion="medallion-info">
-          <p>One service line per month. Each ships the same kit: Jobber email + Troy long video + 4–6 shorts + before/after set + SEO post + yard-sign/social CTA swap.</p>
+        <Section title={cm.get("mkt.playbook.spotlight.title")} icon={CalendarRange} medallion="medallion-info">
+          <RichText text={cm.get("mkt.playbook.spotlight.intro")} />
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
@@ -200,13 +179,8 @@ export default async function PlaybookPage() {
           <p className="text-xs text-ink-3">Jul–Sep are seeded in <Link href="/marketing/campaigns" className="link-arrow">Campaigns</Link> as drafts.</p>
         </Section>
 
-        <Section title="Where things live" icon={FolderTree}>
-          <ul className="list-disc space-y-1 pl-5">
-            <li><strong className="text-ink">Reevo</strong> — outbound calls + sequences (the referral dialer).</li>
-            <li><strong className="text-ink">Jobber</strong> — client-facing emails + passive referral links.</li>
-            <li><strong className="text-ink">This app</strong> — the record: roster, ledger, campaign briefs/copy, content pipeline + library.</li>
-            <li><strong className="text-ink">Google Drive</strong> — master video/photo files. <strong className="text-ink">YouTube</strong> — publishing. <strong className="text-ink">This app</strong> holds the links + small voice memos.</li>
-          </ul>
+        <Section title={cm.get("mkt.playbook.wherethings.title")} icon={FolderTree}>
+          <RichList text={cm.get("mkt.playbook.wherethings.bullets")} />
         </Section>
       </div>
     </div>

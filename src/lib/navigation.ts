@@ -149,6 +149,7 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
     primaryHref: "/admin/users",
     tools: [
       { label: "Users",           href: "/admin/users" },
+      { label: "Content",         href: "/admin/content" },
       { label: "Feedback Triage", href: "/admin/feedback" },
       { label: "Jobber Settings", href: "/settings/jobber" },
     ],

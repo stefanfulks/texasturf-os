@@ -172,3 +172,6 @@ export type FinSyncLog      = Database["public"]["Tables"]["fin_sync_log"]["Row"
 export type FinCommissionTier = Database["public"]["Tables"]["fin_commission_tier"]["Row"]
 export type FinMileageBand    = Database["public"]["Tables"]["fin_mileage_band"]["Row"]
 export type FinProductRow     = Database["public"]["Tables"]["fin_product"]["Row"]
+
+// ---- Editable content (CMS) ------------------------------------------------
+export type ContentBlockRow = Database["public"]["Tables"]["content_blocks"]["Row"]
