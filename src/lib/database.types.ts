@@ -217,6 +217,7 @@ export type Database = {
       }
       campaigns: {
         Row: {
+          audience: string | null
           brief_md: string | null
           channels: Json
           created_at: string
@@ -225,6 +226,11 @@ export type Database = {
           id: string
           jobber_copy: Json
           name: string
+          next_action: string | null
+          notes: string | null
+          objective: string | null
+          offer: string | null
+          owner_id: string | null
           results: Json
           service_line: string | null
           slug: string
@@ -234,6 +240,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          audience?: string | null
           brief_md?: string | null
           channels?: Json
           created_at?: string
@@ -242,6 +249,11 @@ export type Database = {
           id?: string
           jobber_copy?: Json
           name: string
+          next_action?: string | null
+          notes?: string | null
+          objective?: string | null
+          offer?: string | null
+          owner_id?: string | null
           results?: Json
           service_line?: string | null
           slug: string
@@ -251,6 +263,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          audience?: string | null
           brief_md?: string | null
           channels?: Json
           created_at?: string
@@ -259,6 +272,11 @@ export type Database = {
           id?: string
           jobber_copy?: Json
           name?: string
+          next_action?: string | null
+          notes?: string | null
+          objective?: string | null
+          offer?: string | null
+          owner_id?: string | null
           results?: Json
           service_line?: string | null
           slug?: string
@@ -271,6 +289,13 @@ export type Database = {
           {
             foreignKeyName: "campaigns_created_by_id_fkey"
             columns: ["created_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -300,23 +325,35 @@ export type Database = {
       }
       content_items: {
         Row: {
+          asset_links: Json
           asset_path: string | null
           assignee: Database["public"]["Enums"]["content_assignee"] | null
           b_roll_md: string | null
+          campaign_id: string | null
+          caption: string | null
           created_at: string
           created_by_id: string | null
           creator_id: string | null
+          cta: string | null
           drive_url: string | null
+          due_date: string | null
+          editing_notes: string | null
           hook: string | null
           id: string
+          is_ai_generated: boolean
           job_ref: string | null
+          platform: string | null
           props_md: string | null
           published_channels: Json
           published_on: string | null
+          published_url: string | null
+          publishing_notes: string | null
           script_md: string | null
           service_line: string | null
+          shoot_date: string | null
           shot_list_md: string | null
           shot_on: string | null
+          sort_order: number
           status: Database["public"]["Enums"]["content_item_status"]
           tag: string | null
           title: string
@@ -325,23 +362,35 @@ export type Database = {
           youtube_url: string | null
         }
         Insert: {
+          asset_links?: Json
           asset_path?: string | null
           assignee?: Database["public"]["Enums"]["content_assignee"] | null
           b_roll_md?: string | null
+          campaign_id?: string | null
+          caption?: string | null
           created_at?: string
           created_by_id?: string | null
           creator_id?: string | null
+          cta?: string | null
           drive_url?: string | null
+          due_date?: string | null
+          editing_notes?: string | null
           hook?: string | null
           id?: string
+          is_ai_generated?: boolean
           job_ref?: string | null
+          platform?: string | null
           props_md?: string | null
           published_channels?: Json
           published_on?: string | null
+          published_url?: string | null
+          publishing_notes?: string | null
           script_md?: string | null
           service_line?: string | null
+          shoot_date?: string | null
           shot_list_md?: string | null
           shot_on?: string | null
+          sort_order?: number
           status?: Database["public"]["Enums"]["content_item_status"]
           tag?: string | null
           title: string
@@ -350,23 +399,35 @@ export type Database = {
           youtube_url?: string | null
         }
         Update: {
+          asset_links?: Json
           asset_path?: string | null
           assignee?: Database["public"]["Enums"]["content_assignee"] | null
           b_roll_md?: string | null
+          campaign_id?: string | null
+          caption?: string | null
           created_at?: string
           created_by_id?: string | null
           creator_id?: string | null
+          cta?: string | null
           drive_url?: string | null
+          due_date?: string | null
+          editing_notes?: string | null
           hook?: string | null
           id?: string
+          is_ai_generated?: boolean
           job_ref?: string | null
+          platform?: string | null
           props_md?: string | null
           published_channels?: Json
           published_on?: string | null
+          published_url?: string | null
+          publishing_notes?: string | null
           script_md?: string | null
           service_line?: string | null
+          shoot_date?: string | null
           shot_list_md?: string | null
           shot_on?: string | null
+          sort_order?: number
           status?: Database["public"]["Enums"]["content_item_status"]
           tag?: string | null
           title?: string
@@ -375,6 +436,13 @@ export type Database = {
           youtube_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "content_items_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "content_items_created_by_id_fkey"
             columns: ["created_by_id"]
@@ -2963,6 +3031,100 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_ai_generations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          generation_type: string
+          id: string
+          input: Json
+          linked_record_id: string | null
+          linked_table: string | null
+          output: Json
+          section: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          generation_type: string
+          id?: string
+          input?: Json
+          linked_record_id?: string | null
+          linked_table?: string | null
+          output?: Json
+          section: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          generation_type?: string
+          id?: string
+          input?: Json
+          linked_record_id?: string | null
+          linked_table?: string | null
+          output?: Json
+          section?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_ai_generations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_business_inputs: {
+        Row: {
+          id: string
+          input_key: string
+          input_type: string
+          label: string
+          notes: string | null
+          required: boolean
+          section: string
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+          value: string | null
+        }
+        Insert: {
+          id?: string
+          input_key: string
+          input_type?: string
+          label: string
+          notes?: string | null
+          required?: boolean
+          section?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
+        Update: {
+          id?: string
+          input_key?: string
+          input_type?: string
+          label?: string
+          notes?: string | null
+          required?: boolean
+          section?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_business_inputs_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

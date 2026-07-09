@@ -178,3 +178,7 @@ export type ContentBlockRow = Database["public"]["Tables"]["content_blocks"]["Ro
 
 // ---- Content funnel: assignee ----------------------------------------------
 export type ContentAssignee = Database["public"]["Enums"]["content_assignee"]
+
+// ---- Marketing OS: AI generations + business inputs -------------------------
+export type MarketingAiGeneration   = Database["public"]["Tables"]["marketing_ai_generations"]["Row"]
+export type MarketingBusinessInput  = Database["public"]["Tables"]["marketing_business_inputs"]["Row"]
