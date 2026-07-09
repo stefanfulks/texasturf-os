@@ -64,6 +64,35 @@ Rules:
 - tag: a short 1-3 word card label like "101/FAQ", "Ad Creative", "POV", "Lifestyle", "Before/After".
 - NEVER invent real business numbers — no made-up review counts, install counts, prices, discounts, or timelines. If a number would strengthen the script, write a bracket placeholder like [X five-star reviews] or [$X per sq ft] for the owner to fill in.`;
 
+/** Shared generation core: provider check → structured parse → error mapping.
+ * Every section generator goes through here so provider states stay uniform. */
+async function generate<T>(
+  schema: z.ZodType<T>,
+  system: string,
+  userPrompt: string,
+): Promise<AiResult<T>> {
+  const client = getClient();
+  if (!client) {
+    return { ok: false, error: "provider_missing", message: "AI provider not configured — ANTHROPIC_API_KEY is not set." };
+  }
+  try {
+    const response = await client.messages.parse({
+      model: MODEL,
+      max_tokens: 8000,
+      thinking: { type: "adaptive" },
+      system,
+      messages: [{ role: "user", content: userPrompt }],
+      output_config: { format: zodOutputFormat(schema) },
+    });
+    if (!response.parsed_output) {
+      return { ok: false, error: "generation_failed", message: "The model returned no structured output. Try again." };
+    }
+    return { ok: true, data: response.parsed_output };
+  } catch (err) {
+    return { ok: false, error: "generation_failed", message: describeAnthropicError(err) };
+  }
+}
+
 const contentCardSchema = z.object({
   title: z.string().describe("Short, punchy card title (under 80 chars)"),
   tag: z.string().describe("1-3 word card label, e.g. '101/FAQ', 'Ad Creative', 'POV'"),
@@ -81,31 +110,11 @@ export type AiContentCard = z.infer<typeof contentCardSchema>;
 
 /** Rough idea in → complete filming-ready content card out. */
 export async function generateContentCard(roughIdea: string): Promise<AiResult<AiContentCard>> {
-  const client = getClient();
-  if (!client) {
-    return { ok: false, error: "provider_missing", message: "AI provider not configured — ANTHROPIC_API_KEY is not set." };
-  }
-  try {
-    const response = await client.messages.parse({
-      model: MODEL,
-      max_tokens: 8000,
-      thinking: { type: "adaptive" },
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `Turn this rough idea into a filming-ready content card:\n\n${roughIdea}`,
-        },
-      ],
-      output_config: { format: zodOutputFormat(contentCardSchema) },
-    });
-    if (!response.parsed_output) {
-      return { ok: false, error: "generation_failed", message: "The model returned no structured output. Try again." };
-    }
-    return { ok: true, data: response.parsed_output };
-  } catch (err) {
-    return { ok: false, error: "generation_failed", message: describeAnthropicError(err) };
-  }
+  return generate(
+    contentCardSchema,
+    SYSTEM_PROMPT,
+    `Turn this rough idea into a filming-ready content card:\n\n${roughIdea}`,
+  );
 }
 
 const contentDetailsSchema = z.object({
@@ -129,10 +138,6 @@ export async function generateContentDetails(card: {
   service_line: string | null;
   hook: string | null;
 }): Promise<AiResult<AiContentDetails>> {
-  const client = getClient();
-  if (!client) {
-    return { ok: false, error: "provider_missing", message: "AI provider not configured — ANTHROPIC_API_KEY is not set." };
-  }
   const known = [
     `Title: ${card.title}`,
     card.type ? `Format: ${card.type}` : null,
@@ -141,27 +146,44 @@ export async function generateContentDetails(card: {
     card.service_line ? `Service line: ${card.service_line}` : null,
     card.hook ? `Existing hook (build on it): ${card.hook}` : null,
   ].filter(Boolean).join("\n");
-  try {
-    const response = await client.messages.parse({
-      model: MODEL,
-      max_tokens: 8000,
-      thinking: { type: "adaptive" },
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `Write the full production detail for this existing content card:\n\n${known}`,
-        },
-      ],
-      output_config: { format: zodOutputFormat(contentDetailsSchema) },
-    });
-    if (!response.parsed_output) {
-      return { ok: false, error: "generation_failed", message: "The model returned no structured output. Try again." };
-    }
-    return { ok: true, data: response.parsed_output };
-  } catch (err) {
-    return { ok: false, error: "generation_failed", message: describeAnthropicError(err) };
-  }
+  return generate(
+    contentDetailsSchema,
+    SYSTEM_PROMPT,
+    `Write the full production detail for this existing content card:\n\n${known}`,
+  );
+}
+
+// ── Campaigns ─────────────────────────────────────────────────────────────────
+
+const CAMPAIGN_SYSTEM = `You are the marketing strategist for TexasTurf, a Texas outdoor-living company (artificial turf, xeriscape, pavers, concrete, sport courts, fencing, tree removal, excavation, stone work, site prep, welding, landscape design, lot clearing).
+
+You write tight, executable campaign briefs a two-person marketing team can run this month. No corporate fluff — every field must be specific enough to act on today.
+
+Rules:
+- objective: one sentence, measurable where possible, but NEVER invent real business numbers — use bracket placeholders like [X leads/month] where the owner must supply the target.
+- audience: who exactly, where (Texas metro homeowners, HOA boards, builders…), and the pain/desire that makes them act.
+- offer: the concrete hook customers respond to. If it needs a real discount or price, use a bracket placeholder like [$X off].
+- next_action: the single next step the team should take this week, starting with a verb.
+- notes: channels, creative angles, and the content the four filming pillars (warehouse POV, ivana lifestyle, stefan ROI/ads, troy educational) should feed into it.`;
+
+const campaignBriefSchema = z.object({
+  name: z.string().describe("Short campaign name (under 60 chars)"),
+  objective: z.string().describe("One-sentence measurable objective; bracket placeholders for real numbers"),
+  audience: z.string().describe("Exactly who + where + the pain/desire"),
+  offer: z.string().describe("The concrete offer/hook; bracket placeholders for prices/discounts"),
+  next_action: z.string().describe("The single next step this week, starts with a verb"),
+  notes: z.string().describe("Channels, creative angles, and how the four filming pillars feed it"),
+});
+
+export type AiCampaignBrief = z.infer<typeof campaignBriefSchema>;
+
+/** Rough goal in → executable campaign brief out. */
+export async function generateCampaignBrief(roughGoal: string): Promise<AiResult<AiCampaignBrief>> {
+  return generate(
+    campaignBriefSchema,
+    CAMPAIGN_SYSTEM,
+    `Draft a campaign brief for this goal:\n\n${roughGoal}`,
+  );
 }
 
 /** Best-effort audit log — a logging failure must never sink the generation. */

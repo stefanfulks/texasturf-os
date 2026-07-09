@@ -21,6 +21,11 @@ const createSchema = z.object({
   service_line: z.string().optional(),
   starts_on: z.string().optional(),
   brief_md: z.string().optional(),
+  objective: z.string().optional(),
+  audience: z.string().optional(),
+  offer: z.string().optional(),
+  next_action: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 /** Create a campaign (draft). Slug derived from the name + a short suffix for uniqueness. */
@@ -35,6 +40,11 @@ export async function createCampaign(_prev: ActionState, formData: FormData): Pr
     service_line: formData.get("service_line") || undefined,
     starts_on: formData.get("starts_on") || undefined,
     brief_md: formData.get("brief_md") || undefined,
+    objective: formData.get("objective") || undefined,
+    audience: formData.get("audience") || undefined,
+    offer: formData.get("offer") || undefined,
+    next_action: formData.get("next_action") || undefined,
+    notes: formData.get("notes") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
@@ -55,6 +65,12 @@ export async function createCampaign(_prev: ActionState, formData: FormData): Pr
       service_line: parsed.data.service_line ?? null,
       starts_on: parsed.data.starts_on || null,
       brief_md: parsed.data.brief_md ?? null,
+      objective: parsed.data.objective ?? null,
+      audience: parsed.data.audience ?? null,
+      offer: parsed.data.offer ?? null,
+      next_action: parsed.data.next_action ?? null,
+      notes: parsed.data.notes ?? null,
+      owner_id: user.id,
       created_by_id: user.id,
     })
     .select("id")
@@ -92,6 +108,100 @@ export async function updateCampaignStatus(_prev: ActionState, formData: FormDat
   revalidatePath(`/marketing/campaigns/${parsed.data.id}`);
   revalidatePath("/marketing");
   return { error: null, success: true };
+}
+
+// ── AI + brief editing + content linking (Marketing OS) ──────────────────────
+
+export type AiBriefResult = {
+  error?: string;
+  providerMissing?: boolean;
+  brief?: {
+    name: string;
+    objective: string;
+    audience: string;
+    offer: string;
+    next_action: string;
+    notes: string;
+  };
+};
+
+/** Rough goal → campaign brief for form prefill. Nothing is saved — the user
+ * reviews the filled form and confirms via Create/Save. */
+export async function aiDraftCampaignBrief(
+  roughGoal: string,
+  linkedCampaignId?: string,
+): Promise<AiBriefResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const goal = roughGoal.trim();
+  if (goal.length < 3) return { error: "Give the AI at least a few words to work with." };
+  if (goal.length > 2000) return { error: "Keep the goal under 2,000 characters." };
+
+  const { generateCampaignBrief, logAiGeneration } = await import("@/lib/ai/marketing");
+  const result = await generateCampaignBrief(goal);
+  if (!result.ok) {
+    if (result.error === "provider_missing") return { providerMissing: true, error: result.message };
+    return { error: result.message };
+  }
+
+  await logAiGeneration(supabase, {
+    section: "campaigns",
+    generation_type: "campaign_brief",
+    input: { rough_goal: goal },
+    output: result.data,
+    linked_table: linkedCampaignId ? "campaigns" : undefined,
+    linked_record_id: linkedCampaignId,
+    created_by: user.id,
+  });
+
+  return { brief: result.data };
+}
+
+export type CampaignBriefPatch = {
+  objective?: string | null;
+  audience?: string | null;
+  offer?: string | null;
+  next_action?: string | null;
+  notes?: string | null;
+  brief_md?: string | null;
+};
+
+/** Save the structured brief fields from the detail page — plain callable. */
+export async function updateCampaignBrief(id: string, patch: CampaignBriefPatch): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase.from("campaigns").update(patch).eq("id", id);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/marketing/campaigns/${id}`);
+  revalidatePath("/marketing/campaigns");
+  revalidatePath("/marketing");
+  return {};
+}
+
+/** Link or unlink a content card to a campaign — plain callable. */
+export async function setContentCampaign(
+  contentId: string,
+  campaignId: string | null,
+): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("content_items")
+    .update({ campaign_id: campaignId })
+    .eq("id", contentId);
+  if (error) return { error: error.message };
+
+  if (campaignId) revalidatePath(`/marketing/campaigns/${campaignId}`);
+  revalidatePath("/marketing/campaigns");
+  revalidatePath("/marketing/content");
+  return {};
 }
 
 const channelSchema = z.object({

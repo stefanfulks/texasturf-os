@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CopyButton } from "../copy-button";
 import { StatusControl, ChannelChecklist } from "./controls";
+import { BriefEditor } from "./brief-editor";
+import { LinkContent } from "./link-content";
 
 type CopyBlock = { label?: string; subject?: string; body?: string };
 
@@ -23,6 +25,21 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
 
   const { data: c, error } = await supabase.from("campaigns").select("*").eq("id", id).maybeSingle();
   if (error || !c) notFound();
+
+  // Content cards feeding this campaign + linkable candidates (recent, unlinked).
+  const { data: linkedContent } = await supabase
+    .from("content_items")
+    .select("id, title, status, assignee")
+    .eq("campaign_id", id)
+    .neq("status", "archived")
+    .order("created_at", { ascending: false });
+  const { data: candidateContent } = await supabase
+    .from("content_items")
+    .select("id, title, status")
+    .is("campaign_id", null)
+    .neq("status", "archived")
+    .order("created_at", { ascending: false })
+    .limit(50);
 
   const copyBlocks: CopyBlock[] = Array.isArray(c.jobber_copy) ? (c.jobber_copy as unknown as CopyBlock[]) : [];
   type Channel = { channel: string; done_at: string | null };
@@ -46,12 +63,33 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
         </p>
       </div>
 
+      <BriefEditor
+        id={c.id}
+        name={c.name}
+        type={c.type}
+        serviceLine={c.service_line}
+        initial={{
+          objective: c.objective,
+          audience: c.audience,
+          offer: c.offer,
+          next_action: c.next_action,
+          notes: c.notes,
+        }}
+        aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)}
+      />
+
       {c.brief_md && (
         <section className="card p-6">
-          <h2 className="text-sm font-semibold mb-2">Brief</h2>
+          <h2 className="text-sm font-semibold mb-2">Long-form brief</h2>
           <pre className="text-sm text-ink-2 whitespace-pre-wrap font-sans leading-relaxed">{c.brief_md}</pre>
         </section>
       )}
+
+      <LinkContent
+        campaignId={c.id}
+        linked={linkedContent ?? []}
+        candidates={candidateContent ?? []}
+      />
 
       <section className="card p-6 space-y-4">
         <h2 className="text-sm font-semibold">Copy to paste into Jobber</h2>

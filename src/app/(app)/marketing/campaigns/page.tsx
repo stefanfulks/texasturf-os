@@ -60,7 +60,7 @@ export default async function CampaignsPage() {
           <ArrowUpRight className="h-4 w-4 text-ink-4 transition-transform group-open:rotate-90" />
         </summary>
         <div className="border-t border-line p-5">
-          <CampaignCreateForm />
+          <CampaignCreateForm aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
         </div>
       </details>
 
