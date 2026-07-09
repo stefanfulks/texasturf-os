@@ -233,6 +233,71 @@ Missing (use bracket placeholders for these): ${missing}`,
   );
 }
 
+// ── Referrals ─────────────────────────────────────────────────────────────────
+
+const REFERRALS_SYSTEM = `You write referral-ask scripts for TexasTurf, a Texas outdoor-living company. The team calls past customers who already had work done and asks if a friend or neighbor could use us.
+
+Rules:
+- Voice: warm, neighborly, zero pressure. These are happy past customers, not cold leads.
+- The caller is a real TexasTurf team member; write in first person.
+- Lead with a genuine check-in on their install, THEN the ask.
+- State the reward program facts EXACTLY as provided — never invent or change amounts.
+- phone_opener: a natural 20-30 second call script with a [Customer name] placeholder and a pause note where the customer responds.
+- sms: under 320 chars, casual, with [Customer name].
+- email_subject: under 60 chars, no clickbait.
+- email_body: 4-6 short sentences, [Customer name] placeholder, one clear ask.`;
+
+const referralScriptsSchema = z.object({
+  phone_opener: z.string().describe("20-30 second natural call script with [Customer name] placeholder"),
+  sms: z.string().describe("Text message under 320 chars"),
+  email_subject: z.string().describe("Email subject under 60 chars"),
+  email_body: z.string().describe("Short email, one clear ask"),
+});
+
+export type AiReferralScripts = z.infer<typeof referralScriptsSchema>;
+
+/** Program facts in → phone/SMS/email ask-scripts out. */
+export async function generateReferralScripts(programFacts: string): Promise<AiResult<AiReferralScripts>> {
+  return generate(
+    referralScriptsSchema,
+    REFERRALS_SYSTEM,
+    `Reward program facts (state these exactly):\n${programFacts}\n\nWrite the referral ask scripts.`,
+  );
+}
+
+// ── Reviews ───────────────────────────────────────────────────────────────────
+
+const REVIEWS_SYSTEM = `You write review-request messages for TexasTurf, a Texas outdoor-living company. A job just finished; the team asks the happy customer for a Google review.
+
+Rules:
+- Voice: personal thank-you first, ask second. Short — customers skim.
+- Reference the actual job naturally ("your new putting green", "the backyard turf").
+- For the review destination write the placeholder [Google review link] — the team pastes the real link.
+- NEVER invent review counts, ratings, or business stats.
+- sms: under 320 chars, includes the customer's first name and [Google review link].
+- email_subject: under 60 chars, warm, no clickbait.
+- email_body: 3-5 short sentences, first name, one clear ask, [Google review link].`;
+
+const reviewRequestSchema = z.object({
+  sms: z.string().describe("Text message under 320 chars with [Google review link]"),
+  email_subject: z.string().describe("Under 60 chars, warm"),
+  email_body: z.string().describe("3-5 short sentences, one clear ask, [Google review link]"),
+});
+
+export type AiReviewRequest = z.infer<typeof reviewRequestSchema>;
+
+/** Customer first name + job description → personalized review ask (SMS + email). */
+export async function generateReviewRequest(
+  firstName: string,
+  jobDescription: string,
+): Promise<AiResult<AiReviewRequest>> {
+  return generate(
+    reviewRequestSchema,
+    REVIEWS_SYSTEM,
+    `Customer first name: ${firstName}\nJob just completed: ${jobDescription}\n\nWrite the review request messages.`,
+  );
+}
+
 /** Best-effort audit log — a logging failure must never sink the generation. */
 export async function logAiGeneration(
   supabase: SupabaseClient<Database>,

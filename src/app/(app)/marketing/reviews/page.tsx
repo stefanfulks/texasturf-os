@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/database.types";
 import type { LucideIcon } from "lucide-react";
 import { ReviewTable, BuildReviewListButton } from "./review-table";
+import { AskGenerator } from "./ask-generator";
 
 export type ReviewRow = Database["public"]["Tables"]["review_outreach"]["Row"];
 
@@ -113,6 +114,9 @@ export default async function ReviewsPage({
           );
         })}
       </div>
+
+      {/* AI: write the review ask */}
+      <AskGenerator aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
 
       <div className="reveal flex flex-wrap gap-2" style={{ animationDelay: "120ms" }}>
         <a

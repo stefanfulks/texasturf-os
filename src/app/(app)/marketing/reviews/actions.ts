@@ -130,3 +130,44 @@ export async function updateReviewStatus(_prev: ActionState, formData: FormData)
   revalidatePath("/marketing");
   return { error: null, success: true };
 }
+
+// ── AI review request (Marketing OS) ──────────────────────────────────────────
+
+export type ReviewRequestResult = {
+  error?: string;
+  providerMissing?: boolean;
+  messages?: { sms: string; email_subject: string; email_body: string };
+};
+
+/** Personalized review ask (SMS + email) for a completed job. The Google
+ * review link stays a [placeholder] — never invented. Logged. */
+export async function aiGenerateReviewRequest(
+  firstName: string,
+  jobDescription: string,
+): Promise<ReviewRequestResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const name = firstName.trim().slice(0, 60);
+  const job = jobDescription.trim().slice(0, 200);
+  if (!name) return { error: "Give the customer's first name." };
+  if (!job) return { error: "Describe the job (e.g. backyard turf install)." };
+
+  const { generateReviewRequest, logAiGeneration } = await import("@/lib/ai/marketing");
+  const result = await generateReviewRequest(name, job);
+  if (!result.ok) {
+    if (result.error === "provider_missing") return { providerMissing: true, error: result.message };
+    return { error: result.message };
+  }
+
+  await logAiGeneration(supabase, {
+    section: "reviews",
+    generation_type: "review_request",
+    input: { first_name: name, job_description: job },
+    output: result.data,
+    created_by: user.id,
+  });
+
+  return { messages: result.data };
+}
