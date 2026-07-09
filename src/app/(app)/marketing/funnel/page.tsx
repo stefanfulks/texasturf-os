@@ -3,9 +3,12 @@ import { redirect } from "next/navigation";
 import {
   Eye, Flame, Target, Sparkles, ArrowDown, ArrowRight, Dog, Baby, Dumbbell,
   Flag, Layers, Users, MessageSquare, DollarSign, Gauge, ShieldAlert,
-  ClipboardList, Megaphone, type LucideIcon,
+  Megaphone, type LucideIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { BusinessInputsEditor } from "./business-inputs";
+import { BreakEvenPanel } from "./breakeven";
+import { AdGenerator } from "./ad-generator";
 
 export const metadata = { title: "Ads · Marketing · TexasTurf OS" };
 
@@ -97,7 +100,39 @@ export default async function FunnelPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-  return <FunnelFramework />;
+
+  const { data: profile } = await supabase
+    .from("profiles").select("role").eq("id", user.id).single();
+  const isAdmin = profile?.role === "admin";
+
+  const { data: inputs } = await supabase
+    .from("marketing_business_inputs")
+    .select("input_key, label, input_type, value")
+    .eq("section", "ads")
+    .order("sort_order");
+
+  const num = (key: string): number | null => {
+    const raw = inputs?.find((i) => i.input_key === key)?.value?.trim();
+    if (!raw) return null;
+    const n = Number(raw.replace(/[$,%\s]/g, ""));
+    return Number.isFinite(n) ? n : null;
+  };
+
+  return (
+    <div className="max-w-4xl space-y-6">
+      <FunnelFramework />
+
+      {/* Execution layer — the owner's real numbers drive everything below */}
+      <BusinessInputsEditor inputs={inputs ?? []} isAdmin={isAdmin} />
+      <BreakEvenPanel
+        avgGrossProfit={num("avg_gross_profit_install")}
+        closeRatePct={num("close_rate_pct")}
+        monthlyBudget={num("monthly_ad_budget")}
+        targetCpl={num("target_cpl")}
+      />
+      <AdGenerator aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
+    </div>
+  );
 }
 
 /** Presentational body — pure static content, no auth/data. Rendered by the
@@ -411,29 +446,8 @@ export function FunnelFramework() {
         </ul>
       </Section>
 
-      {/* Needs from you */}
-      <section className="panel reveal">
-        <div className="panel-head">
-          <div className="flex items-center gap-2.5">
-            <span className="medallion medallion-warn !h-7 !w-7 !rounded-[9px]"><ClipboardList className="h-4 w-4" /></span>
-            <h2 className="text-sm font-semibold text-ink">To go live — fill these in</h2>
-          </div>
-        </div>
-        <ul className="divide-y divide-line">
-          {[
-            ["Service radius + HQ city", "for geo targeting"],
-            ["Real credibility stats", "# installs, # 5-star reviews, years in business"],
-            ["Actual offer per product", "the $ discount and/or freebie — and can you deliver the free 3D visualization?"],
-            ["Avg profit per install + close rate", "to lock your allowable CPL"],
-            ["Starting monthly budget", "what you're comfortable beginning at"],
-          ].map(([t, d], i) => (
-            <li key={i} className="flex items-start gap-3 px-5 py-3">
-              <span className="mt-0.5 grid h-5 w-5 flex-shrink-0 place-items-center rounded-full border border-line-strong text-[0.7rem] font-bold text-ink-3">{i + 1}</span>
-              <span className="text-sm"><span className="font-semibold text-ink">{t}</span> <span className="text-ink-3">— {d}</span></span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {/* The old static "to go live" checklist is superseded by the live
+          "Your numbers" editor the authed page mounts below this framework. */}
     </div>
   );
 }

@@ -186,6 +186,53 @@ export async function generateCampaignBrief(roughGoal: string): Promise<AiResult
   );
 }
 
+// ── Ads ───────────────────────────────────────────────────────────────────────
+
+const ADS_SYSTEM = `You write direct-response Meta ad scripts for TexasTurf, a Texas outdoor-living company. Audience: Texas homeowners. Format: 30-60 second spoken video scripts plus the ad copy around them.
+
+Follow the proven beat structure: call-out → offer → price anchor → service + benefit → scarcity → why us.
+
+Rules:
+- Voice: confident, plain-English, Texas-friendly. No corporate fluff, no hype words like "revolutionary".
+- Use ONLY the real business numbers provided under "Known real numbers". For anything under "Missing", write a bracket placeholder like [X five-star reviews] or [$X off] — NEVER invent a number, price, discount, review count, or install count.
+- headline: under 60 chars, thumb-stopping.
+- primary_text: the spoken script / ad body following the beat structure, short paragraphs.
+- cta: the button + closing line (e.g. "Get My Free Quote").
+- Each variant must take a genuinely different angle (e.g. pain-first vs proof-first vs offer-first).`;
+
+const adScriptsSchema = z.object({
+  variants: z.array(z.object({
+    angle: z.string().describe("2-4 word label for the angle, e.g. 'Pain-first'"),
+    headline: z.string().describe("Under 60 chars, thumb-stopping"),
+    primary_text: z.string().describe("Spoken script / ad body following the beat structure"),
+    cta: z.string().describe("Button label + closing line"),
+  })).describe("Exactly 3 variants, each a different angle"),
+});
+
+export type AiAdScripts = z.infer<typeof adScriptsSchema>;
+
+/** Service line + the owner's real numbers → 3 cold-lead ad variants. */
+export async function generateAdScripts(
+  serviceLine: string,
+  knownInputs: Array<{ label: string; value: string }>,
+  missingInputs: string[],
+): Promise<AiResult<AiAdScripts>> {
+  const known = knownInputs.length > 0
+    ? knownInputs.map((i) => `- ${i.label}: ${i.value}`).join("\n")
+    : "- (none provided yet)";
+  const missing = missingInputs.length > 0 ? missingInputs.join(", ") : "(none)";
+  return generate(
+    adScriptsSchema,
+    ADS_SYSTEM,
+    `Write exactly 3 cold-lead ad variants for: ${serviceLine.replace(/_/g, " ")}
+
+Known real numbers (use freely):
+${known}
+
+Missing (use bracket placeholders for these): ${missing}`,
+  );
+}
+
 /** Best-effort audit log — a logging failure must never sink the generation. */
 export async function logAiGeneration(
   supabase: SupabaseClient<Database>,
