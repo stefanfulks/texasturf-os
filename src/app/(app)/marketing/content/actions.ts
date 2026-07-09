@@ -99,6 +99,8 @@ export type ContentDetailPatch = {
   shot_list_md?: string | null;
   b_roll_md?: string | null;
   props_md?: string | null;
+  shoot_date?: string | null;
+  due_date?: string | null;
 };
 
 /** Save the full play-by-play from the detail panel — plain callable. */

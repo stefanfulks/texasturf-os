@@ -8,6 +8,7 @@ import { LibraryList } from "./library-list";
 import { AddContentForm } from "./add-content-form";
 import { QuickCapture } from "./quick-capture";
 import { AiComposer } from "./ai-composer";
+import { CalendarView } from "./calendar-view";
 
 const SERVICE_LINES = [
   "turf", "xeriscape", "lot_clearing", "pavers", "tree_removal", "excavation",
@@ -25,7 +26,7 @@ export default async function ContentPage({
   searchParams: Promise<{ tab?: string; type?: string; service?: string }>;
 }) {
   const { tab, type, service } = await searchParams;
-  const view = tab === "library" ? "library" : "pipeline";
+  const view = tab === "library" ? "library" : tab === "calendar" ? "calendar" : "pipeline";
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -131,6 +132,7 @@ export default async function ContentPage({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="segmented">
           <Link href="/marketing/content?tab=pipeline" data-active={view === "pipeline"}>Pipeline</Link>
+          <Link href="/marketing/content?tab=calendar" data-active={view === "calendar"}>Calendar</Link>
           <Link href="/marketing/content?tab=library" data-active={view === "library"}>Library</Link>
         </div>
       </div>
@@ -164,6 +166,8 @@ export default async function ContentPage({
           statuses={[...PIPELINE_STATUSES]}
           aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)}
         />
+      ) : view === "calendar" ? (
+        <CalendarView items={withUrls.filter((i) => i.status !== "archived")} />
       ) : (
         <LibraryList
           items={libraryItems}

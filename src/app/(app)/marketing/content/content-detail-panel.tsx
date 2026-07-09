@@ -42,6 +42,8 @@ export function ContentDetailPanel({
   const [shotList, setShotList] = useState(item.shot_list_md ?? "");
   const [bRoll, setBRoll] = useState(item.b_roll_md ?? "");
   const [props, setProps] = useState(item.props_md ?? "");
+  const [shootDate, setShootDate] = useState(item.shoot_date ?? "");
+  const [dueDate, setDueDate] = useState(item.due_date ?? "");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -101,6 +103,8 @@ export function ContentDetailPanel({
       shot_list_md: shotList || null,
       b_roll_md: bRoll || null,
       props_md: props || null,
+      shoot_date: shootDate || null,
+      due_date: dueDate || null,
     };
     startTransition(async () => {
       const res = await updateContentDetail(item.id, patch);
@@ -174,6 +178,17 @@ export function ContentDetailPanel({
           <div>
             <label className="field-label">Hook / one-line concept</label>
             <input className="field-input" value={hook} onChange={(e) => setHook(e.target.value)} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="field-label">Shoot date</label>
+              <input type="date" className="field-input" value={shootDate} onChange={(e) => setShootDate(e.target.value)} />
+            </div>
+            <div>
+              <label className="field-label">Publish due</label>
+              <input type="date" className="field-input" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            </div>
           </div>
 
           <div className="space-y-4 border-t border-line pt-4">
