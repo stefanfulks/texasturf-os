@@ -153,6 +153,33 @@ export async function generateContentDetails(card: {
   );
 }
 
+const weeklyPlanSchema = z.object({
+  cards: z.array(contentCardSchema).describe(
+    "Exactly 4 cards — one per pillar: warehouse, ivana, stefan, troy (assignee field set accordingly)",
+  ),
+});
+
+export type AiWeeklyPlan = z.infer<typeof weeklyPlanSchema>;
+
+/** One filming-ready card per pillar for this week. Seasonal context comes
+ * from the owner's real inputs when provided — never invented. */
+export async function generateWeeklyPlan(context: {
+  weekOf: string;
+  seasonalPriority: string | null;
+  priorityServiceLines: string | null;
+}): Promise<AiResult<AiWeeklyPlan>> {
+  const lines = [
+    `Week of: ${context.weekOf}`,
+    context.seasonalPriority ? `Current seasonal priority (from the owner): ${context.seasonalPriority}` : null,
+    context.priorityServiceLines ? `Service lines to push right now (from the owner): ${context.priorityServiceLines}` : null,
+  ].filter(Boolean).join("\n");
+  return generate(
+    weeklyPlanSchema,
+    SYSTEM_PROMPT,
+    `Plan this week's filming: exactly 4 content cards, one per pillar (warehouse, ivana, stefan, troy — set each card's assignee accordingly). Each must be executable this week on real job sites.\n\n${lines}`,
+  );
+}
+
 // ── Campaigns ─────────────────────────────────────────────────────────────────
 
 const CAMPAIGN_SYSTEM = `You are the marketing strategist for TexasTurf, a Texas outdoor-living company (artificial turf, xeriscape, pavers, concrete, sport courts, fencing, tree removal, excavation, stone work, site prep, welding, landscape design, lot clearing).

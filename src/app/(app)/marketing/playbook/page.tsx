@@ -7,6 +7,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getContent } from "@/lib/content/load";
 import { RichText, RichList } from "@/lib/content/rich-text";
+import { WeekPlanner } from "./week-planner";
 
 export const metadata = { title: "Organic Growth · Marketing · TexasTurf OS" };
 
@@ -93,6 +94,9 @@ export default async function PlaybookPage() {
           </div>
         </div>
       </section>
+
+      {/* Execution: plan the week's filming in one click */}
+      <WeekPlanner aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
 
       <Link
         href="/marketing/funnel"
