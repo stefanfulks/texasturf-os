@@ -7,6 +7,7 @@ import { PipelineBoard } from "./pipeline-board";
 import { LibraryList } from "./library-list";
 import { AddContentForm } from "./add-content-form";
 import { QuickCapture } from "./quick-capture";
+import { AiComposer } from "./ai-composer";
 
 const SERVICE_LINES = [
   "turf", "xeriscape", "lot_clearing", "pavers", "tree_removal", "excavation",
@@ -134,6 +135,9 @@ export default async function ContentPage({
         </div>
       </div>
 
+      {/* Draft with AI — rough idea in, filming-ready card out */}
+      <AiComposer aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
+
       {/* Add */}
       <details className="panel group">
         <summary className="flex cursor-pointer select-none list-none items-center gap-3 px-5 py-4 transition-colors hover:bg-hover">
@@ -151,9 +155,14 @@ export default async function ContentPage({
       </details>
 
       {view === "pipeline" ? (
+        // Keyed on newest-id + count: the board holds optimistic local state,
+        // so remount it when items are added/removed (AI composer, add form)
+        // — but not on drags, where the id set is unchanged.
         <PipelineBoard
+          key={`${withUrls.length}-${withUrls[0]?.id ?? "empty"}`}
           items={withUrls.filter((i) => i.status !== "archived")}
           statuses={[...PIPELINE_STATUSES]}
+          aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)}
         />
       ) : (
         <LibraryList

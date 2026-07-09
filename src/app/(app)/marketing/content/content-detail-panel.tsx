@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { X, Trash2, Save, Film, Camera, FileText, Package } from "lucide-react";
-import { updateContentDetail, deleteContentItem, type ContentDetailPatch } from "./actions";
+import { X, Trash2, Save, Film, Camera, FileText, Package, Sparkles } from "lucide-react";
+import { updateContentDetail, deleteContentItem, aiGenerateContentDetails, type ContentDetailPatch } from "./actions";
 import { ASSIGNEES, ASSIGNEE_META } from "@/lib/content/assignees";
 import type { ContentWithUrl } from "./page";
 
@@ -21,11 +21,13 @@ const SERVICE_LINES = [
  * Slides in from the right; Escape or the backdrop closes it. */
 export function ContentDetailPanel({
   item,
+  aiEnabled,
   onClose,
   onSaved,
   onDeleted,
 }: {
   item: ContentWithUrl;
+  aiEnabled: boolean;
   onClose: () => void;
   onSaved: (patch: ContentDetailPatch) => void;
   onDeleted: () => void;
@@ -43,6 +45,48 @@ export function ContentDetailPanel({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiNote, setAiNote] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+
+  /** Fill ONLY the empty play-by-play fields — AI never overwrites text the
+   * team already wrote, and nothing persists until the user hits Save. */
+  async function fillWithAi() {
+    setAiBusy(true);
+    setAiNote(null);
+    try {
+      const res = await aiGenerateContentDetails(item.id);
+      if (res.error || !res.details) {
+        setAiNote({ kind: "error", text: res.error ?? "Generation failed." });
+        return;
+      }
+      const d = res.details;
+      let filled = 0;
+      let kept = 0;
+      const apply = (current: string, next: string, set: (v: string) => void) => {
+        if (current.trim()) kept++;
+        else { set(next); filled++; }
+      };
+      apply(hook, d.hook, setHook);
+      apply(script, d.script_md, setScript);
+      apply(shotList, d.shot_list_md, setShotList);
+      apply(bRoll, d.b_roll_md, setBRoll);
+      apply(props, d.props_md, setProps);
+      apply(tag, d.tag, setTag);
+      if (!assignee) { setAssignee(d.assignee); filled++; }
+      setAiNote(
+        filled === 0
+          ? { kind: "ok", text: "Every section already has text — clear a section first to regenerate it." }
+          : {
+              kind: "ok",
+              text: kept > 0
+                ? `Filled ${filled} empty section${filled === 1 ? "" : "s"}, kept your existing text. Review, then Save.`
+                : "Generated — review, then Save.",
+            },
+      );
+    } finally {
+      setAiBusy(false);
+    }
+  }
 
   function save() {
     setError(null);
@@ -133,6 +177,26 @@ export function ContentDetailPanel({
           </div>
 
           <div className="space-y-4 border-t border-line pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="eyebrow flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5" /> Play-by-play</p>
+              {aiEnabled ? (
+                <button
+                  type="button"
+                  className="btn btn-line btn-sm disabled:opacity-50"
+                  onClick={fillWithAi}
+                  disabled={aiBusy || pending}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {aiBusy ? "Generating…" : "Fill with AI"}
+                </button>
+              ) : (
+                <span className="chip chip-warn !text-[10px]">AI provider missing</span>
+              )}
+            </div>
+            {aiNote && (
+              <p className={`text-xs ${aiNote.kind === "error" ? "text-danger" : "text-brand"}`}>{aiNote.text}</p>
+            )}
+
             <p className="eyebrow flex items-center gap-1.5"><FileText className="h-3.5 w-3.5" /> Script</p>
             <textarea
               className="field-input min-h-24"

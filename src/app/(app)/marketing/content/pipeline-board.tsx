@@ -20,7 +20,15 @@ const STATUS_META: Record<string, { label: string; dot: string; headerBg: string
 /** Drag-and-drop content funnel board. Card face shows ONLY title, tag, and
  * who films it — click a card for the full play-by-play (shots, b-roll,
  * script, props) in a slide-over. */
-export function PipelineBoard({ items: initialItems, statuses }: { items: ContentWithUrl[]; statuses: string[] }) {
+export function PipelineBoard({
+  items: initialItems,
+  statuses,
+  aiEnabled,
+}: {
+  items: ContentWithUrl[];
+  statuses: string[];
+  aiEnabled: boolean;
+}) {
   const [items, setItems] = useState(initialItems);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -129,6 +137,7 @@ export function PipelineBoard({ items: initialItems, statuses }: { items: Conten
       {selected && (
         <ContentDetailPanel
           item={selected}
+          aiEnabled={aiEnabled}
           onClose={() => setSelectedId(null)}
           onSaved={handleSaved}
           onDeleted={handleDeleted}
