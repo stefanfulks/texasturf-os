@@ -15,7 +15,7 @@
  */
 import {
   Home, Briefcase, Warehouse, Building2, HardHat, Megaphone, Banknote,
-  ShieldCheck, type LucideIcon,
+  ShieldCheck, Store, type LucideIcon,
 } from "lucide-react";
 
 export type NavTool = { label: string; href: string };
@@ -98,6 +98,21 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
       { label: "Meetings", href: "/meetings" },
     ],
     prefixes: ["/invoices", "/vendors"],
+  },
+  {
+    // Sister brand — the trade materials outlet. TexasTurf installs,
+    // TurfCasa supplies; everything install-related stays out of here.
+    label: "TurfCasa",
+    icon: Store,
+    primaryHref: "/turfcasa",
+    tools: [
+      { label: "Overview",       href: "/turfcasa" },
+      { label: "Trade Accounts", href: "/turfcasa/accounts" },
+      { label: "Quotes",         href: "/turfcasa/quotes" },
+      { label: "Invoices",       href: "/turfcasa/invoices" },
+      { label: "Catalog",        href: "/turfcasa/catalog" },
+    ],
+    prefixes: ["/turfcasa"],
   },
   {
     label: "Field",
