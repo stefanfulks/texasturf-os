@@ -8,10 +8,18 @@ export default async function MarketingPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [campaignsRes, queuedRes, openReferralsRes, rewardsDueRes, reviewsToAskRes] = await Promise.all([
+  const weekAgoDate = new Date();
+  weekAgoDate.setDate(weekAgoDate.getDate() - 7);
+  const weekAgo = weekAgoDate.toISOString().slice(0, 10);
+  const weekAgoTs = weekAgoDate.toISOString();
+
+  const [
+    campaignsRes, queuedRes, rewardsDueRes, reviewsToAskRes,
+    inputsRes, publishedRes, ideasRes, aiGenRes,
+  ] = await Promise.all([
     supabase
       .from("campaigns")
-      .select("id, slug, name, type, status, starts_on, ends_on, service_line")
+      .select("id, slug, name, type, status, starts_on, ends_on, service_line, next_action")
       .order("created_at", { ascending: false }),
     supabase
       .from("referral_outreach")
@@ -20,15 +28,27 @@ export default async function MarketingPage() {
     supabase
       .from("referrals")
       .select("id", { count: "exact", head: true })
-      .not("stage", "in", "(completed_paid,lost)"),
-    supabase
-      .from("referrals")
-      .select("id", { count: "exact", head: true })
       .eq("reward_status", "due"),
     supabase
       .from("review_outreach")
       .select("id", { count: "exact", head: true })
       .eq("status", "pending"),
+    supabase
+      .from("marketing_business_inputs")
+      .select("id, value")
+      .eq("section", "ads"),
+    supabase
+      .from("content_items")
+      .select("id", { count: "exact", head: true })
+      .gte("published_on", weekAgo),
+    supabase
+      .from("content_items")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "idea"),
+    supabase
+      .from("marketing_ai_generations")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", weekAgoTs),
   ]);
 
   if (campaignsRes.error) {
@@ -55,6 +75,11 @@ export default async function MarketingPage() {
 
   const campaigns = campaignsRes.data ?? [];
   const activeCampaigns = campaigns.filter((c) => c.status === "active").length;
+  const campaignsNoAction = campaigns.filter(
+    (c) => c.status === "active" && !c.next_action?.trim(),
+  ).length;
+  const inputs = inputsRes.data ?? [];
+  const inputsMissing = inputs.filter((i) => !i.value?.trim()).length;
 
   return (
     <MarketingOverview
@@ -62,9 +87,14 @@ export default async function MarketingPage() {
       counts={{
         activeCampaigns,
         calls: queuedRes.count ?? 0,
-        openReferrals: openReferralsRes.count ?? 0,
         rewardsDue: rewardsDueRes.count ?? 0,
         reviews: reviewsToAskRes.count ?? 0,
+        inputsMissing,
+        inputsTotal: inputs.length,
+        campaignsNoAction,
+        publishedThisWeek: publishedRes.count ?? 0,
+        ideasBank: ideasRes.count ?? 0,
+        aiDraftsThisWeek: aiGenRes.count ?? 0,
       }}
     />
   );

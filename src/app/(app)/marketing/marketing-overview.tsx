@@ -39,9 +39,16 @@ export type MarketingOverviewProps = {
   counts: {
     activeCampaigns: number;
     calls: number;
-    openReferrals: number;
     rewardsDue: number;
     reviews: number;
+    /** Ads business inputs still blank (amber until filled). */
+    inputsMissing: number;
+    inputsTotal: number;
+    /** Active campaigns with no next_action set. */
+    campaignsNoAction: number;
+    publishedThisWeek: number;
+    ideasBank: number;
+    aiDraftsThisWeek: number;
   };
 };
 
@@ -86,10 +93,15 @@ export function shortDate(d: string | null): string | null {
 }
 
 export function MarketingOverview({ campaigns, counts }: MarketingOverviewProps) {
-  const { activeCampaigns, calls, openReferrals, rewardsDue, reviews } = counts;
+  const {
+    activeCampaigns, calls, rewardsDue, reviews,
+    inputsMissing, inputsTotal, campaignsNoAction,
+    publishedThisWeek, ideasBank, aiDraftsThisWeek,
+  } = counts;
 
   // Surface the single most important action as the hero. Ordered by urgency:
-  // money owed → outreach queued → reviews → the calm all-clear state.
+  // money owed → outreach queued → missing ad numbers → reviews → directionless
+  // campaigns → the calm all-clear state.
   const focus =
     rewardsDue > 0
       ? {
@@ -109,23 +121,41 @@ export function MarketingOverview({ campaigns, counts }: MarketingOverviewProps)
             href: "/marketing/referrals",
             icon: Phone,
           }
-        : reviews > 0
+        : inputsMissing > 0
           ? {
-              eyebrow: "Reputation",
-              title: `${reviews} happy customer${reviews > 1 ? "s" : ""} ready to be asked for a review`,
-              body: "Reviews are the cheapest marketing you have. Ask while the install is still fresh in their mind.",
-              cta: "Send review asks",
-              href: "/marketing/reviews",
-              icon: Star,
+              eyebrow: "Ads setup",
+              title: `${inputsTotal - inputsMissing} of ${inputsTotal} ad numbers filled in`,
+              body: "The break-even math and the AI ad writer run on your real numbers — the blanks come out as [placeholders] until you fill them.",
+              cta: "Fill in your numbers",
+              href: "/marketing/funnel",
+              icon: Target,
             }
-          : {
-              eyebrow: "All caught up",
-              title: "No outreach waiting — the pipeline is clean",
-              body: "Nothing needs you right now. Spin up a campaign or capture content while there's room to breathe.",
-              cta: "New campaign",
-              href: "/marketing/campaigns",
-              icon: CheckCircle2,
-            };
+          : reviews > 0
+            ? {
+                eyebrow: "Reputation",
+                title: `${reviews} happy customer${reviews > 1 ? "s" : ""} ready to be asked for a review`,
+                body: "Reviews are the cheapest marketing you have. Ask while the install is still fresh in their mind.",
+                cta: "Send review asks",
+                href: "/marketing/reviews",
+                icon: Star,
+              }
+            : campaignsNoAction > 0
+              ? {
+                  eyebrow: "Campaigns",
+                  title: `${campaignsNoAction} active campaign${campaignsNoAction > 1 ? "s" : ""} with no next action`,
+                  body: "Every active campaign should name its next step. Open each one and set the single action for this week.",
+                  cta: "Review campaigns",
+                  href: "/marketing/campaigns",
+                  icon: Megaphone,
+                }
+              : {
+                  eyebrow: "All caught up",
+                  title: "No outreach waiting — the pipeline is clean",
+                  body: "Nothing needs you right now. Spin up a campaign or capture content while there's room to breathe.",
+                  cta: "New campaign",
+                  href: "/marketing/campaigns",
+                  icon: CheckCircle2,
+                };
 
   const FocusIcon = focus.icon;
 
@@ -140,9 +170,10 @@ export function MarketingOverview({ campaigns, counts }: MarketingOverviewProps)
   }> = [
     { label: "Active campaigns", value: activeCampaigns, icon: Megaphone, href: "/marketing/campaigns", accent: "", foot: "running now" },
     { label: "Calls remaining", value: calls, icon: Phone, href: "/marketing/referrals", accent: calls > 0 ? "stat-accent-warn" : "", foot: "referral blitz", urgent: calls > 0 },
-    { label: "Open referrals", value: openReferrals, icon: Users, href: "/marketing/referrals", accent: "", foot: "in the pipeline" },
     { label: "Rewards due", value: rewardsDue, icon: Gift, href: "/marketing/referrals", accent: rewardsDue > 0 ? "stat-accent-danger" : "", foot: "to pay out", urgent: rewardsDue > 0 },
     { label: "Reviews to ask", value: reviews, icon: Star, href: "/marketing/reviews", accent: reviews > 0 ? "stat-accent-warn" : "", foot: "pending outreach", urgent: reviews > 0 },
+    { label: "Published this wk", value: publishedThisWeek, icon: Film, href: "/marketing/content", accent: publishedThisWeek > 0 ? "stat-accent-brand" : "", foot: `${ideasBank} ideas banked` },
+    { label: "AI drafts this wk", value: aiDraftsThisWeek, icon: Sparkles, href: "/marketing/content", accent: "", foot: "across all sections" },
   ];
 
   const modules: Array<{ label: string; body: string; href: string; icon: LucideIcon; medallion: string }> = [
@@ -194,7 +225,7 @@ export function MarketingOverview({ campaigns, counts }: MarketingOverviewProps)
       </section>
 
       {/* KPI band */}
-      <section className="reveal grid grid-cols-2 gap-3 lg:grid-cols-5" style={{ animationDelay: "120ms" }}>
+      <section className="reveal grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6" style={{ animationDelay: "120ms" }}>
         {kpis.map((k) => {
           const Icon = k.icon;
           return (
