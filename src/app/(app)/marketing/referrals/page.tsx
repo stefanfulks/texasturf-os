@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/database.types";
 import { RosterTable, BuildRosterButton } from "./roster-table";
 import { LedgerTable, AddReferralForm } from "./ledger-table";
+import { ScriptsGenerator } from "./scripts-generator";
 
 export type OutreachRow = Pick<
   Database["public"]["Tables"]["referral_outreach"]["Row"],
@@ -131,6 +132,9 @@ export default async function ReferralsPage({
           </a>
         </div>
       </header>
+
+      {/* Ask scripts — what to actually say */}
+      <ScriptsGenerator aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
 
       {/* Funnel chips */}
       <div className="reveal flex flex-wrap items-center gap-2" style={{ animationDelay: "60ms" }}>

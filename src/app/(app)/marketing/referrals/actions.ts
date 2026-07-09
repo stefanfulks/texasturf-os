@@ -374,3 +374,41 @@ export async function updateReward(_prev: ActionState, formData: FormData): Prom
   revalidatePath("/marketing");
   return { error: null, success: true };
 }
+
+// ── AI ask-scripts (Marketing OS) ─────────────────────────────────────────────
+
+export type ReferralScriptsResult = {
+  error?: string;
+  providerMissing?: boolean;
+  scripts?: { phone_opener: string; sms: string; email_subject: string; email_body: string };
+};
+
+/** Generate phone/SMS/email referral-ask scripts from the program's real
+ * reward facts. Logged to marketing_ai_generations. */
+export async function aiGenerateReferralScripts(): Promise<ReferralScriptsResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  // Real program facts as shipped on this page — the AI must quote, not invent.
+  const programFacts =
+    "Referrer earns a $250 Visa gift card OR one year of the TexasTurf Care Plan, " +
+    "earned when the referred job is completed and paid. The referred friend gets $100 off their job.";
+
+  const { generateReferralScripts, logAiGeneration } = await import("@/lib/ai/marketing");
+  const result = await generateReferralScripts(programFacts);
+  if (!result.ok) {
+    if (result.error === "provider_missing") return { providerMissing: true, error: result.message };
+    return { error: result.message };
+  }
+
+  await logAiGeneration(supabase, {
+    section: "referrals",
+    generation_type: "referral_scripts",
+    input: { program_facts: programFacts },
+    output: result.data,
+    created_by: user.id,
+  });
+
+  return { scripts: result.data };
+}
