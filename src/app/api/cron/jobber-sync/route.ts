@@ -3,9 +3,14 @@ import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { getJobberAccountId } from "@/lib/jobber/quotes";
 import { syncAllClients } from "@/lib/jobber/sync/clients";
+import { syncAllJobs } from "@/lib/jobber/sync/jobs";
+import { syncVisitsInRange } from "@/lib/jobber/sync/visits";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+// Full clients + jobs pagination plus a visit window can exceed the default
+// function timeout once throttle pacing kicks in; give it the room it needs.
+export const maxDuration = 300;
 
 function constantTimeBearerEqual(authHeader: string | null, secret: string) {
   if (!authHeader) return false;
@@ -17,13 +22,16 @@ function constantTimeBearerEqual(authHeader: string | null, secret: string) {
 }
 
 /**
- * Twice-daily Jobber client sync (morning + midday). Keeps the local
- * jobber_clients mirror fresh so reps and the Pitch flow always see current
- * clients without anyone clicking "Sync." Webhooks keep it live between runs;
- * this is the safety net that backfills anything missed.
+ * Twice-daily Jobber full sync (morning + midday). Keeps the local mirrors
+ * (clients, jobs, visits) fresh so agenda/reports/pitch always show current
+ * Jobber data without anyone clicking "Sync." Webhooks keep it live between
+ * runs; this is the safety net that backfills anything missed.
  *
- * Authenticated by the shared CRON_SECRET bearer (fail closed). The sync helper
- * runs on the service-role path and auto-refreshes the Jobber token.
+ * Visits sync over a rolling window — default 30 days back / 90 forward.
+ * One-time backfills can widen it: `?back=400&fwd=180`.
+ *
+ * Authenticated by the shared CRON_SECRET bearer (fail closed). The sync
+ * helpers run on the service-role path and auto-refresh the Jobber token.
  */
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
@@ -37,18 +45,57 @@ export async function GET(request: Request) {
   if (!accountId) {
     return NextResponse.json({
       ok: true,
-      synced: 0,
+      synced: { clients: 0, jobs: 0, visits: 0 },
       note: "no connected Jobber account",
       timestamp: new Date().toISOString(),
     });
   }
 
-  try {
-    const synced = await syncAllClients(accountId);
-    return NextResponse.json({ ok: true, synced, timestamp: new Date().toISOString() });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    Sentry.captureException(err, { tags: { cron: "jobber-sync" } });
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
-  }
+  const url = new URL(request.url);
+  const back = clampDays(url.searchParams.get("back"), 30);
+  const fwd = clampDays(url.searchParams.get("fwd"), 90);
+  const now = Date.now();
+  const startMin = new Date(now - back * 86_400_000);
+  const startMax = new Date(now + fwd * 86_400_000);
+
+  // Run the three entities independently — one failing must not starve the
+  // others of their refresh. Report per-entity results.
+  const [clients, jobs, visits] = await Promise.allSettled([
+    syncAllClients(accountId),
+    syncAllJobs(accountId),
+    syncVisitsInRange(accountId, startMin, startMax),
+  ]);
+
+  const result = {
+    clients: settle(clients, "clients"),
+    jobs: settle(jobs, "jobs"),
+    visits: settle(visits, "visits"),
+  };
+  const failed = Object.values(result).filter((r) => r.error).length;
+
+  return NextResponse.json(
+    {
+      ok: failed === 0,
+      synced: result,
+      window: { back, fwd },
+      timestamp: new Date().toISOString(),
+    },
+    { status: failed === 0 ? 200 : 500 },
+  );
+}
+
+function clampDays(raw: string | null, fallback: number): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) return fallback;
+  return Math.min(Math.floor(n), 730);
+}
+
+function settle(
+  r: PromiseSettledResult<number>,
+  entity: string,
+): { count: number; error: string | null } {
+  if (r.status === "fulfilled") return { count: r.value, error: null };
+  const message = r.reason instanceof Error ? r.reason.message : String(r.reason);
+  Sentry.captureException(r.reason, { tags: { cron: "jobber-sync", entity } });
+  return { count: 0, error: message };
 }
