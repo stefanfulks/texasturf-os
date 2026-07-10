@@ -8,6 +8,7 @@ import {
   FileText,
   Receipt,
   Tags,
+  ShoppingCart,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 
@@ -23,6 +24,7 @@ const ITEMS: NavItem[] = [
   { href: "/turfcasa/quotes",   label: "Quotes",         icon: FileText },
   { href: "/turfcasa/invoices", label: "Invoices",       icon: Receipt },
   { href: "/turfcasa/catalog",  label: "Catalog",        icon: Tags },
+  { href: "/turfcasa/orders",   label: "Web Orders",     icon: ShoppingCart },
 ];
 
 function isActive(pathname: string, href: string) {
