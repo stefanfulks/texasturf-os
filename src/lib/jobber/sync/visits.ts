@@ -16,6 +16,10 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 // isComplete, completedAt, allDay, client { id }, job { id },
 // assignedUsers { nodes { id } }. Property is NOT a direct field on Visit —
 // it hangs off Job, so reach it via job { property { id } } when needed.
+// assignedUsers is intentionally NOT selected: the connected token lacks
+// read_users, and Jobber "hides" the User objects with a GraphQL error that
+// fails the whole request (verified live 2026-07-10). Re-add the selection
+// (and the toRow mapping) once the app's scopes include read_users.
 const VISIT_FIELDS = gql`
   fragment VisitFields on Visit {
     id
@@ -27,7 +31,6 @@ const VISIT_FIELDS = gql`
     completedAt
     client { id }
     job { id }
-    assignedUsers { nodes { id } }
   }
 `;
 
@@ -66,7 +69,6 @@ type GqlVisit = {
   completedAt: string | null;
   client: { id: string } | null;
   job: { id: string } | null;
-  assignedUsers: { nodes: { id: string }[] };
 };
 
 function toRow(accountId: string, v: GqlVisit) {
@@ -82,7 +84,8 @@ function toRow(accountId: string, v: GqlVisit) {
     starts_at:         v.startAt,
     ends_at:           v.endAt,
     is_complete:       v.isComplete,
-    assigned_user_ids: v.assignedUsers.nodes.map((u) => u.id),
+    // Empty until the token gains read_users — see VISIT_FIELDS comment.
+    assigned_user_ids: [],
     raw:               v,
     synced_at:         new Date().toISOString(),
   };
