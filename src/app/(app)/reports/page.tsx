@@ -241,6 +241,12 @@ export default async function ReportsPage({
         <h1 className="page-title">Reports</h1>
         <div className="flex items-center gap-3 text-sm">
           <Link
+            href="/reports/jobber"
+            className="px-3 py-1.5 rounded-lg border border-line bg-white hover:bg-hover text-ink-2 font-medium transition-colors"
+          >
+            Jobber report
+          </Link>
+          <Link
             href={`/reports?month=${prev.month}&year=${prev.year}`}
             className="px-3 py-1.5 rounded-lg border border-line bg-white hover:bg-hover text-ink-2 font-medium transition-colors"
           >
