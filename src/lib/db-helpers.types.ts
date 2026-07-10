@@ -38,8 +38,15 @@ export type RecurringRule = Database["public"]["Tables"]["recurring_rules"]["Row
 export type RecurringRuleInsert = Database["public"]["Tables"]["recurring_rules"]["Insert"]
 export type RecurrenceFreq = Database["public"]["Enums"]["recurrence_freq"]
 
-export type Notification = Database["public"]["Tables"]["notifications"]["Row"]
-export type NotificationInsert = Database["public"]["Tables"]["notifications"]["Insert"]
+// resource_ref added in migration 20260710190000; typegen regen is blocked
+// until `supabase login` — the intersection bridges until then and is
+// harmless once the generated Row includes the column.
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"] & {
+  resource_ref?: string | null
+}
+export type NotificationInsert = Database["public"]["Tables"]["notifications"]["Insert"] & {
+  resource_ref?: string | null
+}
 
 export type Project = Database["public"]["Tables"]["projects"]["Row"]
 export type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"]

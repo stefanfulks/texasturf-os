@@ -20,6 +20,15 @@ const RESOURCE_HREFS: Record<string, (id: string) => string> = {
   feedback: () => `/feedback`,
 };
 
+// External resources (Jobber) carry encoded string ids in resource_ref, not
+// the uuid resource_id column. Jobber jobs/visits have no local detail page —
+// send those to the closest list view.
+const REF_HREFS: Record<string, (ref: string) => string> = {
+  jobber_client: (ref) => `/clients/${ref}`,
+  jobber_job:    () => `/jobs`,
+  jobber_visit:  () => `/agenda`,
+};
+
 export function NotificationBell({ initialUnread }: { initialUnread: number }) {
   const supabase = createClient();
   const [open, setOpen] = useState(false);
@@ -131,9 +140,14 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
               <div className="py-8 text-center text-sm text-ink-4">No notifications yet</div>
             ) : (
               notifications.map((n) => {
-                const href = n.resource_type && n.resource_id
-                  ? RESOURCE_HREFS[n.resource_type]?.(n.resource_id) ?? null
-                  : null;
+                const href =
+                  (n.resource_type && n.resource_ref
+                    ? REF_HREFS[n.resource_type]?.(n.resource_ref)
+                    : null) ??
+                  (n.resource_type && n.resource_id
+                    ? RESOURCE_HREFS[n.resource_type]?.(n.resource_id)
+                    : null) ??
+                  null;
                 const content = (
                   <div className={`px-4 py-3 ${!n.read ? "bg-brand-tint/45" : ""}`}>
                     <div className="flex items-start gap-2">

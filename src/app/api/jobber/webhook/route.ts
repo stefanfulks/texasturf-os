@@ -21,6 +21,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { syncClient } from "@/lib/jobber/sync/clients";
 import { syncVisit }  from "@/lib/jobber/sync/visits";
 import { syncJob }    from "@/lib/jobber/sync/jobs";
+import { notifyTeam, clientDisplayName } from "@/lib/jobber/notify";
 
 export async function POST(req: NextRequest) {
   const raw       = await req.text();
@@ -123,18 +124,73 @@ async function dispatch(topic: string, accountId: string, itemId: string) {
         await supa.from("jobber_clients").delete().eq("id", itemId);
       } else {
         await syncClient(accountId, itemId);
+        if (topic === "CLIENT_CREATE") {
+          const { data: c } = await supa
+            .from("jobber_clients")
+            .select("first_name, last_name, company_name")
+            .eq("id", itemId)
+            .maybeSingle();
+          if (c) {
+            await notifyTeam({
+              type: "jobber_client_created",
+              title: "New Jobber client",
+              body: clientDisplayName(c),
+              resourceType: "jobber_client",
+              resourceRef: itemId,
+            });
+          }
+        }
       }
     } else if (topic.startsWith("VISIT_")) {
       if (topic === "VISIT_DESTROY") {
         await supa.from("jobber_visits").delete().eq("id", itemId);
       } else {
+        // Capture prior completion state so we can notify on the false→true
+        // transition regardless of which VISIT_* topic Jobber sends it under.
+        const { data: prior } = await supa
+          .from("jobber_visits")
+          .select("is_complete")
+          .eq("id", itemId)
+          .maybeSingle();
         await syncVisit(accountId, itemId);
+        const { data: after } = await supa
+          .from("jobber_visits")
+          .select("title, is_complete")
+          .eq("id", itemId)
+          .maybeSingle();
+        if (after?.is_complete && !prior?.is_complete) {
+          await notifyTeam({
+            type: "jobber_visit_completed",
+            title: "Jobber visit completed",
+            body: after.title,
+            resourceType: "jobber_visit",
+            resourceRef: itemId,
+          });
+        }
       }
     } else if (topic.startsWith("JOB_")) {
       if (topic === "JOB_DESTROY") {
         await supa.from("jobber_jobs").delete().eq("id", itemId);
       } else {
         await syncJob(accountId, itemId);
+        if (topic === "JOB_CREATE") {
+          const { data: j } = await supa
+            .from("jobber_jobs")
+            .select("job_number, title")
+            .eq("id", itemId)
+            .maybeSingle();
+          if (j) {
+            await notifyTeam({
+              type: "jobber_job_created",
+              title: "New Jobber job",
+              body: [j.job_number ? `#${j.job_number}` : null, j.title]
+                .filter(Boolean)
+                .join(" · "),
+              resourceType: "jobber_job",
+              resourceRef: itemId,
+            });
+          }
+        }
       }
     }
     await supa
