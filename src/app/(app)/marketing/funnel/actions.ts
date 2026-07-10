@@ -310,3 +310,29 @@ export async function generateSwipeVariants(id: string): Promise<{
   revalidatePath("/marketing/funnel");
   return { variants: result.data };
 }
+
+/** Bulk move selected swipes to a column — plain callable. */
+export async function bulkMoveAdSwipes(ids: string[], status: SwipeStatus): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (ids.length === 0) return {};
+
+  const { error } = await supabase.from("marketing_ad_swipes").update({ status }).in("id", ids);
+  if (error) return { error: error.message };
+  revalidatePath("/marketing/funnel");
+  return {};
+}
+
+/** Bulk delete selected swipes — plain callable. */
+export async function bulkDeleteAdSwipes(ids: string[]): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+  if (ids.length === 0) return {};
+
+  const { error } = await supabase.from("marketing_ad_swipes").delete().in("id", ids);
+  if (error) return { error: error.message };
+  revalidatePath("/marketing/funnel");
+  return {};
+}

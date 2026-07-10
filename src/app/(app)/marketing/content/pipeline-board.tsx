@@ -103,10 +103,14 @@ export function PipelineBoard({
                                 style={dragProvided.draggableProps.style}
                                 className={"transition-shadow " + (dragSnapshot.isDragging ? "shadow-xl rotate-1" : "")}
                               >
-                                <button
-                                  type="button"
+                                {/* A <div> (not a <button>) so @hello-pangea/dnd
+                                    will start the drag — it refuses to drag from
+                                    interactive elements like buttons. */}
+                                <div
                                   onClick={() => setSelectedId(item.id)}
-                                  className="card card-hover w-full p-2.5 text-left"
+                                  role="button"
+                                  tabIndex={0}
+                                  className="card card-hover w-full cursor-grab p-2.5 text-left active:cursor-grabbing"
                                 >
                                   <p className="text-xs font-medium leading-snug text-ink">{item.title}</p>
                                   <div className="mt-1.5 flex flex-wrap items-center gap-1">
@@ -118,7 +122,7 @@ export function PipelineBoard({
                                       </span>
                                     )}
                                   </div>
-                                </button>
+                                </div>
                               </div>
                             )}
                           </Draggable>
