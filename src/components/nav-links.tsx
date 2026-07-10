@@ -151,8 +151,12 @@ export function NavLinks({
 
   return (
     <>
-      {/* Desktop tabs (md+) */}
-      <nav className="hidden md:flex items-center gap-1 text-sm">
+      {/* Desktop tabs (md+). flex-1/min-w-0 bounds this to the space the layout
+          hands it; overflow-x-auto turns any excess into a scroll lane so tabs
+          never spill onto the search/bell/gear cluster (many-tab roles or
+          browser zoom). Scrollbar hidden to keep the bar clean; each tab is
+          shrink-0 so labels stay full-size and legible. */}
+      <nav className="hidden md:flex min-w-0 flex-1 items-center gap-1 overflow-x-auto whitespace-nowrap text-sm [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {tabs.map((tab) => {
           const active = isActive(pathname, tab);
           return (
@@ -160,7 +164,7 @@ export function NavLinks({
               key={tab.href}
               href={tab.href}
               className={
-                "rounded-lg border px-2.5 py-1.5 transition-all " +
+                "shrink-0 rounded-lg border px-2.5 py-1.5 transition-all " +
                 (active
                   ? "border-line bg-surface font-semibold text-ink shadow-e1"
                   : "border-transparent text-ink-3 hover:bg-hover hover:text-ink")
