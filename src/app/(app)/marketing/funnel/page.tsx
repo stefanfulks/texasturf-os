@@ -9,6 +9,12 @@ import { createClient } from "@/lib/supabase/server";
 import { BusinessInputsEditor } from "./business-inputs";
 import { BreakEvenPanel } from "./breakeven";
 import { AdGenerator } from "./ad-generator";
+import { SwipeBoard } from "./swipe-board";
+import { AddSwipeForm } from "./add-swipe-form";
+
+// Whisper transcription of a 25 MB upload can run past the default function
+// timeout — give server actions invoked from this page more headroom.
+export const maxDuration = 120;
 
 export const metadata = { title: "Ads · Marketing · TexasTurf OS" };
 
@@ -118,9 +124,49 @@ export default async function FunnelPage() {
     return Number.isFinite(n) ? n : null;
   };
 
+  const { data: swipes } = await supabase
+    .from("marketing_ad_swipes")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  const aiEnabled = Boolean(process.env.ANTHROPIC_API_KEY);
+
   return (
-    <div className="max-w-4xl space-y-6">
-      <FunnelFramework />
+    <div className="max-w-5xl space-y-6">
+      {/* Ad Lab — save ads worth copying, transcribe, break down, replicate */}
+      <header className="reveal">
+        <p className="eyebrow mb-2">Marketing · Ads</p>
+        <h1 className="page-title">Ad Lab</h1>
+        <p className="page-sub">
+          See an ad you wish you&rsquo;d made? Save it here. Upload a copy of the video and
+          it gets transcribed, broken down into its replicable structure, and rewritten
+          for TexasTurf and TurfCasa.
+        </p>
+      </header>
+
+      {/* Keyed on the item set so new saves appear without a manual refresh
+          (the board holds optimistic drag state). */}
+      <SwipeBoard
+        key={`${swipes?.length ?? 0}-${swipes?.[0]?.id ?? "empty"}`}
+        swipes={swipes ?? []}
+        aiEnabled={aiEnabled}
+      />
+
+      <details className="panel group">
+        <summary className="flex cursor-pointer select-none list-none items-center gap-3 px-5 py-4 transition-colors hover:bg-hover">
+          <span className="medallion medallion-brand">
+            <Megaphone className="h-[18px] w-[18px]" />
+          </span>
+          <span className="flex-1">
+            <span className="block text-sm font-semibold text-ink">Save an ad</span>
+            <span className="block text-xs text-ink-3">Name it, drop the link, paste the copy if you have it.</span>
+          </span>
+        </summary>
+        <div className="border-t border-line p-5">
+          <AddSwipeForm />
+        </div>
+      </details>
 
       {/* Execution layer — the owner's real numbers drive everything below */}
       <BusinessInputsEditor inputs={inputs ?? []} isAdmin={isAdmin} />
@@ -130,7 +176,10 @@ export default async function FunnelPage() {
         monthlyBudget={num("monthly_ad_budget")}
         targetCpl={num("target_cpl")}
       />
-      <AdGenerator aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
+      <AdGenerator aiEnabled={aiEnabled} />
+
+      {/* The strategy doc, for reference */}
+      <FunnelFramework />
     </div>
   );
 }
@@ -147,10 +196,10 @@ export function FunnelFramework() {
   return (
     <div className="max-w-4xl space-y-6">
       {/* Header */}
-      <header className="reveal flex flex-wrap items-end justify-between gap-4">
+      <header className="reveal flex flex-wrap items-end justify-between gap-4 border-t border-line pt-6">
         <div>
-          <p className="eyebrow mb-2">Marketing</p>
-          <h1 className="page-title">Ads</h1>
+          <p className="eyebrow mb-2">Reference</p>
+          <h2 className="text-xl font-semibold tracking-tight text-ink">The strategy — three-layer Meta funnel</h2>
           <p className="page-sub">
             A three-layer Meta funnel: educate Texas homeowners on why turf beats real
             grass, retarget the ones who pay attention with a free-visualization offer,

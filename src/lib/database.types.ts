@@ -3035,6 +3035,65 @@ export type Database = {
           },
         ]
       }
+      marketing_ad_swipes: {
+        Row: {
+          asset_path: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          platform: string | null
+          sort_order: number
+          source_url: string | null
+          status: string
+          structure: Json | null
+          title: string
+          transcript: string | null
+          updated_at: string
+          variants: Json
+        }
+        Insert: {
+          asset_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          platform?: string | null
+          sort_order?: number
+          source_url?: string | null
+          status?: string
+          structure?: Json | null
+          title: string
+          transcript?: string | null
+          updated_at?: string
+          variants?: Json
+        }
+        Update: {
+          asset_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          platform?: string | null
+          sort_order?: number
+          source_url?: string | null
+          status?: string
+          structure?: Json | null
+          title?: string
+          transcript?: string | null
+          updated_at?: string
+          variants?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_ad_swipes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_ai_generations: {
         Row: {
           created_at: string

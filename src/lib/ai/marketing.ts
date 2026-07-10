@@ -325,6 +325,96 @@ export async function generateReviewRequest(
   );
 }
 
+// ── Ad Lab (swipe file) ───────────────────────────────────────────────────────
+
+const AD_ANALYST_SYSTEM = `You are a direct-response ad analyst. You are given the transcript (and sometimes notes) of an ad someone saved because it WORKS — often from a completely different industry.
+
+Your job: break down the ad's REPLICABLE STRUCTURE — the mechanics that make it convert — separate from its industry specifics. Someone should be able to take your breakdown and rebuild the same ad for a different business.
+
+Rules:
+- hook: what the first 3 seconds do and WHY it stops the scroll (mechanism, not just a quote).
+- beats: the ad's sequence as numbered steps, each naming the persuasion move (e.g. "price anchor against the expensive alternative", "social proof stack", "risk reversal").
+- offer_framing: how the offer is packaged and made concrete.
+- cta: how it asks, and what friction it removes.
+- why_it_works: the 2-3 core psychological drivers, in plain English.
+- replicable_angle: one sentence — the transferable idea a home-services brand could steal.`;
+
+const adStructureSchema = z.object({
+  hook: z.string().describe("What the first 3 seconds do and why they stop the scroll"),
+  beats: z.array(z.string()).describe("The ad's sequence as numbered persuasion moves"),
+  offer_framing: z.string().describe("How the offer is packaged and made concrete"),
+  cta: z.string().describe("How it asks and what friction it removes"),
+  why_it_works: z.string().describe("The 2-3 core psychological drivers, plain English"),
+  replicable_angle: z.string().describe("The one transferable idea, one sentence"),
+});
+
+export type AiAdStructure = z.infer<typeof adStructureSchema>;
+
+/** Transcript of a saved ad → its replicable structure. */
+export async function analyzeAdStructure(
+  transcript: string,
+  context: { title: string; platform: string | null; notes: string | null },
+): Promise<AiResult<AiAdStructure>> {
+  const head = [
+    `Ad: ${context.title}`,
+    context.platform ? `Platform: ${context.platform}` : null,
+    context.notes ? `Notes from the team: ${context.notes}` : null,
+  ].filter(Boolean).join("\n");
+  return generate(
+    adStructureSchema,
+    AD_ANALYST_SYSTEM,
+    `${head}\n\nTranscript:\n${transcript}\n\nBreak down the replicable structure.`,
+  );
+}
+
+const BRAND_VOICES = `Two brands, same owner — write for BOTH:
+
+TEXASTURF (install services): premium turf + outdoor-living installation for Texas homeowners — turf, putting greens, pavers, courts, xeriscape. Voice: confident, neighborly Texas pro. CTA direction: free quote / free design visit.
+
+TURFCASA (turf products outlet): the sister brand that SELLS turf — rolls, remnants, and supplies direct to homeowners, DIYers, and contractors at outlet prices. Voice: sharp, value-forward, "skip the middleman". CTA direction: shop / order / come to the warehouse.`;
+
+const adVariantSchema = z.object({
+  angle: z.string().describe("2-4 word label for the angle"),
+  hook_line: z.string().describe("The spoken first-3-seconds line"),
+  script: z.string().describe("The full 30-60s spoken script, mirroring the source ad's beat structure"),
+  cta: z.string().describe("The ask, matched to the brand's CTA direction"),
+});
+
+const crossBrandVariantsSchema = z.object({
+  texasturf: z.array(adVariantSchema).describe("Exactly 2 variants for TexasTurf (install services)"),
+  turfcasa: z.array(adVariantSchema).describe("Exactly 2 variants for TurfCasa (turf products outlet)"),
+});
+
+export type AiCrossBrandVariants = z.infer<typeof crossBrandVariantsSchema>;
+
+/** Structure breakdown → replicable ad variants for BOTH brands. */
+export async function generateCrossBrandVariants(
+  structure: AiAdStructure,
+  sourceTitle: string,
+): Promise<AiResult<AiCrossBrandVariants>> {
+  return generate(
+    crossBrandVariantsSchema,
+    `You write direct-response video ad scripts. ${BRAND_VOICES}
+
+Rules:
+- Mirror the SOURCE AD'S structure beat-for-beat — that structure is why it converts. Translate the industry specifics, keep the mechanics.
+- Spoken, plain English. No hype words.
+- NEVER invent real business numbers (prices, discounts, review counts, install counts). Where the structure calls for one, write a bracket placeholder like [X five-star reviews] or [$X/sq ft].
+- Exactly 2 variants per brand, each a genuinely different translation of the angle.`,
+    `Source ad: ${sourceTitle}
+
+Structure breakdown to replicate:
+- Hook: ${structure.hook}
+- Beats:\n${structure.beats.map((b, i) => `  ${i + 1}. ${b}`).join("\n")}
+- Offer framing: ${structure.offer_framing}
+- CTA: ${structure.cta}
+- Why it works: ${structure.why_it_works}
+- Replicable angle: ${structure.replicable_angle}
+
+Write 2 TexasTurf variants and 2 TurfCasa variants that replicate this structure.`,
+  );
+}
+
 /** Best-effort audit log — a logging failure must never sink the generation. */
 export async function logAiGeneration(
   supabase: SupabaseClient<Database>,

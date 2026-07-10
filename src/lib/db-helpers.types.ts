@@ -190,3 +190,6 @@ export type TurfcasaOrderLine  = Database["public"]["Tables"]["turfcasa_order_li
 export type TurfcasaOrderEvent = Database["public"]["Tables"]["turfcasa_order_events"]["Row"]
 export type TurfcasaOrderInsert     = Database["public"]["Tables"]["turfcasa_orders"]["Insert"]
 export type TurfcasaOrderLineInsert = Database["public"]["Tables"]["turfcasa_order_lines"]["Insert"]
+
+// ---- Marketing OS: Ad Lab swipes ---------------------------------------------
+export type MarketingAdSwipe = Database["public"]["Tables"]["marketing_ad_swipes"]["Row"]
