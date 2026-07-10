@@ -31,11 +31,15 @@ const VISIT_FIELDS = gql`
   }
 `;
 
+// first: 40, not 100 — Jobber prices this query by page size × nested
+// connections, and 100 rows costs ~11.3k points against a 10k bucket
+// maximum, i.e. it can never run (verified live 2026-07-10). 40 rows
+// (~4.5k) fits with headroom.
 const VISITS_IN_RANGE = gql`
   ${VISIT_FIELDS}
   query VisitsInRange($cursor: String, $startMin: ISO8601DateTime!, $startMax: ISO8601DateTime!) {
     visits(
-      first: 100
+      first: 40
       after: $cursor
       filter: { startAt: { after: $startMin, before: $startMax } }
     ) {

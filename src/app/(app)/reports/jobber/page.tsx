@@ -82,6 +82,28 @@ export default async function JobberReportPage() {
     if (!data || data.length < 1000) break;
   }
 
+  // Invoices: page through the mirror like jobs (also >1k rows). Untyped
+  // client cast because jobber_invoices isn't in the generated types yet
+  // (typegen is blocked until the next `supabase login`); the query also
+  // tolerates the table not existing yet — the section just renders zeros.
+  type InvoiceRow = {
+    status: string | null;
+    total_cents: number | null;
+    balance_cents: number | null;
+    issued_date: string | null;
+  };
+  const untyped = supabase as unknown as import("@supabase/supabase-js").SupabaseClient;
+  const invoices: InvoiceRow[] = [];
+  for (let fromRow = 0; ; fromRow += 1000) {
+    const { data, error } = await untyped
+      .from("jobber_invoices")
+      .select("status, total_cents, balance_cents, issued_date")
+      .range(fromRow, fromRow + 999);
+    if (error) break;
+    invoices.push(...((data ?? []) as InvoiceRow[]));
+    if (!data || data.length < 1000) break;
+  }
+
   const [
     upcomingVisitsRes,
     completedVisits7dRes,
@@ -169,6 +191,16 @@ export default async function JobberReportPage() {
     ]),
   );
 
+  const outstandingCents = invoices.reduce((s, i) => s + Math.max(0, i.balance_cents ?? 0), 0);
+  const outstandingCount = invoices.filter((i) => (i.balance_cents ?? 0) > 0).length;
+  const invoicedByMonth = new Map<string, number>(months.map((m) => [m, 0]));
+  for (const i of invoices) {
+    if (!i.issued_date) continue;
+    const k = monthKey(i.issued_date);
+    if (invoicedByMonth.has(k)) invoicedByMonth.set(k, invoicedByMonth.get(k)! + (i.total_cents ?? 0));
+  }
+  const maxInvoiceMonth = Math.max(1, ...months.map((m) => invoicedByMonth.get(m) ?? 0));
+
   const totalPipelineCents = jobs.reduce((s, j) => s + (j.total_cents ?? 0), 0);
   const visits30d = visits30dRes.count ?? 0;
   const visitsComplete30d = visitsComplete30dRes.count ?? 0;
@@ -223,6 +255,46 @@ export default async function JobberReportPage() {
             <p className="text-xs text-ink-4 mt-1">
               {visitsComplete30d} of {visits30d} visits
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Billing (from Jobber invoices) */}
+      <section>
+        <p className="text-sm font-semibold text-ink-3 uppercase tracking-wide mb-3">
+          Billing (Jobber invoices)
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+          <div className="card p-5">
+            <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">Invoices synced</p>
+            <p className="text-2xl font-bold text-ink tabular-nums">{invoices.length.toLocaleString()}</p>
+          </div>
+          <div className="rounded-xl border border-line bg-warn-tint p-5">
+            <p className="text-xs font-medium text-warn uppercase tracking-wide mb-1">Outstanding A/R</p>
+            <p className="text-2xl font-bold text-warn tabular-nums">{money(outstandingCents)}</p>
+            <p className="text-xs text-warn mt-1">{outstandingCount} invoice{outstandingCount !== 1 ? "s" : ""} with a balance</p>
+          </div>
+          <div className="card p-5">
+            <p className="text-xs font-medium text-ink-3 uppercase tracking-wide mb-1">Invoiced this month</p>
+            <p className="text-2xl font-bold text-ink tabular-nums">
+              {money(invoicedByMonth.get(months[months.length - 1]) ?? 0)}
+            </p>
+          </div>
+        </div>
+        <div className="card p-5">
+          <div className="space-y-2">
+            {months.map((m) => {
+              const cents = invoicedByMonth.get(m) ?? 0;
+              return (
+                <div key={m} className="grid grid-cols-[90px_1fr] items-center gap-3 text-sm">
+                  <span className="text-ink-3">{monthLabel(m)}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2.5 rounded-full bg-brand" style={{ width: `${Math.max(1, (cents / maxInvoiceMonth) * 100)}%` }} />
+                    <span className="text-xs text-ink-3 tabular-nums whitespace-nowrap">{money(cents)} invoiced</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

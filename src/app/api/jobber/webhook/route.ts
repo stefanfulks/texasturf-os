@@ -21,6 +21,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { syncClient } from "@/lib/jobber/sync/clients";
 import { syncVisit }  from "@/lib/jobber/sync/visits";
 import { syncJob }    from "@/lib/jobber/sync/jobs";
+import { syncInvoice } from "@/lib/jobber/sync/invoices";
 import { notifyTeam, clientDisplayName } from "@/lib/jobber/notify";
 
 export async function POST(req: NextRequest) {
@@ -167,6 +168,12 @@ async function dispatch(topic: string, accountId: string, itemId: string) {
             resourceRef: itemId,
           });
         }
+      }
+    } else if (topic.startsWith("INVOICE_")) {
+      if (topic === "INVOICE_DESTROY") {
+        await supa.from("jobber_invoices").delete().eq("id", itemId);
+      } else {
+        await syncInvoice(accountId, itemId);
       }
     } else if (topic.startsWith("JOB_")) {
       if (topic === "JOB_DESTROY") {

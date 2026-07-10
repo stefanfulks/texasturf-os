@@ -14,10 +14,12 @@ import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireOfficeOrAdmin } from "@/lib/auth/require-role";
 import {
+  JOB_PROGRESS_LABELS,
   JOB_PROGRESS_NEXT,
   JOB_PROGRESS_STATES,
   type JobProgressState,
 } from "./progress";
+import { pushClientNote } from "@/lib/jobber/push";
 
 /**
  * Whitelist of OS user roles allowed to record a transition. We accept
@@ -97,6 +99,34 @@ export async function recordJobProgress(formData: FormData) {
       recorded_by_profile: userId,
     });
   if (insErr) throw new Error(insErr.message);
+
+  // Two-way sync: mirror the transition into Jobber as a client note so the
+  // office sees OS-side install progress without leaving Jobber. Fire-and-
+  // forget — a push failure (scope, throttle, outage) never blocks the tap.
+  void (async () => {
+    const { data: visit } = await sb
+      .from("jobber_visits")
+      .select("client_id, title")
+      .eq("id", jobberVisitId)
+      .maybeSingle();
+    if (!visit?.client_id) return;
+    const { data: actor } = await sb
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", userId)
+      .maybeSingle();
+    const who = actor?.full_name ?? actor?.email ?? "TexasTurf OS";
+    const label = JOB_PROGRESS_LABELS[next] ?? next;
+    const lines = [
+      `TexasTurf OS — install progress: ${label}`,
+      visit.title ? `Visit: ${visit.title}` : null,
+      notes ? `Notes: ${notes}` : null,
+      `By ${who}`,
+    ].filter(Boolean);
+    await pushClientNote(visit.client_id, lines.join("\n"));
+  })().catch(() => {
+    // pushClientNote already reports to Sentry; nothing more to do here.
+  });
 
   // Phase A1 stops here — Slack post + email come in A2/A3.
   // Cache invalidation: the install page, today list, dashboard tiles, and

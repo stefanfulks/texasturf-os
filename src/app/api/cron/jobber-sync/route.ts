@@ -5,6 +5,7 @@ import { getJobberAccountId } from "@/lib/jobber/quotes";
 import { syncAllClients } from "@/lib/jobber/sync/clients";
 import { syncAllJobs } from "@/lib/jobber/sync/jobs";
 import { syncVisitsInRange } from "@/lib/jobber/sync/visits";
+import { syncAllInvoices } from "@/lib/jobber/sync/invoices";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -58,18 +59,14 @@ export async function GET(request: Request) {
   const startMin = new Date(now - back * 86_400_000);
   const startMax = new Date(now + fwd * 86_400_000);
 
-  // Run the three entities independently — one failing must not starve the
-  // others of their refresh. Report per-entity results.
-  const [clients, jobs, visits] = await Promise.allSettled([
-    syncAllClients(accountId),
-    syncAllJobs(accountId),
-    syncVisitsInRange(accountId, startMin, startMax),
-  ]);
-
+  // Strictly sequential: Jobber's leaky-bucket limit is shared per account,
+  // so concurrent paginators just starve each other into THROTTLED errors
+  // (verified live 2026-07-10). One entity failing must not stop the rest.
   const result = {
-    clients: settle(clients, "clients"),
-    jobs: settle(jobs, "jobs"),
-    visits: settle(visits, "visits"),
+    clients: await run(() => syncAllClients(accountId), "clients"),
+    jobs: await run(() => syncAllJobs(accountId), "jobs"),
+    invoices: await run(() => syncAllInvoices(accountId), "invoices"),
+    visits: await run(() => syncVisitsInRange(accountId, startMin, startMax), "visits"),
   };
   const failed = Object.values(result).filter((r) => r.error).length;
 
@@ -90,12 +87,15 @@ function clampDays(raw: string | null, fallback: number): number {
   return Math.min(Math.floor(n), 730);
 }
 
-function settle(
-  r: PromiseSettledResult<number>,
+async function run(
+  fn: () => Promise<number>,
   entity: string,
-): { count: number; error: string | null } {
-  if (r.status === "fulfilled") return { count: r.value, error: null };
-  const message = r.reason instanceof Error ? r.reason.message : String(r.reason);
-  Sentry.captureException(r.reason, { tags: { cron: "jobber-sync", entity } });
-  return { count: 0, error: message };
+): Promise<{ count: number; error: string | null }> {
+  try {
+    return { count: await fn(), error: null };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    Sentry.captureException(err, { tags: { cron: "jobber-sync", entity } });
+    return { count: 0, error: message };
+  }
 }
