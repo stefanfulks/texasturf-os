@@ -182,3 +182,11 @@ export type ContentAssignee = Database["public"]["Enums"]["content_assignee"]
 // ---- Marketing OS: AI generations + business inputs -------------------------
 export type MarketingAiGeneration   = Database["public"]["Tables"]["marketing_ai_generations"]["Row"]
 export type MarketingBusinessInput  = Database["public"]["Tables"]["marketing_business_inputs"]["Row"]
+
+// ---- TurfCasa (sister-brand outlet): orders + catalog ------------------------
+export type TurfcasaProduct    = Database["public"]["Tables"]["turfcasa_products"]["Row"]
+export type TurfcasaOrder      = Database["public"]["Tables"]["turfcasa_orders"]["Row"]
+export type TurfcasaOrderLine  = Database["public"]["Tables"]["turfcasa_order_lines"]["Row"]
+export type TurfcasaOrderEvent = Database["public"]["Tables"]["turfcasa_order_events"]["Row"]
+export type TurfcasaOrderInsert     = Database["public"]["Tables"]["turfcasa_orders"]["Insert"]
+export type TurfcasaOrderLineInsert = Database["public"]["Tables"]["turfcasa_order_lines"]["Insert"]

@@ -101,16 +101,16 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
   },
   {
     // Sister brand — the trade materials outlet. TexasTurf installs,
-    // TurfCasa supplies; everything install-related stays out of here.
+    // TurfCasa supplies. Jobber keeps quoting/invoicing/billing; this section
+    // runs what Jobber can't: website order intake + warehouse fulfillment.
     label: "TurfCasa",
     icon: Store,
     primaryHref: "/turfcasa",
     tools: [
-      { label: "Overview",       href: "/turfcasa" },
-      { label: "Trade Accounts", href: "/turfcasa/accounts" },
-      { label: "Quotes",         href: "/turfcasa/quotes" },
-      { label: "Invoices",       href: "/turfcasa/invoices" },
-      { label: "Catalog",        href: "/turfcasa/catalog" },
+      { label: "Overview",  href: "/turfcasa" },
+      { label: "Orders",    href: "/turfcasa/orders" },
+      { label: "New Order", href: "/turfcasa/orders/new" },
+      { label: "Catalog",   href: "/turfcasa/catalog" },
     ],
     prefixes: ["/turfcasa"],
   },

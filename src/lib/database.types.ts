@@ -4927,6 +4927,230 @@ export type Database = {
           },
         ]
       }
+      turfcasa_order_events: {
+        Row: {
+          actor: string | null
+          created_at: string
+          event: string
+          from_status: string | null
+          id: string
+          note: string | null
+          order_id: string
+          to_status: string | null
+        }
+        Insert: {
+          actor?: string | null
+          created_at?: string
+          event?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          order_id: string
+          to_status?: string | null
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string
+          event?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "turfcasa_order_events_actor_fkey"
+            columns: ["actor"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "turfcasa_order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "turfcasa_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      turfcasa_order_lines: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          order_id: string
+          product_id: string | null
+          qty: number
+          sort_order: number
+          unit: string
+          unit_price: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          order_id: string
+          product_id?: string | null
+          qty?: number
+          sort_order?: number
+          unit?: string
+          unit_price?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          order_id?: string
+          product_id?: string | null
+          qty?: number
+          sort_order?: number
+          unit?: string
+          unit_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "turfcasa_order_lines_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "turfcasa_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "turfcasa_order_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "turfcasa_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      turfcasa_orders: {
+        Row: {
+          company: string | null
+          created_at: string
+          created_by: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          delivery_address: string | null
+          fulfillment: string
+          id: string
+          is_trade: boolean
+          jobber_client_id: string | null
+          jobber_invoice_number: string | null
+          notes: string | null
+          order_number: number
+          requested_date: string | null
+          source: string
+          status: string
+          subtotal: number | null
+          total: number | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_email?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          delivery_address?: string | null
+          fulfillment?: string
+          id?: string
+          is_trade?: boolean
+          jobber_client_id?: string | null
+          jobber_invoice_number?: string | null
+          notes?: string | null
+          order_number?: number
+          requested_date?: string | null
+          source?: string
+          status?: string
+          subtotal?: number | null
+          total?: number | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          delivery_address?: string | null
+          fulfillment?: string
+          id?: string
+          is_trade?: boolean
+          jobber_client_id?: string | null
+          jobber_invoice_number?: string | null
+          notes?: string | null
+          order_number?: number
+          requested_date?: string | null
+          source?: string
+          status?: string
+          subtotal?: number | null
+          total?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "turfcasa_orders_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      turfcasa_products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          retail_price: number | null
+          sort_order: number
+          taxable: boolean
+          trade_price: number | null
+          unit: string
+          unit_cost: number | null
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          retail_price?: number | null
+          sort_order?: number
+          taxable?: boolean
+          trade_price?: number | null
+          unit?: string
+          unit_cost?: number | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          retail_price?: number | null
+          sort_order?: number
+          taxable?: boolean
+          trade_price?: number | null
+          unit?: string
+          unit_cost?: number | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       unmatched_calls: {
         Row: {
           duration_sec: number | null

@@ -33,7 +33,9 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/api/slack") ||
     request.nextUrl.pathname.startsWith("/api/jobber/webhook") ||
     request.nextUrl.pathname.startsWith("/api/twilio") ||
-    request.nextUrl.pathname.startsWith("/api/cron");
+    request.nextUrl.pathname.startsWith("/api/cron") ||
+    // TurfCasa website order intake (TURFCASA_ORDER_SECRET bearer)
+    request.nextUrl.pathname.startsWith("/api/turfcasa/orders");
 
   if (isWebhookRoute) {
     return supabaseResponse;

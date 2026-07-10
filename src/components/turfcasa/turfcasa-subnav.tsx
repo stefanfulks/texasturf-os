@@ -4,9 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Users,
-  FileText,
-  Receipt,
+  Package,
   Tags,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
@@ -18,11 +16,9 @@ type NavItem = {
 };
 
 const ITEMS: NavItem[] = [
-  { href: "/turfcasa",          label: "Overview",       icon: LayoutDashboard },
-  { href: "/turfcasa/accounts", label: "Trade Accounts", icon: Users },
-  { href: "/turfcasa/quotes",   label: "Quotes",         icon: FileText },
-  { href: "/turfcasa/invoices", label: "Invoices",       icon: Receipt },
-  { href: "/turfcasa/catalog",  label: "Catalog",        icon: Tags },
+  { href: "/turfcasa",         label: "Overview", icon: LayoutDashboard },
+  { href: "/turfcasa/orders",  label: "Orders",   icon: Package },
+  { href: "/turfcasa/catalog", label: "Catalog",  icon: Tags },
 ];
 
 function isActive(pathname: string, href: string) {
