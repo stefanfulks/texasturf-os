@@ -33,6 +33,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/api/slack") ||
     request.nextUrl.pathname.startsWith("/api/jobber/webhook") ||
     request.nextUrl.pathname.startsWith("/api/twilio") ||
+    request.nextUrl.pathname.startsWith("/api/turfcasa/orders") ||
     request.nextUrl.pathname.startsWith("/api/cron");
 
   if (isWebhookRoute) {
