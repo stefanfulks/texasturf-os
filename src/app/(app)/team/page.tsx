@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { UserRow } from "./user-row";
 import { InviteUserForm } from "./invite-form";
 import { parseDepartments } from "@/lib/departments";
+import { readRestriction } from "@/lib/access";
 
 export const metadata = { title: "User Management · TexasTurf OS" };
 
@@ -19,6 +21,18 @@ export default async function AdminUsersPage() {
     .from("profiles")
     .select("id, full_name, email, role, department, departments")
     .order("full_name", { ascending: true, nullsFirst: false });
+
+  // The restriction flag lives in auth `app_metadata` (the gate's source of
+  // truth), not in `profiles` — pull it from the admin API and index by id.
+  const restrictedById = new Map<string, boolean>();
+  try {
+    const { data: authList } = await createServiceClient().auth.admin.listUsers({ perPage: 1000 });
+    for (const au of authList?.users ?? []) {
+      restrictedById.set(au.id, readRestriction(au.app_metadata).restricted);
+    }
+  } catch {
+    // Non-fatal: fall back to "not restricted" badges if the admin list fails.
+  }
 
   const users = (usersRaw ?? []).map((u) => {
     const cast = u as unknown as {
@@ -37,6 +51,7 @@ export default async function AdminUsersPage() {
       departments: parseDepartments(cast.departments).length > 0
         ? parseDepartments(cast.departments)
         : parseDepartments(cast.department ? [cast.department] : []),
+      restricted:  restrictedById.get(cast.id) ?? false,
     };
   });
 

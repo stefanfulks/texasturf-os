@@ -6,6 +6,18 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { DEPARTMENTS } from "@/lib/departments";
 
+/**
+ * Build the `app_metadata` restriction marker consumed by the middleware gate
+ * (src/lib/access.ts). When `restricted` is false we explicitly clear the flag
+ * so lifting a guest's restriction actually takes effect. app_metadata is
+ * server-only, so this is the tamper-proof source of truth for the gate.
+ */
+function restrictionMeta(restricted: boolean, departments: string[]) {
+  return restricted
+    ? { restricted: true, departments }
+    : { restricted: false, departments: [] };
+}
+
 async function requireAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { user: null, error: "Not authenticated" as const };
@@ -23,6 +35,10 @@ const updateUserSchema = z.object({
   user_id:     z.string().uuid(),
   role:        z.enum(["admin", "office", "field"]),
   departments: z.array(z.enum(DEPARTMENTS)),
+  restricted:  z.boolean().default(false),
+}).refine((d) => !d.restricted || d.departments.length > 0, {
+  message: "Pick at least one department to scope a restricted guest to.",
+  path: ["departments"],
 });
 
 export async function updateUser(
@@ -41,6 +57,7 @@ export async function updateUser(
     user_id:     formData.get("user_id"),
     role:        formData.get("role"),
     departments,
+    restricted:  formData.get("restricted") != null,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false };
@@ -58,6 +75,14 @@ export async function updateUser(
     updated_at:  new Date().toISOString(),
   } as never).eq("id", parsed.data.user_id);
   if (error) return { error: error.message, success: false };
+
+  // Sync the guest-restriction marker into app_metadata (the gate's source of
+  // truth). Uses the service client — admin auth API isn't on the user client.
+  const { error: metaErr } = await createServiceClient().auth.admin.updateUserById(
+    parsed.data.user_id,
+    { app_metadata: restrictionMeta(parsed.data.restricted, parsed.data.departments) },
+  );
+  if (metaErr) return { error: `Saved role, but couldn't update access scope: ${metaErr.message}`, success: false };
 
   revalidatePath("/team");
   return { error: null, success: true };
@@ -77,6 +102,10 @@ const inviteSchema = z.object({
   full_name:   z.string().optional(),
   role:        z.enum(["admin", "office", "field"]).default("field"),
   departments: z.array(z.enum(DEPARTMENTS)).default([]),
+  restricted:  z.boolean().default(false),
+}).refine((d) => !d.restricted || d.departments.length > 0, {
+  message: "Pick at least one department to scope a restricted guest to.",
+  path: ["departments"],
 });
 
 export async function inviteUser(
@@ -95,13 +124,14 @@ export async function inviteUser(
     full_name:   (formData.get("full_name") as string | null) || undefined,
     role:        formData.get("role") || "field",
     departments,
+    restricted:  formData.get("restricted") != null,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues.map((e) => e.message).join(", "), success: false, sentTo: null };
   }
-  if (!parsed.data.email.endsWith("@texasturfusa.com")) {
-    return { error: "Email must be @texasturfusa.com", success: false, sentTo: null };
-  }
+
+  // An admin may add any valid email — staff (@texasturfusa.com) or an outside
+  // guest. Their `profiles` row is what authorizes sign-in (src/lib/auth/allowlist.ts).
 
   let service;
   try {
@@ -130,6 +160,11 @@ export async function inviteUser(
       updated_at:  new Date().toISOString(),
     } as never).eq("id", (existing as { id: string }).id);
     if (updErr) return { error: updErr.message, success: false, sentTo: null };
+    const { error: metaErr } = await service.auth.admin.updateUserById(
+      (existing as { id: string }).id,
+      { app_metadata: restrictionMeta(parsed.data.restricted, parsed.data.departments) },
+    );
+    if (metaErr) return { error: `Saved role, but couldn't update access scope: ${metaErr.message}`, success: false, sentTo: null };
     revalidatePath("/team");
     revalidatePath("/admin/users");
     return { error: null, success: true, sentTo: parsed.data.email };
@@ -140,6 +175,7 @@ export async function inviteUser(
   const { data: created, error: createErr } = await service.auth.admin.createUser({
     email:         parsed.data.email,
     email_confirm: true,
+    app_metadata:  restrictionMeta(parsed.data.restricted, parsed.data.departments),
     user_metadata: {
       full_name:  parsed.data.full_name ?? null,
       invited_by: auth.user.id,

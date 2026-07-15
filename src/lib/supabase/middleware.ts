@@ -1,5 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  readRestriction,
+  isPathAllowedForRestricted,
+  restrictedHome,
+} from "@/lib/access";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -63,6 +68,20 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
+  }
+
+  // Restricted outside guests (app_metadata.restricted) may only reach their
+  // department's pages plus universal/account pages. Staff carry no such flag,
+  // so this is a no-op for them — and it costs zero extra DB queries because
+  // app_metadata rides along on the already-fetched `user`.
+  if (user && !isAuthRoute && !isPublicRoute) {
+    const { restricted, departments } = readRestriction(user.app_metadata);
+    if (restricted && !isPathAllowedForRestricted(request.nextUrl.pathname, departments)) {
+      const url = request.nextUrl.clone();
+      url.pathname = restrictedHome(departments);
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

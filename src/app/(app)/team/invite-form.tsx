@@ -53,10 +53,13 @@ export function InviteUserForm() {
             <input
               name="email"
               type="email"
-              placeholder="someone@texasturfusa.com"
+              placeholder="name@texasturfusa.com — or any email for a guest"
               required
               className="field-input"
             />
+            <p className="mt-1 text-[11px] leading-snug text-ink-4">
+              Outside guests: enter the exact address used to sign in — their Google email for one-tap, or any email for a 6-digit code.
+            </p>
           </div>
           <div>
             <label className="block text-xs font-medium text-ink-3 mb-1">Full name (optional)</label>
@@ -106,6 +109,17 @@ export function InviteUserForm() {
             })}
           </div>
         </div>
+        <label className="flex items-start gap-2 rounded-lg border border-line bg-sunken/40 px-3 py-2 cursor-pointer">
+          <input type="checkbox" name="restricted" className="mt-0.5" />
+          <span className="text-xs text-ink-2">
+            <span className="font-medium text-ink">Restrict to selected departments (outside guest)</span>
+            <span className="block text-ink-4 mt-0.5">
+              Locks this person to only the departments checked above — every
+              other section is blocked. Use for contractors/vendors outside the
+              company. Requires at least one department.
+            </span>
+          </span>
+        </label>
 
         {state.error && (
           <p className="text-xs text-danger bg-danger-tint border border-danger/30 rounded-lg px-3 py-2">
@@ -114,7 +128,7 @@ export function InviteUserForm() {
         )}
         {state.success && state.sentTo && (
           <p className="text-xs text-brand bg-brand-tint border border-brand/30 rounded-lg px-3 py-2">
-            ✓ <strong>{state.sentTo}</strong> added — they sign in with their @texasturfusa.com Google account. No email needed.
+            ✓ <strong>{state.sentTo}</strong> added — they can sign in now with that address (Google one-tap, or a 6-digit email code).
           </p>
         )}
 

@@ -18,6 +18,7 @@ type Row = {
   email: string;
   role: string;
   departments: Department[];
+  restricted: boolean;
 };
 
 const ROLE_BADGE: Record<string, string> = {
@@ -30,6 +31,7 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
   const [editing, setEditing] = useState(false);
   const [role, setRole] = useState(user.role);
   const [departments, setDepartments] = useState<Department[]>(user.departments);
+  const [restricted, setRestricted] = useState(user.restricted);
   const [state, formAction, isPending] = useActionState(updateUser, initial);
 
   if (state.success && editing) setEditing(false);
@@ -49,9 +51,19 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
         </td>
         <td className="px-4 py-3 text-ink-2">{user.email}</td>
         <td className="px-4 py-3">
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${ROLE_BADGE[user.role] ?? "bg-sunken text-ink-2"}`}>
-            {user.role}
-          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${ROLE_BADGE[user.role] ?? "bg-sunken text-ink-2"}`}>
+              {user.role}
+            </span>
+            {user.restricted && (
+              <span
+                className="inline-flex items-center rounded-full bg-warn-tint px-2.5 py-0.5 text-xs font-semibold text-warn"
+                title="Outside guest — locked to their departments only"
+              >
+                Guest
+              </span>
+            )}
+          </div>
         </td>
         <td className="px-4 py-3">
           <div className="flex flex-wrap gap-1">
@@ -137,10 +149,19 @@ export function UserRow({ user, currentUserId }: { user: Row; currentUserId: str
           <input type="hidden" name="user_id" value={user.id} />
           <input type="hidden" name="role" value={role} />
           <input type="hidden" name="departments" value={departments.join(",")} />
+          <label className="flex items-center gap-1.5 text-xs text-ink-2 cursor-pointer">
+            <input
+              type="checkbox"
+              name="restricted"
+              checked={restricted}
+              onChange={(e) => setRestricted(e.target.checked)}
+            />
+            Outside guest — lock to departments above
+          </label>
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => { setEditing(false); setRole(user.role); setDepartments(user.departments); }}
+              onClick={() => { setEditing(false); setRole(user.role); setDepartments(user.departments); setRestricted(user.restricted); }}
               className="px-2.5 py-1 text-xs text-ink-2 hover:text-ink"
             >
               Cancel
