@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getTagsForEntities, listTags } from "@/lib/tags/queries";
 import { TaskBoard } from "@/components/tasks/task-board";
 
 export default async function TasksPage() {
@@ -44,13 +45,24 @@ export default async function TasksPage() {
     else assigneeMap[row.task_id].push(row.profile_id);
   }
 
+  // Tags: batch-fetch per task (avoids N+1) + full registry for the filter bar.
+  const tasks = tasksRes.data ?? [];
+  const [tagsByTask, tagRegistry] = await Promise.all([
+    getTagsForEntities("task", tasks.map((t) => t.id)),
+    listTags(),
+  ]);
+
   return (
     <TaskBoard
-      initialTasks={tasksRes.data ?? []}
+      initialTasks={tasks}
       currentUserId={user.id}
       profiles={profilesRes.data ?? []}
       projects={jobsRes.data ?? []}
       assigneeMap={assigneeMap}
+      tagsByTask={tagsByTask}
+      tagRegistry={tagRegistry.map((t) => ({
+        id: t.id, name: t.name, slug: t.slug, color: t.color,
+      }))}
     />
   );
 }

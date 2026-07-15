@@ -8,6 +8,9 @@ import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-p
 import { cn } from "@/lib/utils";
 import { updateTaskStatus, createTask } from "@/app/(app)/tasks/actions";
 import { TaskSlideOver } from "@/components/tasks/task-slide-over";
+import { TagFilterBar } from "@/components/tags/TagFilterBar";
+import { TagChips } from "@/components/tags/TagChips";
+import type { AppliedTag } from "@/lib/tags/types";
 import type { Task, TaskStatus, TaskPriority, Profile, Project } from "@/lib/db-helpers.types";
 
 // ─── Config ────────────────────────────────────────────────────────────────────
@@ -37,6 +40,8 @@ export function TaskBoard({
   profiles,
   projects,
   assigneeMap,
+  tagsByTask = {},
+  tagRegistry = [],
 }: {
   initialTasks: Task[];
   currentUserId: string;
@@ -44,11 +49,16 @@ export function TaskBoard({
   projects: Pick<Project, "id" | "name" | "status">[];
   /** task.id → profile ids tagged on it. Primary first. */
   assigneeMap: Record<string, string[]>;
+  /** task.id → tags applied to it (app-wide tag system). */
+  tagsByTask?: Record<string, AppliedTag[]>;
+  /** Full tag registry, for the filter bar. */
+  tagRegistry?: AppliedTag[];
 }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [scope, setScope] = useState<ScopeFilter>("mine");
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "all">("all");
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [showCreate, setShowCreate] = useState(false);
   const [createStatus, setCreateStatus] = useState<TaskStatus>("inbox");
 
@@ -62,9 +72,23 @@ export function TaskBoard({
     if (scope === "team")   filtered = filtered.filter((t) => !isTaggedOnMe(t));
     if (scope === "by_me")  filtered = filtered.filter((t) => t.created_by_id === currentUserId && !isTaggedOnMe(t));
     if (priorityFilter !== "all") filtered = filtered.filter((t) => t.priority === priorityFilter);
+    // Tag filter: ANY-match across the selected tags.
+    if (selectedTags.size > 0) {
+      filtered = filtered.filter((t) =>
+        (tagsByTask[t.id] ?? []).some((tag) => selectedTags.has(tag.id)));
+    }
     return filtered;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasks, scope, priorityFilter, currentUserId, assigneeMap]);
+  }, [tasks, scope, priorityFilter, selectedTags, currentUserId, assigneeMap, tagsByTask]);
+
+  const toggleTag = (id: string) => {
+    setSelectedTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const overdueCount = useMemo(() =>
     tasks.filter((t) => t.status !== "done" && t.status !== "archived" && isTaggedOnMe(t) && t.due_date && isPast(parseISO(t.due_date)) && !isToday(parseISO(t.due_date))).length,
@@ -181,16 +205,19 @@ export function TaskBoard({
           ))}
         </div>
 
+        {/* Tag filter (ANY-match) */}
+        <TagFilterBar tags={tagRegistry} selected={selectedTags} onToggle={toggleTag} />
+
         <span className="text-xs text-ink-4">{scopedTasks.length} tasks</span>
       </div>
 
       {/* Board */}
       {view === "kanban" ? (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <KanbanView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onAddTask={openCreate} onSelectTask={handleSelectTask} />
+          <KanbanView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} tagsByTask={tagsByTask} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onAddTask={openCreate} onSelectTask={handleSelectTask} />
         </DragDropContext>
       ) : (
-        <ListView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onSelectTask={handleSelectTask} />
+        <ListView tasks={scopedTasks} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} tagsByTask={tagsByTask} currentUserId={currentUserId} onStatusChange={handleStatusChange} onComplete={handleComplete} onSelectTask={handleSelectTask} />
       )}
 
       {showCreate && (
@@ -221,6 +248,7 @@ type SharedProps = {
   profilesMap: Record<string, Pick<Profile, "id" | "full_name" | "email">>;
   projectsMap: Record<string, Pick<Project, "id" | "name" | "status">>;
   assigneeMap: Record<string, string[]>;
+  tagsByTask: Record<string, AppliedTag[]>;
   currentUserId: string;
   onStatusChange: (id: string, status: TaskStatus) => void;
   onComplete: (id: string) => void;
@@ -231,7 +259,7 @@ type BoardProps = SharedProps & { tasks: Task[] };
 
 // ─── Kanban View ───────────────────────────────────────────────────────────────
 
-function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onAddTask, onSelectTask }: BoardProps & { onAddTask: (s: TaskStatus) => void; }) {
+function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, tagsByTask, currentUserId, onStatusChange, onComplete, onAddTask, onSelectTask }: BoardProps & { onAddTask: (s: TaskStatus) => void; }) {
   return (
     <div className="flex gap-4 overflow-x-auto pb-4 flex-1" style={{ minHeight: 0 }}>
       {COLUMNS.map((col) => {
@@ -278,6 +306,7 @@ function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserI
                               profilesMap={profilesMap}
                               projectsMap={projectsMap}
                               assigneeMap={assigneeMap}
+                              tagsByTask={tagsByTask}
                               currentUserId={currentUserId}
                               onStatusChange={onStatusChange}
                               onComplete={onComplete}
@@ -301,7 +330,7 @@ function KanbanView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserI
 
 // ─── Task Card ─────────────────────────────────────────────────────────────────
 
-function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onSelectTask }: SharedProps & { task: Task }) {
+function TaskCard({ task, profilesMap, projectsMap, assigneeMap, tagsByTask, currentUserId, onStatusChange, onComplete, onSelectTask }: SharedProps & { task: Task }) {
   const [statusOpen, setStatusOpen] = useState(false);
   const [, startTransition] = useTransition();
   const isDone = task.status === "done";
@@ -363,6 +392,11 @@ function TaskCard({ task, profilesMap, projectsMap, assigneeMap, currentUserId, 
               <span className="text-xs text-danger truncate max-w-[120px]" title={task.blocked_reason}>🚫 {task.blocked_reason}</span>
             )}
           </div>
+          {(tagsByTask[task.id] ?? []).length > 0 && (
+            <div className="mt-1.5">
+              <TagChips tags={tagsByTask[task.id] ?? []} />
+            </div>
+          )}
         </div>
 
         <div className="relative flex-shrink-0">
@@ -486,7 +520,7 @@ function AvatarStack({
 
 // ─── List View ─────────────────────────────────────────────────────────────────
 
-function ListView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onSelectTask }: BoardProps) {
+function ListView({ tasks, profilesMap, projectsMap, assigneeMap, tagsByTask, currentUserId, onStatusChange, onComplete, onSelectTask }: BoardProps) {
   const sorted = [...tasks].sort((a, b) => {
     const pw = { urgent: 0, high: 1, normal: 2, low: 3 };
     if (a.status === "done" && b.status !== "done") return 1;
@@ -503,12 +537,12 @@ function ListView({ tasks, profilesMap, projectsMap, assigneeMap, currentUserId,
 
   return (
     <div className="space-y-1">
-      {sorted.map((task) => <ListRow key={task.id} task={task} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} currentUserId={currentUserId} onStatusChange={onStatusChange} onComplete={onComplete} onSelectTask={onSelectTask} />)}
+      {sorted.map((task) => <ListRow key={task.id} task={task} profilesMap={profilesMap} projectsMap={projectsMap} assigneeMap={assigneeMap} tagsByTask={tagsByTask} currentUserId={currentUserId} onStatusChange={onStatusChange} onComplete={onComplete} onSelectTask={onSelectTask} />)}
     </div>
   );
 }
 
-function ListRow({ task, profilesMap, projectsMap, assigneeMap, currentUserId, onStatusChange, onComplete, onSelectTask }: SharedProps & { task: Task }) {
+function ListRow({ task, profilesMap, projectsMap, assigneeMap, tagsByTask, currentUserId, onStatusChange, onComplete, onSelectTask }: SharedProps & { task: Task }) {
   const [statusOpen, setStatusOpen] = useState(false);
   const [, startTransition] = useTransition();
   const isDone = task.status === "done";
@@ -541,6 +575,7 @@ function ListRow({ task, profilesMap, projectsMap, assigneeMap, currentUserId, o
       </div>
 
       <div className="flex items-center gap-2 flex-shrink-0 text-xs">
+        <TagChips tags={tagsByTask[task.id] ?? []} />
         {assignees.length > 0 && !(isTaggedOnMe && assignees.length === 1) && (
           <AvatarStack assignees={assignees} currentUserId={currentUserId} />
         )}

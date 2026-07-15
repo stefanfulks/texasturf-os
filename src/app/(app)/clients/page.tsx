@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getTagsForEntities, listTags } from "@/lib/tags/queries";
+import { chipClasses } from "@/lib/tags/colors";
+import { TagChips } from "@/components/tags/TagChips";
 
 export const dynamic = "force-dynamic";
 
 export default async function ClientsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; tags?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, tags: tagsParam } = await searchParams;
   // User-context client so RLS applies (jobber_clients has an authenticated
   // read policy) — no service-role on a user-facing page.
   const sb = await createClient();
@@ -24,6 +27,34 @@ export default async function ClientsPage({
     );
   }
   const { data, error } = await query;
+
+  // Tag filter is URL-driven (?tags=slug1,slug2 — ANY-match) so this page can
+  // stay a server component, mirroring the ?q= search form above.
+  const registry = await listTags();
+  const selectedSlugs = new Set(
+    (tagsParam ?? "").split(",").map((s) => s.trim()).filter(Boolean),
+  );
+  const tagsByClient = await getTagsForEntities(
+    "jobber_client",
+    (data ?? []).map((c) => c.id),
+  );
+  const rows = (data ?? []).filter(
+    (c) =>
+      selectedSlugs.size === 0 ||
+      (tagsByClient[c.id] ?? []).some((t) => selectedSlugs.has(t.slug)),
+  );
+
+  // Build the href for toggling a tag chip, preserving the search term.
+  const toggleHref = (slug: string) => {
+    const next = new Set(selectedSlugs);
+    if (next.has(slug)) next.delete(slug);
+    else next.add(slug);
+    const params = new URLSearchParams();
+    if (q && q.trim()) params.set("q", q.trim());
+    if (next.size > 0) params.set("tags", [...next].join(","));
+    const qs = params.toString();
+    return qs ? `/clients?${qs}` : "/clients";
+  };
 
   return (
     <div>
@@ -43,7 +74,29 @@ export default async function ClientsPage({
           placeholder="Search by company or name…"
           className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm"
         />
+        {selectedSlugs.size > 0 && (
+          <input type="hidden" name="tags" value={[...selectedSlugs].join(",")} />
+        )}
       </form>
+
+      {registry.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {registry.map((t) => {
+            const on = selectedSlugs.has(t.slug);
+            return (
+              <Link
+                key={t.id}
+                href={toggleHref(t.slug)}
+                className={`rounded-full border px-2 py-0.5 text-xs font-medium transition ${
+                  on ? chipClasses(t.color) : "border-line text-ink-3 hover:bg-ink/5"
+                }`}
+              >
+                {t.name}
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {error && (
         <p className="mt-6 rounded-md border border-danger/30 bg-danger-tint p-3 text-sm text-danger">
@@ -63,7 +116,7 @@ export default async function ClientsPage({
             </tr>
           </thead>
           <tbody>
-            {(data ?? []).map((c) => (
+            {rows.map((c) => (
               <tr key={c.id} className="row-link border-t border-line">
                 <td className="px-3 py-2">
                   <Link href={`/clients/${c.id}`} className="block font-medium text-ink hover:text-brand transition-colors">
@@ -71,6 +124,11 @@ export default async function ClientsPage({
                       [c.first_name, c.last_name].filter(Boolean).join(" ") ??
                       "—"}
                   </Link>
+                  {(tagsByClient[c.id] ?? []).length > 0 && (
+                    <div className="mt-1">
+                      <TagChips tags={tagsByClient[c.id] ?? []} />
+                    </div>
+                  )}
                 </td>
                 <td className="px-3 py-2 text-ink-2">
                   {(c.emails as { address: string }[])?.[0]?.address ?? ""}
@@ -85,10 +143,12 @@ export default async function ClientsPage({
                 </td>
               </tr>
             ))}
-            {(!data || data.length === 0) && !error && (
+            {rows.length === 0 && !error && (
               <tr>
                 <td colSpan={4} className="px-3 py-8 text-center text-ink-3">
-                  No clients synced yet. Connect Jobber and run a sync.
+                  {selectedSlugs.size > 0
+                    ? "No clients match the selected tags."
+                    : "No clients synced yet. Connect Jobber and run a sync."}
                 </td>
               </tr>
             )}
@@ -98,7 +158,7 @@ export default async function ClientsPage({
 
       {/* Mobile card list (< md) — field workers on phones */}
       <div className="mt-6 md:hidden space-y-2">
-        {(data ?? []).map((c) => {
+        {rows.map((c) => {
           const name =
             c.company_name ??
             [c.first_name, c.last_name].filter(Boolean).join(" ") ??
@@ -124,12 +184,19 @@ export default async function ClientsPage({
                   {[email, phone].filter(Boolean).join(" · ")}
                 </p>
               )}
+              {(tagsByClient[c.id] ?? []).length > 0 && (
+                <div className="mt-1.5">
+                  <TagChips tags={tagsByClient[c.id] ?? []} />
+                </div>
+              )}
             </Link>
           );
         })}
-        {(!data || data.length === 0) && !error && (
+        {rows.length === 0 && !error && (
           <div className="rounded-lg border border-dashed border-line-strong p-6 text-center text-sm text-ink-3">
-            No clients synced yet. Connect Jobber and run a sync.
+            {selectedSlugs.size > 0
+              ? "No clients match the selected tags."
+              : "No clients synced yet. Connect Jobber and run a sync."}
           </div>
         )}
       </div>

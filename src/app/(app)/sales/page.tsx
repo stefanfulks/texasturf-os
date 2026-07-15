@@ -12,6 +12,7 @@ import { assessDeal } from "@/lib/sales/risk";
 import { today } from "@/lib/sales/dates";
 import { usd } from "@/lib/sales/format";
 import type { Deal, DealActivity, Health } from "@/lib/sales/types";
+import { getTagsForEntities, listTags } from "@/lib/tags/queries";
 import { PipelineBoard } from "@/components/sales/PipelineBoard";
 import { DealTable } from "@/components/sales/DealTable";
 
@@ -57,11 +58,17 @@ export default async function SalesPage({
     ...new Set(deals.map((d) => d.owner_id).filter(Boolean) as string[]),
   ];
 
-  const [contacts, jobberNames, lastActivity] = await Promise.all([
-    getContactsByIds(contactIds),
-    getJobberClientNames(jobberIds),
-    getLastActivityMap(deals.map((d) => d.id)),
-  ]);
+  const [contacts, jobberNames, lastActivity, tagsByDeal, tagRegistryRows] =
+    await Promise.all([
+      getContactsByIds(contactIds),
+      getJobberClientNames(jobberIds),
+      getLastActivityMap(deals.map((d) => d.id)),
+      getTagsForEntities("deal", deals.map((d) => d.id)),
+      listTags(),
+    ]);
+  const tagRegistry = tagRegistryRows.map((t) => ({
+    id: t.id, name: t.name, slug: t.slug, color: t.color,
+  }));
 
   // Owner names from profiles (typed client — profiles is in the generated DB type).
   const ownerNames: Record<string, string> = {};
@@ -155,6 +162,8 @@ export default async function SalesPage({
           contactNames={contactNames}
           ownerNames={ownerNames}
           healthById={healthById}
+          tagsByDeal={tagsByDeal}
+          tagRegistry={tagRegistry}
         />
       )}
     </div>

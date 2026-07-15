@@ -14,6 +14,9 @@ import { OPEN_STAGES, STAGE_LABELS } from "@/lib/sales/labels";
 import { usd } from "@/lib/sales/format";
 import { cn } from "@/lib/utils";
 import { moveDealStage } from "@/app/(app)/sales/actions";
+import { TagFilterBar } from "@/components/tags/TagFilterBar";
+import { TagChips } from "@/components/tags/TagChips";
+import type { AppliedTag } from "@/lib/tags/types";
 import { DealCard } from "./DealCard";
 
 export function PipelineBoard({
@@ -21,11 +24,15 @@ export function PipelineBoard({
   contactNames = {},
   ownerNames = {},
   healthById = {},
+  tagsByDeal = {},
+  tagRegistry = [],
 }: {
   deals: Deal[];
   contactNames?: Record<string, string>;
   ownerNames?: Record<string, string>;
   healthById?: Record<string, Health>;
+  tagsByDeal?: Record<string, AppliedTag[]>;
+  tagRegistry?: AppliedTag[];
 }) {
   const router = useRouter();
   // Optimistic copy so a dropped card moves instantly; the server action +
@@ -37,8 +44,22 @@ export function PipelineBoard({
     setItems(deals);
   }
 
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  const toggleTag = (id: string) => {
+    setSelectedTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const open = items.filter(
-    (d) => d.stage !== "closed_won" && d.stage !== "closed_lost",
+    (d) =>
+      d.stage !== "closed_won" &&
+      d.stage !== "closed_lost" &&
+      (selectedTags.size === 0 ||
+        (tagsByDeal[d.id] ?? []).some((tag) => selectedTags.has(tag.id))),
   );
 
   async function onDragEnd(result: DropResult) {
@@ -57,6 +78,11 @@ export function PipelineBoard({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
+      {tagRegistry.length > 0 && (
+        <div className="mb-3">
+          <TagFilterBar tags={tagRegistry} selected={selectedTags} onToggle={toggleTag} />
+        </div>
+      )}
       <div className="grid grid-cols-2 items-start gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {OPEN_STAGES.map((stage) => {
           const column = open
@@ -101,6 +127,11 @@ export function PipelineBoard({
                               }
                               health={healthById[deal.id] ?? "green"}
                             />
+                            {(tagsByDeal[deal.id] ?? []).length > 0 && (
+                              <div className="mt-1 px-1">
+                                <TagChips tags={tagsByDeal[deal.id] ?? []} />
+                              </div>
+                            )}
                           </div>
                         )}
                       </Draggable>
