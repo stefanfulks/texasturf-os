@@ -14,6 +14,8 @@ import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { getConnectedRealm } from "@/lib/integrations/quickbooks/tokens";
 import { syncPnlActuals } from "@/lib/integrations/quickbooks/sync/pnl";
+import { syncArInvoices } from "@/lib/integrations/quickbooks/sync/ar";
+import { syncApBills } from "@/lib/integrations/quickbooks/sync/ap";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -74,6 +76,14 @@ export async function POST(req: NextRequest) {
       async () => (await syncPnlActuals(realm.realm_id, { startDate, endDate })).rows,
       "pnl_actuals",
     );
+  }
+
+  if (entity === "ar" || entity === "all") {
+    results.ar = await run(() => syncArInvoices(realm.realm_id), "ar");
+  }
+
+  if (entity === "ap" || entity === "all") {
+    results.ap = await run(() => syncApBills(realm.realm_id), "ap");
   }
 
   if (Object.keys(results).length === 0) {
