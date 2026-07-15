@@ -402,6 +402,118 @@ export type Database = {
           },
         ]
       }
+      call_settings: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: Json | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Relationships: []
+      }
+      calls: {
+        Row: {
+          brand: string
+          call_attempt_id: string | null
+          caller_id: string
+          created_at: string
+          deal_id: string | null
+          direction: string
+          duration_sec: number | null
+          ended_at: string | null
+          id: string
+          outcome: string | null
+          recording_sid: string | null
+          recording_status: string | null
+          recording_url: string | null
+          started_at: string
+          target_id: string | null
+          target_name: string | null
+          target_phone: string | null
+          target_type: string | null
+          twilio_call_sid: string | null
+        }
+        Insert: {
+          brand?: string
+          call_attempt_id?: string | null
+          caller_id: string
+          created_at?: string
+          deal_id?: string | null
+          direction?: string
+          duration_sec?: number | null
+          ended_at?: string | null
+          id?: string
+          outcome?: string | null
+          recording_sid?: string | null
+          recording_status?: string | null
+          recording_url?: string | null
+          started_at?: string
+          target_id?: string | null
+          target_name?: string | null
+          target_phone?: string | null
+          target_type?: string | null
+          twilio_call_sid?: string | null
+        }
+        Update: {
+          brand?: string
+          call_attempt_id?: string | null
+          caller_id?: string
+          created_at?: string
+          deal_id?: string | null
+          direction?: string
+          duration_sec?: number | null
+          ended_at?: string | null
+          id?: string
+          outcome?: string | null
+          recording_sid?: string | null
+          recording_status?: string | null
+          recording_url?: string | null
+          started_at?: string
+          target_id?: string | null
+          target_name?: string | null
+          target_phone?: string | null
+          target_type?: string | null
+          twilio_call_sid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calls_call_attempt_id_fkey"
+            columns: ["call_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "call_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calls_caller_id_fkey"
+            columns: ["caller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calls_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           audience: string | null

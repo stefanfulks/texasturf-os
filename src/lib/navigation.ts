@@ -207,6 +207,7 @@ export function palettePages(isAdmin: boolean): Array<{ href: string; label: str
     ["/settings", "Settings"],
     ["/settings/account", "Settings · Account"],
     ["/settings/calendar", "Settings · Calendar"],
+    ["/settings/calling", "Settings · Calling"],
     ["/settings/meetings", "Settings · Meetings"],
     ["/settings/vehicles", "Settings · Vehicles"],
     ["/settings/pitch-tiers", "Settings · Pitch tiers"],

@@ -12,6 +12,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { placeBridgeCall } from "@/lib/twilio/bridge";
+import { logCallStart } from "@/lib/calls/log";
 import type { CallListItem } from "@/lib/db-helpers.types";
 import type { CallOutcome, DialCandidate, DialerBrand } from "./types";
 
@@ -150,12 +151,32 @@ export async function placeCall(callListItemId: string): Promise<PlaceCallResult
   });
   if (!bridged.ok) return { ok: false, reason: bridged.reason };
 
+  // Brand rides on the list (drives the recording/AI review pipeline).
+  const { data: list } = await sb
+    .from("call_lists")
+    .select("brand")
+    .eq("id", item.call_list_id)
+    .maybeSingle();
+  const brand = (list as { brand: string } | null)?.brand === "turfcasa" ? "turfcasa" : "texasturf";
+
   await Promise.all([
     sb.from("call_attempts").update({ call_sid: bridged.callSid }).eq("id", attemptId),
     sb
       .from("call_list_items")
       .update({ called_at: new Date().toISOString() })
       .eq("id", item.id),
+    // Phase 2: the calls row — recording + AI review attach to this.
+    logCallStart({
+      call_attempt_id: attemptId,
+      deal_id: dealId,
+      caller_id: userId,
+      target_type: item.target_type,
+      target_id: item.target_id,
+      target_name: item.snapshot_name,
+      target_phone: phone,
+      twilio_call_sid: bridged.callSid,
+      brand,
+    }),
   ]);
 
   return { ok: true, attemptId };
@@ -191,14 +212,22 @@ export async function logDisposition(input: {
   const callbackAt = input.outcome === "callback_scheduled" ? input.callbackAt : null;
 
   if (input.attemptId) {
-    await sb
-      .from("call_attempts")
-      .update({
-        outcome: input.outcome,
-        note: input.note?.trim() || null,
-        callback_at: callbackAt,
-      })
-      .eq("id", input.attemptId);
+    await Promise.all([
+      sb
+        .from("call_attempts")
+        .update({
+          outcome: input.outcome,
+          note: input.note?.trim() || null,
+          callback_at: callbackAt,
+        })
+        .eq("id", input.attemptId),
+      // Mirror onto the recording anchor (Phase 2) so the Calls list shows
+      // the human disposition alongside the AI review.
+      sb
+        .from("calls")
+        .update({ outcome: input.outcome })
+        .eq("call_attempt_id", input.attemptId),
+    ]);
   }
 
   const { error } = await sb

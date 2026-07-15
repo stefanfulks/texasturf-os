@@ -208,3 +208,8 @@ export type CallListItem       = Database["public"]["Tables"]["call_list_items"]
 export type CallListItemInsert = Database["public"]["Tables"]["call_list_items"]["Insert"]
 export type CallAttempt        = Database["public"]["Tables"]["call_attempts"]["Row"]
 export type CallAttemptInsert  = Database["public"]["Tables"]["call_attempts"]["Insert"]
+
+// ---- Calling suite: recorded calls (Phase 2) ---------------------------------
+export type CallRow        = Database["public"]["Tables"]["calls"]["Row"]
+export type CallRowInsert  = Database["public"]["Tables"]["calls"]["Insert"]
+export type CallSetting    = Database["public"]["Tables"]["call_settings"]["Row"]

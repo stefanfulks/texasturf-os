@@ -25,6 +25,7 @@ import {
   isSmsConfigured,
 } from "@/lib/twilio/client";
 import { placeBridgeCall } from "@/lib/twilio/bridge";
+import { logCallStart } from "@/lib/calls/log";
 import { getValidGoogleAccessToken } from "@/lib/google/tokens";
 import { sendGmail, type SendError } from "@/lib/google/gmail";
 
@@ -63,7 +64,23 @@ export async function startCall(
     toPhone: leadPhone,
     statusCallbackPath: `/api/twilio/voice-status?dealId=${encodeURIComponent(dealId)}`,
   });
-  return result.ok ? { ok: true } : { ok: false, reason: result.reason };
+  if (!result.ok) return { ok: false, reason: result.reason };
+
+  // Phase 2: the calls row — recording + AI review attach to this.
+  const userId = await currentUserId();
+  if (userId) {
+    await logCallStart({
+      deal_id: dealId,
+      caller_id: userId,
+      target_type: "sales_contact",
+      target_id: contactId,
+      target_name: contact?.name ?? null,
+      target_phone: leadPhone,
+      twilio_call_sid: result.callSid,
+      brand: "texasturf",
+    });
+  }
+  return { ok: true };
 }
 
 /**

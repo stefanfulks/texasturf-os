@@ -56,6 +56,14 @@ export async function POST(req: Request): Promise<Response> {
       const patch = { duration_sec: durationSec, twilio_status: status };
       const q = sb.from("call_attempts").update(patch);
       await (attemptId ? q.eq("id", attemptId) : q.eq("call_sid", callSid!));
+      // Close out the calls row too (Phase 2 recording anchor). Recording
+      // duration may overwrite this later with the bridged-portion length.
+      if (callSid) {
+        await sb
+          .from("calls")
+          .update({ ended_at: new Date().toISOString(), duration_sec: durationSec })
+          .eq("twilio_call_sid", callSid);
+      }
     } catch (err) {
       Sentry.captureException(err, {
         tags: { webhook: "twilio", route: "voice-status" },
