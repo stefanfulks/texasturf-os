@@ -963,6 +963,41 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_tags: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["taggable_entity"]
+          id: string
+          tag_id: string
+          tagged_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["taggable_entity"]
+          id?: string
+          tag_id: string
+          tagged_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: Database["public"]["Enums"]["taggable_entity"]
+          id?: string
+          tag_id?: string
+          tagged_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fin_account: {
         Row: {
           active: boolean
@@ -4598,6 +4633,42 @@ export type Database = {
           },
         ]
       }
+      quickbooks_oauth_tokens: {
+        Row: {
+          access_token: string
+          environment: string
+          expires_at: string
+          installed_at: string
+          realm_id: string
+          refresh_expires_at: string
+          refresh_token: string
+          scopes: string[]
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          environment: string
+          expires_at: string
+          installed_at?: string
+          realm_id: string
+          refresh_expires_at: string
+          refresh_token: string
+          scopes?: string[]
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          environment?: string
+          expires_at?: string
+          installed_at?: string
+          realm_id?: string
+          refresh_expires_at?: string
+          refresh_token?: string
+          scopes?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       recurring_rules: {
         Row: {
           active: boolean
@@ -4959,6 +5030,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tags: {
+        Row: {
+          color: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
       }
       task_activity: {
         Row: {
@@ -6488,6 +6586,14 @@ export type Database = {
         | "damaged"
         | "returned"
       roll_type: "parent" | "child"
+      taggable_entity:
+        | "sales_contact"
+        | "jobber_client"
+        | "deal"
+        | "task"
+        | "job"
+        | "project"
+        | "invoice"
       task_priority: "low" | "normal" | "high" | "urgent"
       task_status:
         | "inbox"
@@ -6806,6 +6912,15 @@ export const Constants = {
         "returned",
       ],
       roll_type: ["parent", "child"],
+      taggable_entity: [
+        "sales_contact",
+        "jobber_client",
+        "deal",
+        "task",
+        "job",
+        "project",
+        "invoice",
+      ],
       task_priority: ["low", "normal", "high", "urgent"],
       task_status: [
         "inbox",

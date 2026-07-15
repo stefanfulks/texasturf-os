@@ -217,3 +217,10 @@ export type CallSetting    = Database["public"]["Tables"]["call_settings"]["Row"
 // ---- Calling suite: AI call reviews (Phase 3) --------------------------------
 export type CallAiReview       = Database["public"]["Tables"]["call_ai_reviews"]["Row"]
 export type CallAiReviewInsert = Database["public"]["Tables"]["call_ai_reviews"]["Insert"]
+
+// ---- Tags (app-wide registry + polymorphic link) ------------------------------
+export type Tag = Database["public"]["Tables"]["tags"]["Row"]
+export type TagInsert = Database["public"]["Tables"]["tags"]["Insert"]
+export type EntityTag = Database["public"]["Tables"]["entity_tags"]["Row"]
+export type EntityTagInsert = Database["public"]["Tables"]["entity_tags"]["Insert"]
+export type TaggableEntity = Database["public"]["Enums"]["taggable_entity"]
