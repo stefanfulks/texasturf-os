@@ -20,6 +20,8 @@ import { JobberHandoff } from "@/components/sales/JobberHandoff";
 import { DealHeaderActions } from "@/components/sales/DealHeaderActions";
 import { DealOverviewForms } from "@/components/sales/DealOverviewForms";
 import { DealComms } from "@/components/sales/DealComms";
+import { listTags, getTagsForEntity } from "@/lib/tags/queries";
+import { TagPicker } from "@/components/tags/TagPicker";
 import { isTwilioConfigured, isSmsConfigured } from "@/lib/twilio/client";
 import { isGmailConfigured } from "@/lib/google/gmail";
 
@@ -96,6 +98,16 @@ export default async function DealDetailPage({
   const gmailConfigured = isGmailConfigured();
   const smsActivities = activities.filter((a) => a.kind === "sms");
   const emailActivities = activities.filter((a) => a.kind === "email");
+
+  // Tags: full registry for autocomplete + what's applied to the deal/contact.
+  const registryRows = await listTags();
+  const registry = registryRows.map((t) => ({
+    id: t.id, name: t.name, slug: t.slug, color: t.color,
+  }));
+  const dealTags = await getTagsForEntity("deal", id);
+  const contactTags = deal.sales_contact_id
+    ? await getTagsForEntity("sales_contact", deal.sales_contact_id)
+    : [];
 
   const now = today();
   const open = deal.stage !== "closed_won" && deal.stage !== "closed_lost";
@@ -244,6 +256,28 @@ export default async function DealDetailPage({
             smsConfigured={smsConfigured}
             gmailConfigured={gmailConfigured}
           />
+
+          <div className="card p-4">
+            <p className="eyebrow mb-2">Deal tags</p>
+            <TagPicker
+              entityType="deal"
+              entityId={id}
+              initialTags={dealTags}
+              registry={registry}
+            />
+          </div>
+
+          {deal.sales_contact_id ? (
+            <div className="card p-4">
+              <p className="eyebrow mb-2">Contact tags</p>
+              <TagPicker
+                entityType="sales_contact"
+                entityId={deal.sales_contact_id}
+                initialTags={contactTags}
+                registry={registry}
+              />
+            </div>
+          ) : null}
 
           <div className="card px-4 py-3.5">
             <div className="eyebrow mb-2.5">Details</div>
