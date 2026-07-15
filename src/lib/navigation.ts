@@ -45,10 +45,11 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
       { label: "Calendar",  href: "/calendar" },
       { label: "Meetings",  href: "/meetings" },
       { label: "Attention", href: "/attention" },
+      { label: "Tags",      href: "/tags" },
       { label: "Feedback",  href: "/feedback" },
       { label: "Turfy",     href: "/assistant" },
     ],
-    prefixes: ["/dashboard", "/agenda", "/tasks", "/calendar", "/meetings", "/attention", "/feedback", "/assistant"],
+    prefixes: ["/dashboard", "/agenda", "/tasks", "/calendar", "/meetings", "/attention", "/tags", "/feedback", "/assistant"],
   },
   {
     label: "Sales",
