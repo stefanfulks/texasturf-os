@@ -77,8 +77,10 @@ export default async function AppLayout({
       />
       <header className="sticky top-0 z-30 border-b border-line bg-surface/80 backdrop-blur-md supports-[backdrop-filter]:bg-surface/65">
         <div className="flex h-14 w-full items-center justify-between gap-4 px-4 sm:px-6">
-          {/* LEFT — identity + nav */}
-          <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+          {/* LEFT — identity + nav. flex-1 so the nav slot gets a real
+              "remaining width" to measure against (see NavLinks: it collapses
+              to a hamburger when the tabs don't fit that width). */}
+          <div className="flex flex-1 items-center gap-3 sm:gap-5 min-w-0">
             <UserMenu
               fullName={profile?.full_name ?? null}
               email={profile?.email ?? user.email ?? ""}

@@ -121,6 +121,16 @@ export function NavLinks({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  // Overflow-aware collapse. The desktop tab row keeps its full intrinsic
+  // width (no wrap, no shrink), so a fixed breakpoint can't know whether the
+  // tabs fit — the count varies by role + department. Instead we measure: if
+  // the tab row is wider than the space the header actually gives it, collapse
+  // to the hamburger. This is what keeps the shell from overflowing sideways
+  // at desktop browser zoom (zoom shrinks the effective CSS width, squeezing
+  // the header until the tabs no longer fit).
+  const slotRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [fits, setFits] = useState(true);
 
   const feedbackTab: NavTab = {
     href:     isAdmin ? "/admin/feedback" : "/feedback",
@@ -147,12 +157,61 @@ export function NavLinks({
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setOpen(false); }, [pathname]);
 
+  // Do the tabs fit? Compare the intrinsic width of the (hidden) full tab row
+  // against the width the header grants the nav slot. Re-check whenever either
+  // changes — window resize, browser zoom, font load, or a different tab set.
+  const tabsKey = tabs.map((t) => t.href).join("|");
+  useEffect(() => {
+    const slot = slotRef.current;
+    const measure = measureRef.current;
+    if (!slot || !measure) return;
+    const check = () => {
+      // 8px of slack so we collapse just before the row would clip, not after.
+      setFits(measure.scrollWidth + 8 <= slot.clientWidth);
+    };
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(slot);
+    ro.observe(measure);
+    return () => ro.disconnect();
+  }, [tabsKey]);
+
   const activeTab = tabs.find((t) => isActive(pathname, t));
 
   return (
-    <>
-      {/* Desktop tabs (md+) */}
-      <nav className="hidden md:flex items-center gap-1 text-sm">
+    <div ref={slotRef} className="relative flex min-w-0 flex-1 items-center">
+      {/* Invisible measuring copy of the full tab row. The outer box is
+          clipped to the slot's width so this hidden row can never push the
+          page wider than the viewport (visibility:hidden still counts toward
+          scrollWidth); the inner w-max row keeps its true intrinsic width,
+          which we read to decide whether the real tabs fit. */}
+      <div
+        aria-hidden
+        className="pointer-events-none invisible absolute inset-y-0 left-0 w-full overflow-hidden"
+      >
+        <div ref={measureRef} className="flex w-max items-center gap-1 text-sm">
+          {tabs.map((tab) => (
+            <span key={tab.href} className="rounded-lg border px-2.5 py-1.5 font-semibold">
+              {tab.label}
+              {tab.badge ? (
+                <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 align-middle text-[10px] font-bold leading-none">
+                  {tab.badge > 9 ? "9+" : tab.badge}
+                </span>
+              ) : null}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop tabs — shown only when they actually fit the slot (md+). The
+          w-full + overflow-hidden guarantees the row can never push the page
+          wider than the viewport even before the fit check runs. */}
+      <nav
+        className={
+          "w-full items-center gap-1 overflow-hidden text-sm " +
+          (fits ? "hidden md:flex" : "hidden")
+        }
+      >
         {tabs.map((tab) => {
           const active = isActive(pathname, tab);
           return (
@@ -177,8 +236,8 @@ export function NavLinks({
         })}
       </nav>
 
-      {/* Mobile hamburger (< md) */}
-      <div ref={ref} className="relative md:hidden">
+      {/* Hamburger — below md always, and at md+ when the tabs don't fit. */}
+      <div ref={ref} className={"relative " + (fits ? "md:hidden" : "")}>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -216,6 +275,6 @@ export function NavLinks({
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
