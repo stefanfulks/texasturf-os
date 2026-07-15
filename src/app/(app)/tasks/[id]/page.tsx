@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { Repeat } from "lucide-react";
 import { format, parseISO, isPast, isToday } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
+import { listTags, getTagsForEntity } from "@/lib/tags/queries";
+import { TagPicker } from "@/components/tags/TagPicker";
 import { TaskEditForm } from "./task-edit-form";
 import { TaskArchiveButton } from "./archive-button";
 import { CommentSection } from "./comment-section";
@@ -80,6 +82,12 @@ export default async function TaskDetailPage({
 
   const isOverdue = task.due_date && task.status !== "done" && isPast(parseISO(task.due_date)) && !isToday(parseISO(task.due_date));
 
+  // Tags: registry for autocomplete + what's applied to this task.
+  const registry = (await listTags()).map((t) => ({
+    id: t.id, name: t.name, slug: t.slug, color: t.color,
+  }));
+  const taskTags = await getTagsForEntity("task", id);
+
   return (
     <div className="max-w-2xl space-y-6">
       {/* Back */}
@@ -113,6 +121,17 @@ export default async function TaskDetailPage({
           task={task}
           allProfiles={allProfiles}
           initialAssigneeIds={assigneeIds.length > 0 ? assigneeIds : [task.assignee_id]}
+        />
+      </div>
+
+      {/* Tags */}
+      <div className="card p-4">
+        <p className="eyebrow mb-2">Tags</p>
+        <TagPicker
+          entityType="task"
+          entityId={id}
+          initialTags={taskTags}
+          registry={registry}
         />
       </div>
 

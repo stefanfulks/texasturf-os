@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { ChevronLeft, ExternalLink, MapPin, Calendar, User, ClipboardList, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { listTags, getTagsForEntity } from "@/lib/tags/queries";
+import { TagPicker } from "@/components/tags/TagPicker";
 import { JobForm } from "../job-form";
 import { JobArchiveButton } from "./archive-button";
 import { JobberJobPicker, type JobberJobOption } from "./jobber-job-picker";
@@ -92,6 +94,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         }
       : null);
 
+  // Tags: registry for autocomplete + what's applied to this job.
+  const registry = (await listTags()).map((t) => ({
+    id: t.id, name: t.name, slug: t.slug, color: t.color,
+  }));
+  const jobTags = await getTagsForEntity("job", id);
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-4 sm:py-6 space-y-5 pb-12">
       <Link
@@ -134,6 +142,17 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       {isOfficeOrAdmin && (
         <JobberJobPicker projectId={job.id} current={currentJobberJob} options={jobberOptions} />
       )}
+
+      {/* Tags */}
+      <div className="card p-4">
+        <p className="eyebrow mb-2">Tags</p>
+        <TagPicker
+          entityType="job"
+          entityId={id}
+          initialTags={jobTags}
+          registry={registry}
+        />
+      </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">

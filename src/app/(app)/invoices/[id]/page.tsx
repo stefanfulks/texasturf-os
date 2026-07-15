@@ -3,6 +3,8 @@ import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
+import { listTags, getTagsForEntity } from "@/lib/tags/queries";
+import { TagPicker } from "@/components/tags/TagPicker";
 import { InvoiceCommentSection } from "./comment-section";
 import { ArchiveButton } from "./archive-button";
 import type { Invoice, InvoiceStatus, InvoiceLineItem, InvoiceStatusHistory, InvoiceComment, Vendor } from "@/lib/db-helpers.types";
@@ -85,6 +87,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
     signedUrl = invoice.original_file_url;
   }
 
+  // Tags: registry for autocomplete + what's applied to this invoice.
+  const registry = (await listTags()).map((t) => ({
+    id: t.id, name: t.name, slug: t.slug, color: t.color,
+  }));
+  const invoiceTags = await getTagsForEntity("invoice", id);
+
   return (
     <div className="max-w-5xl space-y-6">
       {/* Back + Header */}
@@ -134,6 +142,17 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           )}
         </div>
       )}
+
+      {/* Tags */}
+      <div className="card p-4">
+        <p className="eyebrow mb-2">Tags</p>
+        <TagPicker
+          entityType="invoice"
+          entityId={id}
+          initialTags={invoiceTags}
+          registry={registry}
+        />
+      </div>
 
       {/* Change request banner */}
       {invoice.status === "request_change" && invoice.change_request_reason && (

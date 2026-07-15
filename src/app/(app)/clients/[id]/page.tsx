@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { listTags, getTagsForEntity } from "@/lib/tags/queries";
+import { TagPicker } from "@/components/tags/TagPicker";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +91,12 @@ export default async function ClientDetailPage({
     id: string; title: string | null; starts_at: string | null; is_complete: boolean;
   }>;
 
+  // Tags: registry for autocomplete + what's applied to this client.
+  const registry = (await listTags()).map((t) => ({
+    id: t.id, name: t.name, slug: t.slug, color: t.color,
+  }));
+  const clientTags = await getTagsForEntity("jobber_client", id);
+
   const name = clientName(client);
   const emails = (client.emails ?? []).map((e) => e.address).filter(Boolean) as string[];
   const phones = (client.phones ?? []).map((p) => p.number).filter(Boolean) as string[];
@@ -125,6 +133,17 @@ export default async function ClientDetailPage({
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Tags */}
+      <div className="reveal card p-4">
+        <p className="eyebrow mb-2">Tags</p>
+        <TagPicker
+          entityType="jobber_client"
+          entityId={id}
+          initialTags={clientTags}
+          registry={registry}
+        />
       </div>
 
       {/* At-a-glance */}
