@@ -77,19 +77,25 @@ export default async function AppLayout({
       />
       <header className="sticky top-0 z-30 border-b border-line bg-surface/80 backdrop-blur-md supports-[backdrop-filter]:bg-surface/65">
         <div className="flex h-14 w-full items-center justify-between gap-4 px-4 sm:px-6">
-          {/* LEFT — identity + nav */}
-          <div className="flex items-center gap-3 sm:gap-5 min-w-0">
-            <UserMenu
-              fullName={profile?.full_name ?? null}
-              email={profile?.email ?? user.email ?? ""}
-              role={profile?.role ?? null}
-              isAdmin={isAdmin}
-            />
-            <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
-            <BrandSwitcher />
-            <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
-            <SectionHome isAdmin={isAdmin} />
-            <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
+          {/* LEFT — identity + nav. flex-1/min-w-0 gives this region a bounded
+              width budget so the nav lane can scroll instead of spilling onto
+              the right cluster when tabs outrun the viewport (many-tab roles,
+              or any browser zoom). */}
+          <div className="flex items-center gap-3 sm:gap-5 min-w-0 flex-1">
+            {/* Identity cluster — fixed anchors, never shrink. */}
+            <div className="flex shrink-0 items-center gap-3 sm:gap-5">
+              <UserMenu
+                fullName={profile?.full_name ?? null}
+                email={profile?.email ?? user.email ?? ""}
+                role={profile?.role ?? null}
+                isAdmin={isAdmin}
+              />
+              <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
+              <BrandSwitcher />
+              <span className="hidden sm:block h-5 w-px bg-line" aria-hidden />
+              <SectionHome isAdmin={isAdmin} />
+            </div>
+            <span className="hidden sm:block h-5 w-px bg-line shrink-0" aria-hidden />
             <NavLinks isAdmin={isAdmin} department={primaryDepartment} feedbackCount={feedbackOpen} />
           </div>
 
