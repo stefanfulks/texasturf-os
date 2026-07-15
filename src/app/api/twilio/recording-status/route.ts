@@ -12,11 +12,16 @@
  */
 
 import * as Sentry from "@sentry/nextjs";
+import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { validateTwilioRequest } from "@/lib/twilio/webhook";
+import { processRecordingReady } from "@/lib/calls/pipeline";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// The after() pipeline (download → transcribe → AI review → tasks) needs more
+// than the default function window.
+export const maxDuration = 300;
 
 export async function POST(req: Request): Promise<Response> {
   const check = await validateTwilioRequest(req, "/api/twilio/recording-status");
@@ -56,6 +61,10 @@ export async function POST(req: Request): Promise<Response> {
         message: `recording-status: no calls row for ${callSid}`,
         level: "warning",
       });
+    } else if (recordingStatus === "completed" && recordingUrl) {
+      // Phase 3: transcribe + AI review + auto tasks, after the 200 returns
+      // (Twilio's webhook timeout is far shorter than the pipeline).
+      after(() => processRecordingReady(callSid));
     }
   } catch (err) {
     Sentry.captureException(err, {

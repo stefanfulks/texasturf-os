@@ -215,6 +215,62 @@ export type Database = {
           },
         ]
       }
+      call_ai_reviews: {
+        Row: {
+          call_id: string
+          coaching_notes: string | null
+          commitments: Json
+          created_at: string
+          follow_ups: Json
+          id: string
+          interest_level: number
+          model: string | null
+          objections: Json
+          outcome_class: string
+          summary: string
+          tokens_input: number | null
+          tokens_output: number | null
+        }
+        Insert: {
+          call_id: string
+          coaching_notes?: string | null
+          commitments?: Json
+          created_at?: string
+          follow_ups?: Json
+          id?: string
+          interest_level: number
+          model?: string | null
+          objections?: Json
+          outcome_class: string
+          summary: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+        }
+        Update: {
+          call_id?: string
+          coaching_notes?: string | null
+          commitments?: Json
+          created_at?: string
+          follow_ups?: Json
+          id?: string
+          interest_level?: number
+          model?: string | null
+          objections?: Json
+          outcome_class?: string
+          summary?: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_ai_reviews_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: true
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       call_attempts: {
         Row: {
           call_list_id: string | null
@@ -446,6 +502,8 @@ export type Database = {
           target_name: string | null
           target_phone: string | null
           target_type: string | null
+          transcribed_at: string | null
+          transcript: string | null
           twilio_call_sid: string | null
         }
         Insert: {
@@ -467,6 +525,8 @@ export type Database = {
           target_name?: string | null
           target_phone?: string | null
           target_type?: string | null
+          transcribed_at?: string | null
+          transcript?: string | null
           twilio_call_sid?: string | null
         }
         Update: {
@@ -488,6 +548,8 @@ export type Database = {
           target_name?: string | null
           target_phone?: string | null
           target_type?: string | null
+          transcribed_at?: string | null
+          transcript?: string | null
           twilio_call_sid?: string | null
         }
         Relationships: [

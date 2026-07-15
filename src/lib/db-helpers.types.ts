@@ -213,3 +213,7 @@ export type CallAttemptInsert  = Database["public"]["Tables"]["call_attempts"]["
 export type CallRow        = Database["public"]["Tables"]["calls"]["Row"]
 export type CallRowInsert  = Database["public"]["Tables"]["calls"]["Insert"]
 export type CallSetting    = Database["public"]["Tables"]["call_settings"]["Row"]
+
+// ---- Calling suite: AI call reviews (Phase 3) --------------------------------
+export type CallAiReview       = Database["public"]["Tables"]["call_ai_reviews"]["Row"]
+export type CallAiReviewInsert = Database["public"]["Tables"]["call_ai_reviews"]["Insert"]
