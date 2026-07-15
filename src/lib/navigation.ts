@@ -56,8 +56,10 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
     primaryHref: "/sales",
     tools: [
       { label: "Pipeline",             href: "/sales" },
+      { label: "Today",                href: "/sales/today" },
       { label: "Dialer",               href: "/sales/dialer" },
       { label: "Calls",                href: "/sales/calls" },
+      { label: "Coaching",             href: "/sales/coaching" },
       { label: "Inbox",                href: "/sales/inbox" },
       { label: "Pitch",                href: "/pitch" },
       { label: "Pricing Calculator",   href: "/pricing" },
