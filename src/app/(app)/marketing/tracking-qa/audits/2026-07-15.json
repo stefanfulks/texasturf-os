@@ -1,0 +1,155 @@
+{
+  "weekEnding": "2026-07-15",
+  "windowLabel": "Last 7 days · Jul 8–15, 2026",
+  "windowStart": "2026-07-08",
+  "windowEnd": "2026-07-15",
+  "generatedAt": "2026-07-15T12:35:00-07:00",
+  "account": { "name": "TexasTurf USA", "id": "1558027655376028" },
+  "pixel": {
+    "name": "TexasTurf Pixel",
+    "id": "1238616098223513",
+    "active": true,
+    "lastFired": "2026-07-15T11:53:25-07:00",
+    "lastFiredServer": "2026-07-15T11:53:25-07:00",
+    "uploadFrequency": "hourly",
+    "capiGateway": "NOT_ONBOARDED"
+  },
+  "campaign": {
+    "name": "SM-EF_WebsiteLeads_ABO",
+    "id": "120244291299470346",
+    "objective": "OUTCOME_LEADS",
+    "optimizedEvent": "Lead (offsite conversion)",
+    "eventIsFiring": true,
+    "signalUsableByMeta": false,
+    "spend": "$337.71",
+    "impressions": "4,063",
+    "attributionSetting": "1-day view / 7-day click / 1-day engaged-view"
+  },
+  "eventVolume": [
+    { "event": "PageView", "web": 387, "server": 406, "total": 793 },
+    { "event": "Lead", "web": 25, "server": 0, "total": 25 },
+    { "event": "Schedule", "web": 8, "server": 3, "total": 11 }
+  ],
+  "emq": [
+    {
+      "event": "Lead",
+      "composite": null,
+      "isConversion": true,
+      "note": "No EMQ reported — no composite score and no match keys.",
+      "matchKeys": [
+        { "key": "email", "coverage": null },
+        { "key": "phone", "coverage": null },
+        { "key": "fbc", "coverage": null },
+        { "key": "fbp", "coverage": null },
+        { "key": "external_id", "coverage": null }
+      ]
+    },
+    {
+      "event": "Schedule",
+      "composite": 6.1,
+      "isConversion": true,
+      "matchKeys": [
+        { "key": "email", "coverage": null },
+        { "key": "phone", "coverage": null },
+        { "key": "fbc", "coverage": null },
+        { "key": "fbp", "coverage": 100 },
+        { "key": "external_id", "coverage": null }
+      ]
+    },
+    {
+      "event": "PageView",
+      "composite": 6.1,
+      "isConversion": false,
+      "matchKeys": [
+        { "key": "email", "coverage": null },
+        { "key": "phone", "coverage": null },
+        { "key": "fbc", "coverage": 50.3 },
+        { "key": "fbp", "coverage": 100 },
+        { "key": "external_id", "coverage": null }
+      ]
+    }
+  ],
+  "fbcCoverage": 50.3,
+  "fbcTarget": 70,
+  "adSets": [
+    {
+      "name": "SM_WebsiteLeads_Videos",
+      "status": "ACTIVE",
+      "optimizationGoal": "OFFSITE_CONVERSIONS",
+      "spend": "$228.77",
+      "impressions": "2,277",
+      "attributedLeads": "Not available"
+    },
+    {
+      "name": "SM_WebsiteLeads_LaL",
+      "status": "ACTIVE",
+      "optimizationGoal": "OFFSITE_CONVERSIONS",
+      "spend": "$72.63",
+      "impressions": "1,124",
+      "attributedLeads": "Not available"
+    },
+    {
+      "name": "SM_WebsiteLeads_Statics_Retargeting",
+      "status": "ACTIVE",
+      "optimizationGoal": "OFFSITE_CONVERSIONS",
+      "spend": "$36.31",
+      "impressions": "662",
+      "attributedLeads": "Not available"
+    },
+    {
+      "name": "SM_WebsiteLeads_Videos (delivery error)",
+      "status": "WITH_ISSUES",
+      "optimizationGoal": "OFFSITE_CONVERSIONS",
+      "spend": null,
+      "impressions": null,
+      "attributedLeads": "Not available"
+    },
+    {
+      "name": "SM_WebsiteLeads_Winner",
+      "status": "PAUSED",
+      "optimizationGoal": "OFFSITE_CONVERSIONS",
+      "spend": null,
+      "impressions": null,
+      "attributedLeads": "Not available"
+    }
+  ],
+  "attributionGap": {
+    "window": "Last 7 days (Jul 8–15)",
+    "pixelLeads": 25,
+    "metaAttributedLeads": 0,
+    "metaAttributedRaw": "Not available (0)",
+    "buyerCorrectedLeads": null
+  },
+  "flags": [
+    {
+      "severity": "critical",
+      "title": "Lead event has no Event Match Quality",
+      "detail": "Meta reports no EMQ for the Lead event — no composite score and no match keys. Without match signals Meta can't tie Lead events to accounts, so it attributes 0 Website Leads even though 25 fired at the pixel. This is the root cause of the attribution gap."
+    },
+    {
+      "severity": "critical",
+      "title": "0 Website Leads attributed vs 25 at the pixel",
+      "detail": "The pixel logged 25 Lead events in the last 7 days; Meta attributes 0 to SM-EF_WebsiteLeads_ABO. All three active ad sets optimize for OFFSITE_CONVERSIONS on the Lead event they effectively can't see."
+    },
+    {
+      "severity": "warn",
+      "title": "fbc (click-ID) coverage is 50.3%",
+      "detail": "Below the ~70% target. Roughly half of events carry no fbc, which degrades click-through matching and weakens attribution even for events that do match."
+    },
+    {
+      "severity": "warn",
+      "title": "Lead is browser-only — no CAPI backup",
+      "detail": "25 of 25 Leads fired from the browser pixel, 0 server-side. With no Conversions API events, ad-blockers and iOS/ITP silently drop Leads and there's nothing server-side to recover them. CAPI Gateway is NOT_ONBOARDED."
+    },
+    {
+      "severity": "warn",
+      "title": "Ad set stuck with delivery issues",
+      "detail": "SM_WebsiteLeads_Videos (delivery error) is WITH_ISSUES and not delivering. Resolve or archive it so it stops fragmenting the campaign."
+    },
+    {
+      "severity": "ok",
+      "title": "Pixel is live and fresh",
+      "detail": "Last fired Jul 15, 11:53 (browser and server), uploading hourly. Volume is healthy — this is a matching/attribution problem, not a firing problem."
+    }
+  ]
+}

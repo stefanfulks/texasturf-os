@@ -57,6 +57,7 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
     tools: [
       { label: "Pipeline",             href: "/sales" },
       { label: "Dialer",               href: "/sales/dialer" },
+      { label: "Calls",                href: "/sales/calls" },
       { label: "Inbox",                href: "/sales/inbox" },
       { label: "Pitch",                href: "/pitch" },
       { label: "Pricing Calculator",   href: "/pricing" },
@@ -138,6 +139,7 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
       { label: "Overview",       href: "/marketing" },
       { label: "Campaigns",      href: "/marketing/campaigns" },
       { label: "Ads",            href: "/marketing/funnel" },
+      { label: "Tracking QA",    href: "/marketing/tracking-qa" },
       { label: "Referrals",      href: "/marketing/referrals" },
       { label: "Reviews",        href: "/marketing/reviews" },
       { label: "Content",        href: "/marketing/content" },
