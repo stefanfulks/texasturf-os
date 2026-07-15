@@ -16,6 +16,7 @@ import { getConnectedRealm } from "@/lib/integrations/quickbooks/tokens";
 import { syncPnlActuals } from "@/lib/integrations/quickbooks/sync/pnl";
 import { syncArInvoices } from "@/lib/integrations/quickbooks/sync/ar";
 import { syncApBills } from "@/lib/integrations/quickbooks/sync/ap";
+import { syncCashSnapshot } from "@/lib/integrations/quickbooks/sync/cash";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -84,6 +85,10 @@ export async function POST(req: NextRequest) {
 
   if (entity === "ap" || entity === "all") {
     results.ap = await run(() => syncApBills(realm.realm_id), "ap");
+  }
+
+  if (entity === "cash" || entity === "all") {
+    results.cash = await run(() => syncCashSnapshot(realm.realm_id), "cash");
   }
 
   if (Object.keys(results).length === 0) {
