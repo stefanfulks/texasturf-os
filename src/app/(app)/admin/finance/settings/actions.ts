@@ -20,6 +20,15 @@ export async function upsertFinRow(table: FinSettingsTable, row: Record<string, 
   revalidatePath("/admin/finance/settings");
 }
 
+/** "Sync now" from the QuickBooks connection card. Admin-gated. */
+export async function quickbooksSyncNow() {
+  await requireAdmin();
+  const { runQuickbooksSync } = await import("@/lib/integrations/quickbooks/sync");
+  await runQuickbooksSync("all");
+  revalidatePath("/admin/finance/settings");
+  revalidatePath("/admin/finance");
+}
+
 export async function deleteFinRow(table: FinSettingsTable, id: string) {
   await requireAdmin();
   const supabase = await createClient();

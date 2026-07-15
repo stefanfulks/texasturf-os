@@ -1,6 +1,8 @@
 import { requireAdmin } from "@/lib/auth/require-role";
 import { createClient } from "@/lib/supabase/server";
+import { getConnectedRealm } from "@/lib/integrations/quickbooks/tokens";
 import { FinTableEditor, type FieldDef } from "./settings-editors";
+import { quickbooksSyncNow } from "./actions";
 
 const ACCOUNT_FIELDS: FieldDef[] = [
   { key: "id", label: "ID", type: "text" },
@@ -33,14 +35,22 @@ const QB_MAP_FIELDS: FieldDef[] = [
 export default async function FinanceSettingsPage() {
   await requireAdmin();
   const supabase = await createClient();
-  const [{ data: accounts }, { data: units }, { data: products }, { data: roles }, { data: settings }, { data: qbMap }] = await Promise.all([
+  const [{ data: accounts }, { data: units }, { data: products }, { data: roles }, { data: settings }, { data: qbMap }, realm, { data: syncLog }] = await Promise.all([
     supabase.from("fin_account").select("*").order("sort_order"),
     supabase.from("fin_business_unit").select("*").order("display_order"),
     supabase.from("fin_product").select("*").order("name"),
     supabase.from("fin_labor_role").select("*").order("display_order"),
     supabase.from("fin_company_settings").select("*").eq("fiscal_year", 2026).single(),
     supabase.from("fin_qb_account_map").select("*").order("qb_account_name"),
+    getConnectedRealm(),
+    supabase.from("fin_sync_log").select("entity, status, rows_synced, message, synced_at").eq("source", "quickbooks").order("synced_at", { ascending: false }).limit(20),
   ]);
+
+  // Latest fin_sync_log row per entity (the list is already newest-first).
+  const lastSync = new Map<string, NonNullable<typeof syncLog>[number]>();
+  for (const row of syncLog ?? []) {
+    if (!lastSync.has(row.entity)) lastSync.set(row.entity, row);
+  }
 
   return (
     <div className="space-y-8">
@@ -66,6 +76,38 @@ export default async function FinanceSettingsPage() {
       <section className="space-y-2">
         <h2 className="font-medium text-ink">Labor roles</h2>
         <FinTableEditor table="fin_labor_role" fields={ROLE_FIELDS} rows={roles ?? []} />
+      </section>
+      <section className="space-y-2">
+        <h2 className="font-medium text-ink">QuickBooks connection</h2>
+        {realm ? (
+          <div className="space-y-2">
+            <p className="text-ink-3 text-sm">
+              Connected to company {realm.realm_id} ({realm.environment}) · installed {new Date(realm.installed_at).toLocaleDateString()}. Daily sync runs each morning; webhooks keep AR/AP live between runs.
+            </p>
+            <ul className="text-ink-4 text-xs space-y-0.5">
+              {(["pnl_actuals", "ar", "ap", "cash"] as const).map((entity) => {
+                const row = lastSync.get(entity);
+                return (
+                  <li key={entity}>
+                    {entity}: {row ? `${row.status} · ${row.rows_synced} rows · ${new Date(row.synced_at).toLocaleString()}${row.message ? ` · ${row.message}` : ""}` : "never synced"}
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="flex gap-4 text-sm">
+              <form action={quickbooksSyncNow}>
+                <button className="text-brand" type="submit">Sync now</button>
+              </form>
+              <form method="post" action={`/api/quickbooks/disconnect?realmId=${realm.realm_id}`}>
+                <button className="text-danger" type="submit">Disconnect</button>
+              </form>
+            </div>
+          </div>
+        ) : (
+          <p className="text-ink-3 text-sm">
+            Not connected. <a className="text-brand" href="/api/quickbooks/connect">Connect QuickBooks</a> to pull P&amp;L actuals, AR/AP aging, and cash into the finance suite.
+          </p>
+        )}
       </section>
       <section className="space-y-2">
         <h2 className="font-medium text-ink">QuickBooks account map</h2>

@@ -1,27 +1,21 @@
 /**
- * POST /api/quickbooks/sync?entity=pnl|all&year=2026
+ * POST /api/quickbooks/sync?entity=pnl|ar|ap|cash|all&year=2026
  *
  * Runs the QuickBooks → finance backbone sync. Callable two ways:
- *   * Vercel cron / scripts with the CRON_SECRET bearer (fail closed), or
+ *   * scripts/one-offs with the CRON_SECRET bearer (fail closed), or
  *   * a signed-in admin (the "Sync now" button in finance settings).
- *
- * Each entity logs its own fin_sync_log row (inside the sync writers); one
- * entity failing must not stop the rest.
  */
 
 import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
-import * as Sentry from "@sentry/nextjs";
-import { getConnectedRealm } from "@/lib/integrations/quickbooks/tokens";
-import { syncPnlActuals } from "@/lib/integrations/quickbooks/sync/pnl";
-import { syncArInvoices } from "@/lib/integrations/quickbooks/sync/ar";
-import { syncApBills } from "@/lib/integrations/quickbooks/sync/ap";
-import { syncCashSnapshot } from "@/lib/integrations/quickbooks/sync/cash";
+import { runQuickbooksSync, type SyncRunEntity } from "@/lib/integrations/quickbooks/sync";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 300;
+
+const ENTITIES: SyncRunEntity[] = ["pnl", "ar", "ap", "cash", "all"];
 
 function constantTimeBearerEqual(authHeader: string | null, secret: string) {
   if (!authHeader) return false;
@@ -53,70 +47,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const realm = await getConnectedRealm();
-  if (!realm) {
+  const url = new URL(req.url);
+  const entity = (url.searchParams.get("entity") ?? "all") as SyncRunEntity;
+  if (!ENTITIES.includes(entity)) {
+    return NextResponse.json({ ok: false, error: `unknown entity '${entity}'` }, { status: 400 });
+  }
+  const year = clampYear(url.searchParams.get("year"));
+
+  const result = await runQuickbooksSync(entity, year);
+  if (!result.connected) {
     return NextResponse.json(
       { ok: false, error: "QuickBooks is not connected" },
       { status: 409 },
     );
   }
-
-  const url = new URL(req.url);
-  const entity = url.searchParams.get("entity") ?? "all";
-  const now = new Date();
-  const year = clampYear(url.searchParams.get("year"), now.getUTCFullYear());
-  // Fiscal year to date (calendar-year fiscal year, matching fin_period).
-  const startDate = `${year}-01-01`;
-  const endDate =
-    year === now.getUTCFullYear() ? now.toISOString().slice(0, 10) : `${year}-12-31`;
-
-  const results: Record<string, { rows: number; error: string | null }> = {};
-
-  if (entity === "pnl" || entity === "all") {
-    results.pnl_actuals = await run(
-      async () => (await syncPnlActuals(realm.realm_id, { startDate, endDate })).rows,
-      "pnl_actuals",
-    );
-  }
-
-  if (entity === "ar" || entity === "all") {
-    results.ar = await run(() => syncArInvoices(realm.realm_id), "ar");
-  }
-
-  if (entity === "ap" || entity === "all") {
-    results.ap = await run(() => syncApBills(realm.realm_id), "ap");
-  }
-
-  if (entity === "cash" || entity === "all") {
-    results.cash = await run(() => syncCashSnapshot(realm.realm_id), "cash");
-  }
-
-  if (Object.keys(results).length === 0) {
-    return NextResponse.json({ ok: false, error: `unknown entity '${entity}'` }, { status: 400 });
-  }
-
-  const failed = Object.values(results).filter((r) => r.error).length;
   return NextResponse.json(
-    { ok: failed === 0, synced: results, range: { startDate, endDate }, timestamp: now.toISOString() },
-    { status: failed === 0 ? 200 : 500 },
+    { ...result, timestamp: new Date().toISOString() },
+    { status: result.ok ? 200 : 500 },
   );
 }
 
-function clampYear(raw: string | null, fallback: number): number {
+function clampYear(raw: string | null): number | undefined {
   const n = Number(raw);
-  if (!Number.isInteger(n) || n < 2020 || n > 2100) return fallback;
+  if (!Number.isInteger(n) || n < 2020 || n > 2100) return undefined;
   return n;
-}
-
-async function run(
-  fn: () => Promise<number>,
-  entity: string,
-): Promise<{ rows: number; error: string | null }> {
-  try {
-    return { rows: await fn(), error: null };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    Sentry.captureException(err, { tags: { sync: "quickbooks", entity } });
-    return { rows: 0, error: message };
-  }
 }
