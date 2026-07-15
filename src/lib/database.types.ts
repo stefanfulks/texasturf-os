@@ -215,6 +215,193 @@ export type Database = {
           },
         ]
       }
+      call_attempts: {
+        Row: {
+          call_list_id: string | null
+          call_list_item_id: string | null
+          call_sid: string | null
+          callback_at: string | null
+          created_at: string
+          deal_id: string | null
+          duration_sec: number | null
+          id: string
+          note: string | null
+          outcome: string | null
+          rep_id: string
+          target_id: string
+          target_type: string
+          twilio_status: string | null
+        }
+        Insert: {
+          call_list_id?: string | null
+          call_list_item_id?: string | null
+          call_sid?: string | null
+          callback_at?: string | null
+          created_at?: string
+          deal_id?: string | null
+          duration_sec?: number | null
+          id?: string
+          note?: string | null
+          outcome?: string | null
+          rep_id: string
+          target_id: string
+          target_type: string
+          twilio_status?: string | null
+        }
+        Update: {
+          call_list_id?: string | null
+          call_list_item_id?: string | null
+          call_sid?: string | null
+          callback_at?: string | null
+          created_at?: string
+          deal_id?: string | null
+          duration_sec?: number | null
+          id?: string
+          note?: string | null
+          outcome?: string | null
+          rep_id?: string
+          target_id?: string
+          target_type?: string
+          twilio_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_attempts_call_list_id_fkey"
+            columns: ["call_list_id"]
+            isOneToOne: false
+            referencedRelation: "call_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_attempts_call_list_item_id_fkey"
+            columns: ["call_list_item_id"]
+            isOneToOne: false
+            referencedRelation: "call_list_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_attempts_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_attempts_rep_id_fkey"
+            columns: ["rep_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_list_items: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          attempts: number
+          call_list_id: string
+          called_at: string | null
+          id: string
+          last_outcome: string | null
+          position: number
+          snapshot_company: string | null
+          snapshot_name: string | null
+          snapshot_phone: string | null
+          status: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          attempts?: number
+          call_list_id: string
+          called_at?: string | null
+          id?: string
+          last_outcome?: string | null
+          position?: number
+          snapshot_company?: string | null
+          snapshot_name?: string | null
+          snapshot_phone?: string | null
+          status?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          attempts?: number
+          call_list_id?: string
+          called_at?: string | null
+          id?: string
+          last_outcome?: string | null
+          position?: number
+          snapshot_company?: string | null
+          snapshot_name?: string | null
+          snapshot_phone?: string | null
+          status?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_list_items_added_by_fkey"
+            columns: ["added_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_list_items_call_list_id_fkey"
+            columns: ["call_list_id"]
+            isOneToOne: false
+            referencedRelation: "call_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_lists: {
+        Row: {
+          brand: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          brand?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          brand?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_lists_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           audience: string | null

@@ -21,12 +21,10 @@ import { salesDb } from "@/lib/sales/db";
 import { getContact } from "@/lib/sales/queries";
 import {
   twilioClient,
-  twilioPhoneNumber,
   twilioMessagingServiceSid,
-  twilioWebhookUrl,
-  isTwilioConfigured,
   isSmsConfigured,
 } from "@/lib/twilio/client";
+import { placeBridgeCall } from "@/lib/twilio/bridge";
 import { getValidGoogleAccessToken } from "@/lib/google/tokens";
 import { sendGmail, type SendError } from "@/lib/google/gmail";
 
@@ -42,55 +40,16 @@ async function currentUserId(): Promise<string | null> {
 }
 
 /**
- * The number Twilio bridges the call through: the signed-in rep's own mobile
- * (profiles.mobile, set on Settings → Account), falling back to the shared env
- * number when the rep hasn't set one.
- */
-async function currentRepNumber(): Promise<string> {
-  const envFallback = process.env.TWILIO_FALLBACK_REP_NUMBER ?? "";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return envFallback;
-  const { data } = await supabase
-    .from("profiles")
-    .select("mobile")
-    .eq("id", user.id)
-    .maybeSingle();
-  const mobile = (data as { mobile: string | null } | null)?.mobile?.trim();
-  return mobile || envFallback;
-}
-
-/**
- * Start a bridge-style call: Twilio rings the rep's phone first, then on answer
- * dials the lead and bridges them, so the lead sees the TexasTurf caller ID.
- *
- * The bridge target is the signed-in rep's own mobile (profiles.mobile, set on
- * Settings → Account), falling back to the shared env `TWILIO_FALLBACK_REP_NUMBER`
- * when the rep hasn't set one.
+ * Start a bridge-style call from a deal: Twilio rings the rep's phone first,
+ * then on answer dials the lead and bridges them, so the lead sees the
+ * TexasTurf caller ID. The mechanics live in placeBridgeCall (shared with the
+ * power dialer); dealId rides on the status callback so completion logs to
+ * the right deal timeline.
  */
 export async function startCall(
   dealId: string,
   contactId: string,
 ): Promise<CommResult> {
-  if (!isTwilioConfigured()) {
-    return { ok: false, reason: "Twilio isn't set up yet." };
-  }
-
-  const client = twilioClient();
-  const fromNumber = twilioPhoneNumber();
-  if (!client || !fromNumber) {
-    return { ok: false, reason: "Twilio isn't set up yet." };
-  }
-  const repNumber = await currentRepNumber();
-  if (!repNumber) {
-    return {
-      ok: false,
-      reason: "Add your mobile on Settings → Account so calls can ring your phone.",
-    };
-  }
-
   const contact = await getContact(contactId);
   const leadPhone = contact?.phone?.trim();
   if (!leadPhone) {
@@ -100,37 +59,11 @@ export async function startCall(
     };
   }
 
-  try {
-    // The rep is dialed first. When they answer, Twilio fetches voice-twiml,
-    // which returns a <Dial> that bridges to the lead with the TexasTurf
-    // caller ID. dealId rides on the status callback so completion logs to the
-    // right deal; the lead's number rides on the twiml URL.
-    const voiceUrl = twilioWebhookUrl(
-      `/api/twilio/voice-twiml?to=${encodeURIComponent(leadPhone)}`,
-    );
-    const statusUrl = twilioWebhookUrl(
-      `/api/twilio/voice-status?dealId=${encodeURIComponent(dealId)}`,
-    );
-
-    await client.calls.create({
-      to: repNumber,
-      from: fromNumber,
-      url: voiceUrl,
-      statusCallback: statusUrl,
-      statusCallbackEvent: ["completed"],
-    });
-
-    return { ok: true };
-  } catch (err) {
-    Sentry.captureException(err, {
-      tags: { feature: "sales-comms", action: "startCall" },
-      extra: { dealId, contactId },
-    });
-    return {
-      ok: false,
-      reason: "Couldn't place the call — try again.",
-    };
-  }
+  const result = await placeBridgeCall({
+    toPhone: leadPhone,
+    statusCallbackPath: `/api/twilio/voice-status?dealId=${encodeURIComponent(dealId)}`,
+  });
+  return result.ok ? { ok: true } : { ok: false, reason: result.reason };
 }
 
 /**

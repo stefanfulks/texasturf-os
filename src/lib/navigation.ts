@@ -56,6 +56,7 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
     primaryHref: "/sales",
     tools: [
       { label: "Pipeline",             href: "/sales" },
+      { label: "Dialer",               href: "/sales/dialer" },
       { label: "Inbox",                href: "/sales/inbox" },
       { label: "Pitch",                href: "/pitch" },
       { label: "Pricing Calculator",   href: "/pricing" },
@@ -107,10 +108,11 @@ export const NAV_WORKSPACES: readonly NavWorkspace[] = [
     icon: Store,
     primaryHref: "/turfcasa",
     tools: [
-      { label: "Overview",  href: "/turfcasa" },
-      { label: "Orders",    href: "/turfcasa/orders" },
-      { label: "New Order", href: "/turfcasa/orders/new" },
-      { label: "Catalog",   href: "/turfcasa/catalog" },
+      { label: "Overview",       href: "/turfcasa" },
+      { label: "Orders",         href: "/turfcasa/orders" },
+      { label: "New Order",      href: "/turfcasa/orders/new" },
+      { label: "Catalog",        href: "/turfcasa/catalog" },
+      { label: "Call Customers", href: "/sales/dialer/new?brand=turfcasa" },
     ],
     prefixes: ["/turfcasa"],
   },

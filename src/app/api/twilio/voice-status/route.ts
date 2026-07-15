@@ -37,13 +37,34 @@ export async function POST(req: Request): Promise<Response> {
   const { params } = check;
   const url = new URL(req.url);
   const dealId = url.searchParams.get("dealId");
+  const attemptId = url.searchParams.get("attemptId");
   const direction = url.searchParams.get("direction") === "inbound" ? "inbound" : "outbound";
   const status = params.CallStatus ?? "";
 
-  if (status !== "completed" || !dealId) return new Response("ok", { status: 200 });
+  if (status !== "completed") return new Response("ok", { status: 200 });
 
   const durationSec = Number.parseInt(params.CallDuration ?? "0", 10) || 0;
   const callSid = params.CallSid ?? null;
+
+  // Dialer calls: fill the mechanical half of the attempt row (duration +
+  // Twilio status). The human disposition is logged separately by the rep
+  // (spec §6). attemptId rides the signed query string; call_sid is the
+  // fallback match for older in-flight calls.
+  if (attemptId || callSid) {
+    try {
+      const sb = createServiceClient();
+      const patch = { duration_sec: durationSec, twilio_status: status };
+      const q = sb.from("call_attempts").update(patch);
+      await (attemptId ? q.eq("id", attemptId) : q.eq("call_sid", callSid!));
+    } catch (err) {
+      Sentry.captureException(err, {
+        tags: { webhook: "twilio", route: "voice-status" },
+        extra: { attemptId, callSid },
+      });
+    }
+  }
+
+  if (!dealId) return new Response("ok", { status: 200 });
 
   try {
     const sb = createServiceClient();

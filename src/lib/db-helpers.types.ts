@@ -200,3 +200,11 @@ export type TurfcasaOrderLineInsert = Database["public"]["Tables"]["turfcasa_ord
 
 // ---- Marketing OS: Ad Lab swipes ---------------------------------------------
 export type MarketingAdSwipe = Database["public"]["Tables"]["marketing_ad_swipes"]["Row"]
+
+// ---- Calling suite: power dialer (Phase 1) -----------------------------------
+export type CallList           = Database["public"]["Tables"]["call_lists"]["Row"]
+export type CallListInsert     = Database["public"]["Tables"]["call_lists"]["Insert"]
+export type CallListItem       = Database["public"]["Tables"]["call_list_items"]["Row"]
+export type CallListItemInsert = Database["public"]["Tables"]["call_list_items"]["Insert"]
+export type CallAttempt        = Database["public"]["Tables"]["call_attempts"]["Row"]
+export type CallAttemptInsert  = Database["public"]["Tables"]["call_attempts"]["Insert"]

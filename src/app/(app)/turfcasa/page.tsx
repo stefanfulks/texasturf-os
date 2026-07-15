@@ -85,6 +85,9 @@ export default async function TurfcasaOverviewPage() {
             <Link href="/turfcasa/orders" className="btn">
               Order board
             </Link>
+            <Link href="/sales/dialer/new?brand=turfcasa" className="btn">
+              Call customers
+            </Link>
           </div>
         </div>
       </div>
